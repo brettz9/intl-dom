@@ -6,6 +6,12 @@ This library allows applications to discover locale files (even untrusted ones)
 and utilize the strings while inserting DOM elements amidst them, returning a
 document fragment.
 
+This allows locales to specify the sequence of elements through placeholders
+without actually containing the technically-oriented and potentially unsafe
+HTML. Projects need not be shoe-horned into always appending any HTML
+after localized strings of text, but allowing them to be interspersed within
+the text (e.g., for localized links or buttons).
+
 ## Installation
 
 ```shell
