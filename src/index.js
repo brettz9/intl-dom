@@ -2,22 +2,13 @@
 //   of the same name present)
 // Todo: Make localization strategy customizable (e.g., not necessarily
 //   getting on `message` property); provide two named options
-/**
-Example:
 
-```js
-promiseChainForValues(['a', 'b', 'c'], (val) => {
-  return new Promise(function (resolve, reject) {
-    if (val === 'a') {
-      reject(new Error('missing'));
-    }
-    setTimeout(() => {
-      resolve(val);
-    }, 100);
-  });
-});
-```
+/**
+* @callback PromiseChainCallback
+* @param {any}
+* @returns {Promise<any>|any}
 */
+
 /**
  * The given array will have its items processed in series; if the supplied
  *  callback, when passed the current item, returns a Promise or value that
@@ -28,16 +19,29 @@ promiseChainForValues(['a', 'b', 'c'], (val) => {
  *  a promise (or final result value) which resolves to a result or which
  *  rejects so that the next item in the array can be checked in series.
  * @param {Array<any>} values Array of values
- * @param {Function} cb Accepts an item of the array as its single argument
+ * @param {PromiseChainCallback} errBack Accepts an item of the array as its
+ *   single argument
  * @returns {Promise<any>} Either resolves to a value derived from an item in
  *  the array or rejects if all items reject
+ * @example ```js
+ promiseChainForValues(['a', 'b', 'c'], (val) => {
+   return new Promise(function (resolve, reject) {
+     if (val === 'a') {
+       reject(new Error('missing'));
+     }
+     setTimeout(() => {
+       resolve(val);
+     }, 100);
+   });
+ });
+ ```
  */
-const promiseChainForValues = (values, cb) => {
+const promiseChainForValues = (values, errBack) => {
   return values.reduce(async (p, value) => {
     try {
       return await p; // We'd short-circuit here instead if we could
     } catch (err) {
-      return cb(value);
+      return errBack(value);
     }
   }, Promise.reject(
     new Error('Intentionally reject so as to begin checking chain')
@@ -47,8 +51,20 @@ const promiseChainForValues = (values, cb) => {
 // Todo: Separate out locale retrieval logic from parsing logic and export both!
 
 /**
- *
- * @param {string[]} locales BCP-47 language strings
+* @callback DefaultResolver
+* @param {string} key
+* @param {} strings
+*/
+
+/**
+ * @param {PlainObject} [cfg]
+ * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
+ * @param {string[]} [cfg.defaultLocales=['en-US']]
+ * @param {DefaultResolver|false|} [cfg.defaults]
+ * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
+ * @param {boolean} [cfg.forceNodeReturn=false]
+ * @param {string} [cfg.localesBasePath='.']
+ * @param {} [cfg.localeResolver]
  * @returns {Promise} Promise that 1) resolves to a function which a) checks
  *  a key against an object of strings, b) optionally accepts an object of
  *  substitutions which are used when finding text within curly brackets
@@ -100,7 +116,7 @@ export const i18n = async function i18n ({
             ? (() => {
               throw new Error(`Key not found: (${key})`);
             })()
-            : defaults
+            : defaults[key].message
 
     );
     if (!substitutions) {
