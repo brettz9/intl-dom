@@ -13,6 +13,7 @@ module.exports = {
     polyfills: [
       'Error',
       'fetch',
+      'Promise',
       'Promise.reject'
     ]
   },
@@ -26,7 +27,12 @@ module.exports = {
       'padded-blocks': ['off'],
       'import/unambiguous': ['off'],
       'import/no-unresolved': ['off'],
-      'node/no-missing-import': ['off']
+      'node/no-missing-import': ['off'],
+
+      'promise/avoid-new': 0,
+
+      // Disable until https://github.com/gajus/eslint-plugin-jsdoc/issues/211
+      'indent': 0
     }
   }],
   globals: {

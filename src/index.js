@@ -24,7 +24,7 @@
  *   single argument
  * @returns {Promise<any>} Either resolves to a value derived from an item in
  *  the array or rejects if all items reject
- * @example ```js
+ * @example
  promiseChainForValues(['a', 'b', 'c'], (val) => {
    return new Promise(function (resolve, reject) {
      if (val === 'a') {
@@ -35,7 +35,6 @@
      }, 100);
    });
  });
- ```
  */
 const promiseChainForValues = (values, errBack) => {
   return values.reduce(async (p, value) => {
