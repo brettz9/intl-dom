@@ -385,7 +385,7 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
 
   var checkMissingSuppliedFormatters = function checkMissingSuppliedFormatters(ky) {
     if (throwOnMissingSuppliedFormatters && !(ky in substitutions)) {
-      throw new Error("Missing formatting key ".concat(ky));
+      throw new Error("Missing formatting key: ".concat(ky));
     }
   };
 

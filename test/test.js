@@ -591,28 +591,108 @@ describe('getDOMForLocaleString', function () {
       expect(string).to.have.text('message message');
     }
   );
-  /*
-  // Todo
-  getDOMForLocaleString({
-    string,
-    substitutions = false,
-    dom = false,
-    forceNodeReturn = false,
-    throwOnMissingSuppliedFormatters = true,
-    throwOnExtraSuppliedFormatters = true,
-    bracketRegex = /(\\*)\{([^}]*?)(?:\|([^}]*))?\}/gu
+
+  it('should throw with missing supplied formatters', function () {
+    expect(() => {
+      getDOMForLocaleString({
+        string: 'A {msg}',
+        forceNodeReturn: true,
+        substitutions: {
+        }
+      });
+    }).to.throw(
+      Error,
+      'Missing formatting key: msg'
+    );
+
+    expect(() => {
+      getDOMForLocaleString({
+        string: 'A {msg}',
+        forceNodeReturn: true,
+        throwOnMissingSuppliedFormatters: true,
+        substitutions: {
+        }
+      });
+    }).to.throw(
+      Error,
+      'Missing formatting key: msg'
+    );
   });
-  */
+
+  it(
+    'should throw with missing supplied formatters and ' +
+    '`throwOnMissingSuppliedFormatters` disabled',
+    function () {
+      expect(() => {
+        getDOMForLocaleString({
+          string: 'A {msg}',
+          forceNodeReturn: true,
+          throwOnMissingSuppliedFormatters: false,
+          substitutions: {
+          }
+        });
+      }).to.not.throw();
+    }
+  );
+
+  it('should throw with extra supplied formatters', function () {
+    expect(() => {
+      getDOMForLocaleString({
+        string: 'A {msg}',
+        forceNodeReturn: true,
+        substitutions: {
+          msg: 'message',
+          anExtraOne: 'why am I here?'
+        }
+      });
+    }).to.throw(
+      Error,
+      'Extra formatting key: anExtraOne'
+    );
+
+    expect(() => {
+      getDOMForLocaleString({
+        string: 'A {msg}',
+        forceNodeReturn: true,
+        throwOnExtraSuppliedFormatters: true,
+        substitutions: {
+          msg: 'message',
+          anExtraOne: 'why am I here?'
+        }
+      });
+    }).to.throw(
+      Error,
+      'Extra formatting key: anExtraOne'
+    );
+  });
+
+  it(
+    'should not throw with extra supplied formatters and ' +
+    '`throwOnExtraSuppliedFormatters` disabled',
+    function () {
+      expect(() => {
+        getDOMForLocaleString({
+          string: 'A {msg}',
+          forceNodeReturn: true,
+          throwOnExtraSuppliedFormatters: false,
+          substitutions: {
+            msg: 'message',
+            anExtraOne: 'why am I here?'
+          }
+        });
+      }).to.not.throw();
+    }
+  );
   // Todo: Multiple substitutions and multiple replacements
   //   within a string of same key (with DOM substitutions)
 });
 
 describe('findLocaleStrings', function () {
-  // Todo; also test empty arguments
+  // Todo: also test empty arguments
 });
 
 describe('i18n', function () {
-  // Todo; also test empty arguments
+  // Todo: also test empty arguments
   // Todo: Ensure coverage is complete
   // Todo: Add browser test
   // Todo: Document

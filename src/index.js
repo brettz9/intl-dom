@@ -261,7 +261,7 @@ export const getDOMForLocaleString = ({
   };
   const checkMissingSuppliedFormatters = (ky) => {
     if (throwOnMissingSuppliedFormatters && !(ky in substitutions)) {
-      throw new Error(`Missing formatting key ${ky}`);
+      throw new Error(`Missing formatting key: ${ky}`);
     }
   };
 
