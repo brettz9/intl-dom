@@ -379,9 +379,9 @@ describe('getDOMForLocaleString', function () {
 });
 
 describe('findLocaleStrings', function () {
-  // Todo
+  // Todo; also test empty arguments
 });
 
 describe('i18n', function () {
-  // Todo
+  // Todo; also test empty arguments
 });

@@ -311,7 +311,7 @@ export const getDOMForLocaleString = ({
 };
 
 /**
- * @param {PlainObject} [cfg]
+ * @param {PlainObject} [cfg={}]
  * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
  * @param {string[]} [cfg.defaultLocales=['en-US']]
  * @param {string} [cfg.localesBasePath='.']
@@ -323,7 +323,7 @@ export const findLocaleStrings = async ({
   defaultLocales = ['en-US'],
   localeResolver = defaultLocaleResolver,
   localesBasePath = '.'
-}) => {
+} = {}) => {
   // eslint-disable-next-line no-return-await
   return await promiseChainForValues(
     [...locales, ...defaultLocales],
@@ -344,7 +344,7 @@ export const findLocaleStrings = async ({
 
 /* eslint-disable max-len */
 /**
- * @param {PlainObject} [cfg]
+ * @param {PlainObject} [cfg={}]
  * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
  * @param {string[]} [cfg.defaultLocales=['en-US']]
  * @param {string} [cfg.localesBasePath='.']
@@ -369,7 +369,7 @@ export const i18n = async function i18n ({
   throwOnMissingSuppliedFormatters,
   throwOnExtraSuppliedFormatters,
   bracketRegex
-}) {
+} = {}) {
   const strings = await findLocaleStrings({
     locales, defaultLocales, localeResolver, localesBasePath
   });

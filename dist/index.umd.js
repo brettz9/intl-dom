@@ -458,7 +458,7 @@
     return container;
   };
   /**
-   * @param {PlainObject} [cfg]
+   * @param {PlainObject} [cfg={}]
    * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
    * @param {string[]} [cfg.defaultLocales=['en-US']]
    * @param {string} [cfg.localesBasePath='.']
@@ -469,16 +469,25 @@
   var findLocaleStrings =
   /*#__PURE__*/
   function () {
-    var _ref6 = _asyncToGenerator(
+    var _ref5 = _asyncToGenerator(
     /*#__PURE__*/
-    regeneratorRuntime.mark(function _callee3(_ref5) {
-      var _ref5$locales, locales, _ref5$defaultLocales, defaultLocales, _ref5$localeResolver, localeResolver, _ref5$localesBasePath, localesBasePath;
+    regeneratorRuntime.mark(function _callee3() {
+      var _ref6,
+          _ref6$locales,
+          locales,
+          _ref6$defaultLocales,
+          defaultLocales,
+          _ref6$localeResolver,
+          localeResolver,
+          _ref6$localesBasePath,
+          localesBasePath,
+          _args3 = arguments;
 
       return regeneratorRuntime.wrap(function _callee3$(_context3) {
         while (1) {
           switch (_context3.prev = _context3.next) {
             case 0:
-              _ref5$locales = _ref5.locales, locales = _ref5$locales === void 0 ? navigator.languages : _ref5$locales, _ref5$defaultLocales = _ref5.defaultLocales, defaultLocales = _ref5$defaultLocales === void 0 ? ['en-US'] : _ref5$defaultLocales, _ref5$localeResolver = _ref5.localeResolver, localeResolver = _ref5$localeResolver === void 0 ? defaultLocaleResolver : _ref5$localeResolver, _ref5$localesBasePath = _ref5.localesBasePath, localesBasePath = _ref5$localesBasePath === void 0 ? '.' : _ref5$localesBasePath;
+              _ref6 = _args3.length > 0 && _args3[0] !== undefined ? _args3[0] : {}, _ref6$locales = _ref6.locales, locales = _ref6$locales === void 0 ? navigator.languages : _ref6$locales, _ref6$defaultLocales = _ref6.defaultLocales, defaultLocales = _ref6$defaultLocales === void 0 ? ['en-US'] : _ref6$defaultLocales, _ref6$localeResolver = _ref6.localeResolver, localeResolver = _ref6$localeResolver === void 0 ? defaultLocaleResolver : _ref6$localeResolver, _ref6$localesBasePath = _ref6.localesBasePath, localesBasePath = _ref6$localesBasePath === void 0 ? '.' : _ref6$localesBasePath;
               _context3.next = 3;
               return promiseChainForValues([].concat(_toConsumableArray(locales), _toConsumableArray(defaultLocales)),
               /*#__PURE__*/
@@ -525,7 +534,7 @@
                   }, _callee2, null, [[1, 9]]);
                 }));
 
-                function getLocale(_x2) {
+                function getLocale(_x) {
                   return _getLocale.apply(this, arguments);
                 }
 
@@ -543,14 +552,14 @@
       }, _callee3);
     }));
 
-    return function findLocaleStrings(_x) {
-      return _ref6.apply(this, arguments);
+    return function findLocaleStrings() {
+      return _ref5.apply(this, arguments);
     };
   }();
   /* eslint-disable max-len */
 
   /**
-   * @param {PlainObject} [cfg]
+   * @param {PlainObject} [cfg={}]
    * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
    * @param {string[]} [cfg.defaultLocales=['en-US']]
    * @param {string} [cfg.localesBasePath='.']
@@ -569,13 +578,27 @@
   function () {
     var _i18n = _asyncToGenerator(
     /*#__PURE__*/
-    regeneratorRuntime.mark(function _callee4(_ref7) {
-      var locales, defaultLocales, localesBasePath, localeResolver, defaults, messageStyle, forceNodeReturn, throwOnMissingSuppliedFormatters, throwOnExtraSuppliedFormatters, bracketRegex, strings, messageForKey;
+    regeneratorRuntime.mark(function _callee4() {
+      var _ref7,
+          locales,
+          defaultLocales,
+          localesBasePath,
+          localeResolver,
+          defaults,
+          messageStyle,
+          forceNodeReturn,
+          throwOnMissingSuppliedFormatters,
+          throwOnExtraSuppliedFormatters,
+          bracketRegex,
+          strings,
+          messageForKey,
+          _args4 = arguments;
+
       return regeneratorRuntime.wrap(function _callee4$(_context4) {
         while (1) {
           switch (_context4.prev = _context4.next) {
             case 0:
-              locales = _ref7.locales, defaultLocales = _ref7.defaultLocales, localesBasePath = _ref7.localesBasePath, localeResolver = _ref7.localeResolver, defaults = _ref7.defaults, messageStyle = _ref7.messageStyle, forceNodeReturn = _ref7.forceNodeReturn, throwOnMissingSuppliedFormatters = _ref7.throwOnMissingSuppliedFormatters, throwOnExtraSuppliedFormatters = _ref7.throwOnExtraSuppliedFormatters, bracketRegex = _ref7.bracketRegex;
+              _ref7 = _args4.length > 0 && _args4[0] !== undefined ? _args4[0] : {}, locales = _ref7.locales, defaultLocales = _ref7.defaultLocales, localesBasePath = _ref7.localesBasePath, localeResolver = _ref7.localeResolver, defaults = _ref7.defaults, messageStyle = _ref7.messageStyle, forceNodeReturn = _ref7.forceNodeReturn, throwOnMissingSuppliedFormatters = _ref7.throwOnMissingSuppliedFormatters, throwOnExtraSuppliedFormatters = _ref7.throwOnExtraSuppliedFormatters, bracketRegex = _ref7.bracketRegex;
               _context4.next = 3;
               return findLocaleStrings({
                 locales: locales,
@@ -628,7 +651,7 @@
       }, _callee4);
     }));
 
-    function i18n(_x3) {
+    function i18n() {
       return _i18n.apply(this, arguments);
     }
 
