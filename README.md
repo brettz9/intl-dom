@@ -41,6 +41,27 @@ import 'regenerator-runtime';
 import {IntlDom} from 'intl-dom';
 ```
 
+### Node
+
+```js
+// `jsdom` or such is needed for:
+//   `getDOMForLocaleString`, `findLocaleStrings`, `i18n`
+const {JSDOM} = require('jsdom');
+const {
+  promiseChainForValues,
+  defaultLocaleResolver,
+  getMessageForKeyByStyle,
+  getStringFromMessageAndDefaults,
+  getDOMForLocaleString,
+  findLocaleStrings,
+  i18n
+} = require('intl-dom');
+
+global.document = (new JSDOM()).window.document;
+
+// Now you can use the `intl-dom` methods
+```
+
 ## Usage
 
 ```js

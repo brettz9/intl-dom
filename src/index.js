@@ -220,7 +220,7 @@ export const getStringFromMessageAndDefaults = ({
  *
  * @param {PlainObject} cfg
  * @param {string} cfg.string
- * @param {false|SubstitutionObject} [cfg.substitutions={}]
+ * @param {false|SubstitutionObject} [cfg.substitutions=false]
  * @param {boolean} [cfg.dom=false]
  * @param {boolean} [cfg.forceNodeReturn=false]
  * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
@@ -230,7 +230,7 @@ export const getStringFromMessageAndDefaults = ({
  */
 export const getDOMForLocaleString = ({
   string,
-  substitutions = {},
+  substitutions = false,
   dom = false,
   forceNodeReturn = false,
   throwOnMissingSuppliedFormatters = true,
@@ -267,6 +267,9 @@ export const getDOMForLocaleString = ({
 
   if (!substitutions && !throwOnMissingSuppliedFormatters) {
     return stringOrTextNode(string);
+  }
+  if (!substitutions) {
+    substitutions = {};
   }
   // Give chance to avoid this block when known to contain DOM
   if (!dom) {

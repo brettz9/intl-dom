@@ -1,3 +1,7 @@
+import chai from 'chai';
+import chaiDOM from 'chai-dom';
+import {JSDOM} from 'jsdom';
+
 import {
   promiseChainForValues,
   defaultLocaleResolver,
@@ -7,6 +11,10 @@ import {
   findLocaleStrings,
   i18n
 } from '../src/index.js';
+
+chai.use(chaiDOM);
+
+global.document = (new JSDOM()).window.document;
 
 describe('API', function () {
   it('should export functions', function () {
@@ -424,6 +432,28 @@ describe('getDOMForLocaleString', function () {
       'An options object with a `string` property set to a string must ' +
       'be provided for `getDOMForLocaleString`.'
     );
+  });
+  it('should return string', function () {
+    const string = getDOMForLocaleString({
+      string: 'simple message',
+      throwOnMissingSuppliedFormatters: false
+    });
+    expect(string).to.equal('simple message');
+  });
+  it('should return string text node (with `forceNodeReturn`)', function () {
+    const string = getDOMForLocaleString({
+      string: 'simple message',
+      forceNodeReturn: true,
+      throwOnMissingSuppliedFormatters: false
+    });
+    expect(string).to.have.text('simple message');
+  });
+  it('should return string text node (with `dom`)', function () {
+    const string = getDOMForLocaleString({
+      string: 'simple message',
+      dom: true
+    });
+    expect(string).to.have.text('simple message');
   });
   /*
   // Todo
