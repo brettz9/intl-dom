@@ -487,5 +487,6 @@ describe('findLocaleStrings', function () {
 describe('i18n', function () {
   // Todo; also test empty arguments
   // Todo: Ensure coverage is complete
-  // Todo: Add browser coverage
+  // Todo: Add browser test
+  // Todo: Document
 });

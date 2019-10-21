@@ -202,8 +202,8 @@
   /**
   * @callback SubstitutionCallback
   * @param {string} arg Accepts the third portion of the `bracketRegex` of
-  *   `i18n`, i.e., the non-bracketed segments of text from the locale string
-  *   following a bracketed segment.
+  *   `i18n`, i.e., to allow the locale to supply arguments back to the
+  *   calling script.
   * @returns {string} The replacement text
   */
 
@@ -422,7 +422,7 @@
 
         returnsDOM = returnsDOM || substitution && substitution.nodeType === 1;
         usedKeys.push(ky);
-        return substitution;
+        return esc + substitution;
       });
       checkExtraSuppliedFormatters();
 
@@ -455,6 +455,10 @@
 
       if (startBracketPos > previousIndex) {
         nodes.push(string.slice(previousIndex, startBracketPos));
+      }
+
+      if (esc.length) {
+        nodes.push(esc);
       }
 
       checkMissingSuppliedFormatters(ky);
