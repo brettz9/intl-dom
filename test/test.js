@@ -406,18 +406,37 @@ describe('getStringFromMessageAndDefaults', function () {
 });
 
 describe('getDOMForLocaleString', function () {
-  // Todo
-  // also test erring on empty string argument or empty non-object
+  it('should throw with bad arguments', function () {
+    expect(() => {
+      getDOMForLocaleString();
+    }).to.throw(
+      TypeError,
+      'An options object with a `string` property set to a string must ' +
+      'be provided for `getDOMForLocaleString`.'
+    );
+
+    expect(() => {
+      getDOMForLocaleString({
+        string: null
+      });
+    }).to.throw(
+      TypeError,
+      'An options object with a `string` property set to a string must ' +
+      'be provided for `getDOMForLocaleString`.'
+    );
+  });
   // Todo: Ensure coverage is complete
   /*
-  getDOMForLocaleString({});
-  string,
-  substitutions = false,
-  dom = false,
-  forceNodeReturn = false,
-  throwOnMissingSuppliedFormatters = true,
-  throwOnExtraSuppliedFormatters = true,
-  bracketRegex = /(\\*)\{([^}]*?)(?:\|([^}]*))?\}/gu
+  // Todo
+  getDOMForLocaleString({
+    string,
+    substitutions = false,
+    dom = false,
+    forceNodeReturn = false,
+    throwOnMissingSuppliedFormatters = true,
+    throwOnExtraSuppliedFormatters = true,
+    bracketRegex = /(\\*)\{([^}]*?)(?:\|([^}]*))?\}/gu
+  });
   */
 });
 
