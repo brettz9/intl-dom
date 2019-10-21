@@ -15,6 +15,7 @@ module.exports = {
   },
   settings: {
     polyfills: [
+      'Array.isArray',
       'Error',
       'fetch',
       'Promise',

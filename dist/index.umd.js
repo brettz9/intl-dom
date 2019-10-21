@@ -149,12 +149,18 @@
      });
    });
    */
-  var promiseChainForValues =
-  /*#__PURE__*/
-  function () {
-    var _ref = _asyncToGenerator(
+  var promiseChainForValues = function promiseChainForValues(values, errBack) {
+    if (!Array.isArray(values)) {
+      throw new TypeError('The `values` argument to `promiseChainForValues` must be an array.');
+    }
+
+    if (typeof errBack !== 'function') {
+      throw new TypeError('The `errBack` argument to `promiseChainForValues` must be a function.');
+    }
+
+    return _asyncToGenerator(
     /*#__PURE__*/
-    regeneratorRuntime.mark(function _callee(values, errBack) {
+    regeneratorRuntime.mark(function _callee() {
       var ret, p, value;
       return regeneratorRuntime.wrap(function _callee$(_context) {
         while (1) {
@@ -191,12 +197,8 @@
           }
         }
       }, _callee, null, [[3, 10]]);
-    }));
-
-    return function promiseChainForValues(_x, _x2) {
-      return _ref.apply(this, arguments);
-    };
-  }();
+    }))();
+  };
   /**
   * @callback SubstitutionCallback
   * @param {string} arg Accepts the second portion of the `bracketRegex` of
@@ -482,7 +484,7 @@
                   }, _callee2, null, [[1, 9]]);
                 }));
 
-                function getLocale(_x4) {
+                function getLocale(_x2) {
                   return _getLocale.apply(this, arguments);
                 }
 
@@ -500,7 +502,7 @@
       }, _callee3);
     }));
 
-    return function findLocaleStrings(_x3) {
+    return function findLocaleStrings(_x) {
       return _ref6.apply(this, arguments);
     };
   }();
@@ -581,7 +583,7 @@
       }, _callee4);
     }));
 
-    function i18n(_x5) {
+    function i18n(_x3) {
       return _i18n.apply(this, arguments);
     }
 

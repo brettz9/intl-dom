@@ -23,6 +23,23 @@ describe('API', function () {
 
 /* eslint-disable promise/avoid-new */
 describe('promiseChainForValues', function () {
+  it('Should throw with bad arguments', function () {
+    expect(() => {
+      promiseChainForValues('nonArrayValues', () => {
+        // Empty
+      });
+    }).to.throw(
+      TypeError,
+      'The `values` argument to `promiseChainForValues` must be an array.'
+    );
+
+    expect(() => {
+      promiseChainForValues(['ok'], 'notAFunction');
+    }).to.throw(
+      TypeError,
+      'The `errBack` argument to `promiseChainForValues` must be a function.'
+    );
+  });
   it('Should properly resolve without any rejections', async function () {
     let errbackCount = 0;
     const val = await promiseChainForValues(['a', 'b', 'c'], (v) => {

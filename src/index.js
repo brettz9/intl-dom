@@ -31,22 +31,34 @@
    });
  });
  */
-export const promiseChainForValues = async (values, errBack) => {
-  let ret;
-  let p = Promise.reject(
-    new Error('Intentionally reject so as to begin checking chain')
-  );
-  while (true) {
-    const value = values.shift();
-    try {
-      // eslint-disable-next-line no-await-in-loop
-      ret = await p;
-      break;
-    } catch (err) {
-      p = errBack(value);
-    }
+export const promiseChainForValues = (values, errBack) => {
+  if (!Array.isArray(values)) {
+    throw new TypeError(
+      'The `values` argument to `promiseChainForValues` must be an array.'
+    );
   }
-  return ret;
+  if (typeof errBack !== 'function') {
+    throw new TypeError(
+      'The `errBack` argument to `promiseChainForValues` must be a function.'
+    );
+  }
+  return (async () => {
+    let ret;
+    let p = Promise.reject(
+      new Error('Intentionally reject so as to begin checking chain')
+    );
+    while (true) {
+      const value = values.shift();
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        ret = await p;
+        break;
+      } catch (err) {
+        p = errBack(value);
+      }
+    }
+    return ret;
+  })();
 };
 
 /**
