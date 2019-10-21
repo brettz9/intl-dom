@@ -7,7 +7,8 @@
   "scripts": {
     "eslint": "eslint --ext=js,md,html .",
     "rollup": "rollup -c",
-    "test": "npm run eslint && npm run rollup && echo \"Error: no test specified\" && exit 1"
+    "mocha": "mocha --require esm --require chai/register-expect",
+    "test": "npm run eslint && npm run rollup && npm run mocha"
   },
   "browserslist": [
     "cover 100%"
@@ -38,10 +39,13 @@
     "@babel/core": "^7.6.4",
     "@babel/preset-env": "^7.6.3",
     "@mysticatea/eslint-plugin": "^12.0.0",
+    "chai": "^4.2.0",
     "eslint": "^6.5.1",
     "eslint-config-ash-nazg": "^11.0.1",
     "eslint-config-standard": "^14.1.0",
     "eslint-plugin-array-func": "^3.1.3",
+    "eslint-plugin-chai-expect": "^2.0.1",
+    "eslint-plugin-chai-friendly": "^0.4.1",
     "eslint-plugin-compat": "^3.3.0",
     "eslint-plugin-eslint-comments": "^3.1.2",
     "eslint-plugin-html": "^6.0.0",
@@ -54,6 +58,8 @@
     "eslint-plugin-sonarjs": "^0.4.0",
     "eslint-plugin-standard": "^4.0.1",
     "eslint-plugin-unicorn": "^12.1.0",
+    "esm": "^3.2.25",
+    "mocha": "^6.2.2",
     "rollup": "^1.25.1",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-terser": "^5.1.2",
