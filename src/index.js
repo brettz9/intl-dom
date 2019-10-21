@@ -86,8 +86,8 @@ export const promiseChainForValues = (values, errBack) => {
 
 /**
  * @callback LocaleResolver
- * @param {string} locale BCP-47 language string
  * @param {string} localesBasePth (Trailing slash optional)
+ * @param {string} locale BCP-47 language string
  * @returns {string} URL of the locale file to be fetched
 */
 
@@ -116,18 +116,18 @@ export const promiseChainForValues = (values, errBack) => {
 /**
  * @type {LocaleResolver}
  */
-export const defaultLocaleResolver = (locale, localesBasePth) => {
+export const defaultLocaleResolver = (localesBasePath, locale) => {
+  if (typeof localesBasePath !== 'string') {
+    throw new TypeError(
+      '`defaultLocaleResolver` expects a string `localesBasePath`.'
+    );
+  }
   if (typeof locale !== 'string') {
     throw new TypeError(
-      '`defaultLocaleResolver` expects a string locale.'
+      '`defaultLocaleResolver` expects a string `locale`.'
     );
   }
-  if (typeof localesBasePth !== 'string') {
-    throw new TypeError(
-      '`defaultLocaleResolver` expects a string localesBasePath.'
-    );
-  }
-  return `${localesBasePth.replace(/\/$/u, '')}/_locales/${locale}/messages.json`;
+  return `${localesBasePath.replace(/\/$/u, '')}/_locales/${locale}/messages.json`;
 };
 
 /**
@@ -350,7 +350,7 @@ export const findLocaleStrings = async ({
   return await promiseChainForValues(
     [...locales, ...defaultLocales],
     async function getLocale (locale) {
-      const url = localeResolver(locale, localesBasePath);
+      const url = localeResolver(localesBasePath, locale);
       try {
         return await (await fetch(url)).json();
       } catch (err) {

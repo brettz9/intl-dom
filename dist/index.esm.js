@@ -218,8 +218,8 @@ var promiseChainForValues = function promiseChainForValues(values, errBack) {
 
 /**
  * @callback LocaleResolver
- * @param {string} locale BCP-47 language string
  * @param {string} localesBasePth (Trailing slash optional)
+ * @param {string} locale BCP-47 language string
  * @returns {string} URL of the locale file to be fetched
 */
 
@@ -249,16 +249,16 @@ var promiseChainForValues = function promiseChainForValues(values, errBack) {
  * @type {LocaleResolver}
  */
 
-var defaultLocaleResolver = function defaultLocaleResolver(locale, localesBasePth) {
+var defaultLocaleResolver = function defaultLocaleResolver(localesBasePath, locale) {
+  if (typeof localesBasePath !== 'string') {
+    throw new TypeError('`defaultLocaleResolver` expects a string `localesBasePath`.');
+  }
+
   if (typeof locale !== 'string') {
-    throw new TypeError('`defaultLocaleResolver` expects a string locale.');
+    throw new TypeError('`defaultLocaleResolver` expects a string `locale`.');
   }
 
-  if (typeof localesBasePth !== 'string') {
-    throw new TypeError('`defaultLocaleResolver` expects a string localesBasePath.');
-  }
-
-  return "".concat(localesBasePth.replace(/\/$/, ''), "/_locales/").concat(locale, "/messages.json");
+  return "".concat(localesBasePath.replace(/\/$/, ''), "/_locales/").concat(locale, "/messages.json");
 };
 /**
 * @callback MessageStyleCallback
@@ -513,7 +513,7 @@ function () {
                   while (1) {
                     switch (_context2.prev = _context2.next) {
                       case 0:
-                        url = localeResolver(locale, localesBasePath);
+                        url = localeResolver(localesBasePath, locale);
                         _context2.prev = 1;
                         _context2.next = 4;
                         return fetch(url);

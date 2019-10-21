@@ -10,7 +10,7 @@ import {
 } from '../dist/index.esm.js';
 
 describe('API', function () {
-  it('Should export functions', function () {
+  it('should export functions', function () {
     expect(promiseChainForValues).to.be.a('function');
     expect(defaultLocaleResolver).to.be.a('function');
     expect(getMessageForKeyByStyle).to.be.a('function');
@@ -23,7 +23,7 @@ describe('API', function () {
 
 /* eslint-disable promise/avoid-new */
 describe('promiseChainForValues', function () {
-  it('Should throw with bad arguments', function () {
+  it('should throw with bad arguments', function () {
     expect(() => {
       promiseChainForValues('nonArrayValues', () => {
         // Empty
@@ -40,7 +40,7 @@ describe('promiseChainForValues', function () {
       'The `errBack` argument to `promiseChainForValues` must be a function.'
     );
   });
-  it('Should properly resolve without any rejections', async function () {
+  it('should properly resolve without any rejections', async function () {
     let errbackCount = 0;
     const val = await promiseChainForValues(['a', 'b', 'c'], (v) => {
       errbackCount++;
@@ -53,7 +53,7 @@ describe('promiseChainForValues', function () {
     expect(val).to.equal('a');
     expect(errbackCount, 'should short-circuit').to.equal(1);
   });
-  it('Should properly accept rejection and continue', async function () {
+  it('should properly accept rejection and continue', async function () {
     let errbackCount = 0;
     const val = await promiseChainForValues(['a', 'b', 'c'], (v) => {
       errbackCount++;
@@ -70,7 +70,7 @@ describe('promiseChainForValues', function () {
     expect(errbackCount, 'should short-circuit').to.equal(2);
   });
   it(
-    'Should properly accept multiple rejections and continue',
+    'should properly accept multiple rejections and continue',
     async function () {
       let errbackCount = 0;
       const val = await promiseChainForValues(['a', 'b', 'c'], (v) => {
@@ -92,18 +92,37 @@ describe('promiseChainForValues', function () {
 /* eslint-enable promise/avoid-new */
 
 describe('defaultLocaleResolver', function () {
-  it('Should resolve with no trailing slash base path', function () {
+  it('should throw upon a non-string `localesBasePath`', function () {
+    expect(() => {
+      const nonStringLocale = null;
+      defaultLocaleResolver('/ok/base/path', nonStringLocale);
+    }).to.throw(
+      TypeError,
+      '`defaultLocaleResolver` expects a string `locale`.'
+    );
+  });
+  it('should throw upon a non-string `locale`', function () {
+    expect(() => {
+      const nonStringBasePath = null;
+      const okLocale = 'en';
+      defaultLocaleResolver(nonStringBasePath, okLocale);
+    }).to.throw(
+      TypeError,
+      '`defaultLocaleResolver` expects a string `localesBasePath`.'
+    );
+  });
+  it('should resolve with no trailing slash base path', function () {
     const expected = '/base/path/_locales/en-US/messages.json';
     const locale = 'en-US';
     const localesBasePath = '/base/path';
-    const path = defaultLocaleResolver(locale, localesBasePath);
+    const path = defaultLocaleResolver(localesBasePath, locale);
     expect(path).to.equal(expected);
   });
-  it('Should resolve with a trailing slash base path', function () {
+  it('should resolve with a trailing slash base path', function () {
     const expected = '/base/path/_locales/en-US/messages.json';
     const locale = 'en-US';
     const localesBasePath = '/base/path/';
-    const path = defaultLocaleResolver(locale, localesBasePath);
+    const path = defaultLocaleResolver(localesBasePath, locale);
     expect(path).to.equal(expected);
   });
 });
@@ -162,7 +181,7 @@ describe('getMessageForKeyByStyle', function () {
     });
   });
   describe('Bad style', function () {
-    it('Should throw with an unknown style', function () {
+    it('should throw with an unknown style', function () {
       expect(() => {
         getMessageForKeyByStyle({
           messageStyle: 'badStyle'
@@ -173,6 +192,30 @@ describe('getMessageForKeyByStyle', function () {
 });
 
 describe('getStringFromMessageAndDefaults', function () {
+  it(
+    'should throw with empty argument', function () {
+      expect(() => {
+        getStringFromMessageAndDefaults();
+      }).to.throw(
+        TypeError,
+        'An options object with a `key` string is expected on ' +
+        '`getStringFromMessageAndDefaults`'
+      );
+    }
+  );
+  it(
+    'should throw with non-string key', function () {
+      expect(() => {
+        getStringFromMessageAndDefaults({
+          key: null
+        });
+      }).to.throw(
+        TypeError,
+        'An options object with a `key` string is expected on ' +
+        '`getStringFromMessageAndDefaults`'
+      );
+    }
+  );
   it('should return a string message', function () {
     const string = getStringFromMessageAndDefaults({
       message: 'myKeyValue',
@@ -364,9 +407,6 @@ describe('getStringFromMessageAndDefaults', function () {
 });
 
 describe('getDOMForLocaleString', function () {
-  // Todo: add failing tests above for `getStringFromMessageAndDefaults` and
-  //  `defaultLocaleResolver`
-
   // Todo
   // also test erring on empty string argument or empty non-object
   /*
