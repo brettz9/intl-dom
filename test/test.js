@@ -1,4 +1,3 @@
-import 'regenerator-runtime/runtime.js';
 import {
   promiseChainForValues,
   defaultLocaleResolver,
@@ -7,7 +6,7 @@ import {
   getDOMForLocaleString,
   findLocaleStrings,
   i18n
-} from '../dist/index.esm.js';
+} from '../src/index.js';
 
 describe('API', function () {
   it('should export functions', function () {
@@ -409,6 +408,7 @@ describe('getStringFromMessageAndDefaults', function () {
 describe('getDOMForLocaleString', function () {
   // Todo
   // also test erring on empty string argument or empty non-object
+  // Todo: Ensure coverage is complete
   /*
   getDOMForLocaleString({});
   string,

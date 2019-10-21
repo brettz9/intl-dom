@@ -8,7 +8,9 @@
     "eslint": "eslint --ext=js,md,html .",
     "rollup": "rollup -c",
     "mocha": "mocha --require esm --require chai/register-expect",
-    "test": "npm run eslint && npm run rollup && npm run mocha"
+    "nyc": "nyc mocha --require esm --require chai/register-expect",
+    "test": "npm run eslint && npm run rollup && npm run mocha",
+    "test-cov": "npm run eslint && npm run rollup && npm run nyc"
   },
   "browserslist": [
     "cover 100%"
@@ -60,6 +62,7 @@
     "eslint-plugin-unicorn": "^12.1.0",
     "esm": "^3.2.25",
     "mocha": "^6.2.2",
+    "nyc": "^14.1.1",
     "rollup": "^1.25.1",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-terser": "^5.1.2",
