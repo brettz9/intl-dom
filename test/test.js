@@ -171,3 +171,19 @@ describe('getMessageForKeyByStyle', function () {
     });
   });
 });
+
+describe('getStringFromMessageAndDefaults', function () {
+
+});
+
+describe('getDOMForLocaleString', function () {
+
+});
+
+describe('findLocaleStrings', function () {
+
+});
+
+describe('i18n', function () {
+
+});
