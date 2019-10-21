@@ -448,6 +448,17 @@ describe('getDOMForLocaleString', function () {
     });
     expect(string).to.have.text('simple message');
   });
+  it(
+    'should return string text node (with `forceNodeReturn` ' +
+    'not throwing)',
+    function () {
+      const string = getDOMForLocaleString({
+        string: 'simple message',
+        forceNodeReturn: true
+      });
+      expect(string).to.have.text('simple message');
+    }
+  );
   it('should return string text node (with `dom`)', function () {
     const string = getDOMForLocaleString({
       string: 'simple message',
