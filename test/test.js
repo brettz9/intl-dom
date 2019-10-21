@@ -364,8 +364,11 @@ describe('getStringFromMessageAndDefaults', function () {
 });
 
 describe('getDOMForLocaleString', function () {
-  // Todo
+  // Todo: add failing tests above for `getStringFromMessageAndDefaults` and
+  //  `defaultLocaleResolver`
 
+  // Todo
+  // also test erring on empty string argument or empty non-object
   /*
   getDOMForLocaleString({});
   string,

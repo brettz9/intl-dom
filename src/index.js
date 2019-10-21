@@ -117,6 +117,16 @@ export const promiseChainForValues = (values, errBack) => {
  * @type {LocaleResolver}
  */
 export const defaultLocaleResolver = (locale, localesBasePth) => {
+  if (typeof locale !== 'string') {
+    throw new TypeError(
+      '`defaultLocaleResolver` expects a string locale.'
+    );
+  }
+  if (typeof localesBasePth !== 'string') {
+    throw new TypeError(
+      '`defaultLocaleResolver` expects a string localesBasePath.'
+    );
+  }
   return `${localesBasePth.replace(/\/$/u, '')}/_locales/${locale}/messages.json`;
 };
 
@@ -179,7 +189,13 @@ export const getStringFromMessageAndDefaults = ({
   messageStyle,
   messageForKey = getMessageForKeyByStyle({messageStyle}),
   key
-}) => {
+} = {}) => {
+  if (typeof key !== 'string') {
+    throw new TypeError(
+      'An options object with a `key` string is expected on ' +
+      '`getStringFromMessageAndDefaults`'
+    );
+  }
   // NECESSARY CHECK FOR SECURITY ON UNTRUSTED LOCALES
   const str = typeof message === 'string'
     ? message
@@ -222,7 +238,13 @@ export const getDOMForLocaleString = ({
   // eslint-disable-next-line max-len
   // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
   bracketRegex = /(\\*)\{([^}]*?)(?:\|([^}]*))?\}/gu
-}) => {
+} = {}) => {
+  if (typeof string !== 'string') {
+    throw new TypeError(
+      'An options object with a `string` property set to a string must ' +
+      'be provided for `getDOMForLocaleString`.'
+    );
+  }
   const stringOrTextNode = (str) => {
     return forceNodeReturn ? document.createTextNode(str) : str;
   };

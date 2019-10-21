@@ -250,6 +250,14 @@ var promiseChainForValues = function promiseChainForValues(values, errBack) {
  */
 
 var defaultLocaleResolver = function defaultLocaleResolver(locale, localesBasePth) {
+  if (typeof locale !== 'string') {
+    throw new TypeError('`defaultLocaleResolver` expects a string locale.');
+  }
+
+  if (typeof localesBasePth !== 'string') {
+    throw new TypeError('`defaultLocaleResolver` expects a string localesBasePath.');
+  }
+
   return "".concat(localesBasePth.replace(/\/$/, ''), "/_locales/").concat(locale, "/messages.json");
 };
 /**
@@ -300,8 +308,9 @@ var getMessageForKeyByStyle = function getMessageForKeyByStyle() {
  * @returns {string}
  */
 
-var getStringFromMessageAndDefaults = function getStringFromMessageAndDefaults(_ref3) {
-  var message = _ref3.message,
+var getStringFromMessageAndDefaults = function getStringFromMessageAndDefaults() {
+  var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      message = _ref3.message,
       defaults = _ref3.defaults,
       messageStyle = _ref3.messageStyle,
       _ref3$messageForKey = _ref3.messageForKey,
@@ -309,7 +318,12 @@ var getStringFromMessageAndDefaults = function getStringFromMessageAndDefaults(_
     messageStyle: messageStyle
   }) : _ref3$messageForKey,
       key = _ref3.key;
-  // NECESSARY CHECK FOR SECURITY ON UNTRUSTED LOCALES
+
+  if (typeof key !== 'string') {
+    throw new TypeError('An options object with a `key` string is expected on ' + '`getStringFromMessageAndDefaults`');
+  } // NECESSARY CHECK FOR SECURITY ON UNTRUSTED LOCALES
+
+
   var str = typeof message === 'string' ? message : defaults === false ? false : defaults && _typeof(defaults) === 'object' ? messageForKey(defaults, key) : function () {
     throw new TypeError("Default locale strings must resolve to `false` or an object!");
   }();
@@ -333,8 +347,9 @@ var getStringFromMessageAndDefaults = function getStringFromMessageAndDefaults(_
  * @returns {string|DocumentFragment}
  */
 
-var getDOMForLocaleString = function getDOMForLocaleString(_ref4) {
-  var string = _ref4.string,
+var getDOMForLocaleString = function getDOMForLocaleString() {
+  var _ref4 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      string = _ref4.string,
       _ref4$substitutions = _ref4.substitutions,
       substitutions = _ref4$substitutions === void 0 ? false : _ref4$substitutions,
       _ref4$dom = _ref4.dom,
@@ -347,6 +362,10 @@ var getDOMForLocaleString = function getDOMForLocaleString(_ref4) {
       throwOnExtraSuppliedFormatters = _ref4$throwOnExtraSup === void 0 ? true : _ref4$throwOnExtraSup,
       _ref4$bracketRegex = _ref4.bracketRegex,
       bracketRegex = _ref4$bracketRegex === void 0 ? /(\\*)\{((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*?)(?:\|((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g : _ref4$bracketRegex;
+
+  if (typeof string !== 'string') {
+    throw new TypeError('An options object with a `string` property set to a string must ' + 'be provided for `getDOMForLocaleString`.');
+  }
 
   var stringOrTextNode = function stringOrTextNode(str) {
     return forceNodeReturn ? document.createTextNode(str) : str;
