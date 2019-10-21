@@ -19,6 +19,7 @@ module.exports = {
       'console',
       'Error',
       'fetch',
+      'Object.keys',
       'Promise',
       'Promise.reject'
     ]

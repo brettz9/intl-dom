@@ -333,9 +333,8 @@
    * @param {false|SubstitutionObject} [cfg.substitutions=false]
    * @param {boolean} [cfg.dom=false]
    * @param {boolean} [cfg.forceNodeReturn=false]
-   * @param {boolean} [cfg.throwOnUnsuppliedFormatters=true]
+   * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
    * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
-   * @param {boolean} [cfg.throwOnUnsubstitutedFormatters=true]
    * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
    * @returns {string|DocumentFragment}
    */
@@ -349,7 +348,9 @@
         _ref4$forceNodeReturn = _ref4.forceNodeReturn,
         forceNodeReturn = _ref4$forceNodeReturn === void 0 ? false : _ref4$forceNodeReturn,
         _ref4$throwOnMissingS = _ref4.throwOnMissingSuppliedFormatters,
+        throwOnMissingSuppliedFormatters = _ref4$throwOnMissingS === void 0 ? true : _ref4$throwOnMissingS,
         _ref4$throwOnExtraSup = _ref4.throwOnExtraSuppliedFormatters,
+        throwOnExtraSuppliedFormatters = _ref4$throwOnExtraSup === void 0 ? true : _ref4$throwOnExtraSup,
         _ref4$bracketRegex = _ref4.bracketRegex,
         bracketRegex = _ref4$bracketRegex === void 0 ? /(\\*)\{((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*?)(?:\|((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g : _ref4$bracketRegex;
 
@@ -359,7 +360,8 @@
 
 
     if (!dom) {
-      var returnsDOM = false; // Run this block to optimize non-DOM substitutions
+      var returnsDOM = false;
+      var usedKeys = []; // Run this block to optimize non-DOM substitutions
 
       var ret = string.replace(bracketRegex, function (_, esc, ky, arg) {
         if (esc.length % 2) {
@@ -373,9 +375,22 @@
           substitution = substitution(arg);
         }
 
+        if (throwOnMissingSuppliedFormatters && !(ky in substitutions)) {
+          throw new Error("Missing formatting key ".concat(ky));
+        }
+
         returnsDOM = returnsDOM || substitution && substitution.nodeType === 1;
+        usedKeys.push(ky);
         return substitution;
       });
+
+      if (throwOnExtraSuppliedFormatters) {
+        Object.keys(substitutions).forEach(function (key) {
+          if (!usedKeys.includes(key)) {
+            throw new Error("Extra formatting key: ".concat(key));
+          }
+        });
+      }
 
       if (!returnsDOM) {
         return ret;
@@ -526,8 +541,10 @@
    * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
    * @param {false|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
    * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
-   * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
    * @param {boolean} [cfg.forceNodeReturn=false]
+   * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
+   * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
+   * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
    * @returns {Promise<I18NCallback>} Rejects if no suitable locale is found.
    */
 
@@ -537,12 +554,12 @@
     var _i18n = _asyncToGenerator(
     /*#__PURE__*/
     regeneratorRuntime.mark(function _callee4(_ref7) {
-      var locales, defaultLocales, localesBasePath, localeResolver, defaults, messageStyle, bracketRegex, forceNodeReturn, strings, messageForKey;
+      var locales, defaultLocales, localesBasePath, localeResolver, defaults, messageStyle, forceNodeReturn, throwOnMissingSuppliedFormatters, throwOnExtraSuppliedFormatters, bracketRegex, strings, messageForKey;
       return regeneratorRuntime.wrap(function _callee4$(_context4) {
         while (1) {
           switch (_context4.prev = _context4.next) {
             case 0:
-              locales = _ref7.locales, defaultLocales = _ref7.defaultLocales, localesBasePath = _ref7.localesBasePath, localeResolver = _ref7.localeResolver, defaults = _ref7.defaults, messageStyle = _ref7.messageStyle, bracketRegex = _ref7.bracketRegex, forceNodeReturn = _ref7.forceNodeReturn;
+              locales = _ref7.locales, defaultLocales = _ref7.defaultLocales, localesBasePath = _ref7.localesBasePath, localeResolver = _ref7.localeResolver, defaults = _ref7.defaults, messageStyle = _ref7.messageStyle, forceNodeReturn = _ref7.forceNodeReturn, throwOnMissingSuppliedFormatters = _ref7.throwOnMissingSuppliedFormatters, throwOnExtraSuppliedFormatters = _ref7.throwOnExtraSuppliedFormatters, bracketRegex = _ref7.bracketRegex;
               _context4.next = 3;
               return findLocaleStrings({
                 locales: locales,
@@ -579,8 +596,10 @@
                 return getDOMForLocaleString({
                   string: string,
                   substitutions: substitutions,
-                  forceNodeReturn: forceNodeReturn,
                   dom: dom,
+                  forceNodeReturn: forceNodeReturn,
+                  throwOnMissingSuppliedFormatters: throwOnMissingSuppliedFormatters,
+                  throwOnExtraSuppliedFormatters: throwOnExtraSuppliedFormatters,
                   bracketRegex: bracketRegex
                 });
               });

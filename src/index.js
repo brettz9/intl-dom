@@ -207,9 +207,8 @@ export const getStringFromMessageAndDefaults = ({
  * @param {false|SubstitutionObject} [cfg.substitutions=false]
  * @param {boolean} [cfg.dom=false]
  * @param {boolean} [cfg.forceNodeReturn=false]
- * @param {boolean} [cfg.throwOnUnsuppliedFormatters=true]
+ * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
  * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
- * @param {boolean} [cfg.throwOnUnsubstitutedFormatters=true]
  * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
  * @returns {string|DocumentFragment}
  */
@@ -230,6 +229,7 @@ export const getDOMForLocaleString = ({
   // Give chance to avoid this block when known to contain DOM
   if (!dom) {
     let returnsDOM = false;
+    const usedKeys = [];
     // Run this block to optimize non-DOM substitutions
     const ret = string.replace(bracketRegex, (_, esc, ky, arg) => {
       if (esc.length % 2) {
@@ -240,10 +240,21 @@ export const getDOMForLocaleString = ({
       if (typeof substitution === 'function') {
         substitution = substitution(arg);
       }
+      if (throwOnMissingSuppliedFormatters && !(ky in substitutions)) {
+        throw new Error(`Missing formatting key ${ky}`);
+      }
       returnsDOM = returnsDOM ||
         (substitution && substitution.nodeType === 1);
+      usedKeys.push(ky);
       return substitution;
     });
+    if (throwOnExtraSuppliedFormatters) {
+      Object.keys(substitutions).forEach((key) => {
+        if (!usedKeys.includes(key)) {
+          throw new Error(`Extra formatting key: ${key}`);
+        }
+      });
+    }
     if (!returnsDOM) {
       return ret;
     }
@@ -321,8 +332,10 @@ export const findLocaleStrings = async ({
  * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
  * @param {false|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
  * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
- * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
  * @param {boolean} [cfg.forceNodeReturn=false]
+ * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
+ * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
+ * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
  * @returns {Promise<I18NCallback>} Rejects if no suitable locale is found.
  */
 export const i18n = async function i18n ({
@@ -333,8 +346,10 @@ export const i18n = async function i18n ({
   localeResolver,
   defaults,
   messageStyle,
-  bracketRegex,
-  forceNodeReturn
+  forceNodeReturn,
+  throwOnMissingSuppliedFormatters,
+  throwOnExtraSuppliedFormatters,
+  bracketRegex
 }) {
   const strings = await findLocaleStrings({
     locales, defaultLocales, localeResolver, localesBasePath
@@ -355,8 +370,10 @@ export const i18n = async function i18n ({
     return getDOMForLocaleString({
       string,
       substitutions,
-      forceNodeReturn,
       dom,
+      forceNodeReturn,
+      throwOnMissingSuppliedFormatters,
+      throwOnExtraSuppliedFormatters,
       bracketRegex
     });
   };
