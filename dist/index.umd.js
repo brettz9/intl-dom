@@ -201,7 +201,7 @@
   };
   /**
   * @callback SubstitutionCallback
-  * @param {string} arg Accepts the second portion of the `bracketRegex` of
+  * @param {string} arg Accepts the third portion of the `bracketRegex` of
   *   `i18n`, i.e., the non-bracketed segments of text from the locale string
   *   following a bracketed segment.
   * @returns {string} The replacement text
@@ -351,7 +351,7 @@
         _ref4$throwOnMissingS = _ref4.throwOnMissingSuppliedFormatters,
         _ref4$throwOnExtraSup = _ref4.throwOnExtraSuppliedFormatters,
         _ref4$bracketRegex = _ref4.bracketRegex,
-        bracketRegex = _ref4$bracketRegex === void 0 ? /\{((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*?)(?:\|((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g : _ref4$bracketRegex;
+        bracketRegex = _ref4$bracketRegex === void 0 ? /(\\*)\{((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*?)(?:\|((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g : _ref4$bracketRegex;
 
     if (!substitutions) {
       return forceNodeReturn ? document.createTextNode(string) : string;
@@ -361,7 +361,12 @@
     if (!dom) {
       var returnsDOM = false; // Run this block to optimize non-DOM substitutions
 
-      var ret = string.replace(bracketRegex, function (_, ky, arg) {
+      var ret = string.replace(bracketRegex, function (_, esc, ky, arg) {
+        if (esc.length % 2) {
+          // Ignore odd sequences of escape sequences
+          return _;
+        }
+
         var substitution = substitutions[ky];
 
         if (typeof substitution === 'function') {
@@ -382,24 +387,29 @@
     var previousIndex = 0;
 
     while ((result = bracketRegex.exec(string)) !== null) {
-      var lastIndex = bracketRegex.lastIndex;
-
       var _result = result,
-          _result2 = _slicedToArray(_result, 3),
-          bracketedKey = _result2[0],
-          ky = _result2[1],
-          arg = _result2[2];
+          _result2 = _slicedToArray(_result, 4),
+          esc = _result2[0],
+          bracketedKey = _result2[1],
+          ky = _result2[2],
+          arg = _result2[3];
+
+      if (esc % 2) {
+        // Ignore odd sequences of escape sequences
+        continue;
+      }
+
+      var lastIndex = bracketRegex.lastIndex;
+      var startBracketPos = lastIndex - bracketedKey.length;
+
+      if (startBracketPos > previousIndex) {
+        nodes.push(string.slice(previousIndex, startBracketPos));
+      }
 
       var substitution = substitutions[ky];
 
       if (typeof substitution === 'function') {
         substitution = substitution(arg);
-      }
-
-      var startBracketPos = lastIndex - bracketedKey.length;
-
-      if (startBracketPos > previousIndex) {
-        nodes.push(string.slice(previousIndex, startBracketPos));
       }
 
       nodes.push(substitution);

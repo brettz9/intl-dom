@@ -63,7 +63,7 @@ export const promiseChainForValues = (values, errBack) => {
 
 /**
 * @callback SubstitutionCallback
-* @param {string} arg Accepts the second portion of the `bracketRegex` of
+* @param {string} arg Accepts the third portion of the `bracketRegex` of
 *   `i18n`, i.e., the non-bracketed segments of text from the locale string
 *   following a bracketed segment.
 * @returns {string} The replacement text
@@ -222,7 +222,7 @@ export const getDOMForLocaleString = ({
   throwOnExtraSuppliedFormatters = true,
   // eslint-disable-next-line max-len
   // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
-  bracketRegex = /\{([^}]*?)(?:\|([^}]*))?\}/gu
+  bracketRegex = /(\\*)\{([^}]*?)(?:\|([^}]*))?\}/gu
 }) => {
   if (!substitutions) {
     return forceNodeReturn ? document.createTextNode(string) : string;
@@ -231,7 +231,11 @@ export const getDOMForLocaleString = ({
   if (!dom) {
     let returnsDOM = false;
     // Run this block to optimize non-DOM substitutions
-    const ret = string.replace(bracketRegex, (_, ky, arg) => {
+    const ret = string.replace(bracketRegex, (_, esc, ky, arg) => {
+      if (esc.length % 2) {
+        // Ignore odd sequences of escape sequences
+        return _;
+      }
       let substitution = substitutions[ky];
       if (typeof substitution === 'function') {
         substitution = substitution(arg);
@@ -248,15 +252,19 @@ export const getDOMForLocaleString = ({
   let result;
   let previousIndex = 0;
   while ((result = bracketRegex.exec(string)) !== null) {
-    const {lastIndex} = bracketRegex;
-    const [bracketedKey, ky, arg] = result;
-    let substitution = substitutions[ky];
-    if (typeof substitution === 'function') {
-      substitution = substitution(arg);
+    const [esc, bracketedKey, ky, arg] = result;
+    if (esc % 2) {
+      // Ignore odd sequences of escape sequences
+      continue;
     }
+    const {lastIndex} = bracketRegex;
     const startBracketPos = lastIndex - bracketedKey.length;
     if (startBracketPos > previousIndex) {
       nodes.push(string.slice(previousIndex, startBracketPos));
+    }
+    let substitution = substitutions[ky];
+    if (typeof substitution === 'function') {
+      substitution = substitution(arg);
     }
     nodes.push(substitution);
     previousIndex = lastIndex;
