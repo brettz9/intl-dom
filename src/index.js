@@ -223,31 +223,12 @@ export const getDOMForLocaleString = ({
   // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
   bracketRegex = /(\\*)\{([^}]*?)(?:\|([^}]*))?\}/gu
 }) => {
-  if (!substitutions) {
-    return forceNodeReturn ? document.createTextNode(string) : string;
-  }
-  // Give chance to avoid this block when known to contain DOM
-  if (!dom) {
-    let returnsDOM = false;
-    const usedKeys = [];
-    // Run this block to optimize non-DOM substitutions
-    const ret = string.replace(bracketRegex, (_, esc, ky, arg) => {
-      if (esc.length % 2) {
-        // Ignore odd sequences of escape sequences
-        return _;
-      }
-      let substitution = substitutions[ky];
-      if (typeof substitution === 'function') {
-        substitution = substitution(arg);
-      }
-      if (throwOnMissingSuppliedFormatters && !(ky in substitutions)) {
-        throw new Error(`Missing formatting key ${ky}`);
-      }
-      returnsDOM = returnsDOM ||
-        (substitution && substitution.nodeType === 1);
-      usedKeys.push(ky);
-      return substitution;
-    });
+  const stringOrTextNode = (str) => {
+    return forceNodeReturn ? document.createTextNode(str) : str;
+  };
+
+  const usedKeys = [];
+  const checkExtraSuppliedFormatters = () => {
     if (throwOnExtraSuppliedFormatters) {
       Object.keys(substitutions).forEach((key) => {
         if (!usedKeys.includes(key)) {
@@ -255,9 +236,40 @@ export const getDOMForLocaleString = ({
         }
       });
     }
-    if (!returnsDOM) {
-      return ret;
+  };
+  const checkMissingSuppliedFormatters = (ky) => {
+    if (throwOnMissingSuppliedFormatters && !(ky in substitutions)) {
+      throw new Error(`Missing formatting key ${ky}`);
     }
+  };
+
+  if (!substitutions) {
+    return stringOrTextNode(string);
+  }
+  // Give chance to avoid this block when known to contain DOM
+  if (!dom) {
+    let returnsDOM = false;
+    // Run this block to optimize non-DOM substitutions
+    const ret = string.replace(bracketRegex, (_, esc, ky, arg) => {
+      if (esc.length % 2) {
+        // Ignore odd sequences of escape sequences
+        return _;
+      }
+      checkMissingSuppliedFormatters(ky);
+      let substitution = substitutions[ky];
+      if (typeof substitution === 'function') {
+        substitution = substitution(arg);
+      }
+      returnsDOM = returnsDOM ||
+        (substitution && substitution.nodeType === 1);
+      usedKeys.push(ky);
+      return substitution;
+    });
+    checkExtraSuppliedFormatters();
+    if (!returnsDOM) {
+      return stringOrTextNode(ret);
+    }
+    usedKeys.length = 0;
   }
   const nodes = [];
   let result;
@@ -268,21 +280,28 @@ export const getDOMForLocaleString = ({
       // Ignore odd sequences of escape sequences
       continue;
     }
+
     const {lastIndex} = bracketRegex;
     const startBracketPos = lastIndex - bracketedKey.length;
     if (startBracketPos > previousIndex) {
       nodes.push(string.slice(previousIndex, startBracketPos));
     }
+
+    checkMissingSuppliedFormatters(ky);
     let substitution = substitutions[ky];
     if (typeof substitution === 'function') {
       substitution = substitution(arg);
     }
     nodes.push(substitution);
+
     previousIndex = lastIndex;
+    usedKeys.push(ky);
   }
   if (previousIndex !== string.length) { // Get text at end
     nodes.push(string.slice(previousIndex));
   }
+
+  checkExtraSuppliedFormatters();
 
   const container = document.createDocumentFragment();
 

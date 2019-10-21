@@ -365,6 +365,17 @@ describe('getStringFromMessageAndDefaults', function () {
 
 describe('getDOMForLocaleString', function () {
   // Todo
+
+  /*
+  getDOMForLocaleString({});
+  string,
+  substitutions = false,
+  dom = false,
+  forceNodeReturn = false,
+  throwOnMissingSuppliedFormatters = true,
+  throwOnExtraSuppliedFormatters = true,
+  bracketRegex = /(\\*)\{([^}]*?)(?:\|([^}]*))?\}/gu
+  */
 });
 
 describe('findLocaleStrings', function () {

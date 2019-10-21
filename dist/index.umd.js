@@ -354,36 +354,13 @@
         _ref4$bracketRegex = _ref4.bracketRegex,
         bracketRegex = _ref4$bracketRegex === void 0 ? /(\\*)\{((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*?)(?:\|((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g : _ref4$bracketRegex;
 
-    if (!substitutions) {
-      return forceNodeReturn ? document.createTextNode(string) : string;
-    } // Give chance to avoid this block when known to contain DOM
+    var stringOrTextNode = function stringOrTextNode(str) {
+      return forceNodeReturn ? document.createTextNode(str) : str;
+    };
 
+    var usedKeys = [];
 
-    if (!dom) {
-      var returnsDOM = false;
-      var usedKeys = []; // Run this block to optimize non-DOM substitutions
-
-      var ret = string.replace(bracketRegex, function (_, esc, ky, arg) {
-        if (esc.length % 2) {
-          // Ignore odd sequences of escape sequences
-          return _;
-        }
-
-        var substitution = substitutions[ky];
-
-        if (typeof substitution === 'function') {
-          substitution = substitution(arg);
-        }
-
-        if (throwOnMissingSuppliedFormatters && !(ky in substitutions)) {
-          throw new Error("Missing formatting key ".concat(ky));
-        }
-
-        returnsDOM = returnsDOM || substitution && substitution.nodeType === 1;
-        usedKeys.push(ky);
-        return substitution;
-      });
-
+    var checkExtraSuppliedFormatters = function checkExtraSuppliedFormatters() {
       if (throwOnExtraSuppliedFormatters) {
         Object.keys(substitutions).forEach(function (key) {
           if (!usedKeys.includes(key)) {
@@ -391,10 +368,46 @@
           }
         });
       }
+    };
+
+    var checkMissingSuppliedFormatters = function checkMissingSuppliedFormatters(ky) {
+      if (throwOnMissingSuppliedFormatters && !(ky in substitutions)) {
+        throw new Error("Missing formatting key ".concat(ky));
+      }
+    };
+
+    if (!substitutions) {
+      return stringOrTextNode(string);
+    } // Give chance to avoid this block when known to contain DOM
+
+
+    if (!dom) {
+      var returnsDOM = false; // Run this block to optimize non-DOM substitutions
+
+      var ret = string.replace(bracketRegex, function (_, esc, ky, arg) {
+        if (esc.length % 2) {
+          // Ignore odd sequences of escape sequences
+          return _;
+        }
+
+        checkMissingSuppliedFormatters(ky);
+        var substitution = substitutions[ky];
+
+        if (typeof substitution === 'function') {
+          substitution = substitution(arg);
+        }
+
+        returnsDOM = returnsDOM || substitution && substitution.nodeType === 1;
+        usedKeys.push(ky);
+        return substitution;
+      });
+      checkExtraSuppliedFormatters();
 
       if (!returnsDOM) {
-        return ret;
+        return stringOrTextNode(ret);
       }
+
+      usedKeys.length = 0;
     }
 
     var nodes = [];
@@ -421,6 +434,7 @@
         nodes.push(string.slice(previousIndex, startBracketPos));
       }
 
+      checkMissingSuppliedFormatters(ky);
       var substitution = substitutions[ky];
 
       if (typeof substitution === 'function') {
@@ -429,6 +443,7 @@
 
       nodes.push(substitution);
       previousIndex = lastIndex;
+      usedKeys.push(ky);
     }
 
     if (previousIndex !== string.length) {
@@ -436,6 +451,7 @@
       nodes.push(string.slice(previousIndex));
     }
 
+    checkExtraSuppliedFormatters();
     var container = document.createDocumentFragment(); // console.log('nodes', nodes);
 
     container.append.apply(container, nodes);
