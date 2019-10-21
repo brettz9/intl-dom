@@ -15,7 +15,7 @@ import {terser} from 'rollup-plugin-terser';
  */
 function getRollupObject ({minifying, format = 'umd'} = {}) {
   const nonMinified = {
-    input: 'src/intl-dom.js',
+    input: 'src/index.js',
     output: {
       format,
       sourcemap: minifying,
