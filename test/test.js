@@ -477,6 +477,31 @@ describe('getDOMForLocaleString', function () {
     expect(string).to.equal('simple message');
   });
 
+  it('should return string with multiple substitutions', function () {
+    const string = getDOMForLocaleString({
+      string: '{simp} {msg}',
+      substitutions: {
+        msg: 'message',
+        simp: 'simple'
+      }
+    });
+    expect(string).to.equal('simple message');
+  });
+
+  it(
+    'should return string with multiple substitutions of ' +
+    'same key',
+    function () {
+      const string = getDOMForLocaleString({
+        string: '{msg} {msg}',
+        substitutions: {
+          msg: 'message'
+        }
+      });
+      expect(string).to.equal('message message');
+    }
+  );
+
   it(
     'should return string text node with substitutions (with `dom`)',
     function () {
@@ -492,7 +517,38 @@ describe('getDOMForLocaleString', function () {
   );
 
   it(
-    'should return string text node with substitutions (with `dom`)',
+    'should return string text node with multiple substitutions (with `dom`)',
+    function () {
+      const string = getDOMForLocaleString({
+        string: '{simp} {msg}',
+        dom: true,
+        substitutions: {
+          msg: 'message',
+          simp: 'simple'
+        }
+      });
+      expect(string).to.have.text('simple message');
+    }
+  );
+
+  it(
+    'should return string text node with multiple substitutions of ' +
+    'same key (with `dom`)',
+    function () {
+      const string = getDOMForLocaleString({
+        string: '{msg} {msg}',
+        dom: true,
+        substitutions: {
+          msg: 'message'
+        }
+      });
+      expect(string).to.have.text('message message');
+    }
+  );
+
+  it(
+    'should return string text node with substitutions (with ' +
+    '`forceNodeReturn`)',
     function () {
       const string = getDOMForLocaleString({
         string: 'simple {msg}',
@@ -502,6 +558,37 @@ describe('getDOMForLocaleString', function () {
         }
       });
       expect(string).to.have.text('simple message');
+    }
+  );
+
+  it(
+    'should return string text node with multiple substitutions (with ' +
+    '`forceNodeReturn`)',
+    function () {
+      const string = getDOMForLocaleString({
+        string: '{simp} {msg}',
+        forceNodeReturn: true,
+        substitutions: {
+          msg: 'message',
+          simp: 'simple'
+        }
+      });
+      expect(string).to.have.text('simple message');
+    }
+  );
+
+  it(
+    'should return string text node with multiple substitutions of ' +
+    'same key (with `forceNodeReturn`)',
+    function () {
+      const string = getDOMForLocaleString({
+        string: '{msg} {msg}',
+        forceNodeReturn: true,
+        substitutions: {
+          msg: 'message'
+        }
+      });
+      expect(string).to.have.text('message message');
     }
   );
   /*
@@ -517,7 +604,7 @@ describe('getDOMForLocaleString', function () {
   });
   */
   // Todo: Multiple substitutions and multiple replacements
-  //   within a string of same key
+  //   within a string of same key (with DOM substitutions)
 });
 
 describe('findLocaleStrings', function () {
