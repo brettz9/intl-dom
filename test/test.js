@@ -1,7 +1,7 @@
 import 'regenerator-runtime/runtime.js';
 import {
   promiseChainForValues,
-  DefaultLocaleResolver,
+  defaultLocaleResolver,
   findLocaleStrings,
   getMessageForKeyByStyle,
   getStringFromMessageAndDefaults,
@@ -12,7 +12,7 @@ import {
 describe('API', function () {
   it('Should export functions', function () {
     expect(promiseChainForValues).to.be.a('function');
-    expect(DefaultLocaleResolver).to.be.a('function');
+    expect(defaultLocaleResolver).to.be.a('function');
     expect(findLocaleStrings).to.be.a('function');
     expect(getMessageForKeyByStyle).to.be.a('function');
     expect(getStringFromMessageAndDefaults).to.be.a('function');

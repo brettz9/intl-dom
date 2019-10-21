@@ -100,7 +100,7 @@ export const promiseChainForValues = (values, errBack) => {
 /**
  * @type {LocaleResolver}
  */
-export const DefaultLocaleResolver = (locale, localesBasePth) => {
+export const defaultLocaleResolver = (locale, localesBasePth) => {
   return `${localesBasePth.replace(/\/$/u, '')}/_locales/${locale}/messages.json`;
 };
 
@@ -117,13 +117,13 @@ export const DefaultLocaleResolver = (locale, localesBasePth) => {
  * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
  * @param {string[]} [cfg.defaultLocales=['en-US']]
  * @param {string} [cfg.localesBasePath='.']
- * @param {LocaleResolver} [cfg.localeResolver=DefaultLocaleResolver]
+ * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
  * @returns {Promise<LocaleStringObject|PlainLocaleStringObject|PlainObject>}
  */
 export const findLocaleStrings = async ({
   locales = navigator.languages,
   defaultLocales = ['en-US'],
-  localeResolver = DefaultLocaleResolver,
+  localeResolver = defaultLocaleResolver,
   localesBasePath = '.'
 }) => {
   // eslint-disable-next-line no-return-await
@@ -291,7 +291,7 @@ export const getDOMForLocaleString = ({
  * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
  * @param {string[]} [cfg.defaultLocales=['en-US']]
  * @param {string} [cfg.localesBasePath='.']
- * @param {LocaleResolver} [cfg.localeResolver=DefaultLocaleResolver]
+ * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
  * @param {false|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
  * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
  * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
