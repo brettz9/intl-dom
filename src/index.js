@@ -1,6 +1,3 @@
-// Todo: Allow literal brackets (with or without substitutions
-//   of the same name present)
-
 /**
 * @callback PromiseChainErrback
 * @param {any} errBack
@@ -9,10 +6,11 @@
 
 /**
  * The given array will have its items processed in series; if the supplied
- *  errback, when passed the current item, returns a Promise or value that
- *  resolves, that value will be used for the return result of this function
- *  and no other items in the array will continue to be processed; if it
- *  rejects, however, the next item will be processed.
+ *  `errBack` (which is guaranteed to run at least once), when passed the
+ *  current item, returns a `Promise` or value that resolves, that value will
+ *  be used for the return result of this function and no other items in
+ *  the array will continue to be processed; if it rejects, however, the
+ *  next item will be processed with `errBack`.
  * Accept an array of values to pass to an errback which should return
  *  a promise (or final result value) which resolves to a result or which
  *  rejects so that the next item in the array can be checked in series.
@@ -33,16 +31,22 @@
    });
  });
  */
-export const promiseChainForValues = (values, errBack) => {
-  return values.reduce(async (p, value) => {
-    try {
-      return await p; // We'd short-circuit here instead if we could
-    } catch (err) {
-      return errBack(value);
-    }
-  }, Promise.reject(
+export const promiseChainForValues = async (values, errBack) => {
+  let ret;
+  let p = Promise.reject(
     new Error('Intentionally reject so as to begin checking chain')
-  ));
+  );
+  while (true) {
+    const value = values.shift();
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      ret = await p;
+      break;
+    } catch (err) {
+      p = errBack(value);
+    }
+  }
+  return ret;
 };
 
 /**
@@ -111,38 +115,6 @@ export const defaultLocaleResolver = (locale, localesBasePth) => {
 * @param {string} key
 * @returns {false|string} If `false`, will resort to default
 */
-
-/**
- * @param {PlainObject} [cfg]
- * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
- * @param {string[]} [cfg.defaultLocales=['en-US']]
- * @param {string} [cfg.localesBasePath='.']
- * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
- * @returns {Promise<LocaleStringObject|PlainLocaleStringObject|PlainObject>}
- */
-export const findLocaleStrings = async ({
-  locales = navigator.languages,
-  defaultLocales = ['en-US'],
-  localeResolver = defaultLocaleResolver,
-  localesBasePath = '.'
-}) => {
-  // eslint-disable-next-line no-return-await
-  return await promiseChainForValues(
-    [...locales, ...defaultLocales],
-    async function getLocale (locale) {
-      const url = localeResolver(locale, localesBasePath);
-      try {
-        return await (await fetch(url)).json();
-      } catch (err) {
-        if (!locale.includes('-')) {
-          throw new Error('Locale not available');
-        }
-        // Try without hyphen
-        return getLocale(locale.replace(/-.*$/u, ''));
-      }
-    }
-  );
-};
 
 /**
  * @param {PlainObject} [cfg]
@@ -226,12 +198,17 @@ export const getStringFromMessageAndDefaults = ({
  * @param {boolean} [cfg.dom=false]
  * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
  * @param {boolean} [cfg.forceNodeReturn=false]
+ * @param {boolean} [cfg.throwOnUnsuppliedFormatters=true]
+ * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
+ * @param {boolean} [cfg.throwOnUnsubstitutedFormatters=true]
  * @returns {string|DocumentFragment}
  */
 export const getDOMForLocaleString = ({
   string,
   substitutions,
   dom,
+  throwOnMissingSuppliedFormatters = true,
+  throwOnExtraSuppliedFormatters = true,
   // eslint-disable-next-line max-len
   // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
   bracketRegex = /\{([^}]*?)(?:\|([^}]*))?\}/gu,
@@ -283,6 +260,38 @@ export const getDOMForLocaleString = ({
   // console.log('nodes', nodes);
   container.append(...nodes);
   return container;
+};
+
+/**
+ * @param {PlainObject} [cfg]
+ * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
+ * @param {string[]} [cfg.defaultLocales=['en-US']]
+ * @param {string} [cfg.localesBasePath='.']
+ * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
+ * @returns {Promise<LocaleStringObject|PlainLocaleStringObject|PlainObject>}
+ */
+export const findLocaleStrings = async ({
+  locales = navigator.languages,
+  defaultLocales = ['en-US'],
+  localeResolver = defaultLocaleResolver,
+  localesBasePath = '.'
+}) => {
+  // eslint-disable-next-line no-return-await
+  return await promiseChainForValues(
+    [...locales, ...defaultLocales],
+    async function getLocale (locale) {
+      const url = localeResolver(locale, localesBasePath);
+      try {
+        return await (await fetch(url)).json();
+      } catch (err) {
+        if (!locale.includes('-')) {
+          throw new Error('Locale not available');
+        }
+        // Try without hyphen
+        return getLocale(locale.replace(/-.*$/u, ''));
+      }
+    }
+  );
 };
 
 /* eslint-disable max-len */

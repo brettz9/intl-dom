@@ -110,9 +110,6 @@ function _nonIterableRest() {
   throw new TypeError("Invalid attempt to destructure non-iterable instance");
 }
 
-// Todo: Allow literal brackets (with or without substitutions
-//   of the same name present)
-
 /**
 * @callback PromiseChainErrback
 * @param {any} errBack
@@ -121,10 +118,11 @@ function _nonIterableRest() {
 
 /**
  * The given array will have its items processed in series; if the supplied
- *  errback, when passed the current item, returns a Promise or value that
- *  resolves, that value will be used for the return result of this function
- *  and no other items in the array will continue to be processed; if it
- *  rejects, however, the next item will be processed.
+ *  `errBack` (which is guaranteed to run at least once), when passed the
+ *  current item, returns a `Promise` or value that resolves, that value will
+ *  be used for the return result of this function and no other items in
+ *  the array will continue to be processed; if it rejects, however, the
+ *  next item will be processed with `errBack`.
  * Accept an array of values to pass to an errback which should return
  *  a promise (or final result value) which resolves to a result or which
  *  rejects so that the next item in the array can be checked in series.
@@ -145,42 +143,54 @@ function _nonIterableRest() {
    });
  });
  */
-var promiseChainForValues = function promiseChainForValues(values, errBack) {
-  return values.reduce(
+var promiseChainForValues =
+/*#__PURE__*/
+function () {
+  var _ref = _asyncToGenerator(
   /*#__PURE__*/
-  function () {
-    var _ref = _asyncToGenerator(
-    /*#__PURE__*/
-    regeneratorRuntime.mark(function _callee(p, value) {
-      return regeneratorRuntime.wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              _context.prev = 0;
-              _context.next = 3;
-              return p;
+  regeneratorRuntime.mark(function _callee(values, errBack) {
+    var ret, p, value;
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            p = Promise.reject(new Error('Intentionally reject so as to begin checking chain'));
 
-            case 3:
-              return _context.abrupt("return", _context.sent);
+          case 1:
 
-            case 6:
-              _context.prev = 6;
-              _context.t0 = _context["catch"](0);
-              return _context.abrupt("return", errBack(value));
+            value = values.shift();
+            _context.prev = 3;
+            _context.next = 6;
+            return p;
 
-            case 9:
-            case "end":
-              return _context.stop();
-          }
+          case 6:
+            ret = _context.sent;
+            return _context.abrupt("break", 15);
+
+          case 10:
+            _context.prev = 10;
+            _context.t0 = _context["catch"](3);
+            p = errBack(value);
+
+          case 13:
+            _context.next = 1;
+            break;
+
+          case 15:
+            return _context.abrupt("return", ret);
+
+          case 16:
+          case "end":
+            return _context.stop();
         }
-      }, _callee, null, [[0, 6]]);
-    }));
+      }
+    }, _callee, null, [[3, 10]]);
+  }));
 
-    return function (_x, _x2) {
-      return _ref.apply(this, arguments);
-    };
-  }(), Promise.reject(new Error('Intentionally reject so as to begin checking chain')));
-};
+  return function promiseChainForValues(_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}();
 /**
 * @callback SubstitutionCallback
 * @param {string} arg Accepts the second portion of the `bracketRegex` of
@@ -237,7 +247,7 @@ var promiseChainForValues = function promiseChainForValues(values, errBack) {
  * @type {LocaleResolver}
  */
 
-var DefaultLocaleResolver = function DefaultLocaleResolver(locale, localesBasePth) {
+var defaultLocaleResolver = function defaultLocaleResolver(locale, localesBasePth) {
   return "".concat(localesBasePth.replace(/\/$/, ''), "/_locales/").concat(locale, "/messages.json");
 };
 /**
@@ -250,26 +260,176 @@ var DefaultLocaleResolver = function DefaultLocaleResolver(locale, localesBasePt
 
 /**
  * @param {PlainObject} [cfg]
+ * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
+ * @returns {MessageStyleCallback}
+ */
+
+var getMessageForKeyByStyle = function getMessageForKeyByStyle() {
+  var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      _ref2$messageStyle = _ref2.messageStyle,
+      messageStyle = _ref2$messageStyle === void 0 ? 'rich' : _ref2$messageStyle;
+
+  return typeof messageStyle === 'function' ? messageStyle : messageStyle === 'rich' ? function (obj, key) {
+    if (key in obj && obj[key] && 'message' in obj[key] && // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
+    typeof obj[key].message === 'string') {
+      return obj[key].message;
+    }
+
+    return false;
+  } : messageStyle === 'plain' ? function (obj, key) {
+    if (key in obj && obj[key] && typeof obj[key] === 'string') {
+      return obj[key];
+    }
+
+    return false;
+  } : function () {
+    throw new TypeError("Unknown `messageStyle` ".concat(messageStyle));
+  }();
+};
+/* eslint-disable max-len */
+
+/**
+ * @param {PlainObject} cfg
+ * @param {string} [cfg.message]
+ * @param {false|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
+ * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
+ * @param {MessageStyleCallback} [cfg.messageForKey] Defaults to getting `MessageStyleCallback` based on `messageStyle`
+ * @param {string} cfg.key Key to check against object of strings
+ * @returns {string}
+ */
+
+var getStringFromMessageAndDefaults = function getStringFromMessageAndDefaults(_ref3) {
+  var message = _ref3.message,
+      defaults = _ref3.defaults,
+      messageStyle = _ref3.messageStyle,
+      _ref3$messageForKey = _ref3.messageForKey,
+      messageForKey = _ref3$messageForKey === void 0 ? getMessageForKeyByStyle({
+    messageStyle: messageStyle
+  }) : _ref3$messageForKey,
+      key = _ref3.key;
+  // NECESSARY CHECK FOR SECURITY ON UNTRUSTED LOCALES
+  var str = typeof message === 'string' ? message : defaults === false ? function () {
+    throw new Error("Key value not found for key: (".concat(key, ")"));
+  }() : defaults && _typeof(defaults) === 'object' ? messageForKey(defaults, key) : function () {
+    throw new TypeError("Default locale strings must resolve to `false` or an object!");
+  }();
+
+  if (str === false) {
+    throw new Error("Key value not found for key: (".concat(key, ")"));
+  }
+
+  return str;
+};
+/**
+ *
+ * @param {PlainObject} cfg
+ * @param {string} cfg.string
+ * @param {false|SubstitutionObject} [cfg.substitutions=false]
+ * @param {boolean} [cfg.dom=false]
+ * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
+ * @param {boolean} [cfg.forceNodeReturn=false]
+ * @param {boolean} [cfg.throwOnUnsuppliedFormatters=true]
+ * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
+ * @param {boolean} [cfg.throwOnUnsubstitutedFormatters=true]
+ * @returns {string|DocumentFragment}
+ */
+
+var getDOMForLocaleString = function getDOMForLocaleString(_ref4) {
+  var string = _ref4.string,
+      substitutions = _ref4.substitutions,
+      dom = _ref4.dom,
+      _ref4$throwOnMissingS = _ref4.throwOnMissingSuppliedFormatters,
+      _ref4$throwOnExtraSup = _ref4.throwOnExtraSuppliedFormatters,
+      _ref4$bracketRegex = _ref4.bracketRegex,
+      bracketRegex = _ref4$bracketRegex === void 0 ? /\{((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*?)(?:\|((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g : _ref4$bracketRegex,
+      _ref4$forceNodeReturn = _ref4.forceNodeReturn,
+      forceNodeReturn = _ref4$forceNodeReturn === void 0 ? false : _ref4$forceNodeReturn;
+
+  if (!substitutions) {
+    return forceNodeReturn ? document.createTextNode(string) : string;
+  } // Give chance to avoid this block when known to contain DOM
+
+
+  if (!dom) {
+    var returnsDOM = false; // Run this block to optimize non-DOM substitutions
+
+    var ret = string.replace(bracketRegex, function (_, ky, arg) {
+      var substitution = substitutions[ky];
+
+      if (typeof substitution === 'function') {
+        substitution = substitution(arg);
+      }
+
+      returnsDOM = returnsDOM || substitution && substitution.nodeType === 1;
+      return substitution;
+    });
+
+    if (!returnsDOM) {
+      return ret;
+    }
+  }
+
+  var nodes = [];
+  var result;
+  var previousIndex = 0;
+
+  while ((result = bracketRegex.exec(string)) !== null) {
+    var lastIndex = bracketRegex.lastIndex;
+
+    var _result = result,
+        _result2 = _slicedToArray(_result, 3),
+        bracketedKey = _result2[0],
+        ky = _result2[1],
+        arg = _result2[2];
+
+    var substitution = substitutions[ky];
+
+    if (typeof substitution === 'function') {
+      substitution = substitution(arg);
+    }
+
+    var startBracketPos = lastIndex - bracketedKey.length;
+
+    if (startBracketPos > previousIndex) {
+      nodes.push(string.slice(previousIndex, startBracketPos));
+    }
+
+    nodes.push(substitution);
+    previousIndex = lastIndex;
+  }
+
+  if (previousIndex !== string.length) {
+    // Get text at end
+    nodes.push(string.slice(previousIndex));
+  }
+
+  var container = document.createDocumentFragment(); // console.log('nodes', nodes);
+
+  container.append.apply(container, nodes);
+  return container;
+};
+/**
+ * @param {PlainObject} [cfg]
  * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
  * @param {string[]} [cfg.defaultLocales=['en-US']]
  * @param {string} [cfg.localesBasePath='.']
- * @param {LocaleResolver} [cfg.localeResolver=DefaultLocaleResolver]
+ * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
  * @returns {Promise<LocaleStringObject|PlainLocaleStringObject|PlainObject>}
  */
 
 var findLocaleStrings =
 /*#__PURE__*/
 function () {
-  var _ref3 = _asyncToGenerator(
+  var _ref6 = _asyncToGenerator(
   /*#__PURE__*/
-  regeneratorRuntime.mark(function _callee3(_ref2) {
-    var _ref2$locales, locales, _ref2$defaultLocales, defaultLocales, _ref2$localeResolver, localeResolver, _ref2$localesBasePath, localesBasePath;
+  regeneratorRuntime.mark(function _callee3(_ref5) {
+    var _ref5$locales, locales, _ref5$defaultLocales, defaultLocales, _ref5$localeResolver, localeResolver, _ref5$localesBasePath, localesBasePath;
 
     return regeneratorRuntime.wrap(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {
           case 0:
-            _ref2$locales = _ref2.locales, locales = _ref2$locales === void 0 ? navigator.languages : _ref2$locales, _ref2$defaultLocales = _ref2.defaultLocales, defaultLocales = _ref2$defaultLocales === void 0 ? ['en-US'] : _ref2$defaultLocales, _ref2$localeResolver = _ref2.localeResolver, localeResolver = _ref2$localeResolver === void 0 ? DefaultLocaleResolver : _ref2$localeResolver, _ref2$localesBasePath = _ref2.localesBasePath, localesBasePath = _ref2$localesBasePath === void 0 ? '.' : _ref2$localesBasePath;
+            _ref5$locales = _ref5.locales, locales = _ref5$locales === void 0 ? navigator.languages : _ref5$locales, _ref5$defaultLocales = _ref5.defaultLocales, defaultLocales = _ref5$defaultLocales === void 0 ? ['en-US'] : _ref5$defaultLocales, _ref5$localeResolver = _ref5.localeResolver, localeResolver = _ref5$localeResolver === void 0 ? defaultLocaleResolver : _ref5$localeResolver, _ref5$localesBasePath = _ref5.localesBasePath, localesBasePath = _ref5$localesBasePath === void 0 ? '.' : _ref5$localesBasePath;
             _context3.next = 3;
             return promiseChainForValues([].concat(_toConsumableArray(locales), _toConsumableArray(defaultLocales)),
             /*#__PURE__*/
@@ -335,154 +495,9 @@ function () {
   }));
 
   return function findLocaleStrings(_x3) {
-    return _ref3.apply(this, arguments);
+    return _ref6.apply(this, arguments);
   };
 }();
-/**
- * @param {PlainObject} [cfg]
- * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
- * @returns {MessageStyleCallback}
- */
-
-var getMessageForKeyByStyle = function getMessageForKeyByStyle() {
-  var _ref4 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-      _ref4$messageStyle = _ref4.messageStyle,
-      messageStyle = _ref4$messageStyle === void 0 ? 'rich' : _ref4$messageStyle;
-
-  return typeof messageStyle === 'function' ? messageStyle : messageStyle === 'rich' ? function (obj, key) {
-    if (key in obj && obj[key] && 'message' in obj[key] && // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
-    typeof obj[key].message === 'string') {
-      return obj[key].message;
-    }
-
-    return false;
-  } : messageStyle === 'plain' ? function (obj, key) {
-    if (key in obj && obj[key] && typeof obj[key] === 'string') {
-      return obj[key];
-    }
-
-    return false;
-  } : function () {
-    throw new TypeError("Unknown `messageStyle` ".concat(messageStyle));
-  }();
-};
-/* eslint-disable max-len */
-
-/**
- * @param {PlainObject} cfg
- * @param {string} [cfg.message]
- * @param {false|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
- * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
- * @param {MessageStyleCallback} [cfg.messageForKey] Defaults to getting `MessageStyleCallback` based on `messageStyle`
- * @param {string} cfg.key Key to check against object of strings
- * @returns {string}
- */
-
-var getStringFromMessageAndDefaults = function getStringFromMessageAndDefaults(_ref5) {
-  var message = _ref5.message,
-      defaults = _ref5.defaults,
-      messageStyle = _ref5.messageStyle,
-      _ref5$messageForKey = _ref5.messageForKey,
-      messageForKey = _ref5$messageForKey === void 0 ? getMessageForKeyByStyle({
-    messageStyle: messageStyle
-  }) : _ref5$messageForKey,
-      key = _ref5.key;
-  // NECESSARY CHECK FOR SECURITY ON UNTRUSTED LOCALES
-  var str = typeof message === 'string' ? message : defaults === false ? function () {
-    throw new Error("Key value not found for key: (".concat(key, ")"));
-  }() : defaults && _typeof(defaults) === 'object' ? messageForKey(defaults, key) : function () {
-    throw new TypeError("Default locale strings must resolve to `false` or an object!");
-  }();
-
-  if (str === false) {
-    throw new Error("Key value not found for key: (".concat(key, ")"));
-  }
-
-  return str;
-};
-/**
- *
- * @param {PlainObject} cfg
- * @param {string} cfg.string
- * @param {false|SubstitutionObject} [cfg.substitutions=false]
- * @param {boolean} [cfg.dom=false]
- * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
- * @param {boolean} [cfg.forceNodeReturn=false]
- * @returns {string|DocumentFragment}
- */
-
-var getDOMForLocaleString = function getDOMForLocaleString(_ref6) {
-  var string = _ref6.string,
-      substitutions = _ref6.substitutions,
-      dom = _ref6.dom,
-      _ref6$bracketRegex = _ref6.bracketRegex,
-      bracketRegex = _ref6$bracketRegex === void 0 ? /\{((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*?)(?:\|((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g : _ref6$bracketRegex,
-      _ref6$forceNodeReturn = _ref6.forceNodeReturn,
-      forceNodeReturn = _ref6$forceNodeReturn === void 0 ? false : _ref6$forceNodeReturn;
-
-  if (!substitutions) {
-    return forceNodeReturn ? document.createTextNode(string) : string;
-  } // Give chance to avoid this block when known to contain DOM
-
-
-  if (!dom) {
-    var returnsDOM = false; // Run this block to optimize non-DOM substitutions
-
-    var ret = string.replace(bracketRegex, function (_, ky, arg) {
-      var substitution = substitutions[ky];
-
-      if (typeof substitution === 'function') {
-        substitution = substitution(arg);
-      }
-
-      returnsDOM = returnsDOM || substitution && substitution.nodeType === 1;
-      return substitution;
-    });
-
-    if (!returnsDOM) {
-      return ret;
-    }
-  }
-
-  var nodes = [];
-  var result;
-  var previousIndex = 0;
-
-  while ((result = bracketRegex.exec(string)) !== null) {
-    var lastIndex = bracketRegex.lastIndex;
-
-    var _result = result,
-        _result2 = _slicedToArray(_result, 3),
-        bracketedKey = _result2[0],
-        ky = _result2[1],
-        arg = _result2[2];
-
-    var substitution = substitutions[ky];
-
-    if (typeof substitution === 'function') {
-      substitution = substitution(arg);
-    }
-
-    var startBracketPos = lastIndex - bracketedKey.length;
-
-    if (startBracketPos > previousIndex) {
-      nodes.push(string.slice(previousIndex, startBracketPos));
-    }
-
-    nodes.push(substitution);
-    previousIndex = lastIndex;
-  }
-
-  if (previousIndex !== string.length) {
-    // Get text at end
-    nodes.push(string.slice(previousIndex));
-  }
-
-  var container = document.createDocumentFragment(); // console.log('nodes', nodes);
-
-  container.append.apply(container, nodes);
-  return container;
-};
 /* eslint-disable max-len */
 
 /**
@@ -490,7 +505,7 @@ var getDOMForLocaleString = function getDOMForLocaleString(_ref6) {
  * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
  * @param {string[]} [cfg.defaultLocales=['en-US']]
  * @param {string} [cfg.localesBasePath='.']
- * @param {LocaleResolver} [cfg.localeResolver=DefaultLocaleResolver]
+ * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
  * @param {false|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
  * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
  * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
@@ -567,4 +582,4 @@ function () {
   return i18n;
 }();
 
-export { DefaultLocaleResolver, findLocaleStrings, getDOMForLocaleString, getMessageForKeyByStyle, getStringFromMessageAndDefaults, i18n, promiseChainForValues };
+export { defaultLocaleResolver, findLocaleStrings, getDOMForLocaleString, getMessageForKeyByStyle, getStringFromMessageAndDefaults, i18n, promiseChainForValues };
