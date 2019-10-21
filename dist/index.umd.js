@@ -316,9 +316,7 @@
     }) : _ref3$messageForKey,
         key = _ref3.key;
     // NECESSARY CHECK FOR SECURITY ON UNTRUSTED LOCALES
-    var str = typeof message === 'string' ? message : defaults === false ? function () {
-      throw new Error("Key value not found for key: (".concat(key, ")"));
-    }() : defaults && _typeof(defaults) === 'object' ? messageForKey(defaults, key) : function () {
+    var str = typeof message === 'string' ? message : defaults === false ? false : defaults && _typeof(defaults) === 'object' ? messageForKey(defaults, key) : function () {
       throw new TypeError("Default locale strings must resolve to `false` or an object!");
     }();
 
@@ -334,24 +332,26 @@
    * @param {string} cfg.string
    * @param {false|SubstitutionObject} [cfg.substitutions=false]
    * @param {boolean} [cfg.dom=false]
-   * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
    * @param {boolean} [cfg.forceNodeReturn=false]
    * @param {boolean} [cfg.throwOnUnsuppliedFormatters=true]
    * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
    * @param {boolean} [cfg.throwOnUnsubstitutedFormatters=true]
+   * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
    * @returns {string|DocumentFragment}
    */
 
   var getDOMForLocaleString = function getDOMForLocaleString(_ref4) {
     var string = _ref4.string,
-        substitutions = _ref4.substitutions,
-        dom = _ref4.dom,
+        _ref4$substitutions = _ref4.substitutions,
+        substitutions = _ref4$substitutions === void 0 ? false : _ref4$substitutions,
+        _ref4$dom = _ref4.dom,
+        dom = _ref4$dom === void 0 ? false : _ref4$dom,
+        _ref4$forceNodeReturn = _ref4.forceNodeReturn,
+        forceNodeReturn = _ref4$forceNodeReturn === void 0 ? false : _ref4$forceNodeReturn,
         _ref4$throwOnMissingS = _ref4.throwOnMissingSuppliedFormatters,
         _ref4$throwOnExtraSup = _ref4.throwOnExtraSuppliedFormatters,
         _ref4$bracketRegex = _ref4.bracketRegex,
-        bracketRegex = _ref4$bracketRegex === void 0 ? /\{((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*?)(?:\|((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g : _ref4$bracketRegex,
-        _ref4$forceNodeReturn = _ref4.forceNodeReturn,
-        forceNodeReturn = _ref4$forceNodeReturn === void 0 ? false : _ref4$forceNodeReturn;
+        bracketRegex = _ref4$bracketRegex === void 0 ? /\{((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*?)(?:\|((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g : _ref4$bracketRegex;
 
     if (!substitutions) {
       return forceNodeReturn ? document.createTextNode(string) : string;

@@ -184,9 +184,7 @@ export const getStringFromMessageAndDefaults = ({
   const str = typeof message === 'string'
     ? message
     : (defaults === false
-      ? (() => {
-        throw new Error(`Key value not found for key: (${key})`);
-      })()
+      ? false
       : (defaults && typeof defaults === 'object'
         ? messageForKey(defaults, key)
         : (() => {
@@ -208,23 +206,23 @@ export const getStringFromMessageAndDefaults = ({
  * @param {string} cfg.string
  * @param {false|SubstitutionObject} [cfg.substitutions=false]
  * @param {boolean} [cfg.dom=false]
- * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
  * @param {boolean} [cfg.forceNodeReturn=false]
  * @param {boolean} [cfg.throwOnUnsuppliedFormatters=true]
  * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
  * @param {boolean} [cfg.throwOnUnsubstitutedFormatters=true]
+ * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
  * @returns {string|DocumentFragment}
  */
 export const getDOMForLocaleString = ({
   string,
-  substitutions,
-  dom,
+  substitutions = false,
+  dom = false,
+  forceNodeReturn = false,
   throwOnMissingSuppliedFormatters = true,
   throwOnExtraSuppliedFormatters = true,
   // eslint-disable-next-line max-len
   // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
-  bracketRegex = /\{([^}]*?)(?:\|([^}]*))?\}/gu,
-  forceNodeReturn = false
+  bracketRegex = /\{([^}]*?)(?:\|([^}]*))?\}/gu
 }) => {
   if (!substitutions) {
     return forceNodeReturn ? document.createTextNode(string) : string;
