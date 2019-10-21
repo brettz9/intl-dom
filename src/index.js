@@ -300,14 +300,14 @@ export const getDOMForLocaleString = ({
   let result;
   let previousIndex = 0;
   while ((result = bracketRegex.exec(string)) !== null) {
-    const [esc, bracketedKey, ky, arg] = result;
+    const [, esc, ky, arg] = result;
+
+    const {lastIndex} = bracketRegex;
     if (esc % 2) {
       // Ignore odd sequences of escape sequences
       continue;
     }
-
-    const {lastIndex} = bracketRegex;
-    const startBracketPos = lastIndex - bracketedKey.length;
+    const startBracketPos = lastIndex - ky.length - 2;
     if (startBracketPos > previousIndex) {
       nodes.push(string.slice(previousIndex, startBracketPos));
     }

@@ -440,18 +440,18 @@
     while ((result = bracketRegex.exec(string)) !== null) {
       var _result = result,
           _result2 = _slicedToArray(_result, 4),
-          esc = _result2[0],
-          bracketedKey = _result2[1],
+          esc = _result2[1],
           ky = _result2[2],
           arg = _result2[3];
+
+      var lastIndex = bracketRegex.lastIndex;
 
       if (esc % 2) {
         // Ignore odd sequences of escape sequences
         continue;
       }
 
-      var lastIndex = bracketRegex.lastIndex;
-      var startBracketPos = lastIndex - bracketedKey.length;
+      var startBracketPos = lastIndex - ky.length - 2;
 
       if (startBracketPos > previousIndex) {
         nodes.push(string.slice(previousIndex, startBracketPos));

@@ -466,11 +466,35 @@ describe('getDOMForLocaleString', function () {
     });
     expect(string).to.have.text('simple message');
   });
+
+  it('should return string with substitutions', function () {
+    const string = getDOMForLocaleString({
+      string: 'simple {msg}',
+      substitutions: {
+        msg: 'message'
+      }
+    });
+    expect(string).to.equal('simple message');
+  });
+
+  it(
+    'should return string text node with substitutions (with `dom`)',
+    function () {
+      const string = getDOMForLocaleString({
+        string: 'simple {msg}',
+        dom: true,
+        substitutions: {
+          msg: 'message'
+        }
+      });
+      expect(string).to.have.text('simple message');
+    }
+  );
   /*
   // Todo
   getDOMForLocaleString({
     string,
-    substitutions = {},
+    substitutions = false,
     dom = false,
     forceNodeReturn = false,
     throwOnMissingSuppliedFormatters = true,
@@ -478,6 +502,8 @@ describe('getDOMForLocaleString', function () {
     bracketRegex = /(\\*)\{([^}]*?)(?:\|([^}]*))?\}/gu
   });
   */
+  // Todo: Multiple substitutions and multiple replacements
+  //   within a string of same key
 });
 
 describe('findLocaleStrings', function () {
