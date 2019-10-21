@@ -31,14 +31,14 @@ For older browser support, you may also need `core-js-bundle`.
 
 ```js
 import './node_modules/regenerator-runtime/runtime.js';
-import {IntlDom} from './node_modules/intl-dom/dist/index.esm.js';
+import {i18n} from './node_modules/intl-dom/dist/index.esm.js';
 ```
 
-### Browser (Bundle)
+### Browser/Node (Bundle)
 
 ```js
 import 'regenerator-runtime';
-import {IntlDom} from 'intl-dom';
+import {i18n} from 'intl-dom';
 ```
 
 ### Node
@@ -64,6 +64,29 @@ global.document = (new JSDOM()).window.document;
 
 ## Usage
 
+- TODO:
+
 ```js
-const {i18n: _} = new IntlDom();
+i18n();
 ```
+
+## Other methods
+
+Some other methods used by `i18n` are also available for export. You
+might wish to use them if you only wish to use some of the logic of `i18n`,
+e.g., for string resolution, but not file retrieval.
+
+### `promiseChainForValues`
+
+(This may be swapped out in the future for an equivalent third-party
+Promise utility.)
+
+### `defaultLocaleResolver`
+
+### `getMessageForKeyByStyle`
+
+### `getStringFromMessageAndDefaults`
+
+### `getDOMForLocaleString`
+
+### `findLocaleStrings`
