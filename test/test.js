@@ -490,6 +490,20 @@ describe('getDOMForLocaleString', function () {
       expect(string).to.have.text('simple message');
     }
   );
+
+  it(
+    'should return string text node with substitutions (with `dom`)',
+    function () {
+      const string = getDOMForLocaleString({
+        string: 'simple {msg}',
+        forceNodeReturn: true,
+        substitutions: {
+          msg: 'message'
+        }
+      });
+      expect(string).to.have.text('simple message');
+    }
+  );
   /*
   // Todo
   getDOMForLocaleString({
