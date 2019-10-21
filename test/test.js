@@ -425,12 +425,11 @@ describe('getDOMForLocaleString', function () {
       'be provided for `getDOMForLocaleString`.'
     );
   });
-  // Todo: Ensure coverage is complete
   /*
   // Todo
   getDOMForLocaleString({
     string,
-    substitutions = false,
+    substitutions = {},
     dom = false,
     forceNodeReturn = false,
     throwOnMissingSuppliedFormatters = true,
@@ -446,4 +445,5 @@ describe('findLocaleStrings', function () {
 
 describe('i18n', function () {
   // Todo; also test empty arguments
+  // Todo: Ensure coverage is complete
 });

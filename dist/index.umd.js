@@ -344,7 +344,7 @@
    *
    * @param {PlainObject} cfg
    * @param {string} cfg.string
-   * @param {false|SubstitutionObject} [cfg.substitutions=false]
+   * @param {false|SubstitutionObject} [cfg.substitutions={}]
    * @param {boolean} [cfg.dom=false]
    * @param {boolean} [cfg.forceNodeReturn=false]
    * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
@@ -357,7 +357,7 @@
     var _ref4 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
         string = _ref4.string,
         _ref4$substitutions = _ref4.substitutions,
-        substitutions = _ref4$substitutions === void 0 ? false : _ref4$substitutions,
+        substitutions = _ref4$substitutions === void 0 ? {} : _ref4$substitutions,
         _ref4$dom = _ref4.dom,
         dom = _ref4$dom === void 0 ? false : _ref4$dom,
         _ref4$forceNodeReturn = _ref4.forceNodeReturn,
@@ -395,7 +395,7 @@
       }
     };
 
-    if (!substitutions) {
+    if (!substitutions && !throwOnMissingSuppliedFormatters) {
       return stringOrTextNode(string);
     } // Give chance to avoid this block when known to contain DOM
 
