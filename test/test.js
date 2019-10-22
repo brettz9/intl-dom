@@ -1,6 +1,9 @@
 import chai from 'chai';
 import chaiDOM from 'chai-dom';
+import chaiAsPromised from 'chai-as-promised';
+
 import {JSDOM} from 'jsdom';
+import fileFetch from 'file-fetch';
 
 import {
   promiseChainForValues,
@@ -13,8 +16,10 @@ import {
 } from '../src/index.js';
 
 chai.use(chaiDOM);
+chai.use(chaiAsPromised);
 
 global.document = (new JSDOM()).window.document;
+global.fetch = fileFetch;
 
 // Todo: We could replace this with a custom plugin
 const container = (string) => {
@@ -790,7 +795,131 @@ describe('getDOMForLocaleString', function () {
 });
 
 describe('findLocaleStrings', function () {
-  // Todo: also test empty arguments
+  beforeEach(function () {
+    global.navigator = undefined;
+    // Ensure not modified
+    this.expectedEnUS = {
+      abc: {
+        message: 'aaa'
+      }
+    };
+    this.expectedZhHans = {
+      def: {
+        message: 'bbb'
+      }
+    };
+    this.expectedPt = {
+      ghi: {
+        message: 'ccc'
+      }
+    };
+  });
+
+  it(
+    'should return locale object with `findLocaleStrings` (no arguments)',
+    async function () {
+      global.navigator = {
+        languages: ['en-US']
+      };
+      const strings = await findLocaleStrings();
+      expect(strings).to.deep.equal(this.expectedEnUS);
+    }
+  );
+
+  it(
+    'should return locale object with `findLocaleStrings` (no `locales` ' +
+    'and empty `defaultLocales`)',
+    async function () {
+      global.navigator = {
+        languages: ['en-US']
+      };
+      const strings = await findLocaleStrings({
+        defaultLocales: []
+      });
+      expect(strings).to.deep.equal(this.expectedEnUS);
+    }
+  );
+
+  it(
+    'should return locale object with `findLocaleStrings` (no `locales` and ' +
+    'empty `defaultLocales`)',
+    async function () {
+      global.navigator = {
+        languages: ['zh-Hans']
+      };
+      const strings = await findLocaleStrings({
+        defaultLocales: []
+      });
+      expect(strings).to.deep.equal(this.expectedZhHans);
+    }
+  );
+
+  it(
+    'should return locale object with `findLocaleStrings` (explicit `locales`)',
+    async function () {
+      const strings = await findLocaleStrings({
+        locales: ['en-US']
+      });
+      expect(strings).to.deep.equal(this.expectedEnUS);
+    }
+  );
+
+  it(
+    'should return locale object with `findLocaleStrings` (check ' +
+    'without hyphen)',
+    async function () {
+      const strings = await findLocaleStrings({
+        locales: ['pt-BR']
+      });
+      expect(strings).to.deep.equal(this.expectedPt);
+    }
+  );
+
+  it(
+    'should return locale object with `findLocaleStrings` (reversion to ' +
+    'secondary item in `locales`)',
+    async function () {
+      const strings = await findLocaleStrings({
+        locales: ['zz', 'en-US', 'zh-Hans'],
+        defaultLocales: []
+      });
+      expect(strings).to.deep.equal(this.expectedEnUS);
+    }
+  );
+
+  it(
+    'should return locale object with `findLocaleStrings` (reversion ' +
+    'to `defaultLocales`)',
+    async function () {
+      const strings = await findLocaleStrings({
+        locales: ['zz'],
+        defaultLocales: ['en-US']
+      });
+      expect(strings).to.deep.equal(this.expectedEnUS);
+    }
+  );
+
+  it('should reject with `findLocaleStrings` and bad JSON locale', function () {
+    return expect(findLocaleStrings({
+      locales: ['xy'],
+      defaultLocales: []
+    })).to.be.rejectedWith(Error, 'No matching locale found!');
+  });
+
+  it(
+    'should reject with `findLocaleStrings` and bad locale argument',
+    function () {
+      return expect(findLocaleStrings({
+        locales: [null],
+        defaultLocales: []
+      })).to.be.rejectedWith(Error, 'No matching locale found!');
+    }
+  );
+
+  /*
+  localeResolver = defaultLocaleResolver,
+  localesBasePath = '.'
+  */
 });
 
 describe('i18n', function () {

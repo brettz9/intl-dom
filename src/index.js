@@ -17,6 +17,7 @@
  * @param {Array<any>} values Array of values
  * @param {PromiseChainErrback} errBack Accepts an item of the array as its
  *   single argument
+ * @param {string} [errorMessage="Reached end of values array."]
  * @returns {Promise<any>} Either resolves to a value derived from an item in
  *  the array or rejects if all items reject
  * @example
@@ -31,7 +32,9 @@
    });
  });
  */
-export const promiseChainForValues = (values, errBack) => {
+export const promiseChainForValues = (
+  values, errBack, errorMessage = 'Reached end of values array.'
+) => {
   if (!Array.isArray(values)) {
     throw new TypeError(
       'The `values` argument to `promiseChainForValues` must be an array.'
@@ -47,6 +50,7 @@ export const promiseChainForValues = (values, errBack) => {
     let p = Promise.reject(
       new Error('Intentionally reject so as to begin checking chain')
     );
+    let breaking;
     while (true) {
       const value = values.shift();
       try {
@@ -54,6 +58,14 @@ export const promiseChainForValues = (values, errBack) => {
         ret = await p;
         break;
       } catch (err) {
+        if (breaking) {
+          throw new Error(errorMessage);
+        }
+        // We allow one more try
+        if (!values.length) {
+          breaking = true;
+        }
+        // // eslint-disable-next-line no-await-in-loop
         p = errBack(value);
       }
     }
@@ -356,17 +368,25 @@ export const findLocaleStrings = async ({
   return await promiseChainForValues(
     [...locales, ...defaultLocales],
     async function getLocale (locale) {
+      if (typeof locale !== 'string') {
+        throw new TypeError('Non-string locale type');
+      }
       const url = localeResolver(localesBasePath, locale);
       try {
-        return await (await fetch(url)).json();
+        const resp = await fetch(url);
+        return await (resp.json());
       } catch (err) {
+        if (err.name === 'SyntaxError') {
+          throw err;
+        }
         if (!locale.includes('-')) {
           throw new Error('Locale not available');
         }
         // Try without hyphen
         return getLocale(locale.replace(/-.*$/u, ''));
       }
-    }
+    },
+    'No matching locale found!'
   );
 };
 

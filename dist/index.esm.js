@@ -129,6 +129,7 @@ function _nonIterableRest() {
  * @param {Array<any>} values Array of values
  * @param {PromiseChainErrback} errBack Accepts an item of the array as its
  *   single argument
+ * @param {string} [errorMessage="Reached end of values array."]
  * @returns {Promise<any>} Either resolves to a value derived from an item in
  *  the array or rejects if all items reject
  * @example
@@ -144,6 +145,8 @@ function _nonIterableRest() {
  });
  */
 var promiseChainForValues = function promiseChainForValues(values, errBack) {
+  var errorMessage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'Reached end of values array.';
+
   if (!Array.isArray(values)) {
     throw new TypeError('The `values` argument to `promiseChainForValues` must be an array.');
   }
@@ -155,7 +158,7 @@ var promiseChainForValues = function promiseChainForValues(values, errBack) {
   return _asyncToGenerator(
   /*#__PURE__*/
   regeneratorRuntime.mark(function _callee() {
-    var ret, p, value;
+    var ret, p, breaking, value;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -171,21 +174,36 @@ var promiseChainForValues = function promiseChainForValues(values, errBack) {
 
           case 6:
             ret = _context.sent;
-            return _context.abrupt("break", 15);
+            return _context.abrupt("break", 18);
 
           case 10:
             _context.prev = 10;
             _context.t0 = _context["catch"](3);
+
+            if (!breaking) {
+              _context.next = 14;
+              break;
+            }
+
+            throw new Error(errorMessage);
+
+          case 14:
+            // We allow one more try
+            if (!values.length) {
+              breaking = true;
+            } // // eslint-disable-next-line no-await-in-loop
+
+
             p = errBack(value);
 
-          case 13:
+          case 16:
             _context.next = 1;
             break;
 
-          case 15:
+          case 18:
             return _context.abrupt("return", ret);
 
-          case 16:
+          case 19:
           case "end":
             return _context.stop();
         }
@@ -516,43 +534,60 @@ function () {
               var _getLocale = _asyncToGenerator(
               /*#__PURE__*/
               regeneratorRuntime.mark(function _callee2(locale) {
-                var url;
+                var url, resp;
                 return regeneratorRuntime.wrap(function _callee2$(_context2) {
                   while (1) {
                     switch (_context2.prev = _context2.next) {
                       case 0:
+                        if (!(typeof locale !== 'string')) {
+                          _context2.next = 2;
+                          break;
+                        }
+
+                        throw new TypeError('Non-string locale type');
+
+                      case 2:
                         url = localeResolver(localesBasePath, locale);
-                        _context2.prev = 1;
-                        _context2.next = 4;
+                        _context2.prev = 3;
+                        _context2.next = 6;
                         return fetch(url);
 
-                      case 4:
-                        _context2.next = 6;
-                        return _context2.sent.json();
-
                       case 6:
-                        return _context2.abrupt("return", _context2.sent);
+                        resp = _context2.sent;
+                        _context2.next = 9;
+                        return resp.json();
 
                       case 9:
-                        _context2.prev = 9;
-                        _context2.t0 = _context2["catch"](1);
+                        return _context2.abrupt("return", _context2.sent);
 
+                      case 12:
+                        _context2.prev = 12;
+                        _context2.t0 = _context2["catch"](3);
+
+                        if (!(_context2.t0.name === 'SyntaxError')) {
+                          _context2.next = 16;
+                          break;
+                        }
+
+                        throw _context2.t0;
+
+                      case 16:
                         if (locale.includes('-')) {
-                          _context2.next = 13;
+                          _context2.next = 18;
                           break;
                         }
 
                         throw new Error('Locale not available');
 
-                      case 13:
+                      case 18:
                         return _context2.abrupt("return", getLocale(locale.replace(/\x2D(?:[\0-\t\x0B\f\x0E-\u2027\u202A-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*$/, '')));
 
-                      case 14:
+                      case 19:
                       case "end":
                         return _context2.stop();
                     }
                   }
-                }, _callee2, null, [[1, 9]]);
+                }, _callee2, null, [[3, 12]]);
               }));
 
               function getLocale(_x) {
@@ -560,7 +595,7 @@ function () {
               }
 
               return getLocale;
-            }());
+            }(), 'No matching locale found!');
 
           case 3:
             return _context3.abrupt("return", _context3.sent);
