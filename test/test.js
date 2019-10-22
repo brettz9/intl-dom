@@ -1,10 +1,3 @@
-import chai from 'chai';
-import chaiDOM from 'chai-dom';
-import chaiAsPromised from 'chai-as-promised';
-
-import {JSDOM} from 'jsdom';
-import fileFetch from 'file-fetch';
-
 import {
   promiseChainForValues,
   defaultLocaleResolver,
@@ -13,13 +6,7 @@ import {
   getDOMForLocaleString,
   findLocaleStrings,
   i18n
-} from '../src/index.js';
-
-chai.use(chaiDOM);
-chai.use(chaiAsPromised);
-
-global.document = (new JSDOM()).window.document;
-global.fetch = fileFetch;
+} from '../dist/index.esm.min.js';
 
 // Todo: We could replace this with a custom plugin
 const container = (string) => {
@@ -965,8 +952,11 @@ describe('findLocaleStrings', function () {
   );
 });
 
-describe('i18n', function () {
-  // Todo: also test empty arguments
+describe.skip('i18n', function () {
+  it('should find strings with empty arguments', async function () {
+    // Todo:
+    await i18n();
+  });
   // Todo: Add browser test
   // Todo: Document
   // Todo: Ensure coverage is complete and working! (different for browser too?)

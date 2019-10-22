@@ -7,8 +7,8 @@
   "scripts": {
     "eslint": "eslint --ext=js,md,html .",
     "rollup": "rollup -c",
-    "mocha": "mocha --require esm --require chai/register-expect test/*.js",
-    "nyc": "nyc mocha --require esm --require chai/register-expect test/*.js",
+    "mocha": "mocha --require esm --require chai/register-expect --require test/bootstrap/node.js test/*.js",
+    "nyc": "nyc mocha --require esm --require chai/register-expect --require test/bootstrap/node.js test/*.js",
     "test": "npm run eslint && npm run rollup && npm run mocha",
     "test-cov": "npm run eslint && npm run rollup && npm run nyc"
   },
