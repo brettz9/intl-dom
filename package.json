@@ -9,6 +9,8 @@
     "rollup": "rollup -c",
     "mocha": "mocha --require esm --require chai/register-expect --require test/bootstrap/node.js test/*.js",
     "nyc": "nyc mocha --require esm --require chai/register-expect --require test/bootstrap/node.js test/*.js",
+    "open": "open-cli http://localhost:8010/test/browser/ && npm start",
+    "start": "static -p 8010",
     "test": "npm run eslint && npm run rollup && npm run mocha",
     "test-cov": "npm run eslint && npm run rollup && npm run nyc"
   },
@@ -66,7 +68,9 @@
     "file-fetch": "^1.2.0",
     "jsdom": "^15.2.0",
     "mocha": "^6.2.2",
+    "node-static": "^0.7.11",
     "nyc": "^14.1.1",
+    "open-cli": "^5.0.0",
     "rollup": "^1.25.1",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-terser": "^5.1.2",

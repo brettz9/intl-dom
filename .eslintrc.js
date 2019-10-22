@@ -20,6 +20,7 @@ module.exports = {
       'Error',
       'fetch',
       'JSON',
+      'Object.defineProperty',
       'Object.keys',
       'Promise',
       'Promise.reject'
@@ -28,7 +29,8 @@ module.exports = {
   overrides: [{
     files: ['test/**'],
     globals: {
-      expect: true
+      expect: true,
+      setNavigatorLanguages: true
     },
     env: {
       mocha: true
@@ -56,6 +58,11 @@ module.exports = {
 
       // Disable until https://github.com/gajus/eslint-plugin-jsdoc/issues/211
       'indent': 0
+    }
+  }, {
+    files: ['test/browser/index.html'],
+    rules: {
+      'import/unambiguous': 0
     }
   }],
   globals: {

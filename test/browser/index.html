@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>intl-dom Tests</title>
+        <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon" />
+        <link rel="stylesheet" href="../../node_modules/mocha/mocha.css"/>
+    </head>
+    <body>
+        <h1>intl-dom Tests</h1>
+        <div id="mocha"></div>
+
+        <!-- Test Environment -->
+        <script src="../../node_modules/mocha/mocha.js"></script>
+        <script src="../../node_modules/chai/chai.js"></script>
+        <script src="../../node_modules/chai-dom/chai-dom.js"></script>
+        <script>
+        window.require = () => {
+          // Todo: Browserify
+        };
+        window.module = {};
+        window.setNavigatorLanguages = (languages) => {
+          Object.defineProperty(
+            navigator,
+            'languages',
+            {value: languages, configurable: true}
+          );
+        };
+        </script>
+        <script src="../../node_modules/chai-as-promised/lib/chai-as-promised.js"></script>
+        <!-- <script src="../../node_modules/sinon/pkg/sinon-no-sourcemaps.js"></script> -->
+
+        <script src="../../node_modules/regenerator-runtime/runtime.js"></script>
+        <script>
+        /* globals chai */
+        window.expect = chai.expect;
+        mocha.setup('bdd');
+        </script>
+        <script type="module" src="../test.js"></script>
+        <script type="module">
+        mocha.run();
+        </script>
+    </body>
+</html>

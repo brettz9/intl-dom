@@ -11,3 +11,8 @@ chai.use(chaiAsPromised);
 
 global.document = (new JSDOM()).window.document;
 global.fetch = fileFetch;
+global.setNavigatorLanguages = (languages) => {
+  global.navigator = {
+    languages
+  };
+};

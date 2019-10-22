@@ -15,6 +15,12 @@ const container = (string) => {
   return dummyContainer;
 };
 
+// Make path resolutions consistent in Node with HTML
+if (typeof process !== 'undefined') {
+  // eslint-disable-next-line global-require
+  process.chdir(require('path').join(__dirname, 'browser'));
+}
+
 describe('API', function () {
   it('should export functions', function () {
     expect(promiseChainForValues).to.be.a('function');
@@ -783,7 +789,7 @@ describe('getDOMForLocaleString', function () {
 
 describe('findLocaleStrings', function () {
   beforeEach(function () {
-    global.navigator = undefined;
+    setNavigatorLanguages([]);
     // Ensure not modified
     this.expectedEnUS = {
       abc: {
@@ -815,9 +821,7 @@ describe('findLocaleStrings', function () {
   it(
     'should return locale object and no arguments',
     async function () {
-      global.navigator = {
-        languages: ['en-US']
-      };
+      setNavigatorLanguages(['en-US']);
       const strings = await findLocaleStrings();
       expect(strings).to.deep.equal(this.expectedEnUS);
     }
@@ -826,9 +830,7 @@ describe('findLocaleStrings', function () {
   it(
     'should return locale object with no `locales` and empty `defaultLocales`)',
     async function () {
-      global.navigator = {
-        languages: ['en-US']
-      };
+      setNavigatorLanguages(['en-US']);
       const strings = await findLocaleStrings({
         defaultLocales: []
       });
@@ -839,9 +841,7 @@ describe('findLocaleStrings', function () {
   it(
     'should return locale object with no `locales` and empty `defaultLocales`',
     async function () {
-      global.navigator = {
-        languages: ['zh-Hans']
-      };
+      setNavigatorLanguages(['zh-Hans']);
       const strings = await findLocaleStrings({
         defaultLocales: []
       });
@@ -915,7 +915,7 @@ describe('findLocaleStrings', function () {
       const strings = await findLocaleStrings({
         locales: ['en-US'],
         localeResolver (localesBasePath, locale) {
-          return `${localesBasePath.replace(/\/$/u, '')}/test/${locale}/messages.json`;
+          return `../${locale}/messages.json`;
         }
       });
       expect(strings).to.deep.equal(this.expectedEnUSTestDirectory);
@@ -939,13 +939,13 @@ describe('findLocaleStrings', function () {
     async function () {
       let strings = await findLocaleStrings({
         locales: ['en-US'],
-        localesBasePath: 'test'
+        localesBasePath: '../'
       });
       expect(strings).to.deep.equal(this.expectedEnUSLocalesTestDirectory);
 
       strings = await findLocaleStrings({
         locales: ['en-US'],
-        localesBasePath: 'test/'
+        localesBasePath: '..'
       });
       expect(strings).to.deep.equal(this.expectedEnUSLocalesTestDirectory);
     }
