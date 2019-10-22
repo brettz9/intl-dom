@@ -1,4 +1,3 @@
-import 'regenerator-runtime/runtime.js';
 import chai from 'chai';
 import chaiDOM from 'chai-dom';
 import chaiAsPromised from 'chai-as-promised';

@@ -15,7 +15,7 @@ the text (e.g., for localized links or buttons).
 ## Installation
 
 ```shell
-npm install --save intl-dom regenerator-runtime
+npm install --save intl-dom
 ```
 
 For older browser support, you may also need `core-js-bundle`.
@@ -23,21 +23,18 @@ For older browser support, you may also need `core-js-bundle`.
 ### Browser
 
 ```html
-<script type="./node_modules/regenerator-runtime/runtime.js"></script>
 <script type="./node_modules/intl-dom/dist/index.umd.js"></script>
 ```
 
 ### Browser (ESM)
 
 ```js
-import './node_modules/regenerator-runtime/runtime.js';
 import {i18n} from './node_modules/intl-dom/dist/index.esm.js';
 ```
 
 ### Browser/Node (Bundle)
 
 ```js
-import 'regenerator-runtime';
 import {i18n} from 'intl-dom';
 ```
 

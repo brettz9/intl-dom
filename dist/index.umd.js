@@ -18,42 +18,6 @@
     return _typeof(obj);
   }
 
-  function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
-    try {
-      var info = gen[key](arg);
-      var value = info.value;
-    } catch (error) {
-      reject(error);
-      return;
-    }
-
-    if (info.done) {
-      resolve(value);
-    } else {
-      Promise.resolve(value).then(_next, _throw);
-    }
-  }
-
-  function _asyncToGenerator(fn) {
-    return function () {
-      var self = this,
-          args = arguments;
-      return new Promise(function (resolve, reject) {
-        var gen = fn.apply(self, args);
-
-        function _next(value) {
-          asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
-        }
-
-        function _throw(err) {
-          asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
-        }
-
-        _next(undefined);
-      });
-    };
-  }
-
   function _slicedToArray(arr, i) {
     return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
   }
@@ -150,73 +114,17 @@
      });
    });
    */
-  var promiseChainForValues = function promiseChainForValues(values, errBack) {
-    var errorMessage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'Reached end of values array.';
-
-    if (!Array.isArray(values)) {
-      throw new TypeError('The `values` argument to `promiseChainForValues` must be an array.');
+  function _await(value, then, direct) {
+    if (direct) {
+      return then ? then(value) : value;
     }
 
-    if (typeof errBack !== 'function') {
-      throw new TypeError('The `errBack` argument to `promiseChainForValues` must be a function.');
+    if (!value || !value.then) {
+      value = Promise.resolve(value);
     }
 
-    return _asyncToGenerator(
-    /*#__PURE__*/
-    regeneratorRuntime.mark(function _callee() {
-      var ret, p, breaking, value;
-      return regeneratorRuntime.wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              p = Promise.reject(new Error('Intentionally reject so as to begin checking chain'));
-
-            case 1:
-
-              value = values.shift();
-              _context.prev = 3;
-              _context.next = 6;
-              return p;
-
-            case 6:
-              ret = _context.sent;
-              return _context.abrupt("break", 18);
-
-            case 10:
-              _context.prev = 10;
-              _context.t0 = _context["catch"](3);
-
-              if (!breaking) {
-                _context.next = 14;
-                break;
-              }
-
-              throw new Error(errorMessage);
-
-            case 14:
-              // We allow one more try
-              if (!values.length) {
-                breaking = true;
-              } // // eslint-disable-next-line no-await-in-loop
-
-
-              p = errBack(value);
-
-            case 16:
-              _context.next = 1;
-              break;
-
-            case 18:
-              return _context.abrupt("return", ret);
-
-            case 19:
-            case "end":
-              return _context.stop();
-          }
-        }
-      }, _callee, null, [[3, 10]]);
-    }))();
-  };
+    return then ? value.then(then) : value;
+  }
   /**
   * @callback SubstitutionCallback
   * @param {string} arg Accepts the third portion of the `bracketRegex` of
@@ -273,6 +181,275 @@
    * @type {LocaleResolver}
    */
 
+
+  function _catch(body, recover) {
+    try {
+      var result = body();
+    } catch (e) {
+      return recover(e);
+    }
+
+    if (result && result.then) {
+      return result.then(void 0, recover);
+    }
+
+    return result;
+  }
+
+  function _settle(pact, state, value) {
+    if (!pact.s) {
+      if (value instanceof _Pact) {
+        if (value.s) {
+          if (state & 1) {
+            state = value.s;
+          }
+
+          value = value.v;
+        } else {
+          value.o = _settle.bind(null, pact, state);
+          return;
+        }
+      }
+
+      if (value && value.then) {
+        value.then(_settle.bind(null, pact, state), _settle.bind(null, pact, 2));
+        return;
+      }
+
+      pact.s = state;
+      pact.v = value;
+      var observer = pact.o;
+
+      if (observer) {
+        observer(pact);
+      }
+    }
+  }
+
+  var _Pact =
+  /*#__PURE__*/
+  function () {
+    function _Pact() {}
+
+    _Pact.prototype.then = function (onFulfilled, onRejected) {
+      var result = new _Pact();
+      var state = this.s;
+
+      if (state) {
+        var callback = state & 1 ? onFulfilled : onRejected;
+
+        if (callback) {
+          try {
+            _settle(result, 1, callback(this.v));
+          } catch (e) {
+            _settle(result, 2, e);
+          }
+
+          return result;
+        } else {
+          return this;
+        }
+      }
+
+      this.o = function (_this) {
+        try {
+          var value = _this.v;
+
+          if (_this.s & 1) {
+            _settle(result, 1, onFulfilled ? onFulfilled(value) : value);
+          } else if (onRejected) {
+            _settle(result, 1, onRejected(value));
+          } else {
+            _settle(result, 2, value);
+          }
+        } catch (e) {
+          _settle(result, 2, e);
+        }
+      };
+
+      return result;
+    };
+
+    return _Pact;
+  }();
+
+  function _isSettledPact(thenable) {
+    return thenable instanceof _Pact && thenable.s & 1;
+  }
+
+  function _for(test, update, body) {
+    var stage;
+
+    for (;;) {
+      var shouldContinue = test();
+
+      if (_isSettledPact(shouldContinue)) {
+        shouldContinue = shouldContinue.v;
+      }
+
+      if (!shouldContinue) {
+        return result;
+      }
+
+      if (shouldContinue.then) {
+        stage = 0;
+        break;
+      }
+
+      var result = body();
+
+      if (result && result.then) {
+        if (_isSettledPact(result)) {
+          result = result.s;
+        } else {
+          stage = 1;
+          break;
+        }
+      }
+
+      if (update) {
+        var updateValue = update();
+
+        if (updateValue && updateValue.then && !_isSettledPact(updateValue)) {
+          stage = 2;
+          break;
+        }
+      }
+    }
+
+    var pact = new _Pact();
+
+    var reject = _settle.bind(null, pact, 2);
+
+    (stage === 0 ? shouldContinue.then(_resumeAfterTest) : stage === 1 ? result.then(_resumeAfterBody) : updateValue.then(_resumeAfterUpdate)).then(void 0, reject);
+    return pact;
+
+    function _resumeAfterBody(value) {
+      result = value;
+
+      do {
+        if (update) {
+          updateValue = update();
+
+          if (updateValue && updateValue.then && !_isSettledPact(updateValue)) {
+            updateValue.then(_resumeAfterUpdate).then(void 0, reject);
+            return;
+          }
+        }
+
+        shouldContinue = test();
+
+        if (!shouldContinue || _isSettledPact(shouldContinue) && !shouldContinue.v) {
+          _settle(pact, 1, result);
+
+          return;
+        }
+
+        if (shouldContinue.then) {
+          shouldContinue.then(_resumeAfterTest).then(void 0, reject);
+          return;
+        }
+
+        result = body();
+
+        if (_isSettledPact(result)) {
+          result = result.v;
+        }
+      } while (!result || !result.then);
+
+      result.then(_resumeAfterBody).then(void 0, reject);
+    }
+
+    function _resumeAfterTest(shouldContinue) {
+      if (shouldContinue) {
+        result = body();
+
+        if (result && result.then) {
+          result.then(_resumeAfterBody).then(void 0, reject);
+        } else {
+          _resumeAfterBody(result);
+        }
+      } else {
+        _settle(pact, 1, result);
+      }
+    }
+
+    function _resumeAfterUpdate() {
+      if (shouldContinue = test()) {
+        if (shouldContinue.then) {
+          shouldContinue.then(_resumeAfterTest).then(void 0, reject);
+        } else {
+          _resumeAfterTest(shouldContinue);
+        }
+      } else {
+        _settle(pact, 1, result);
+      }
+    }
+  }
+
+  function _continue(value, then) {
+    return value && value.then ? value.then(then) : then(value);
+  }
+
+  function _async(f) {
+    return function () {
+      for (var args = [], i = 0; i < arguments.length; i++) {
+        args[i] = arguments[i];
+      }
+
+      try {
+        return Promise.resolve(f.apply(this, args));
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    };
+  }
+
+  var promiseChainForValues = function promiseChainForValues(values, errBack) {
+    var errorMessage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'Reached end of values array.';
+
+    if (!Array.isArray(values)) {
+      throw new TypeError('The `values` argument to `promiseChainForValues` must be an array.');
+    }
+
+    if (typeof errBack !== 'function') {
+      throw new TypeError('The `errBack` argument to `promiseChainForValues` must be a function.');
+    }
+
+    return _async(function () {
+      var _exit = false,
+          _interrupt = false;
+      var ret;
+      var p = Promise.reject(new Error('Intentionally reject so as to begin checking chain'));
+      var breaking;
+      return _continue(_for(function () {
+        return !(_interrupt || _exit);
+      }, void 0, function () {
+        var value = values.shift();
+        return _catch(function () {
+          // eslint-disable-next-line no-await-in-loop
+          return _await(p, function (_p) {
+            ret = _p;
+            _interrupt = true;
+          });
+        }, function () {
+          if (breaking) {
+            throw new Error(errorMessage);
+          } // We allow one more try
+
+
+          if (!values.length) {
+            breaking = true;
+          } // // eslint-disable-next-line no-await-in-loop
+
+
+          p = errBack(value);
+        });
+      }), function (_result2) {
+        return  ret;
+      });
+    })();
+  };
   var defaultLocaleResolver = function defaultLocaleResolver(localesBasePath, locale) {
     if (typeof localesBasePath !== 'string') {
       throw new TypeError('`defaultLocaleResolver` expects a string `localesBasePath`.');
@@ -299,9 +476,9 @@
    */
 
   var getMessageForKeyByStyle = function getMessageForKeyByStyle() {
-    var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-        _ref2$messageStyle = _ref2.messageStyle,
-        messageStyle = _ref2$messageStyle === void 0 ? 'rich' : _ref2$messageStyle;
+    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        _ref$messageStyle = _ref.messageStyle,
+        messageStyle = _ref$messageStyle === void 0 ? 'rich' : _ref$messageStyle;
 
     return typeof messageStyle === 'function' ? messageStyle : messageStyle === 'rich' ? function (obj, key) {
       if (key in obj && obj[key] && 'message' in obj[key] && // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
@@ -333,15 +510,15 @@
    */
 
   var getStringFromMessageAndDefaults = function getStringFromMessageAndDefaults() {
-    var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-        message = _ref3.message,
-        defaults = _ref3.defaults,
-        messageStyle = _ref3.messageStyle,
-        _ref3$messageForKey = _ref3.messageForKey,
-        messageForKey = _ref3$messageForKey === void 0 ? getMessageForKeyByStyle({
+    var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        message = _ref2.message,
+        defaults = _ref2.defaults,
+        messageStyle = _ref2.messageStyle,
+        _ref2$messageForKey = _ref2.messageForKey,
+        messageForKey = _ref2$messageForKey === void 0 ? getMessageForKeyByStyle({
       messageStyle: messageStyle
-    }) : _ref3$messageForKey,
-        key = _ref3.key;
+    }) : _ref2$messageForKey,
+        key = _ref2.key;
 
     if (typeof key !== 'string') {
       throw new TypeError('An options object with a `key` string is expected on ' + '`getStringFromMessageAndDefaults`');
@@ -372,20 +549,20 @@
    */
 
   var getDOMForLocaleString = function getDOMForLocaleString() {
-    var _ref4 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-        string = _ref4.string,
-        _ref4$substitutions = _ref4.substitutions,
-        substitutions = _ref4$substitutions === void 0 ? false : _ref4$substitutions,
-        _ref4$dom = _ref4.dom,
-        dom = _ref4$dom === void 0 ? false : _ref4$dom,
-        _ref4$forceNodeReturn = _ref4.forceNodeReturn,
-        forceNodeReturn = _ref4$forceNodeReturn === void 0 ? false : _ref4$forceNodeReturn,
-        _ref4$throwOnMissingS = _ref4.throwOnMissingSuppliedFormatters,
-        throwOnMissingSuppliedFormatters = _ref4$throwOnMissingS === void 0 ? true : _ref4$throwOnMissingS,
-        _ref4$throwOnExtraSup = _ref4.throwOnExtraSuppliedFormatters,
-        throwOnExtraSuppliedFormatters = _ref4$throwOnExtraSup === void 0 ? true : _ref4$throwOnExtraSup,
-        _ref4$bracketRegex = _ref4.bracketRegex,
-        bracketRegex = _ref4$bracketRegex === void 0 ? /(\\*)\{((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*?)(?:\|((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g : _ref4$bracketRegex;
+    var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        string = _ref3.string,
+        _ref3$substitutions = _ref3.substitutions,
+        substitutions = _ref3$substitutions === void 0 ? false : _ref3$substitutions,
+        _ref3$dom = _ref3.dom,
+        dom = _ref3$dom === void 0 ? false : _ref3$dom,
+        _ref3$forceNodeReturn = _ref3.forceNodeReturn,
+        forceNodeReturn = _ref3$forceNodeReturn === void 0 ? false : _ref3$forceNodeReturn,
+        _ref3$throwOnMissingS = _ref3.throwOnMissingSuppliedFormatters,
+        throwOnMissingSuppliedFormatters = _ref3$throwOnMissingS === void 0 ? true : _ref3$throwOnMissingS,
+        _ref3$throwOnExtraSup = _ref3.throwOnExtraSuppliedFormatters,
+        throwOnExtraSuppliedFormatters = _ref3$throwOnExtraSup === void 0 ? true : _ref3$throwOnExtraSup,
+        _ref3$bracketRegex = _ref3.bracketRegex,
+        bracketRegex = _ref3$bracketRegex === void 0 ? /(\\*)\{((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*?)(?:\|((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g : _ref3$bracketRegex;
 
     if (typeof string !== 'string') {
       throw new TypeError('An options object with a `string` property set to a string must ' + 'be provided for `getDOMForLocaleString`.');
@@ -456,11 +633,11 @@
     var previousIndex = 0;
 
     while ((result = bracketRegex.exec(string)) !== null) {
-      var _result = result,
-          _result2 = _slicedToArray(_result, 4),
-          esc = _result2[1],
-          ky = _result2[2],
-          arg = _result2[3];
+      var _result3 = result,
+          _result4 = _slicedToArray(_result3, 4),
+          esc = _result4[1],
+          ky = _result4[2],
+          arg = _result4[3];
 
       var lastIndex = bracketRegex.lastIndex;
 
@@ -511,131 +688,58 @@
    * @returns {Promise<LocaleStringObject|PlainLocaleStringObject|PlainObject>}
    */
 
-  var findLocaleStrings =
-  /*#__PURE__*/
-  function () {
-    var _ref5 = _asyncToGenerator(
-    /*#__PURE__*/
-    regeneratorRuntime.mark(function _callee3() {
-      var _ref6,
-          _ref6$locales,
-          locales,
-          _ref6$defaultLocales,
-          defaultLocales,
-          _ref6$localeResolver,
-          localeResolver,
-          _ref6$localesBasePath,
-          localesBasePath,
-          _args3 = arguments;
+  var findLocaleStrings = _async(function () {
+    var _ref4 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        _ref4$locales = _ref4.locales,
+        locales = _ref4$locales === void 0 ? navigator.languages : _ref4$locales,
+        _ref4$defaultLocales = _ref4.defaultLocales,
+        defaultLocales = _ref4$defaultLocales === void 0 ? ['en-US'] : _ref4$defaultLocales,
+        _ref4$localeResolver = _ref4.localeResolver,
+        localeResolver = _ref4$localeResolver === void 0 ? defaultLocaleResolver : _ref4$localeResolver,
+        _ref4$localesBasePath = _ref4.localesBasePath,
+        localesBasePath = _ref4$localesBasePath === void 0 ? '.' : _ref4$localesBasePath;
 
-      return regeneratorRuntime.wrap(function _callee3$(_context3) {
-        while (1) {
-          switch (_context3.prev = _context3.next) {
-            case 0:
-              _ref6 = _args3.length > 0 && _args3[0] !== undefined ? _args3[0] : {}, _ref6$locales = _ref6.locales, locales = _ref6$locales === void 0 ? navigator.languages : _ref6$locales, _ref6$defaultLocales = _ref6.defaultLocales, defaultLocales = _ref6$defaultLocales === void 0 ? ['en-US'] : _ref6$defaultLocales, _ref6$localeResolver = _ref6.localeResolver, localeResolver = _ref6$localeResolver === void 0 ? defaultLocaleResolver : _ref6$localeResolver, _ref6$localesBasePath = _ref6.localesBasePath, localesBasePath = _ref6$localesBasePath === void 0 ? '.' : _ref6$localesBasePath;
-              _context3.next = 3;
-              return promiseChainForValues([].concat(_toConsumableArray(locales), _toConsumableArray(defaultLocales)),
-              /*#__PURE__*/
-              function () {
-                var _getLocale = _asyncToGenerator(
-                /*#__PURE__*/
-                regeneratorRuntime.mark(function _callee2(locale) {
-                  var url, resp;
-                  return regeneratorRuntime.wrap(function _callee2$(_context2) {
-                    while (1) {
-                      switch (_context2.prev = _context2.next) {
-                        case 0:
-                          if (!(typeof locale !== 'string')) {
-                            _context2.next = 2;
-                            break;
-                          }
-
-                          throw new TypeError('Non-string locale type');
-
-                        case 2:
-                          url = localeResolver(localesBasePath, locale);
-
-                          if (!(typeof url !== 'string')) {
-                            _context2.next = 5;
-                            break;
-                          }
-
-                          throw new TypeError('`localeResolver` expected to resolve to (URL) string.');
-
-                        case 5:
-                          _context2.prev = 5;
-                          _context2.next = 8;
-                          return fetch(url);
-
-                        case 8:
-                          resp = _context2.sent;
-
-                          if (!(resp.status === 404)) {
-                            _context2.next = 11;
-                            break;
-                          }
-
-                          throw new Error('Trying again');
-
-                        case 11:
-                          _context2.next = 13;
-                          return resp.json();
-
-                        case 13:
-                          return _context2.abrupt("return", _context2.sent);
-
-                        case 16:
-                          _context2.prev = 16;
-                          _context2.t0 = _context2["catch"](5);
-
-                          if (!(_context2.t0.name === 'SyntaxError')) {
-                            _context2.next = 20;
-                            break;
-                          }
-
-                          throw _context2.t0;
-
-                        case 20:
-                          if (locale.includes('-')) {
-                            _context2.next = 22;
-                            break;
-                          }
-
-                          throw new Error('Locale not available');
-
-                        case 22:
-                          return _context2.abrupt("return", getLocale(locale.replace(/\x2D(?:[\0-\t\x0B\f\x0E-\u2027\u202A-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*$/, '')));
-
-                        case 23:
-                        case "end":
-                          return _context2.stop();
-                      }
-                    }
-                  }, _callee2, null, [[5, 16]]);
-                }));
-
-                function getLocale(_x) {
-                  return _getLocale.apply(this, arguments);
-                }
-
-                return getLocale;
-              }(), 'No matching locale found!');
-
-            case 3:
-              return _context3.abrupt("return", _context3.sent);
-
-            case 4:
-            case "end":
-              return _context3.stop();
-          }
+    // eslint-disable-next-line no-return-await
+    return promiseChainForValues([].concat(_toConsumableArray(locales), _toConsumableArray(defaultLocales)), function getLocale(locale) {
+      try {
+        if (typeof locale !== 'string') {
+          throw new TypeError('Non-string locale type');
         }
-      }, _callee3);
-    }));
 
-    return function findLocaleStrings() {
-      return _ref5.apply(this, arguments);
-    };
-  }();
+        var url = localeResolver(localesBasePath, locale);
+
+        if (typeof url !== 'string') {
+          throw new TypeError('`localeResolver` expected to resolve to (URL) string.');
+        }
+
+        return _catch(function () {
+          return _await(fetch(url), function (resp) {
+            if (resp.status === 404) {
+              // Don't allow browser (tested in Firefox) to continue
+              //  and give `SyntaxError` with missing file or we won't be
+              //  able to try without the hyphen
+              throw new Error('Trying again');
+            }
+
+            return _await(resp.json());
+          });
+        }, function (err) {
+          if (err.name === 'SyntaxError') {
+            throw err;
+          }
+
+          if (!locale.includes('-')) {
+            throw new Error('Locale not available');
+          } // Try without hyphen
+
+
+          return getLocale(locale.replace(/\x2D(?:[\0-\t\x0B\f\x0E-\u2027\u202A-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*$/, ''));
+        });
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    }, 'No matching locale found!');
+  });
   /* eslint-disable max-len */
 
   /**
@@ -653,90 +757,55 @@
    * @returns {Promise<I18NCallback>} Rejects if no suitable locale is found.
    */
 
-  var i18n =
-  /*#__PURE__*/
-  function () {
-    var _i18n = _asyncToGenerator(
-    /*#__PURE__*/
-    regeneratorRuntime.mark(function _callee4() {
-      var _ref7,
-          locales,
-          defaultLocales,
-          localesBasePath,
-          localeResolver,
-          defaults,
-          messageStyle,
-          forceNodeReturn,
-          throwOnMissingSuppliedFormatters,
-          throwOnExtraSuppliedFormatters,
-          bracketRegex,
-          strings,
-          messageForKey,
-          _args4 = arguments;
+  var i18n = function i18n() {
+    var _ref5 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        locales = _ref5.locales,
+        defaultLocales = _ref5.defaultLocales,
+        localesBasePath = _ref5.localesBasePath,
+        localeResolver = _ref5.localeResolver,
+        defaults = _ref5.defaults,
+        messageStyle = _ref5.messageStyle,
+        forceNodeReturn = _ref5.forceNodeReturn,
+        throwOnMissingSuppliedFormatters = _ref5.throwOnMissingSuppliedFormatters,
+        throwOnExtraSuppliedFormatters = _ref5.throwOnExtraSuppliedFormatters,
+        bracketRegex = _ref5.bracketRegex;
 
-      return regeneratorRuntime.wrap(function _callee4$(_context4) {
-        while (1) {
-          switch (_context4.prev = _context4.next) {
-            case 0:
-              _ref7 = _args4.length > 0 && _args4[0] !== undefined ? _args4[0] : {}, locales = _ref7.locales, defaultLocales = _ref7.defaultLocales, localesBasePath = _ref7.localesBasePath, localeResolver = _ref7.localeResolver, defaults = _ref7.defaults, messageStyle = _ref7.messageStyle, forceNodeReturn = _ref7.forceNodeReturn, throwOnMissingSuppliedFormatters = _ref7.throwOnMissingSuppliedFormatters, throwOnExtraSuppliedFormatters = _ref7.throwOnExtraSuppliedFormatters, bracketRegex = _ref7.bracketRegex;
-              _context4.next = 3;
-              return findLocaleStrings({
-                locales: locales,
-                defaultLocales: defaultLocales,
-                localeResolver: localeResolver,
-                localesBasePath: localesBasePath
-              });
+    return _await(findLocaleStrings({
+      locales: locales,
+      defaultLocales: defaultLocales,
+      localeResolver: localeResolver,
+      localesBasePath: localesBasePath
+    }), function (strings) {
+      if (!strings || _typeof(strings) !== 'object') {
+        throw new TypeError("Locale strings must be an object!");
+      }
 
-            case 3:
-              strings = _context4.sent;
+      var messageForKey = getMessageForKeyByStyle({
+        messageStyle: messageStyle
+      });
+      return function (key, substitutions) {
+        var _ref6 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+            dom = _ref6.dom;
 
-              if (!(!strings || _typeof(strings) !== 'object')) {
-                _context4.next = 6;
-                break;
-              }
-
-              throw new TypeError("Locale strings must be an object!");
-
-            case 6:
-              messageForKey = getMessageForKeyByStyle({
-                messageStyle: messageStyle
-              });
-              return _context4.abrupt("return", function (key, substitutions) {
-                var _ref8 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-                    dom = _ref8.dom;
-
-                var message = messageForKey(strings, key);
-                var string = getStringFromMessageAndDefaults({
-                  message: message,
-                  defaults: defaults,
-                  messageForKey: messageForKey,
-                  key: key
-                });
-                return getDOMForLocaleString({
-                  string: string,
-                  substitutions: substitutions,
-                  dom: dom,
-                  forceNodeReturn: forceNodeReturn,
-                  throwOnMissingSuppliedFormatters: throwOnMissingSuppliedFormatters,
-                  throwOnExtraSuppliedFormatters: throwOnExtraSuppliedFormatters,
-                  bracketRegex: bracketRegex
-                });
-              });
-
-            case 8:
-            case "end":
-              return _context4.stop();
-          }
-        }
-      }, _callee4);
-    }));
-
-    function i18n() {
-      return _i18n.apply(this, arguments);
-    }
-
-    return i18n;
-  }();
+        var message = messageForKey(strings, key);
+        var string = getStringFromMessageAndDefaults({
+          message: message,
+          defaults: defaults,
+          messageForKey: messageForKey,
+          key: key
+        });
+        return getDOMForLocaleString({
+          string: string,
+          substitutions: substitutions,
+          dom: dom,
+          forceNodeReturn: forceNodeReturn,
+          throwOnMissingSuppliedFormatters: throwOnMissingSuppliedFormatters,
+          throwOnExtraSuppliedFormatters: throwOnExtraSuppliedFormatters,
+          bracketRegex: bracketRegex
+        });
+      };
+    });
+  };
 
   exports.defaultLocaleResolver = defaultLocaleResolver;
   exports.findLocaleStrings = findLocaleStrings;
