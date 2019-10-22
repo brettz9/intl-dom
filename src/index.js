@@ -379,6 +379,12 @@ export const findLocaleStrings = async ({
       }
       try {
         const resp = await fetch(url);
+        if (resp.status === 404) {
+          // Don't allow browser (tested in Firefox) to continue
+          //  and give `SyntaxError` with missing file or we won't be
+          //  able to try without the hyphen
+          throw new Error('Trying again');
+        }
         return await (resp.json());
       } catch (err) {
         if (err.name === 'SyntaxError') {
