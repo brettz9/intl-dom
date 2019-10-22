@@ -14,11 +14,8 @@
         <script src="../../node_modules/mocha/mocha.js"></script>
         <script src="../../node_modules/chai/chai.js"></script>
         <script src="../../node_modules/chai-dom/chai-dom.js"></script>
+        <script src="vendor/chai-as-promised.js"></script>
         <script>
-        window.require = () => {
-          // Todo: Browserify
-        };
-        window.module = {};
         window.setNavigatorLanguages = (languages) => {
           Object.defineProperty(
             navigator,
@@ -27,13 +24,13 @@
           );
         };
         </script>
-        <script src="../../node_modules/chai-as-promised/lib/chai-as-promised.js"></script>
         <!-- <script src="../../node_modules/sinon/pkg/sinon-no-sourcemaps.js"></script> -->
 
         <script src="../../node_modules/regenerator-runtime/runtime.js"></script>
         <script>
-        /* globals chai */
+        /* globals chai, chaiAsPromised */
         window.expect = chai.expect;
+        chai.use(chaiAsPromised);
         mocha.setup('bdd');
         </script>
         <script type="module" src="../test.js"></script>

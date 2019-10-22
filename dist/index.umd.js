@@ -569,40 +569,49 @@
 
                         case 8:
                           resp = _context2.sent;
-                          _context2.next = 11;
-                          return resp.json();
+
+                          if (!(resp.status === 404)) {
+                            _context2.next = 11;
+                            break;
+                          }
+
+                          throw new Error('Trying again');
 
                         case 11:
+                          _context2.next = 13;
+                          return resp.json();
+
+                        case 13:
                           return _context2.abrupt("return", _context2.sent);
 
-                        case 14:
-                          _context2.prev = 14;
+                        case 16:
+                          _context2.prev = 16;
                           _context2.t0 = _context2["catch"](5);
 
                           if (!(_context2.t0.name === 'SyntaxError')) {
-                            _context2.next = 18;
+                            _context2.next = 20;
                             break;
                           }
 
                           throw _context2.t0;
 
-                        case 18:
+                        case 20:
                           if (locale.includes('-')) {
-                            _context2.next = 20;
+                            _context2.next = 22;
                             break;
                           }
 
                           throw new Error('Locale not available');
 
-                        case 20:
+                        case 22:
                           return _context2.abrupt("return", getLocale(locale.replace(/\x2D(?:[\0-\t\x0B\f\x0E-\u2027\u202A-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*$/, '')));
 
-                        case 21:
+                        case 23:
                         case "end":
                           return _context2.stop();
                       }
                     }
-                  }, _callee2, null, [[5, 14]]);
+                  }, _callee2, null, [[5, 16]]);
                 }));
 
                 function getLocale(_x) {
