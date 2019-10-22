@@ -16,6 +16,13 @@ chai.use(chaiDOM);
 
 global.document = (new JSDOM()).window.document;
 
+// Todo: We could replace this with a custom plugin
+const container = (string) => {
+  const dummyContainer = document.createElement('div');
+  dummyContainer.append(string);
+  return dummyContainer;
+};
+
 describe('API', function () {
   it('should export functions', function () {
     expect(promiseChainForValues).to.be.a('function');
@@ -683,8 +690,103 @@ describe('getDOMForLocaleString', function () {
       }).to.not.throw();
     }
   );
-  // Todo: Multiple substitutions and multiple replacements
-  //   within a string of same key (with DOM substitutions)
+
+  it('should return DOM with DOM substitution', function () {
+    const elem = document.createElement('a');
+    elem.href = 'http://example.com';
+    elem.textContent = 'message';
+
+    const string = getDOMForLocaleString({
+      string: 'simple {msg}',
+      substitutions: {
+        msg: elem
+      }
+    });
+    expect(string).to.have.text('simple message');
+    expect(string).to.contain(elem);
+
+    expect(container(string)).to.have.html('simple <a href="http://example.com">message</a>');
+  });
+
+  it('should return DOM with DOM substitution', function () {
+    const elem = document.createElement('a');
+    elem.href = 'http://example.com';
+    elem.textContent = 'message';
+
+    const simpElem = document.createElement('span');
+    simpElem.textContent = 'simple';
+
+    const string = getDOMForLocaleString({
+      string: '{simp} {msg}',
+      substitutions: {
+        msg: elem,
+        simp: simpElem
+      }
+    });
+    expect(string).to.have.text('simple message');
+    expect(string).to.contain(elem);
+    expect(string).to.contain(simpElem);
+
+    expect(container(string)).to.have.html('<span>simple</span> <a href="http://example.com">message</a>');
+  });
+
+  it(
+    'should throw with missing supplied formatters (but one DOM formatter)',
+    function () {
+      expect(() => {
+        const simpElem = document.createElement('span');
+        simpElem.textContent = 'simple';
+
+        getDOMForLocaleString({
+          string: '{simp} {msg}',
+          throwOnMissingSuppliedFormatters: true,
+          substitutions: {
+            simp: simpElem
+          }
+        });
+      }).to.throw(
+        Error,
+        'Missing formatting key: msg'
+      );
+    }
+  );
+
+  it(
+    'should throw with extra supplied formatters (including DOM)',
+    function () {
+      expect(() => {
+        const simpElem = document.createElement('span');
+        simpElem.textContent = 'why am I here?';
+        getDOMForLocaleString({
+          string: 'A {msg}',
+          throwOnExtraSuppliedFormatters: true,
+          substitutions: {
+            msg: 'message',
+            anExtraOne: simpElem
+          }
+        });
+      }).to.throw(
+        Error,
+        'Extra formatting key: anExtraOne'
+      );
+
+      expect(() => {
+        const simpElem = document.createElement('span');
+        simpElem.textContent = 'simple';
+        getDOMForLocaleString({
+          string: 'A {msg}',
+          throwOnExtraSuppliedFormatters: true,
+          substitutions: {
+            msg: simpElem,
+            anExtraOne: 'why am I here?'
+          }
+        });
+      }).to.throw(
+        Error,
+        'Extra formatting key: anExtraOne'
+      );
+    }
+  );
 });
 
 describe('findLocaleStrings', function () {
