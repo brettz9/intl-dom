@@ -98,7 +98,7 @@ export const promiseChainForValues = (
 
 /**
  * @callback LocaleResolver
- * @param {string} localesBasePth (Trailing slash optional)
+ * @param {string} localesBasePath (Trailing slash optional)
  * @param {string} locale BCP-47 language string
  * @returns {string} URL of the locale file to be fetched
 */
@@ -372,6 +372,11 @@ export const findLocaleStrings = async ({
         throw new TypeError('Non-string locale type');
       }
       const url = localeResolver(localesBasePath, locale);
+      if (typeof url !== 'string') {
+        throw new TypeError(
+          '`localeResolver` expected to resolve to (URL) string.'
+        );
+      }
       try {
         const resp = await fetch(url);
         return await (resp.json());

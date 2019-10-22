@@ -808,6 +808,11 @@ describe('findLocaleStrings', function () {
         message: 'zzz'
       }
     };
+    this.expectedEnUSLocalesTestDirectory = {
+      abc: {
+        message: 'yyy'
+      }
+    };
     this.expectedZhHans = {
       def: {
         message: 'bbb'
@@ -942,9 +947,22 @@ describe('findLocaleStrings', function () {
     }
   );
 
-  /*
-  localesBasePath = '.'
-  */
+  it(
+    'should return locale object when using custom `localesBasePath`',
+    async function () {
+      let strings = await findLocaleStrings({
+        locales: ['en-US'],
+        localesBasePath: 'test'
+      });
+      expect(strings).to.deep.equal(this.expectedEnUSLocalesTestDirectory);
+
+      strings = await findLocaleStrings({
+        locales: ['en-US'],
+        localesBasePath: 'test/'
+      });
+      expect(strings).to.deep.equal(this.expectedEnUSLocalesTestDirectory);
+    }
+  );
 });
 
 describe('i18n', function () {

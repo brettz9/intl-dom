@@ -236,7 +236,7 @@ var promiseChainForValues = function promiseChainForValues(values, errBack) {
 
 /**
  * @callback LocaleResolver
- * @param {string} localesBasePth (Trailing slash optional)
+ * @param {string} localesBasePath (Trailing slash optional)
  * @param {string} locale BCP-47 language string
  * @returns {string} URL of the locale file to be fetched
 */
@@ -548,46 +548,55 @@ function () {
 
                       case 2:
                         url = localeResolver(localesBasePath, locale);
-                        _context2.prev = 3;
-                        _context2.next = 6;
+
+                        if (!(typeof url !== 'string')) {
+                          _context2.next = 5;
+                          break;
+                        }
+
+                        throw new TypeError('`localeResolver` expected to resolve to (URL) string.');
+
+                      case 5:
+                        _context2.prev = 5;
+                        _context2.next = 8;
                         return fetch(url);
 
-                      case 6:
+                      case 8:
                         resp = _context2.sent;
-                        _context2.next = 9;
+                        _context2.next = 11;
                         return resp.json();
 
-                      case 9:
+                      case 11:
                         return _context2.abrupt("return", _context2.sent);
 
-                      case 12:
-                        _context2.prev = 12;
-                        _context2.t0 = _context2["catch"](3);
+                      case 14:
+                        _context2.prev = 14;
+                        _context2.t0 = _context2["catch"](5);
 
                         if (!(_context2.t0.name === 'SyntaxError')) {
-                          _context2.next = 16;
+                          _context2.next = 18;
                           break;
                         }
 
                         throw _context2.t0;
 
-                      case 16:
+                      case 18:
                         if (locale.includes('-')) {
-                          _context2.next = 18;
+                          _context2.next = 20;
                           break;
                         }
 
                         throw new Error('Locale not available');
 
-                      case 18:
+                      case 20:
                         return _context2.abrupt("return", getLocale(locale.replace(/\x2D(?:[\0-\t\x0B\f\x0E-\u2027\u202A-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*$/, '')));
 
-                      case 19:
+                      case 21:
                       case "end":
                         return _context2.stop();
                     }
                   }
-                }, _callee2, null, [[3, 12]]);
+                }, _callee2, null, [[5, 14]]);
               }));
 
               function getLocale(_x) {
