@@ -803,6 +803,11 @@ describe('findLocaleStrings', function () {
         message: 'aaa'
       }
     };
+    this.expectedEnUSTestDirectory = {
+      abc: {
+        message: 'zzz'
+      }
+    };
     this.expectedZhHans = {
       def: {
         message: 'bbb'
@@ -912,8 +917,32 @@ describe('findLocaleStrings', function () {
     }
   );
 
+  it(
+    'should return locale object when using custom `localeResolver`',
+    async function () {
+      const strings = await findLocaleStrings({
+        locales: ['en-US'],
+        localeResolver (localesBasePath, locale) {
+          return `${localesBasePath.replace(/\/$/u, '')}/test/${locale}/messages.json`;
+        }
+      });
+      expect(strings).to.deep.equal(this.expectedEnUSTestDirectory);
+    }
+  );
+
+  it(
+    'should reject with custom `localeResolver` not returning a string',
+    function () {
+      return expect(findLocaleStrings({
+        locales: ['en-US'],
+        localeResolver (localesBasePath, locale) {
+          return false;
+        }
+      })).to.be.rejectedWith(Error, 'No matching locale found!');
+    }
+  );
+
   /*
-  localeResolver = defaultLocaleResolver,
   localesBasePath = '.'
   */
 });
