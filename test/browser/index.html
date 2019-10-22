@@ -15,15 +15,6 @@
         <script src="../../node_modules/chai/chai.js"></script>
         <script src="../../node_modules/chai-dom/chai-dom.js"></script>
         <script src="vendor/chai-as-promised.js"></script>
-        <script>
-        window.setNavigatorLanguages = (languages) => {
-          Object.defineProperty(
-            navigator,
-            'languages',
-            {value: languages, configurable: true}
-          );
-        };
-        </script>
         <!-- <script src="../../node_modules/sinon/pkg/sinon-no-sourcemaps.js"></script> -->
 
         <script src="../../node_modules/regenerator-runtime/runtime.js"></script>
@@ -32,6 +23,14 @@
         window.expect = chai.expect;
         chai.use(chaiAsPromised);
         mocha.setup('bdd');
+
+        window.setNavigatorLanguages = (languages) => {
+          Object.defineProperty(
+            navigator,
+            'languages',
+            {value: languages, configurable: true}
+          );
+        };
         </script>
         <script type="module" src="../test.js"></script>
         <script type="module">
