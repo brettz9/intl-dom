@@ -816,7 +816,7 @@ describe('findLocaleStrings', function () {
   });
 
   it(
-    'should return locale object with `findLocaleStrings` (no arguments)',
+    'should return locale object and no arguments',
     async function () {
       global.navigator = {
         languages: ['en-US']
@@ -827,8 +827,7 @@ describe('findLocaleStrings', function () {
   );
 
   it(
-    'should return locale object with `findLocaleStrings` (no `locales` ' +
-    'and empty `defaultLocales`)',
+    'should return locale object with no `locales` and empty `defaultLocales`)',
     async function () {
       global.navigator = {
         languages: ['en-US']
@@ -841,8 +840,7 @@ describe('findLocaleStrings', function () {
   );
 
   it(
-    'should return locale object with `findLocaleStrings` (no `locales` and ' +
-    'empty `defaultLocales`)',
+    'should return locale object with no `locales` and empty `defaultLocales`',
     async function () {
       global.navigator = {
         languages: ['zh-Hans']
@@ -855,7 +853,7 @@ describe('findLocaleStrings', function () {
   );
 
   it(
-    'should return locale object with `findLocaleStrings` (explicit `locales`)',
+    'should return locale object with explicit `locales`',
     async function () {
       const strings = await findLocaleStrings({
         locales: ['en-US']
@@ -865,8 +863,7 @@ describe('findLocaleStrings', function () {
   );
 
   it(
-    'should return locale object with `findLocaleStrings` (check ' +
-    'without hyphen)',
+    'should return locale object when finding locale without hyphen',
     async function () {
       const strings = await findLocaleStrings({
         locales: ['pt-BR']
@@ -876,8 +873,8 @@ describe('findLocaleStrings', function () {
   );
 
   it(
-    'should return locale object with `findLocaleStrings` (reversion to ' +
-    'secondary item in `locales`)',
+    'should return locale object when needing to revert to secondary ' +
+    'item in `locales`',
     async function () {
       const strings = await findLocaleStrings({
         locales: ['zz', 'en-US', 'zh-Hans'],
@@ -888,8 +885,7 @@ describe('findLocaleStrings', function () {
   );
 
   it(
-    'should return locale object with `findLocaleStrings` (reversion ' +
-    'to `defaultLocales`)',
+    'should return locale object when needing to revert to `defaultLocales`',
     async function () {
       const strings = await findLocaleStrings({
         locales: ['zz'],
@@ -899,7 +895,7 @@ describe('findLocaleStrings', function () {
     }
   );
 
-  it('should reject with `findLocaleStrings` and bad JSON locale', function () {
+  it('should reject with bad JSON locale and no fallbacks', function () {
     return expect(findLocaleStrings({
       locales: ['xy'],
       defaultLocales: []
@@ -907,7 +903,7 @@ describe('findLocaleStrings', function () {
   });
 
   it(
-    'should reject with `findLocaleStrings` and bad locale argument',
+    'should reject with bad locale argument and no fallbacks',
     function () {
       return expect(findLocaleStrings({
         locales: [null],
