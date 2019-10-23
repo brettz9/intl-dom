@@ -953,10 +953,29 @@ describe('findLocaleStrings', function () {
 });
 
 describe.skip('i18n', function () {
-  it('should find strings with empty arguments', async function () {
+  it('should return a function with empty arguments', async function () {
     const _ = await i18n();
     expect(_).to.be.a('function');
     expect(_).to.have.lengthOf(3);
+  });
+  it('should return a function with empty object argument', async function () {
+    const _ = await i18n({});
+    expect(_).to.be.a('function');
+    expect(_).to.have.lengthOf(3);
+  });
+  it('should find strings with explicit `locales`', async function () {
+    const _ = await i18n({
+      locales: ['en-US']
+    });
+    const string = _('abc');
+    expect(string).to.equal(this.expectedEnUS.abc.message);
+  });
+  it('should reject with non-object JSON', function () {
+    expect(
+      i18n({
+        locales: ['xx']
+      })
+    ).to.be.rejectedWith(TypeError, 'Locale strings must be an object!');
   });
   /*
   locales,
