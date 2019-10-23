@@ -442,6 +442,7 @@ export const i18n = async function i18n ({
   localeResolver,
   messageStyle,
   bracketRegex,
+  substitutions: defaultSubstitutions,
   defaults: defaultDefaults,
   dom: domDefaults = false,
   forceNodeReturn: forceNodeReturnDefault = false,
@@ -473,7 +474,7 @@ export const i18n = async function i18n ({
     });
     return getDOMForLocaleString({
       string,
-      substitutions,
+      substitutions: {...defaultSubstitutions, ...substitutions},
       dom,
       forceNodeReturn,
       throwOnMissingSuppliedFormatters,

@@ -1217,17 +1217,154 @@ describe('i18n', function () {
     }
   );
 
-  /*
-  // Include empty options object
-  key, substitutions, {
-    defaults = defaultDefaults,
-    dom = domDefaults,
-    forceNodeReturn = forceNodeReturnDefault,
-    throwOnMissingSuppliedFormatters = throwOnMissingSuppliedFormattersDefault,
-    throwOnExtraSuppliedFormatters = throwOnExtraSuppliedFormattersDefault
-  }
-   */
-  // Todo: Finish above
+  it(
+    'should return a function that returns a string message despite ' +
+    'an empty options object present',
+    async function () {
+      const _ = await i18n({
+        locales: ['zx'],
+        messageStyle: 'plain'
+      });
+      const string = _('key', {});
+      expect(string).to.equal(this.expectedPlainStyleObject.key);
+    }
+  );
+
+  it(
+    'should return a function that returns a string message despite ' +
+    'defaults object present (on options object)',
+    async function () {
+      const _ = await i18n({
+        locales: ['zx'],
+        messageStyle: 'plain'
+      });
+      const string = _('key', null, {
+        defaults: {
+          myKey: 'somethingElse'
+        }
+      });
+      expect(string).to.equal(this.expectedPlainStyleObject.key);
+    }
+  );
+  it(
+    'should return a function that returns a string message ' +
+    'despite defaults false (on options object)',
+    async function () {
+      const _ = await i18n({
+        locales: ['zx'],
+        messageStyle: 'plain'
+      });
+      const string = _('key', null, {
+        defaults: false
+      });
+      expect(string).to.equal(this.expectedPlainStyleObject.key);
+    }
+  );
+
+  it(
+    'should return a function that returns a string text node ' +
+    ' (with `dom` on options object)',
+    async function () {
+      let _ = await i18n();
+      let string = _('abc', null, {
+        dom: true
+      });
+      expect(string).to.have.text(this.expectedEnUS.abc.message);
+
+      _ = await i18n({});
+      string = _('abc', null, {
+        dom: true
+      });
+      expect(string).to.have.text(this.expectedEnUS.abc.message);
+    }
+  );
+
+  it(
+    'should return a function that returns a string text node ' +
+    '(with `forceNodeReturn` on options object)',
+    async function () {
+      const _ = await i18n({
+        throwOnMissingSuppliedFormatters: false
+      });
+      const string = _('abc', null, {
+        forceNodeReturn: true
+      });
+      expect(string).to.have.text(this.expectedEnUS.abc.message);
+    }
+  );
+
+  it(
+    'should return a function which does not throw with missing ' +
+    'supplied formatters and `throwOnMissingSuppliedFormatters` disabled ' +
+    '(on options object)',
+    async function () {
+      const _ = await i18n({
+        locales: ['fr'],
+        forceNodeReturn: true
+      });
+      let string;
+      expect(() => {
+        string = _('key', {}, {
+          throwOnMissingSuppliedFormatters: false
+        });
+      }).to.not.throw();
+      expect(string).to.have.text('A {msg}');
+
+      expect(() => {
+        string = _('key', null, {
+          throwOnMissingSuppliedFormatters: false
+        });
+      }).to.not.throw();
+      expect(string).to.have.text('A {msg}');
+    }
+  );
+
+  it(
+    'should return function which does not throw with extra supplied ' +
+    'formatters and `throwOnExtraSuppliedFormatters` disabled (on options ' +
+    'object) and should return the formatted string',
+    async function () {
+      const _ = await i18n({
+        locales: ['fr'],
+        forceNodeReturn: true
+      });
+      const string = _('key', {
+        msg: 'message',
+        anExtraOne: 'why am I here?'
+      }, {
+        throwOnExtraSuppliedFormatters: false
+      });
+      expect(string).to.have.text('A message');
+    }
+  );
+
+  it('should return string with default substitutions', async function () {
+    const _ = await i18n({
+      locales: ['fr'],
+      substitutions: {
+        msg: 'message'
+      }
+    });
+    const string = _('key');
+    expect(string).to.equal('A message');
+  });
+
+  it(
+    'should return string with default and overriding substitutions',
+    async function () {
+      const _ = await i18n({
+        locales: ['de'],
+        substitutions: {
+          msg: 'message'
+        }
+      });
+      const string = _('key', {
+        simp: 'simple'
+      });
+      expect(string).to.equal('A simple message');
+    }
+  );
+
   // Todo: Document, replacing document "todo" and update project status
   // Todo: Ensure coverage is complete and working! (different for browser too?)
   // Todo: Ensure browser tests still working
