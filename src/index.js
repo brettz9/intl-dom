@@ -277,10 +277,14 @@ export const getDOMForLocaleString = ({
       });
     }
   };
-  const checkMissingSuppliedFormatters = (ky) => {
-    if (throwOnMissingSuppliedFormatters && !(ky in substitutions)) {
-      throw new Error(`Missing formatting key: ${ky}`);
+  const missingSuppliedFormatters = (ky) => {
+    if (!(ky in substitutions)) {
+      if (throwOnMissingSuppliedFormatters) {
+        throw new Error(`Missing formatting key: ${ky}`);
+      }
+      return true;
     }
+    return false;
   };
 
   if (!substitutions && !throwOnMissingSuppliedFormatters) {
@@ -298,7 +302,10 @@ export const getDOMForLocaleString = ({
         // Ignore odd sequences of escape sequences
         return _;
       }
-      checkMissingSuppliedFormatters(ky);
+      if (missingSuppliedFormatters(ky)) {
+        return _;
+      }
+
       let substitution = substitutions[ky];
       if (typeof substitution === 'function') {
         substitution = substitution(arg);
@@ -318,7 +325,7 @@ export const getDOMForLocaleString = ({
   let result;
   let previousIndex = 0;
   while ((result = bracketRegex.exec(string)) !== null) {
-    const [, esc, ky, arg] = result;
+    const [_, esc, ky, arg] = result;
 
     const {lastIndex} = bracketRegex;
     if (esc % 2) {
@@ -329,16 +336,20 @@ export const getDOMForLocaleString = ({
     if (startBracketPos > previousIndex) {
       nodes.push(string.slice(previousIndex, startBracketPos));
     }
-    if (esc.length) {
-      nodes.push(esc);
-    }
 
-    checkMissingSuppliedFormatters(ky);
-    let substitution = substitutions[ky];
-    if (typeof substitution === 'function') {
-      substitution = substitution(arg);
+    if (missingSuppliedFormatters(ky)) {
+      nodes.push(_);
+    } else {
+      if (esc.length) {
+        nodes.push(esc);
+      }
+
+      let substitution = substitutions[ky];
+      if (typeof substitution === 'function') {
+        substitution = substitution(arg);
+      }
+      nodes.push(substitution);
     }
-    nodes.push(substitution);
 
     previousIndex = lastIndex;
     usedKeys.push(ky);

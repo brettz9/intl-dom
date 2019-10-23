@@ -578,10 +578,16 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
     }
   };
 
-  var checkMissingSuppliedFormatters = function checkMissingSuppliedFormatters(ky) {
-    if (throwOnMissingSuppliedFormatters && !(ky in substitutions)) {
-      throw new Error("Missing formatting key: ".concat(ky));
+  var missingSuppliedFormatters = function missingSuppliedFormatters(ky) {
+    if (!(ky in substitutions)) {
+      if (throwOnMissingSuppliedFormatters) {
+        throw new Error("Missing formatting key: ".concat(ky));
+      }
+
+      return true;
     }
+
+    return false;
   };
 
   if (!substitutions && !throwOnMissingSuppliedFormatters) {
@@ -602,7 +608,10 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
         return _;
       }
 
-      checkMissingSuppliedFormatters(ky);
+      if (missingSuppliedFormatters(ky)) {
+        return _;
+      }
+
       var substitution = substitutions[ky];
 
       if (typeof substitution === 'function') {
@@ -629,6 +638,7 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
   while ((result = bracketRegex.exec(string)) !== null) {
     var _result3 = result,
         _result4 = _slicedToArray(_result3, 4),
+        _ = _result4[0],
         esc = _result4[1],
         ky = _result4[2],
         arg = _result4[3];
@@ -646,18 +656,22 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
       nodes.push(string.slice(previousIndex, startBracketPos));
     }
 
-    if (esc.length) {
-      nodes.push(esc);
+    if (missingSuppliedFormatters(ky)) {
+      nodes.push(_);
+    } else {
+      if (esc.length) {
+        nodes.push(esc);
+      }
+
+      var substitution = substitutions[ky];
+
+      if (typeof substitution === 'function') {
+        substitution = substitution(arg);
+      }
+
+      nodes.push(substitution);
     }
 
-    checkMissingSuppliedFormatters(ky);
-    var substitution = substitutions[ky];
-
-    if (typeof substitution === 'function') {
-      substitution = substitution(arg);
-    }
-
-    nodes.push(substitution);
     previousIndex = lastIndex;
     usedKeys.push(ky);
   }

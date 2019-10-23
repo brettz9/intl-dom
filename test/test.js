@@ -659,11 +659,13 @@ describe('getDOMForLocaleString', function () {
   });
 
   it(
-    'should throw with missing supplied formatters and ' +
-    '`throwOnMissingSuppliedFormatters` disabled',
+    'should not throw with missing supplied formatters and ' +
+    '`throwOnMissingSuppliedFormatters` disabled and should ' +
+    'return the unformatted string in a text node',
     function () {
+      let string;
       expect(() => {
-        getDOMForLocaleString({
+        string = getDOMForLocaleString({
           string: 'A {msg}',
           forceNodeReturn: true,
           throwOnMissingSuppliedFormatters: false,
@@ -671,6 +673,25 @@ describe('getDOMForLocaleString', function () {
           }
         });
       }).to.not.throw();
+      expect(string).to.have.text('A {msg}');
+    }
+  );
+
+  it(
+    'should not throw with missing supplied formatters and ' +
+    '`throwOnMissingSuppliedFormatters` disabled and should ' +
+    'return the unformatted string',
+    function () {
+      let string;
+      expect(() => {
+        string = getDOMForLocaleString({
+          string: 'A {msg}',
+          throwOnMissingSuppliedFormatters: false,
+          substitutions: {
+          }
+        });
+      }).to.not.throw();
+      expect(string).to.equal('A {msg}');
     }
   );
 
@@ -707,10 +728,12 @@ describe('getDOMForLocaleString', function () {
 
   it(
     'should not throw with extra supplied formatters and ' +
-    '`throwOnExtraSuppliedFormatters` disabled',
+    '`throwOnExtraSuppliedFormatters` disabled and should ' +
+    'return the formatted string',
     function () {
+      let string;
       expect(() => {
-        getDOMForLocaleString({
+        string = getDOMForLocaleString({
           string: 'A {msg}',
           forceNodeReturn: true,
           throwOnExtraSuppliedFormatters: false,
@@ -720,6 +743,7 @@ describe('getDOMForLocaleString', function () {
           }
         });
       }).to.not.throw();
+      expect(string).to.have.text('A message');
     }
   );
 
@@ -1135,9 +1159,39 @@ describe('i18n', function () {
     }
   );
 
+  it(
+    'should return a function that returns a string text node ' +
+    '(with `forceNodeReturn`)',
+    async function () {
+      const _ = await i18n({
+        forceNodeReturn: true,
+        throwOnMissingSuppliedFormatters: false
+      });
+      const string = _('abc');
+      expect(string).to.have.text(this.expectedEnUS.abc.message);
+    }
+  );
+
+  it(
+    'should return a function which does not throw with missing ' +
+    'supplied formatters and `throwOnMissingSuppliedFormatters` disabled',
+    async function () {
+      const _ = await i18n({
+        locales: ['fr'],
+        forceNodeReturn: true,
+        throwOnMissingSuppliedFormatters: false,
+        substitutions: {
+        }
+      });
+      let string;
+      expect(() => {
+        string = _('key');
+      }).to.not.throw();
+      expect(string).to.have.text('A {msg}');
+    }
+  );
+
   /*
-  forceNodeReturn = false,
-  throwOnMissingSuppliedFormatters = true,
   throwOnExtraSuppliedFormatters = true
 
   // Include empty object
