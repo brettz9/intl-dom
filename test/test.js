@@ -7,7 +7,8 @@ import {
   getDOMForLocaleString,
   findLocaleStrings,
   i18n
-} from '../dist/index.esm.min.js';
+// } from '../dist/index.esm.min.js';
+} from '../src/index.js';
 
 // Todo: We could replace this with a custom plugin
 const container = (string) => {
@@ -1005,6 +1006,17 @@ describe('i18n', function () {
       });
       const string = _('abc');
       expect(string).to.deep.equal(this.expectedEnUSTestDirectory.abc.message);
+    }
+  );
+  it(
+    'should return function that can return string processed in plain style',
+    async function () {
+      const _ = await i18n({
+        locales: ['zx'],
+        messageStyle: 'plain'
+      });
+      const string = _('key');
+      expect(string).to.equal(this.expectedPlainStyleObject.key);
     }
   );
   /*
