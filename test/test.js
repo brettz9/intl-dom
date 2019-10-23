@@ -1,4 +1,3 @@
-// Todo: Document, replacing document "todo" and update project status
 // Todo: Fix coverage and ensure it is complete (different for browser too?)
 
 import {setExpectedData} from './utils/utils.js';
@@ -1021,7 +1020,7 @@ describe('i18n', function () {
     }
   );
   it('should reject with non-object JSON', function () {
-    expect(
+    return expect(
       i18n({
         locales: ['xx']
       })

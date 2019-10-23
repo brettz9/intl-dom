@@ -61,7 +61,7 @@ global.document = (new JSDOM()).window.document;
 
 ## Usage
 
-- TODO:
+// Todo: Document here, publish, and update project status above
 
 ```js
 i18n();
