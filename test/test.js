@@ -1,3 +1,6 @@
+// Todo: Document, replacing document "todo" and update project status
+// Todo: Fix coverage and ensure it is complete (different for browser too?)
+
 import {setExpectedData} from './utils/utils.js';
 import {
   promiseChainForValues,
@@ -1364,7 +1367,4 @@ describe('i18n', function () {
       expect(string).to.equal('A simple message');
     }
   );
-
-  // Todo: Document, replacing document "todo" and update project status
-  // Todo: Ensure coverage is complete and working! (different for browser too?)
 });
