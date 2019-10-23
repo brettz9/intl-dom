@@ -410,10 +410,10 @@ export const findLocaleStrings = async ({
  * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
  * @param {false|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
  * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
- * @param {boolean} [cfg.forceNodeReturn=false]
- * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
- * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
  * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
+ * @param {boolean} [cfg.forceNodeReturnDefault=false]
+ * @param {boolean} [cfg.throwOnMissingSuppliedFormattersDefault=true]
+ * @param {boolean} [cfg.throwOnExtraSuppliedFormattersDefault=true]
  * @returns {Promise<I18NCallback>} Rejects if no suitable locale is found.
  */
 export const i18n = async function i18n ({
@@ -424,10 +424,10 @@ export const i18n = async function i18n ({
   localeResolver,
   defaults,
   messageStyle,
-  forceNodeReturn,
-  throwOnMissingSuppliedFormatters,
-  throwOnExtraSuppliedFormatters,
-  bracketRegex
+  bracketRegex,
+  forceNodeReturnDefault = false,
+  throwOnMissingSuppliedFormattersDefault = true,
+  throwOnExtraSuppliedFormattersDefault = true
 } = {}) {
   const strings = await findLocaleStrings({
     locales, defaultLocales, localeResolver, localesBasePath
@@ -436,7 +436,12 @@ export const i18n = async function i18n ({
     throw new TypeError(`Locale strings must be an object!`);
   }
   const messageForKey = getMessageForKeyByStyle({messageStyle});
-  return (key, substitutions, {dom} = {}) => {
+  return (key, substitutions, {
+    dom,
+    forceNodeReturn = forceNodeReturnDefault,
+    throwOnMissingSuppliedFormatters = throwOnMissingSuppliedFormattersDefault,
+    throwOnExtraSuppliedFormatters = throwOnExtraSuppliedFormattersDefault
+  } = {}) => {
     const message = messageForKey(strings, key);
     const string = getStringFromMessageAndDefaults({
       message,

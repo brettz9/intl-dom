@@ -750,10 +750,10 @@
    * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
    * @param {false|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
    * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
-   * @param {boolean} [cfg.forceNodeReturn=false]
-   * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
-   * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
    * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
+   * @param {boolean} [cfg.forceNodeReturnDefault=false]
+   * @param {boolean} [cfg.throwOnMissingSuppliedFormattersDefault=true]
+   * @param {boolean} [cfg.throwOnExtraSuppliedFormattersDefault=true]
    * @returns {Promise<I18NCallback>} Rejects if no suitable locale is found.
    */
 
@@ -765,10 +765,13 @@
         localeResolver = _ref5.localeResolver,
         defaults = _ref5.defaults,
         messageStyle = _ref5.messageStyle,
-        forceNodeReturn = _ref5.forceNodeReturn,
-        throwOnMissingSuppliedFormatters = _ref5.throwOnMissingSuppliedFormatters,
-        throwOnExtraSuppliedFormatters = _ref5.throwOnExtraSuppliedFormatters,
-        bracketRegex = _ref5.bracketRegex;
+        bracketRegex = _ref5.bracketRegex,
+        _ref5$forceNodeReturn = _ref5.forceNodeReturnDefault,
+        forceNodeReturnDefault = _ref5$forceNodeReturn === void 0 ? false : _ref5$forceNodeReturn,
+        _ref5$throwOnMissingS = _ref5.throwOnMissingSuppliedFormattersDefault,
+        throwOnMissingSuppliedFormattersDefault = _ref5$throwOnMissingS === void 0 ? true : _ref5$throwOnMissingS,
+        _ref5$throwOnExtraSup = _ref5.throwOnExtraSuppliedFormattersDefault,
+        throwOnExtraSuppliedFormattersDefault = _ref5$throwOnExtraSup === void 0 ? true : _ref5$throwOnExtraSup;
 
     return _await(findLocaleStrings({
       locales: locales,
@@ -785,7 +788,13 @@
       });
       return function (key, substitutions) {
         var _ref6 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-            dom = _ref6.dom;
+            dom = _ref6.dom,
+            _ref6$forceNodeReturn = _ref6.forceNodeReturn,
+            forceNodeReturn = _ref6$forceNodeReturn === void 0 ? forceNodeReturnDefault : _ref6$forceNodeReturn,
+            _ref6$throwOnMissingS = _ref6.throwOnMissingSuppliedFormatters,
+            throwOnMissingSuppliedFormatters = _ref6$throwOnMissingS === void 0 ? throwOnMissingSuppliedFormattersDefault : _ref6$throwOnMissingS,
+            _ref6$throwOnExtraSup = _ref6.throwOnExtraSuppliedFormatters,
+            throwOnExtraSuppliedFormatters = _ref6$throwOnExtraSup === void 0 ? throwOnExtraSuppliedFormattersDefault : _ref6$throwOnExtraSup;
 
         var message = messageForKey(strings, key);
         var string = getStringFromMessageAndDefaults({
