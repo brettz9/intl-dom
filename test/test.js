@@ -952,16 +952,21 @@ describe('findLocaleStrings', function () {
   );
 });
 
-describe.skip('i18n', function () {
+describe('i18n', function () {
+  beforeEach(function () {
+    this.expectedEnUS = {
+      abc: {
+        message: 'aaa'
+      }
+    };
+  });
   it('should return a function with empty arguments', async function () {
     const _ = await i18n();
     expect(_).to.be.a('function');
-    expect(_).to.have.lengthOf(3);
   });
   it('should return a function with empty object argument', async function () {
     const _ = await i18n({});
     expect(_).to.be.a('function');
-    expect(_).to.have.lengthOf(3);
   });
   it('should find strings with explicit `locales`', async function () {
     const _ = await i18n({
@@ -977,14 +982,25 @@ describe.skip('i18n', function () {
       })
     ).to.be.rejectedWith(TypeError, 'Locale strings must be an object!');
   });
+  it(
+    'should return string when needing to revert to `defaultLocales`',
+    async function () {
+      const _ = await i18n({
+        locales: ['zz'],
+        defaultLocales: ['en-US']
+      });
+      const string = _('abc');
+      expect(string).to.deep.equal(this.expectedEnUS.abc.message);
+    }
+  );
   /*
-  defaultLocales,
   localesBasePath,
   localeResolver,
   messageStyle,
   bracketRegex,
+
   defaults,
-  dom,
+  dom = false,
   forceNodeReturn = false,
   throwOnMissingSuppliedFormatters = true,
   throwOnExtraSuppliedFormatters = true
