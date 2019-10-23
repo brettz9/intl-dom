@@ -978,16 +978,16 @@ describe.skip('i18n', function () {
     ).to.be.rejectedWith(TypeError, 'Locale strings must be an object!');
   });
   /*
-  locales,
   defaultLocales,
   localesBasePath,
   localeResolver,
-  defaults,
   messageStyle,
   bracketRegex,
-  forceNodeReturnDefault = false,
-  throwOnMissingSuppliedFormattersDefault = true,
-  throwOnExtraSuppliedFormattersDefault = true
+  defaults,
+  dom,
+  forceNodeReturn = false,
+  throwOnMissingSuppliedFormatters = true,
+  throwOnExtraSuppliedFormatters = true
 
   // Include empty object
   key, substitutions, {
