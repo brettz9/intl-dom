@@ -1199,12 +1199,29 @@ describe('i18n', function () {
     }
   );
 
-  /*
-  throwOnExtraSuppliedFormatters = true
+  it(
+    'should return function which does not throw with extra supplied ' +
+    'formatters and `throwOnExtraSuppliedFormatters` disabled and should ' +
+    'return the formatted string',
+    async function () {
+      const _ = await i18n({
+        locales: ['fr'],
+        forceNodeReturn: true,
+        throwOnExtraSuppliedFormatters: false
+      });
+      const string = _('key', {
+        msg: 'message',
+        anExtraOne: 'why am I here?'
+      });
+      expect(string).to.have.text('A message');
+    }
+  );
 
+  /*
   // Include empty options object
   key, substitutions, {
-    dom,
+    defaults = defaultDefaults,
+    dom = domDefaults,
     forceNodeReturn = forceNodeReturnDefault,
     throwOnMissingSuppliedFormatters = throwOnMissingSuppliedFormattersDefault,
     throwOnExtraSuppliedFormatters = throwOnExtraSuppliedFormattersDefault
