@@ -1,3 +1,4 @@
+import {setSampleData} from './utils/utils.js';
 import {
   promiseChainForValues,
   defaultLocaleResolver,
@@ -791,31 +792,7 @@ describe('findLocaleStrings', function () {
   beforeEach(function () {
     setNavigatorLanguages([]);
     // Ensure not modified
-    this.expectedEnUS = {
-      abc: {
-        message: 'aaa'
-      }
-    };
-    this.expectedEnUSTestDirectory = {
-      abc: {
-        message: 'zzz'
-      }
-    };
-    this.expectedEnUSLocalesTestDirectory = {
-      abc: {
-        message: 'yyy'
-      }
-    };
-    this.expectedZhHans = {
-      def: {
-        message: 'bbb'
-      }
-    };
-    this.expectedPt = {
-      ghi: {
-        message: 'ccc'
-      }
-    };
+    setSampleData.call(this);
   });
 
   it(
@@ -954,11 +931,7 @@ describe('findLocaleStrings', function () {
 
 describe('i18n', function () {
   beforeEach(function () {
-    this.expectedEnUS = {
-      abc: {
-        message: 'aaa'
-      }
-    };
+    setSampleData.call(this);
   });
   it('should return a function with empty arguments', async function () {
     const _ = await i18n();
@@ -968,13 +941,16 @@ describe('i18n', function () {
     const _ = await i18n({});
     expect(_).to.be.a('function');
   });
-  it('should find strings with explicit `locales`', async function () {
-    const _ = await i18n({
-      locales: ['en-US']
-    });
-    const string = _('abc');
-    expect(string).to.equal(this.expectedEnUS.abc.message);
-  });
+  it(
+    'should return function that can find strings with explicit `locales`',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('abc');
+      expect(string).to.equal(this.expectedEnUS.abc.message);
+    }
+  );
   it('should reject with non-object JSON', function () {
     expect(
       i18n({
@@ -983,7 +959,8 @@ describe('i18n', function () {
     ).to.be.rejectedWith(TypeError, 'Locale strings must be an object!');
   });
   it(
-    'should return string when needing to revert to `defaultLocales`',
+    'should return function that can return string when needing to ' +
+    'revert to `defaultLocales`',
     async function () {
       const _ = await i18n({
         locales: ['zz'],
@@ -993,8 +970,30 @@ describe('i18n', function () {
       expect(string).to.deep.equal(this.expectedEnUS.abc.message);
     }
   );
+  it(
+    'should return function that can return string when using ' +
+    'custom `localesBasePath`',
+    async function () {
+      let _ = await i18n({
+        locales: ['en-US'],
+        localesBasePath: '../'
+      });
+      let string = _('abc');
+      expect(string).to.deep.equal(
+        this.expectedEnUSLocalesTestDirectory.abc.message
+      );
+
+      _ = await i18n({
+        locales: ['en-US'],
+        localesBasePath: '..'
+      });
+      string = _('abc');
+      expect(string).to.deep.equal(
+        this.expectedEnUSLocalesTestDirectory.abc.message
+      );
+    }
+  );
   /*
-  localesBasePath,
   localeResolver,
   messageStyle,
   bracketRegex,
