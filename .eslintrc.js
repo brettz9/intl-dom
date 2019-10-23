@@ -5,9 +5,6 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module'
   },
-  plugins: [
-    'chai-expect'
-  ],
   env: {
     browser: true,
     es6: true
@@ -27,7 +24,10 @@ module.exports = {
     ]
   },
   overrides: [{
-    extends: ['plugin:chai-friendly/recommended'],
+    extends: [
+      'plugin:chai-expect/recommended',
+      'plugin:chai-friendly/recommended'
+    ],
     files: ['test/**'],
     globals: {
       expect: true,
@@ -37,8 +37,6 @@ module.exports = {
       mocha: true
     },
     rules: {
-      "chai-expect/missing-assertion": 2,
-      "chai-expect/terminating-properties": 1
     }
   }, {
     files: ['**/*.md'],
