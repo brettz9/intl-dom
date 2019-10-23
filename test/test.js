@@ -484,6 +484,24 @@ describe('getDOMForLocaleString', function () {
     expect(string).to.equal('simple message');
   });
 
+  it(
+    'should return string with substitutions and custom `bracketRegex` ' +
+    '(ES6-template style)',
+    function () {
+      const string = getDOMForLocaleString({
+        // eslint-disable-next-line no-template-curly-in-string
+        string: 'simple ${msg}',
+        // eslint-disable-next-line max-len
+        // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
+        bracketRegex: /(\\*)\$\{([^}]*?)(?:\|([^}]*))?\}/gu,
+        substitutions: {
+          msg: 'message'
+        }
+      });
+      expect(string).to.equal('simple message');
+    }
+  );
+
   it('should return string with multiple substitutions', function () {
     const string = getDOMForLocaleString({
       string: '{simp} {msg}',
@@ -1020,7 +1038,6 @@ describe('i18n', function () {
     }
   );
   /*
-  messageStyle,
   bracketRegex,
 
   defaults,
