@@ -1000,6 +1000,14 @@ describe('i18n', function () {
     expect(_).to.be.a('function');
   });
   it(
+    'should return function that can find strings with implicit `locales`',
+    async function () {
+      const _ = await i18n();
+      const string = _('abc');
+      expect(string).to.deep.equal(this.expectedEnUS.abc.message);
+    }
+  );
+  it(
     'should return function that can find strings with explicit `locales`',
     async function () {
       const _ = await i18n({
@@ -1194,7 +1202,7 @@ describe('i18n', function () {
   /*
   throwOnExtraSuppliedFormatters = true
 
-  // Include empty object
+  // Include empty options object
   key, substitutions, {
     dom,
     forceNodeReturn = forceNodeReturnDefault,
