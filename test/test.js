@@ -238,7 +238,7 @@ describe('getStringFromMessageAndDefaults', function () {
     expect(string).to.equal('myKeyValue');
   });
   it(
-    'should return a string message with defaults object present',
+    'should return a string message despite defaults object present',
     function () {
       const string = getStringFromMessageAndDefaults({
         message: 'myKeyValue',
@@ -251,7 +251,7 @@ describe('getStringFromMessageAndDefaults', function () {
     }
   );
   it(
-    'should return a string message with defaults false',
+    'should return a string message despite defaults false',
     function () {
       const string = getStringFromMessageAndDefaults({
         message: 'myKeyValue',
@@ -1053,8 +1053,62 @@ describe('i18n', function () {
     }
   );
 
+  it(
+    'should return a function that can return a string message with a string' +
+    'key indicating a string on the `messageStyle` `messageForKey`',
+    async function () {
+      let _ = await i18n({
+        defaults: {
+          myKey: {
+            message: 'myKeyValue'
+          }
+        },
+        messageStyle: 'rich'
+      });
+      let string = _('myKey');
+      expect(string).to.equal('myKeyValue');
+
+      _ = await i18n({
+        defaults: {
+          myKey: 'myKeyValue'
+        },
+        messageStyle: 'plain'
+      });
+      string = _('myKey');
+      expect(string).to.equal('myKeyValue');
+    }
+  );
+
+  it(
+    'should return a function that returns a string message despite ' +
+    'defaults object present',
+    async function () {
+      const _ = await i18n({
+        locales: ['zx'],
+        messageStyle: 'plain',
+        defaults: {
+          myKey: 'somethingElse'
+        }
+      });
+      const string = _('key');
+      expect(string).to.equal('myKeyValue');
+    }
+  );
+  it(
+    'should return a function that returns a string message ' +
+    'despite defaults false',
+    async function () {
+      const _ = await i18n({
+        locales: ['zx'],
+        messageStyle: 'plain',
+        defaults: false
+      });
+      const string = _('key');
+      expect(string).to.equal('myKeyValue');
+    }
+  );
+
   /*
-  defaults,
   dom = false,
   forceNodeReturn = false,
   throwOnMissingSuppliedFormatters = true,
