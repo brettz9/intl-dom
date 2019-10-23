@@ -75,10 +75,22 @@ export const promiseChainForValues = (
 
 /**
 * @callback SubstitutionCallback
-* @param {string} arg Accepts the third portion of the `bracketRegex` of
+* @param {PlainObject} cfg
+* @param {string} cfg.arg Accepts the third portion of the `formattingRegex` of
 *   `i18n`, i.e., to allow the locale to supply arguments back to the
 *   calling script.
-* @returns {string} The replacement text
+* @param {string} cfg.key The substitution key
+* @returns {string|Element} The replacement text or element
+*/
+
+/**
+* @callback AllSubstitutionCallback
+* @param {PlainObject} cfg
+* @param {string|Element} cfg.value The value returned by the
+*   individual substitution
+* @param {string} cfg.arg See `cfg.arg` of {@link SubstitutionCallback}.
+* @param {string} cfg.key The substitution key
+* @returns {string|Element} The replacement text or element
 */
 
 /**
@@ -193,11 +205,11 @@ export const getMessageForKeyByStyle = ({
 /* eslint-disable max-len */
 /**
  * @param {PlainObject} cfg
- * @param {string} [cfg.message]
- * @param {false|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
+ * @param {string} [cfg.message] If present, this string will be the return value.
+ * @param {false|null|undefined|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
  * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
  * @param {MessageStyleCallback} [cfg.messageForKey] Defaults to getting `MessageStyleCallback` based on `messageStyle`
- * @param {string} cfg.key Key to check against object of strings
+ * @param {string} cfg.key Key to check against object of strings; used to find a default if no string `message` is provided.
  * @returns {string}
  */
 export const getStringFromMessageAndDefaults = ({
@@ -217,13 +229,14 @@ export const getStringFromMessageAndDefaults = ({
   // NECESSARY CHECK FOR SECURITY ON UNTRUSTED LOCALES
   const str = typeof message === 'string'
     ? message
-    : (defaults === false
+    : (defaults === false || defaults === undefined || defaults === null
       ? false
       : (defaults && typeof defaults === 'object'
         ? messageForKey(defaults, key)
         : (() => {
           throw new TypeError(
-            `Default locale strings must resolve to \`false\` or an object!`
+            `Default locale strings must resolve to \`false\`, ` +
+            `nullish, or an object!`
           );
         })()
       )
@@ -243,11 +256,12 @@ export const getStringFromMessageAndDefaults = ({
  * @param {boolean} [cfg.forceNodeReturn=false]
  * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
  * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
- * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
+ * @param {RegExp} [cfg.formattingRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
  * @returns {string|DocumentFragment}
  */
 export const getDOMForLocaleString = ({
   string,
+  allSubstitutions = null,
   substitutions = false,
   dom = false,
   forceNodeReturn = false,
@@ -255,7 +269,7 @@ export const getDOMForLocaleString = ({
   throwOnExtraSuppliedFormatters = true,
   // eslint-disable-next-line max-len
   // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
-  bracketRegex = /(\\*)\{([^}]*?)(?:\|([^}]*))?\}/gu
+  formattingRegex = /(\\*)\{([^}]*?)(?:\|([^}]*))?\}/gu
 } = {}) => {
   if (typeof string !== 'string') {
     throw new TypeError(
@@ -287,7 +301,10 @@ export const getDOMForLocaleString = ({
     return false;
   };
 
-  if (!substitutions && !throwOnMissingSuppliedFormatters) {
+  if (
+    !substitutions && !allSubstitutions &&
+    !throwOnMissingSuppliedFormatters
+  ) {
     return stringOrTextNode(string);
   }
   if (!substitutions) {
@@ -297,7 +314,7 @@ export const getDOMForLocaleString = ({
   if (!dom) {
     let returnsDOM = false;
     // Run this block to optimize non-DOM substitutions
-    const ret = string.replace(bracketRegex, (_, esc, ky, arg) => {
+    const ret = string.replace(formattingRegex, (_, esc, ky, arg) => {
       if (esc.length % 2) {
         // Ignore odd sequences of escape sequences
         return _;
@@ -308,7 +325,12 @@ export const getDOMForLocaleString = ({
 
       let substitution = substitutions[ky];
       if (typeof substitution === 'function') {
-        substitution = substitution(arg);
+        substitution = substitution({arg, key: ky});
+      }
+      if (allSubstitutions) {
+        substitution = allSubstitutions({
+          value: substitution, arg, key: ky
+        });
       }
       returnsDOM = returnsDOM ||
         (substitution && substitution.nodeType === 1);
@@ -324,10 +346,10 @@ export const getDOMForLocaleString = ({
   const nodes = [];
   let result;
   let previousIndex = 0;
-  while ((result = bracketRegex.exec(string)) !== null) {
+  while ((result = formattingRegex.exec(string)) !== null) {
     const [_, esc, ky, arg] = result;
 
-    const {lastIndex} = bracketRegex;
+    const {lastIndex} = formattingRegex;
     if (esc % 2) {
       // Ignore odd sequences of escape sequences
       continue;
@@ -346,7 +368,7 @@ export const getDOMForLocaleString = ({
 
       let substitution = substitutions[ky];
       if (typeof substitution === 'function') {
-        substitution = substitution(arg);
+        substitution = substitution(arg, ky);
       }
       nodes.push(substitution);
     }
@@ -426,8 +448,10 @@ export const findLocaleStrings = async ({
  * @param {string} [cfg.localesBasePath='.']
  * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
  * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
- * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
- * @param {false|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
+ * @param {RegExp} [cfg.formattingRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
+ * @param {?AllSubstitutionCallback} [cfg.allSubstitutions]
+ * @param {false|null|undefined|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
+ * @param {false|SubstitutionObject} [cfg.substitutions={}]
  * @param {boolean} [cfg.dom=false]
  * @param {boolean} [cfg.forceNodeReturn=false]
  * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
@@ -441,9 +465,10 @@ export const i18n = async function i18n ({
   localesBasePath,
   localeResolver,
   messageStyle,
-  bracketRegex,
-  substitutions: defaultSubstitutions,
+  formattingRegex,
+  allSubstitutions: defaultAllSubstitutions,
   defaults: defaultDefaults,
+  substitutions: defaultSubstitutions,
   dom: domDefaults = false,
   forceNodeReturn: forceNodeReturnDefault = false,
   throwOnMissingSuppliedFormatters:
@@ -459,6 +484,7 @@ export const i18n = async function i18n ({
   }
   const messageForKey = getMessageForKeyByStyle({messageStyle});
   return (key, substitutions, {
+    allSubstitutions = defaultAllSubstitutions,
     defaults = defaultDefaults,
     dom = domDefaults,
     forceNodeReturn = forceNodeReturnDefault,
@@ -472,14 +498,16 @@ export const i18n = async function i18n ({
       messageForKey,
       key
     });
+
     return getDOMForLocaleString({
       string,
+      formattingRegex,
+      allSubstitutions,
       substitutions: {...defaultSubstitutions, ...substitutions},
       dom,
       forceNodeReturn,
       throwOnMissingSuppliedFormatters,
-      throwOnExtraSuppliedFormatters,
-      bracketRegex
+      throwOnExtraSuppliedFormatters
     });
   };
 };

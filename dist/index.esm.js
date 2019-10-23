@@ -170,10 +170,22 @@ function _await(value, then, direct) {
 }
 /**
 * @callback SubstitutionCallback
-* @param {string} arg Accepts the third portion of the `bracketRegex` of
+* @param {PlainObject} cfg
+* @param {string} cfg.arg Accepts the third portion of the `formattingRegex` of
 *   `i18n`, i.e., to allow the locale to supply arguments back to the
 *   calling script.
-* @returns {string} The replacement text
+* @param {string} cfg.key The substitution key
+* @returns {string|Element} The replacement text or element
+*/
+
+/**
+* @callback AllSubstitutionCallback
+* @param {PlainObject} cfg
+* @param {string|Element} cfg.value The value returned by the
+*   individual substitution
+* @param {string} cfg.arg See `cfg.arg` of {@link SubstitutionCallback}.
+* @param {string} cfg.key The substitution key
+* @returns {string|Element} The replacement text or element
 */
 
 /**
@@ -544,11 +556,11 @@ var getMessageForKeyByStyle = function getMessageForKeyByStyle() {
 
 /**
  * @param {PlainObject} cfg
- * @param {string} [cfg.message]
- * @param {false|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
+ * @param {string} [cfg.message] If present, this string will be the return value.
+ * @param {false|null|undefined|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
  * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
  * @param {MessageStyleCallback} [cfg.messageForKey] Defaults to getting `MessageStyleCallback` based on `messageStyle`
- * @param {string} cfg.key Key to check against object of strings
+ * @param {string} cfg.key Key to check against object of strings; used to find a default if no string `message` is provided.
  * @returns {string}
  */
 
@@ -568,8 +580,8 @@ var getStringFromMessageAndDefaults = function getStringFromMessageAndDefaults()
   } // NECESSARY CHECK FOR SECURITY ON UNTRUSTED LOCALES
 
 
-  var str = typeof message === 'string' ? message : defaults === false ? false : defaults && _typeof(defaults) === 'object' ? messageForKey(defaults, key) : function () {
-    throw new TypeError("Default locale strings must resolve to `false` or an object!");
+  var str = typeof message === 'string' ? message : defaults === false || defaults === undefined || defaults === null ? false : defaults && _typeof(defaults) === 'object' ? messageForKey(defaults, key) : function () {
+    throw new TypeError("Default locale strings must resolve to `false`, " + "nullish, or an object!");
   }();
 
   if (str === false) {
@@ -587,13 +599,15 @@ var getStringFromMessageAndDefaults = function getStringFromMessageAndDefaults()
  * @param {boolean} [cfg.forceNodeReturn=false]
  * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
  * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
- * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
+ * @param {RegExp} [cfg.formattingRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
  * @returns {string|DocumentFragment}
  */
 
 var getDOMForLocaleString = function getDOMForLocaleString() {
   var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
       string = _ref3.string,
+      _ref3$allSubstitution = _ref3.allSubstitutions,
+      allSubstitutions = _ref3$allSubstitution === void 0 ? null : _ref3$allSubstitution,
       _ref3$substitutions = _ref3.substitutions,
       substitutions = _ref3$substitutions === void 0 ? false : _ref3$substitutions,
       _ref3$dom = _ref3.dom,
@@ -604,8 +618,8 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
       throwOnMissingSuppliedFormatters = _ref3$throwOnMissingS === void 0 ? true : _ref3$throwOnMissingS,
       _ref3$throwOnExtraSup = _ref3.throwOnExtraSuppliedFormatters,
       throwOnExtraSuppliedFormatters = _ref3$throwOnExtraSup === void 0 ? true : _ref3$throwOnExtraSup,
-      _ref3$bracketRegex = _ref3.bracketRegex,
-      bracketRegex = _ref3$bracketRegex === void 0 ? /(\\*)\{((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*?)(?:\|((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g : _ref3$bracketRegex;
+      _ref3$formattingRegex = _ref3.formattingRegex,
+      formattingRegex = _ref3$formattingRegex === void 0 ? /(\\*)\{((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*?)(?:\|((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g : _ref3$formattingRegex;
 
   if (typeof string !== 'string') {
     throw new TypeError('An options object with a `string` property set to a string must ' + 'be provided for `getDOMForLocaleString`.');
@@ -639,7 +653,7 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
     return false;
   };
 
-  if (!substitutions && !throwOnMissingSuppliedFormatters) {
+  if (!substitutions && !allSubstitutions && !throwOnMissingSuppliedFormatters) {
     return stringOrTextNode(string);
   }
 
@@ -651,7 +665,7 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
   if (!dom) {
     var returnsDOM = false; // Run this block to optimize non-DOM substitutions
 
-    var ret = string.replace(bracketRegex, function (_, esc, ky, arg) {
+    var ret = string.replace(formattingRegex, function (_, esc, ky, arg) {
       if (esc.length % 2) {
         // Ignore odd sequences of escape sequences
         return _;
@@ -664,7 +678,18 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
       var substitution = substitutions[ky];
 
       if (typeof substitution === 'function') {
-        substitution = substitution(arg);
+        substitution = substitution({
+          arg: arg,
+          key: ky
+        });
+      }
+
+      if (allSubstitutions) {
+        substitution = allSubstitutions({
+          value: substitution,
+          arg: arg,
+          key: ky
+        });
       }
 
       returnsDOM = returnsDOM || substitution && substitution.nodeType === 1;
@@ -684,7 +709,7 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
   var result;
   var previousIndex = 0;
 
-  while ((result = bracketRegex.exec(string)) !== null) {
+  while ((result = formattingRegex.exec(string)) !== null) {
     var _result3 = result,
         _result4 = _slicedToArray(_result3, 4),
         _ = _result4[0],
@@ -692,7 +717,7 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
         ky = _result4[2],
         arg = _result4[3];
 
-    var lastIndex = bracketRegex.lastIndex;
+    var lastIndex = formattingRegex.lastIndex;
 
     if (esc % 2) {
       // Ignore odd sequences of escape sequences
@@ -715,7 +740,7 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
       var substitution = substitutions[ky];
 
       if (typeof substitution === 'function') {
-        substitution = substitution(arg);
+        substitution = substitution(arg, ky);
       }
 
       nodes.push(substitution);
@@ -806,8 +831,10 @@ var findLocaleStrings = _async(function () {
  * @param {string} [cfg.localesBasePath='.']
  * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
  * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
- * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
- * @param {false|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
+ * @param {RegExp} [cfg.formattingRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
+ * @param {?AllSubstitutionCallback} [cfg.allSubstitutions]
+ * @param {false|null|undefined|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
+ * @param {false|SubstitutionObject} [cfg.substitutions={}]
  * @param {boolean} [cfg.dom=false]
  * @param {boolean} [cfg.forceNodeReturn=false]
  * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
@@ -822,9 +849,10 @@ var i18n = function i18n() {
       localesBasePath = _ref5.localesBasePath,
       localeResolver = _ref5.localeResolver,
       messageStyle = _ref5.messageStyle,
-      bracketRegex = _ref5.bracketRegex,
-      defaultSubstitutions = _ref5.substitutions,
+      formattingRegex = _ref5.formattingRegex,
+      defaultAllSubstitutions = _ref5.allSubstitutions,
       defaultDefaults = _ref5.defaults,
+      defaultSubstitutions = _ref5.substitutions,
       _ref5$dom = _ref5.dom,
       domDefaults = _ref5$dom === void 0 ? false : _ref5$dom,
       _ref5$forceNodeReturn = _ref5.forceNodeReturn,
@@ -849,6 +877,8 @@ var i18n = function i18n() {
     });
     return function (key, substitutions) {
       var _ref6 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+          _ref6$allSubstitution = _ref6.allSubstitutions,
+          allSubstitutions = _ref6$allSubstitution === void 0 ? defaultAllSubstitutions : _ref6$allSubstitution,
           _ref6$defaults = _ref6.defaults,
           defaults = _ref6$defaults === void 0 ? defaultDefaults : _ref6$defaults,
           _ref6$dom = _ref6.dom,
@@ -869,12 +899,13 @@ var i18n = function i18n() {
       });
       return getDOMForLocaleString({
         string: string,
+        formattingRegex: formattingRegex,
+        allSubstitutions: allSubstitutions,
         substitutions: _objectSpread2({}, defaultSubstitutions, {}, substitutions),
         dom: dom,
         forceNodeReturn: forceNodeReturn,
         throwOnMissingSuppliedFormatters: throwOnMissingSuppliedFormatters,
-        throwOnExtraSuppliedFormatters: throwOnExtraSuppliedFormatters,
-        bracketRegex: bracketRegex
+        throwOnExtraSuppliedFormatters: throwOnExtraSuppliedFormatters
       });
     };
   });

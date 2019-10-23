@@ -310,11 +310,11 @@ describe('getStringFromMessageAndDefaults', function () {
         getStringFromMessageAndDefaults({
           message: undefined,
           key: 'myKey',
-          defaults: null
+          defaults: 500
         });
       }).to.throw(
         Error,
-        'Default locale strings must resolve to `false` or an object!'
+        'Default locale strings must resolve to `false`, nullish, or an object!'
       );
     }
   );
@@ -490,7 +490,17 @@ describe('getDOMForLocaleString', function () {
     expect(string).to.have.text('simple message');
   });
 
-  it('should return string with substitutions', function () {
+  it('should return string with a substitution', function () {
+    const string = getDOMForLocaleString({
+      string: 'simple {msg}',
+      substitutions: {
+        msg: 'message'
+      }
+    });
+    expect(string).to.equal('simple message');
+  });
+
+  it('should return string with a function substitution', function () {
     const string = getDOMForLocaleString({
       string: 'simple {msg}',
       substitutions: {
@@ -501,7 +511,22 @@ describe('getDOMForLocaleString', function () {
   });
 
   it(
-    'should return string with substitutions and custom `bracketRegex` ' +
+    'should return string with a function substitution and template argument',
+    function () {
+      const string = getDOMForLocaleString({
+        string: 'simple {msg|UPPER} {msg}',
+        substitutions: {
+          msg ({arg, key}) {
+            return arg === 'UPPER' ? 'MESSAGE' : 'message';
+          }
+        }
+      });
+      expect(string).to.equal('simple MESSAGE message');
+    }
+  );
+
+  it(
+    'should return string with substitutions and custom `formattingRegex` ' +
     '(ES6-template style)',
     function () {
       const string = getDOMForLocaleString({
@@ -509,7 +534,7 @@ describe('getDOMForLocaleString', function () {
         string: 'simple ${msg}',
         // eslint-disable-next-line max-len
         // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
-        bracketRegex: /(\\*)\$\{([^}]*?)(?:\|([^}]*))?\}/gu,
+        formattingRegex: /(\\*)\$\{([^}]*?)(?:\|([^}]*))?\}/gu,
         substitutions: {
           msg: 'message'
         }
@@ -1088,14 +1113,14 @@ describe('i18n', function () {
   );
   it(
     'should return function that can return string with custom ' +
-    '`bracketRegex` (ES6 template-style)',
+    '`formattingRegex` (ES6 template-style)',
     async function () {
       const _ = await i18n({
         locales: ['zx'],
         messageStyle: 'plain',
         // eslint-disable-next-line max-len
         // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
-        bracketRegex: /(\\*)\$\{([^}]*?)(?:\|([^}]*))?\}/gu
+        formattingRegex: /(\\*)\$\{([^}]*?)(?:\|([^}]*))?\}/gu
       });
       const string = _('key');
       expect(string).to.equal(this.expectedPlainStyleObject.key);
@@ -1260,6 +1285,42 @@ describe('i18n', function () {
         defaults: false
       });
       expect(string).to.equal(this.expectedPlainStyleObject.key);
+    }
+  );
+
+  it(
+    'should return a function that accepts a substitution object to apply ' +
+    'by default to all callback calls (ignoring arguments)',
+    async function () {
+      const _ = await i18n({
+        locales: ['yy'],
+        substitutions: {
+          substitution1: 'sub1 that will be overridden',
+          substitution2: 'sub2'
+        }
+      });
+      const string = _('key', {
+        substitution1: 'sub1'
+      });
+      expect(string).to.equal('sub2 sub1');
+    }
+  );
+
+  it(
+    'should return a function that accepts an `allSubstitutions` function to ' +
+    'apply to all callback calls',
+    async function () {
+      const _ = await i18n({
+        locales: ['yy'],
+        allSubstitutions ({value, arg, key}) {
+          return arg === 'UPPER' ? value.toUpperCase() : value;
+        }
+      });
+      const string = _('key', {
+        substitution1: 'sub1',
+        substitution2: 'sub2'
+      });
+      expect(string).to.equal('SUB2 sub1');
     }
   );
 
