@@ -993,8 +993,21 @@ describe('i18n', function () {
       );
     }
   );
+  it(
+    'should return function that can return string when using ' +
+    'custom `localeResolver`',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US'],
+        localeResolver (localesBasePath, locale) {
+          return `../${locale}/messages.json`;
+        }
+      });
+      const string = _('abc');
+      expect(string).to.deep.equal(this.expectedEnUSTestDirectory.abc.message);
+    }
+  );
   /*
-  localeResolver,
   messageStyle,
   bracketRegex,
 
