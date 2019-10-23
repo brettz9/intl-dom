@@ -957,6 +957,26 @@ describe.skip('i18n', function () {
     // Todo:
     await i18n();
   });
+  /*
+  locales,
+  defaultLocales,
+  localesBasePath,
+  localeResolver,
+  defaults,
+  messageStyle,
+  bracketRegex,
+  forceNodeReturnDefault = false,
+  throwOnMissingSuppliedFormattersDefault = true,
+  throwOnExtraSuppliedFormattersDefault = true
+
+  // Include empty object
+  key, substitutions, {
+    dom,
+    forceNodeReturn = forceNodeReturnDefault,
+    throwOnMissingSuppliedFormatters = throwOnMissingSuppliedFormattersDefault,
+    throwOnExtraSuppliedFormatters = throwOnExtraSuppliedFormattersDefault
+  }
+   */
   // Todo: Finish above
   // Todo: Document
   // Todo: Ensure coverage is complete and working! (different for browser too?)
