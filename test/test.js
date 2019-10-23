@@ -954,8 +954,9 @@ describe('findLocaleStrings', function () {
 
 describe.skip('i18n', function () {
   it('should find strings with empty arguments', async function () {
-    // Todo:
-    await i18n();
+    const _ = await i18n();
+    expect(_).to.be.a('function');
+    expect(_).to.have.lengthOf(3);
   });
   /*
   locales,
