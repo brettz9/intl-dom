@@ -1,4 +1,4 @@
-export const setSampleData = function () {
+export const setExpectedData = function () {
   this.expectedEnUS = {
     abc: {
       message: 'aaa'
@@ -26,5 +26,10 @@ export const setSampleData = function () {
   };
   this.expectedPlainStyleObject = {
     key: 'myKeyValue'
+  };
+  this.expectedRichStyleObject = {
+    key: {
+      message: 'myKeyValue'
+    }
   };
 };

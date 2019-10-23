@@ -460,7 +460,6 @@ export const i18n = async function i18n ({
       messageForKey,
       key
     });
-
     return getDOMForLocaleString({
       string,
       substitutions,

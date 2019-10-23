@@ -1,4 +1,4 @@
-import {setSampleData} from './utils/utils.js';
+import {setExpectedData} from './utils/utils.js';
 import {
   promiseChainForValues,
   defaultLocaleResolver,
@@ -142,6 +142,9 @@ describe('defaultLocaleResolver', function () {
 });
 
 describe('getMessageForKeyByStyle', function () {
+  beforeEach(function () {
+    setExpectedData.call(this);
+  });
   describe('Default style', function () {
     it('should process in rich style', function () {
       const func = getMessageForKeyByStyle();
@@ -150,7 +153,9 @@ describe('getMessageForKeyByStyle', function () {
           message: 'myKeyValue'
         }
       };
-      expect(func(localeObj, 'key')).to.equal('myKeyValue');
+      expect(func(localeObj, 'key')).to.equal(
+        this.expectedRichStyleObject.key.message
+      );
       expect(func(localeObj, 'missingKey')).to.equal(false);
     });
   });
@@ -164,7 +169,9 @@ describe('getMessageForKeyByStyle', function () {
           return obj[key] || false;
         }
       });
-      expect(func(localeObj, 'key')).to.equal('myKeyValue');
+      expect(func(localeObj, 'key')).to.equal(
+        this.expectedPlainStyleObject.key
+      );
       expect(func(localeObj, 'missingKey')).to.equal(false);
     });
   });
@@ -178,19 +185,23 @@ describe('getMessageForKeyByStyle', function () {
           message: 'myKeyValue'
         }
       };
-      expect(func(localeObj, 'key')).to.equal('myKeyValue');
+      expect(func(localeObj, 'key')).to.equal(
+        this.expectedRichStyleObject.key.message
+      );
       expect(func(localeObj, 'missingKey')).to.equal(false);
     });
   });
   describe('plain style', function () {
     beforeEach(function () {
-      setSampleData.call(this);
+      setExpectedData.call(this);
     });
     it('should process in plain style', function () {
       const func = getMessageForKeyByStyle({
         messageStyle: 'plain'
       });
-      expect(func(this.expectedPlainStyleObject, 'key')).to.equal('myKeyValue');
+      expect(func(this.expectedPlainStyleObject, 'key')).to.equal(
+        this.expectedPlainStyleObject.key
+      );
       expect(func(this.expectedPlainStyleObject, 'missingKey')).to.equal(false);
     });
   });
@@ -206,6 +217,9 @@ describe('getMessageForKeyByStyle', function () {
 });
 
 describe('getStringFromMessageAndDefaults', function () {
+  beforeEach(function () {
+    setExpectedData.call(this);
+  });
   it(
     'should throw with empty argument', function () {
       expect(() => {
@@ -389,7 +403,7 @@ describe('getStringFromMessageAndDefaults', function () {
         },
         messageStyle: 'rich'
       });
-      expect(string).to.equal('myKeyValue');
+      expect(string).to.equal(this.expectedRichStyleObject.key.message);
 
       string = getStringFromMessageAndDefaults({
         message: undefined,
@@ -399,7 +413,7 @@ describe('getStringFromMessageAndDefaults', function () {
         },
         messageStyle: 'plain'
       });
-      expect(string).to.equal('myKeyValue');
+      expect(string).to.equal(this.expectedPlainStyleObject.key);
     }
   );
   it(
@@ -811,7 +825,7 @@ describe('findLocaleStrings', function () {
   beforeEach(function () {
     setNavigatorLanguages([]);
     // Ensure not modified
-    setSampleData.call(this);
+    setExpectedData.call(this);
   });
 
   it(
@@ -950,7 +964,8 @@ describe('findLocaleStrings', function () {
 
 describe('i18n', function () {
   beforeEach(function () {
-    setSampleData.call(this);
+    setNavigatorLanguages([]);
+    setExpectedData.call(this);
   });
   it('should return a function with empty arguments', async function () {
     const _ = await i18n();
@@ -1066,7 +1081,7 @@ describe('i18n', function () {
         messageStyle: 'rich'
       });
       let string = _('myKey');
-      expect(string).to.equal('myKeyValue');
+      expect(string).to.equal(this.expectedPlainStyleObject.key);
 
       _ = await i18n({
         defaults: {
@@ -1075,7 +1090,7 @@ describe('i18n', function () {
         messageStyle: 'plain'
       });
       string = _('myKey');
-      expect(string).to.equal('myKeyValue');
+      expect(string).to.equal(this.expectedPlainStyleObject.key);
     }
   );
 
@@ -1091,7 +1106,7 @@ describe('i18n', function () {
         }
       });
       const string = _('key');
-      expect(string).to.equal('myKeyValue');
+      expect(string).to.equal(this.expectedPlainStyleObject.key);
     }
   );
   it(
@@ -1104,12 +1119,23 @@ describe('i18n', function () {
         defaults: false
       });
       const string = _('key');
-      expect(string).to.equal('myKeyValue');
+      expect(string).to.equal(this.expectedPlainStyleObject.key);
+    }
+  );
+
+  it(
+    'should return a function that returns a string text node ' +
+    ' (with `dom`)',
+    async function () {
+      const _ = await i18n({
+        dom: true
+      });
+      const string = _('abc');
+      expect(string).to.have.text(this.expectedEnUS.abc.message);
     }
   );
 
   /*
-  dom = false,
   forceNodeReturn = false,
   throwOnMissingSuppliedFormatters = true,
   throwOnExtraSuppliedFormatters = true
