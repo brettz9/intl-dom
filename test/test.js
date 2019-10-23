@@ -1037,9 +1037,23 @@ describe('i18n', function () {
       expect(string).to.equal(this.expectedPlainStyleObject.key);
     }
   );
-  /*
-  bracketRegex,
+  it(
+    'should return function that can return string with custom ' +
+    '`bracketRegex` (ES6 template-style)',
+    async function () {
+      const _ = await i18n({
+        locales: ['zx'],
+        messageStyle: 'plain',
+        // eslint-disable-next-line max-len
+        // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
+        bracketRegex: /(\\*)\$\{([^}]*?)(?:\|([^}]*))?\}/gu
+      });
+      const string = _('key');
+      expect(string).to.equal(this.expectedPlainStyleObject.key);
+    }
+  );
 
+  /*
   defaults,
   dom = false,
   forceNodeReturn = false,

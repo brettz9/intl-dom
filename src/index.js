@@ -164,7 +164,8 @@ export const getMessageForKeyByStyle = ({
       ? (obj, key) => {
         if (
           obj && typeof obj === 'object' &&
-          key in obj && obj[key] && 'message' in obj[key] &&
+          key in obj && obj[key] && typeof obj[key] === 'object' &&
+          'message' in obj[key] &&
           // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
           typeof obj[key].message === 'string'
         ) {
