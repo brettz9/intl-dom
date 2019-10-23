@@ -742,12 +742,13 @@ var findLocaleStrings = _async(function () {
  * @param {string[]} [cfg.defaultLocales=['en-US']]
  * @param {string} [cfg.localesBasePath='.']
  * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
- * @param {false|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
  * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
  * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
- * @param {boolean} [cfg.forceNodeReturnDefault=false]
- * @param {boolean} [cfg.throwOnMissingSuppliedFormattersDefault=true]
- * @param {boolean} [cfg.throwOnExtraSuppliedFormattersDefault=true]
+ * @param {false|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
+ * @param {boolean} [cfg.dom=false]
+ * @param {boolean} [cfg.forceNodeReturn=false]
+ * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
+ * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
  * @returns {Promise<I18NCallback>} Rejects if no suitable locale is found.
  */
 
@@ -757,14 +758,16 @@ var i18n = function i18n() {
       defaultLocales = _ref5.defaultLocales,
       localesBasePath = _ref5.localesBasePath,
       localeResolver = _ref5.localeResolver,
-      defaults = _ref5.defaults,
       messageStyle = _ref5.messageStyle,
       bracketRegex = _ref5.bracketRegex,
-      _ref5$forceNodeReturn = _ref5.forceNodeReturnDefault,
+      defaultDefaults = _ref5.defaults,
+      _ref5$dom = _ref5.dom,
+      domDefaults = _ref5$dom === void 0 ? false : _ref5$dom,
+      _ref5$forceNodeReturn = _ref5.forceNodeReturn,
       forceNodeReturnDefault = _ref5$forceNodeReturn === void 0 ? false : _ref5$forceNodeReturn,
-      _ref5$throwOnMissingS = _ref5.throwOnMissingSuppliedFormattersDefault,
+      _ref5$throwOnMissingS = _ref5.throwOnMissingSuppliedFormatters,
       throwOnMissingSuppliedFormattersDefault = _ref5$throwOnMissingS === void 0 ? true : _ref5$throwOnMissingS,
-      _ref5$throwOnExtraSup = _ref5.throwOnExtraSuppliedFormattersDefault,
+      _ref5$throwOnExtraSup = _ref5.throwOnExtraSuppliedFormatters,
       throwOnExtraSuppliedFormattersDefault = _ref5$throwOnExtraSup === void 0 ? true : _ref5$throwOnExtraSup;
 
   return _await(findLocaleStrings({
@@ -782,7 +785,10 @@ var i18n = function i18n() {
     });
     return function (key, substitutions) {
       var _ref6 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-          dom = _ref6.dom,
+          _ref6$defaults = _ref6.defaults,
+          defaults = _ref6$defaults === void 0 ? defaultDefaults : _ref6$defaults,
+          _ref6$dom = _ref6.dom,
+          dom = _ref6$dom === void 0 ? domDefaults : _ref6$dom,
           _ref6$forceNodeReturn = _ref6.forceNodeReturn,
           forceNodeReturn = _ref6$forceNodeReturn === void 0 ? forceNodeReturnDefault : _ref6$forceNodeReturn,
           _ref6$throwOnMissingS = _ref6.throwOnMissingSuppliedFormatters,

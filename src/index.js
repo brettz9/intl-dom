@@ -408,12 +408,13 @@ export const findLocaleStrings = async ({
  * @param {string[]} [cfg.defaultLocales=['en-US']]
  * @param {string} [cfg.localesBasePath='.']
  * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
- * @param {false|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
  * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
  * @param {RegExp} [cfg.bracketRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
- * @param {boolean} [cfg.forceNodeReturnDefault=false]
- * @param {boolean} [cfg.throwOnMissingSuppliedFormattersDefault=true]
- * @param {boolean} [cfg.throwOnExtraSuppliedFormattersDefault=true]
+ * @param {false|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
+ * @param {boolean} [cfg.dom=false]
+ * @param {boolean} [cfg.forceNodeReturn=false]
+ * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
+ * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
  * @returns {Promise<I18NCallback>} Rejects if no suitable locale is found.
  */
 export const i18n = async function i18n ({
@@ -422,12 +423,15 @@ export const i18n = async function i18n ({
   defaultLocales,
   localesBasePath,
   localeResolver,
-  defaults,
   messageStyle,
   bracketRegex,
-  forceNodeReturnDefault = false,
-  throwOnMissingSuppliedFormattersDefault = true,
-  throwOnExtraSuppliedFormattersDefault = true
+  defaults: defaultDefaults,
+  dom: domDefaults = false,
+  forceNodeReturn: forceNodeReturnDefault = false,
+  throwOnMissingSuppliedFormatters:
+    throwOnMissingSuppliedFormattersDefault = true,
+  throwOnExtraSuppliedFormatters:
+    throwOnExtraSuppliedFormattersDefault = true
 } = {}) {
   const strings = await findLocaleStrings({
     locales, defaultLocales, localeResolver, localesBasePath
@@ -437,7 +441,8 @@ export const i18n = async function i18n ({
   }
   const messageForKey = getMessageForKeyByStyle({messageStyle});
   return (key, substitutions, {
-    dom,
+    defaults = defaultDefaults,
+    dom = domDefaults,
     forceNodeReturn = forceNodeReturnDefault,
     throwOnMissingSuppliedFormatters = throwOnMissingSuppliedFormattersDefault,
     throwOnExtraSuppliedFormatters = throwOnExtraSuppliedFormattersDefault
