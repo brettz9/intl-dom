@@ -162,7 +162,9 @@ export const getMessageForKeyByStyle = ({
     ? messageStyle
     : (messageStyle === 'rich'
       ? (obj, key) => {
-        if (key in obj && obj[key] && 'message' in obj[key] &&
+        if (
+          obj && typeof obj === 'object' &&
+          key in obj && obj[key] && 'message' in obj[key] &&
           // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
           typeof obj[key].message === 'string'
         ) {
@@ -172,7 +174,10 @@ export const getMessageForKeyByStyle = ({
       }
       : (messageStyle === 'plain'
         ? (obj, key) => {
-          if (key in obj && obj[key] && typeof obj[key] === 'string') {
+          if (
+            obj && typeof obj === 'object' &&
+            key in obj && obj[key] && typeof obj[key] === 'string'
+          ) {
             return obj[key];
           }
           return false;

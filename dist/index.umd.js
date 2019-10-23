@@ -481,14 +481,14 @@
         messageStyle = _ref$messageStyle === void 0 ? 'rich' : _ref$messageStyle;
 
     return typeof messageStyle === 'function' ? messageStyle : messageStyle === 'rich' ? function (obj, key) {
-      if (key in obj && obj[key] && 'message' in obj[key] && // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
+      if (obj && _typeof(obj) === 'object' && key in obj && obj[key] && 'message' in obj[key] && // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
       typeof obj[key].message === 'string') {
         return obj[key].message;
       }
 
       return false;
     } : messageStyle === 'plain' ? function (obj, key) {
-      if (key in obj && obj[key] && typeof obj[key] === 'string') {
+      if (obj && _typeof(obj) === 'object' && key in obj && obj[key] && typeof obj[key] === 'string') {
         return obj[key];
       }
 

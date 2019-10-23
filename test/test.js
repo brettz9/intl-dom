@@ -182,15 +182,15 @@ describe('getMessageForKeyByStyle', function () {
     });
   });
   describe('plain style', function () {
+    beforeEach(function () {
+      setSampleData.call(this);
+    });
     it('should process in plain style', function () {
       const func = getMessageForKeyByStyle({
         messageStyle: 'plain'
       });
-      const localeObj = {
-        key: 'myKeyValue'
-      };
-      expect(func(localeObj, 'key')).to.equal('myKeyValue');
-      expect(func(localeObj, 'missingKey')).to.equal(false);
+      expect(func(this.expectedPlainStyleObject, 'key')).to.equal('myKeyValue');
+      expect(func(this.expectedPlainStyleObject, 'missingKey')).to.equal(false);
     });
   });
   describe('Bad style', function () {

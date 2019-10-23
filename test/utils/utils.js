@@ -24,4 +24,7 @@ export const setSampleData = function () {
       message: 'ccc'
     }
   };
+  this.expectedPlainStyleObject = {
+    key: 'myKeyValue'
+  };
 };
