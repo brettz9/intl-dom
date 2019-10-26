@@ -1,3 +1,8 @@
 {
-  "key": "myKeyValue"
+  "head": {
+
+  },
+  "body": {
+    "key": "myKeyValue"
+  }
 }

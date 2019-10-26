@@ -1,9 +1,9 @@
-// Todo: Fix coverage and ensure it is complete (different for browser too?)
-
 import {setExpectedData} from './utils/utils.js';
 import {
   promiseChainForValues,
   defaultLocaleResolver,
+  defaultAllSubstitutions,
+  defaultInsertNodes,
   getMessageForKeyByStyle,
   getStringFromMessageAndDefaults,
   getDOMForLocaleString,
@@ -11,13 +11,6 @@ import {
   i18n
 // } from '../dist/index.esm.min.js';
 } from '../src/index.js';
-
-// Todo: We could replace this with a custom plugin
-const container = (string) => {
-  const dummyContainer = document.createElement('div');
-  dummyContainer.append(string);
-  return dummyContainer;
-};
 
 // Make path resolutions consistent in Node with HTML
 if (typeof process !== 'undefined') {
@@ -29,6 +22,8 @@ describe('API', function () {
   it('should export functions', function () {
     expect(promiseChainForValues).to.be.a('function');
     expect(defaultLocaleResolver).to.be.a('function');
+    expect(defaultAllSubstitutions).to.be.a('function');
+    expect(defaultInsertNodes).to.be.a('function');
     expect(getMessageForKeyByStyle).to.be.a('function');
     expect(getStringFromMessageAndDefaults).to.be.a('function');
     expect(getDOMForLocaleString).to.be.a('function');
@@ -143,36 +138,99 @@ describe('defaultLocaleResolver', function () {
   });
 });
 
+describe('defaultAllSubstitutions', function () {
+  it('should throw with a bad formatter', function () {
+    expect(() => {
+      defaultAllSubstitutions({});
+    }).to.throw(TypeError, 'Unknown formatter');
+  });
+});
+
+/*
+// Currently covered elsewhere indirectly
+describe('defaultInsertNodes', function () {
+  it('', function () {
+    defaultInsertNodes({
+      string: ''
+    });
+  });
+});
+*/
+
 describe('getMessageForKeyByStyle', function () {
   beforeEach(function () {
     setExpectedData.call(this);
   });
   describe('Default style', function () {
-    it('should process in rich style', function () {
+    it('should process in rich nested style', function () {
       const func = getMessageForKeyByStyle();
       const localeObj = {
-        key: {
-          message: 'myKeyValue'
+        body: {
+          key: {
+            message: 'myKeyValue'
+          }
         }
       };
-      expect(func(localeObj, 'key')).to.equal(
-        this.expectedRichStyleObject.key.message
+      expect(func(localeObj, 'key').value).to.equal(
+        this.expectedRichStyleObject.body.key.message
       );
       expect(func(localeObj, 'missingKey')).to.equal(false);
+    });
+
+    it('should process nested in rich nested style', function () {
+      const func = getMessageForKeyByStyle();
+      const localeObj = {
+        body: {
+          key: {
+            that: {
+              lessNested: {
+                message: 'anotherKeyValue'
+              },
+              is: {
+                nested: {
+                  message: 'myKeyValue'
+                }
+              }
+            }
+          }
+        }
+      };
+      expect(func(localeObj, 'key.that.is.nested').value).to.equal(
+        this.expectedRichNestedStyleObject.body.key.that.is.nested.message
+      );
+      expect(func(localeObj, 'key.that.lessNested').value).to.equal(
+        this.expectedRichNestedStyleObject.body.key.that.lessNested.message
+      );
+      expect(func(localeObj, 'key.that.is.nested').info).to.deep.equal(
+        this.expectedRichNestedStyleObject.body.key.that.is.nested
+      );
+      expect(func(localeObj, 'key.that.lessNested').info).to.deep.equal(
+        this.expectedRichNestedStyleObject.body.key.that.lessNested
+      );
+      expect(func(localeObj, 'key.that')).to.equal(false);
+      expect(func(localeObj, 'key.that.is.nested.too.deep')).to.equal(false);
+      expect(func(localeObj, 'a.nested.missingKey')).to.equal(false);
     });
   });
   describe('Function style', function () {
     it('should return function value', function () {
       const localeObj = {
-        key: 'myKeyValue'
+        body: {
+          key: 'myKeyValue'
+        }
       };
       const func = getMessageForKeyByStyle({
         messageStyle (obj, key) {
-          return obj[key] || false;
+          if (obj.body[key]) {
+            return {
+              value: obj.body[key]
+            };
+          }
+          return false;
         }
       });
-      expect(func(localeObj, 'key')).to.equal(
-        this.expectedPlainStyleObject.key
+      expect(func(localeObj, 'key').value).to.equal(
+        this.expectedPlainStyleObject.body.key
       );
       expect(func(localeObj, 'missingKey')).to.equal(false);
     });
@@ -183,14 +241,55 @@ describe('getMessageForKeyByStyle', function () {
         messageStyle: 'rich'
       });
       const localeObj = {
-        key: {
-          message: 'myKeyValue'
+        body: {
+          key: {
+            message: 'myKeyValue'
+          }
         }
       };
-      expect(func(localeObj, 'key')).to.equal(
-        this.expectedRichStyleObject.key.message
+      expect(func(localeObj, 'key').value).to.equal(
+        this.expectedRichStyleObject.body.key.message
+      );
+      expect(func(localeObj, 'key').info).to.deep.equal(
+        this.expectedRichStyleObject.body.key
       );
       expect(func(localeObj, 'missingKey')).to.equal(false);
+    });
+    it('should process nested in rich nested style', function () {
+      const func = getMessageForKeyByStyle({
+        messageStyle: 'richNested'
+      });
+      const localeObj = {
+        body: {
+          key: {
+            that: {
+              lessNested: {
+                message: 'anotherKeyValue'
+              },
+              is: {
+                nested: {
+                  message: 'myKeyValue'
+                }
+              }
+            }
+          }
+        }
+      };
+      expect(func(localeObj, 'key.that.is.nested').value).to.equal(
+        this.expectedRichNestedStyleObject.body.key.that.is.nested.message
+      );
+      expect(func(localeObj, 'key.that.lessNested').value).to.equal(
+        this.expectedRichNestedStyleObject.body.key.that.lessNested.message
+      );
+      expect(func(localeObj, 'key.that.is.nested').info).to.deep.equal(
+        this.expectedRichNestedStyleObject.body.key.that.is.nested
+      );
+      expect(func(localeObj, 'key.that.lessNested').info).to.deep.equal(
+        this.expectedRichNestedStyleObject.body.key.that.lessNested
+      );
+      expect(func(localeObj, 'key.that')).to.equal(false);
+      expect(func(localeObj, 'key.that.is.nested.too.deep')).to.equal(false);
+      expect(func(localeObj, 'a.nested.missingKey')).to.equal(false);
     });
   });
   describe('plain style', function () {
@@ -201,8 +300,8 @@ describe('getMessageForKeyByStyle', function () {
       const func = getMessageForKeyByStyle({
         messageStyle: 'plain'
       });
-      expect(func(this.expectedPlainStyleObject, 'key')).to.equal(
-        this.expectedPlainStyleObject.key
+      expect(func(this.expectedPlainStyleObject, 'key').value).to.equal(
+        this.expectedPlainStyleObject.body.key
       );
       expect(func(this.expectedPlainStyleObject, 'missingKey')).to.equal(false);
     });
@@ -397,15 +496,15 @@ describe('getStringFromMessageAndDefaults', function () {
     'on the `messageStyle` `messageForKey`', function () {
       let string = getStringFromMessageAndDefaults({
         message: undefined,
-        key: 'myKey',
+        key: 'key',
         defaults: {
-          myKey: {
+          key: {
             message: 'myKeyValue'
           }
         },
         messageStyle: 'rich'
       });
-      expect(string).to.equal(this.expectedRichStyleObject.key.message);
+      expect(string).to.equal(this.expectedRichStyleObject.body.key.message);
 
       string = getStringFromMessageAndDefaults({
         message: undefined,
@@ -415,7 +514,7 @@ describe('getStringFromMessageAndDefaults', function () {
         },
         messageStyle: 'plain'
       });
-      expect(string).to.equal(this.expectedPlainStyleObject.key);
+      expect(string).to.equal(this.expectedPlainStyleObject.body.key);
     }
   );
   it(
@@ -428,7 +527,8 @@ describe('getStringFromMessageAndDefaults', function () {
           myKey: 'myKeyValue'
         },
         messageForKey (defaults, key) {
-          return key in defaults ? String(defaults[key]) : false;
+          defaults = defaults.body;
+          return key in defaults ? {value: String(defaults[key])} : false;
         }
       });
       expect(string).to.equal('myKeyValue');
@@ -463,31 +563,39 @@ describe('getDOMForLocaleString', function () {
     });
     expect(string).to.equal('simple message');
   });
-  it('should return string text node (with `forceNodeReturn`)', function () {
+  it('should return string (with no `allSubstitutions`)', function () {
     const string = getDOMForLocaleString({
+      string: 'simple message',
+      allSubstitutions: null,
+      throwOnMissingSuppliedFormatters: false
+    });
+    expect(string).to.equal('simple message');
+  });
+  it('should return string text node (with `forceNodeReturn`)', function () {
+    const node = getDOMForLocaleString({
       string: 'simple message',
       forceNodeReturn: true,
       throwOnMissingSuppliedFormatters: false
     });
-    expect(string).to.have.text('simple message');
+    expect(node).to.have.text('simple message');
   });
   it(
     'should return string text node (with `forceNodeReturn` ' +
     'not throwing)',
     function () {
-      const string = getDOMForLocaleString({
+      const node = getDOMForLocaleString({
         string: 'simple message',
         forceNodeReturn: true
       });
-      expect(string).to.have.text('simple message');
+      expect(node).to.have.text('simple message');
     }
   );
   it('should return string text node (with `dom`)', function () {
-    const string = getDOMForLocaleString({
+    const node = getDOMForLocaleString({
       string: 'simple message',
       dom: true
     });
-    expect(string).to.have.text('simple message');
+    expect(node).to.have.text('simple message');
   });
 
   it('should return string with a substitution', function () {
@@ -504,7 +612,9 @@ describe('getDOMForLocaleString', function () {
     const string = getDOMForLocaleString({
       string: 'simple {msg}',
       substitutions: {
-        msg: 'message'
+        msg () {
+          return 'message';
+        }
       }
     });
     expect(string).to.equal('simple message');
@@ -526,20 +636,127 @@ describe('getDOMForLocaleString', function () {
   );
 
   it(
-    'should return string with substitutions and custom `formattingRegex` ' +
-    '(ES6-template style)',
+    'should return fragment with a function substitution and template argument',
     function () {
-      const string = getDOMForLocaleString({
+      const frag = getDOMForLocaleString({
+        string: 'simple {msg|UPPER} {msg}',
+        substitutions: {
+          msg ({arg, key}) {
+            if (arg === 'UPPER') {
+              const b = document.createElement('b');
+              b.textContent = 'MESSAGE';
+              return b;
+            }
+            const span = document.createElement('span');
+            span.textContent = 'message';
+            return span;
+          }
+        }
+      });
+      expect(frag).to.have.fragmentHtml(
+        'simple <b>MESSAGE</b> <span>message</span>'
+      );
+    }
+  );
+
+  it(
+    'should return fragment with a function substitution and template ' +
+    'argument (and no `allSubstitutions`)',
+    function () {
+      const frag = getDOMForLocaleString({
+        string: 'simple {msg|UPPER} {msg}',
+        allSubstitutions: null,
+        substitutions: {
+          msg ({arg, key}) {
+            if (arg === 'UPPER') {
+              const b = document.createElement('b');
+              b.textContent = 'MESSAGE';
+              return b;
+            }
+            const span = document.createElement('span');
+            span.textContent = 'message';
+            return span;
+          }
+        }
+      });
+      expect(frag).to.have.fragmentHtml(
+        'simple <b>MESSAGE</b> <span>message</span>'
+      );
+    }
+  );
+
+  it(
+    'should return string with substitutions and custom `insertNodes`',
+    function () {
+      const str = getDOMForLocaleString({
         // eslint-disable-next-line no-template-curly-in-string
         string: 'simple ${msg}',
-        // eslint-disable-next-line max-len
-        // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
-        formattingRegex: /(\\*)\$\{([^}]*?)(?:\|([^}]*))?\}/gu,
+        insertNodes ({string, substitutions}) {
+          // See `defaultInsertNodes` for a more robust implementation
+          //   to emulate
+          // eslint-disable-next-line max-len
+          // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
+          const formattingRegex = /(\\*)\$\{([^}]*?)(?:\|([^}]*))?\}/gu;
+          return string.replace(formattingRegex, (_, esc, ky, arg) => {
+            const substitution = substitutions[ky];
+            return esc + substitution;
+          });
+        },
         substitutions: {
           msg: 'message'
         }
       });
-      expect(string).to.equal('simple message');
+      expect(str).to.equal('simple message');
+    }
+  );
+
+  it(
+    'should return string with escaped brackets',
+    function () {
+      const str = getDOMForLocaleString({
+        string: 'simple \\{msg}'
+      });
+      expect(str).to.equal('simple {msg}');
+    }
+  );
+
+  it(
+    'should return string with escaped backslash',
+    function () {
+      const str = getDOMForLocaleString({
+        string: 'simple \\\\{msg}',
+        substitutions: {
+          msg: 'message'
+        }
+      });
+      expect(str).to.equal('simple \\message');
+    }
+  );
+
+  it(
+    'should return fragment with escaped brackets',
+    function () {
+      const frag = getDOMForLocaleString({
+        string: 'simple \\{msg} {frag}',
+        substitutions: {
+          frag: document.createElement('br')
+        }
+      });
+      expect(frag).to.have.fragmentHtml('simple {msg} <br>');
+    }
+  );
+
+  it(
+    'should return fragment with escaped backslash',
+    function () {
+      const frag = getDOMForLocaleString({
+        string: 'simple \\\\{msg} {frag}',
+        substitutions: {
+          msg: 'message',
+          frag: document.createElement('br')
+        }
+      });
+      expect(frag).to.have.fragmentHtml('simple \\message <br>');
     }
   );
 
@@ -571,21 +788,21 @@ describe('getDOMForLocaleString', function () {
   it(
     'should return string text node with substitutions (with `dom`)',
     function () {
-      const string = getDOMForLocaleString({
+      const node = getDOMForLocaleString({
         string: 'simple {msg}',
         dom: true,
         substitutions: {
           msg: 'message'
         }
       });
-      expect(string).to.have.text('simple message');
+      expect(node).to.have.text('simple message');
     }
   );
 
   it(
     'should return string text node with multiple substitutions (with `dom`)',
     function () {
-      const string = getDOMForLocaleString({
+      const node = getDOMForLocaleString({
         string: '{simp} {msg}',
         dom: true,
         substitutions: {
@@ -593,7 +810,7 @@ describe('getDOMForLocaleString', function () {
           simp: 'simple'
         }
       });
-      expect(string).to.have.text('simple message');
+      expect(node).to.have.text('simple message');
     }
   );
 
@@ -601,14 +818,14 @@ describe('getDOMForLocaleString', function () {
     'should return string text node with multiple substitutions of ' +
     'same key (with `dom`)',
     function () {
-      const string = getDOMForLocaleString({
+      const node = getDOMForLocaleString({
         string: '{msg} {msg}',
         dom: true,
         substitutions: {
           msg: 'message'
         }
       });
-      expect(string).to.have.text('message message');
+      expect(node).to.have.text('message message');
     }
   );
 
@@ -616,14 +833,14 @@ describe('getDOMForLocaleString', function () {
     'should return string text node with substitutions (with ' +
     '`forceNodeReturn`)',
     function () {
-      const string = getDOMForLocaleString({
+      const node = getDOMForLocaleString({
         string: 'simple {msg}',
         forceNodeReturn: true,
         substitutions: {
           msg: 'message'
         }
       });
-      expect(string).to.have.text('simple message');
+      expect(node).to.have.text('simple message');
     }
   );
 
@@ -631,7 +848,7 @@ describe('getDOMForLocaleString', function () {
     'should return string text node with multiple substitutions (with ' +
     '`forceNodeReturn`)',
     function () {
-      const string = getDOMForLocaleString({
+      const node = getDOMForLocaleString({
         string: '{simp} {msg}',
         forceNodeReturn: true,
         substitutions: {
@@ -639,7 +856,7 @@ describe('getDOMForLocaleString', function () {
           simp: 'simple'
         }
       });
-      expect(string).to.have.text('simple message');
+      expect(node).to.have.text('simple message');
     }
   );
 
@@ -647,14 +864,14 @@ describe('getDOMForLocaleString', function () {
     'should return string text node with multiple substitutions of ' +
     'same key (with `forceNodeReturn`)',
     function () {
-      const string = getDOMForLocaleString({
+      const node = getDOMForLocaleString({
         string: '{msg} {msg}',
         forceNodeReturn: true,
         substitutions: {
           msg: 'message'
         }
       });
-      expect(string).to.have.text('message message');
+      expect(node).to.have.text('message message');
     }
   );
 
@@ -690,9 +907,9 @@ describe('getDOMForLocaleString', function () {
     '`throwOnMissingSuppliedFormatters` disabled and should ' +
     'return the unformatted string in a text node',
     function () {
-      let string;
+      let node;
       expect(() => {
-        string = getDOMForLocaleString({
+        node = getDOMForLocaleString({
           string: 'A {msg}',
           forceNodeReturn: true,
           throwOnMissingSuppliedFormatters: false,
@@ -700,7 +917,7 @@ describe('getDOMForLocaleString', function () {
           }
         });
       }).to.not.throw();
-      expect(string).to.have.text('A {msg}');
+      expect(node).to.have.text('A {msg}');
     }
   );
 
@@ -719,6 +936,25 @@ describe('getDOMForLocaleString', function () {
         });
       }).to.not.throw();
       expect(string).to.equal('A {msg}');
+    }
+  );
+
+  it(
+    'should not throw with missing supplied formatters and ' +
+    '`throwOnMissingSuppliedFormatters` disabled and should ' +
+    'return the unformatted string',
+    function () {
+      let node;
+      expect(() => {
+        node = getDOMForLocaleString({
+          string: 'A {msg}',
+          dom: true,
+          throwOnMissingSuppliedFormatters: false,
+          substitutions: {
+          }
+        });
+      }).to.not.throw();
+      expect(node).to.have.text('A {msg}');
     }
   );
 
@@ -758,9 +994,9 @@ describe('getDOMForLocaleString', function () {
     '`throwOnExtraSuppliedFormatters` disabled and should ' +
     'return the formatted string',
     function () {
-      let string;
+      let node;
       expect(() => {
-        string = getDOMForLocaleString({
+        node = getDOMForLocaleString({
           string: 'A {msg}',
           forceNodeReturn: true,
           throwOnExtraSuppliedFormatters: false,
@@ -770,7 +1006,7 @@ describe('getDOMForLocaleString', function () {
           }
         });
       }).to.not.throw();
-      expect(string).to.have.text('A message');
+      expect(node).to.have.text('A message');
     }
   );
 
@@ -779,16 +1015,16 @@ describe('getDOMForLocaleString', function () {
     elem.href = 'http://example.com';
     elem.textContent = 'message';
 
-    const string = getDOMForLocaleString({
+    const frag = getDOMForLocaleString({
       string: 'simple {msg}',
       substitutions: {
         msg: elem
       }
     });
-    expect(string).to.have.text('simple message');
-    expect(string).to.contain(elem);
+    expect(frag).to.have.text('simple message');
+    expect(frag).to.contain(elem);
 
-    expect(container(string)).to.have.html('simple <a href="http://example.com">message</a>');
+    expect(frag).to.have.fragmentHtml('simple <a href="http://example.com">message</a>');
   });
 
   it('should return DOM with DOM substitution', function () {
@@ -799,18 +1035,18 @@ describe('getDOMForLocaleString', function () {
     const simpElem = document.createElement('span');
     simpElem.textContent = 'simple';
 
-    const string = getDOMForLocaleString({
+    const frag = getDOMForLocaleString({
       string: '{simp} {msg}',
       substitutions: {
         msg: elem,
         simp: simpElem
       }
     });
-    expect(string).to.have.text('simple message');
-    expect(string).to.contain(elem);
-    expect(string).to.contain(simpElem);
+    expect(frag).to.have.text('simple message');
+    expect(frag).to.contain(elem);
+    expect(frag).to.contain(simpElem);
 
-    expect(container(string)).to.have.html('<span>simple</span> <a href="http://example.com">message</a>');
+    expect(frag).to.have.fragmentHtml('<span>simple</span> <a href="http://example.com">message</a>');
   });
 
   it(
@@ -883,8 +1119,9 @@ describe('findLocaleStrings', function () {
     'should return locale object and no arguments',
     async function () {
       setNavigatorLanguages(['en-US']);
-      const strings = await findLocaleStrings();
+      const {strings, locale} = await findLocaleStrings();
       expect(strings).to.deep.equal(this.expectedEnUS);
+      expect(locale).to.equal('en-US');
     }
   );
 
@@ -892,10 +1129,11 @@ describe('findLocaleStrings', function () {
     'should return locale object with no `locales` and empty `defaultLocales`)',
     async function () {
       setNavigatorLanguages(['en-US']);
-      const strings = await findLocaleStrings({
+      const {strings, locale} = await findLocaleStrings({
         defaultLocales: []
       });
       expect(strings).to.deep.equal(this.expectedEnUS);
+      expect(locale).to.equal('en-US');
     }
   );
 
@@ -903,30 +1141,33 @@ describe('findLocaleStrings', function () {
     'should return locale object with no `locales` and empty `defaultLocales`',
     async function () {
       setNavigatorLanguages(['zh-Hans']);
-      const strings = await findLocaleStrings({
+      const {strings, locale} = await findLocaleStrings({
         defaultLocales: []
       });
       expect(strings).to.deep.equal(this.expectedZhHans);
+      expect(locale).to.equal('zh-Hans');
     }
   );
 
   it(
     'should return locale object with explicit `locales`',
     async function () {
-      const strings = await findLocaleStrings({
+      const {strings, locale} = await findLocaleStrings({
         locales: ['en-US']
       });
       expect(strings).to.deep.equal(this.expectedEnUS);
+      expect(locale).to.equal('en-US');
     }
   );
 
   it(
     'should return locale object when finding locale without hyphen',
     async function () {
-      const strings = await findLocaleStrings({
+      const {strings, locale} = await findLocaleStrings({
         locales: ['pt-BR']
       });
       expect(strings).to.deep.equal(this.expectedPt);
+      expect(locale).to.equal('pt');
     }
   );
 
@@ -934,22 +1175,24 @@ describe('findLocaleStrings', function () {
     'should return locale object when needing to revert to secondary ' +
     'item in `locales`',
     async function () {
-      const strings = await findLocaleStrings({
+      const {strings, locale} = await findLocaleStrings({
         locales: ['zz', 'en-US', 'zh-Hans'],
         defaultLocales: []
       });
       expect(strings).to.deep.equal(this.expectedEnUS);
+      expect(locale).to.equal('en-US');
     }
   );
 
   it(
     'should return locale object when needing to revert to `defaultLocales`',
     async function () {
-      const strings = await findLocaleStrings({
+      const {strings, locale} = await findLocaleStrings({
         locales: ['zz'],
         defaultLocales: ['en-US']
       });
       expect(strings).to.deep.equal(this.expectedEnUS);
+      expect(locale).to.equal('en-US');
     }
   );
 
@@ -973,13 +1216,14 @@ describe('findLocaleStrings', function () {
   it(
     'should return locale object when using custom `localeResolver`',
     async function () {
-      const strings = await findLocaleStrings({
+      const {strings, locale} = await findLocaleStrings({
         locales: ['en-US'],
-        localeResolver (localesBasePath, locale) {
-          return `../${locale}/messages.json`;
+        localeResolver (localesBasePath, lcle) {
+          return `../${lcle}/messages.json`;
         }
       });
       expect(strings).to.deep.equal(this.expectedEnUSTestDirectory);
+      expect(locale).to.equal('en-US');
     }
   );
 
@@ -998,19 +1242,48 @@ describe('findLocaleStrings', function () {
   it(
     'should return locale object when using custom `localesBasePath`',
     async function () {
-      let strings = await findLocaleStrings({
+      let {strings, locale} = await findLocaleStrings({
         locales: ['en-US'],
         localesBasePath: '../'
       });
       expect(strings).to.deep.equal(this.expectedEnUSLocalesTestDirectory);
+      expect(locale).to.equal('en-US');
 
-      strings = await findLocaleStrings({
+      ({strings, locale} = await findLocaleStrings({
         locales: ['en-US'],
         localesBasePath: '..'
-      });
+      }));
       expect(strings).to.deep.equal(this.expectedEnUSLocalesTestDirectory);
+      expect(locale).to.equal('en-US');
     }
   );
+  it(
+    'should return locale object when using default `localeMatcher`',
+    async function () {
+      const {strings, locale} = await findLocaleStrings({
+        locales: ['en-ZZ'],
+        localeMatcher (lcle) {
+          if (lcle === 'en-ZZ') {
+            return 'en-GB';
+          }
+          throw new Error('Locale not available');
+        }
+      });
+      expect(strings).to.deep.equal(this.expectedEnGB);
+      expect(locale).to.equal('en-GB');
+    }
+  );
+  it('should throw when given bad `localeMatcher`', function () {
+    expect(
+      findLocaleStrings({
+        locales: ['en-US'],
+        localeMatcher: 'nonexistingCustomMatcherName'
+      })
+    ).to.be.rejectedWith(
+      TypeError,
+      '`localeMatcher` must be "lookup" or a function!'
+    );
+  });
 });
 
 describe('i18n', function () {
@@ -1031,7 +1304,7 @@ describe('i18n', function () {
     async function () {
       const _ = await i18n();
       const string = _('abc');
-      expect(string).to.deep.equal(this.expectedEnUS.abc.message);
+      expect(string).to.deep.equal(this.expectedEnUS.body.abc.message);
     }
   );
   it(
@@ -1041,7 +1314,7 @@ describe('i18n', function () {
         locales: ['en-US']
       });
       const string = _('abc');
-      expect(string).to.equal(this.expectedEnUS.abc.message);
+      expect(string).to.equal(this.expectedEnUS.body.abc.message);
     }
   );
   it('should reject with non-object JSON', function () {
@@ -1060,7 +1333,7 @@ describe('i18n', function () {
         defaultLocales: ['en-US']
       });
       const string = _('abc');
-      expect(string).to.deep.equal(this.expectedEnUS.abc.message);
+      expect(string).to.deep.equal(this.expectedEnUS.body.abc.message);
     }
   );
   it(
@@ -1073,7 +1346,7 @@ describe('i18n', function () {
       });
       let string = _('abc');
       expect(string).to.deep.equal(
-        this.expectedEnUSLocalesTestDirectory.abc.message
+        this.expectedEnUSLocalesTestDirectory.body.abc.message
       );
 
       _ = await i18n({
@@ -1082,7 +1355,7 @@ describe('i18n', function () {
       });
       string = _('abc');
       expect(string).to.deep.equal(
-        this.expectedEnUSLocalesTestDirectory.abc.message
+        this.expectedEnUSLocalesTestDirectory.body.abc.message
       );
     }
   );
@@ -1097,7 +1370,9 @@ describe('i18n', function () {
         }
       });
       const string = _('abc');
-      expect(string).to.deep.equal(this.expectedEnUSTestDirectory.abc.message);
+      expect(string).to.deep.equal(
+        this.expectedEnUSTestDirectory.body.abc.message
+      );
     }
   );
   it(
@@ -1108,22 +1383,7 @@ describe('i18n', function () {
         messageStyle: 'plain'
       });
       const string = _('key');
-      expect(string).to.equal(this.expectedPlainStyleObject.key);
-    }
-  );
-  it(
-    'should return function that can return string with custom ' +
-    '`formattingRegex` (ES6 template-style)',
-    async function () {
-      const _ = await i18n({
-        locales: ['zx'],
-        messageStyle: 'plain',
-        // eslint-disable-next-line max-len
-        // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
-        formattingRegex: /(\\*)\$\{([^}]*?)(?:\|([^}]*))?\}/gu
-      });
-      const string = _('key');
-      expect(string).to.equal(this.expectedPlainStyleObject.key);
+      expect(string).to.equal(this.expectedPlainStyleObject.body.key);
     }
   );
 
@@ -1140,7 +1400,7 @@ describe('i18n', function () {
         messageStyle: 'rich'
       });
       let string = _('myKey');
-      expect(string).to.equal(this.expectedPlainStyleObject.key);
+      expect(string).to.equal(this.expectedPlainStyleObject.body.key);
 
       _ = await i18n({
         defaults: {
@@ -1149,7 +1409,39 @@ describe('i18n', function () {
         messageStyle: 'plain'
       });
       string = _('myKey');
-      expect(string).to.equal(this.expectedPlainStyleObject.key);
+      expect(string).to.equal(this.expectedPlainStyleObject.body.key);
+    }
+  );
+
+  it(
+    'should return a function that can return a string message with a string' +
+    'key indicating `"richNested"` on the `messageStyle` `messageForKey`',
+    async function () {
+      const _ = await i18n({
+        locales: ['ja'],
+        messageStyle: 'richNested'
+      });
+      let string = _('key.that.is.nested');
+      expect(string).to.equal(
+        this.expectedRichNestedStyleObject.body.key.that.is.nested.message
+      );
+
+      string = _('key.that.lessNested');
+      expect(string).to.equal(
+        this.expectedRichNestedStyleObject.body.key.that.lessNested.message
+      );
+      expect(() => {
+        _('key.that');
+      }).to.throw(Error, 'Key value not found for key: (key.that)');
+      expect(() => {
+        _('key.that.is.nested.too.deep');
+      }).to.throw(
+        Error,
+        'Key value not found for key: (key.that.is.nested.too.deep)'
+      );
+      expect(() => {
+        _('a.nested.missingKey');
+      }).to.throw(Error, 'Key value not found for key: (a.nested.missingKey)');
     }
   );
 
@@ -1165,7 +1457,7 @@ describe('i18n', function () {
         }
       });
       const string = _('key');
-      expect(string).to.equal(this.expectedPlainStyleObject.key);
+      expect(string).to.equal(this.expectedPlainStyleObject.body.key);
     }
   );
   it(
@@ -1178,7 +1470,7 @@ describe('i18n', function () {
         defaults: false
       });
       const string = _('key');
-      expect(string).to.equal(this.expectedPlainStyleObject.key);
+      expect(string).to.equal(this.expectedPlainStyleObject.body.key);
     }
   );
 
@@ -1189,8 +1481,8 @@ describe('i18n', function () {
       const _ = await i18n({
         dom: true
       });
-      const string = _('abc');
-      expect(string).to.have.text(this.expectedEnUS.abc.message);
+      const node = _('abc');
+      expect(node).to.have.text(this.expectedEnUS.body.abc.message);
     }
   );
 
@@ -1202,8 +1494,8 @@ describe('i18n', function () {
         forceNodeReturn: true,
         throwOnMissingSuppliedFormatters: false
       });
-      const string = _('abc');
-      expect(string).to.have.text(this.expectedEnUS.abc.message);
+      const node = _('abc');
+      expect(node).to.have.text(this.expectedEnUS.body.abc.message);
     }
   );
 
@@ -1218,29 +1510,29 @@ describe('i18n', function () {
         substitutions: {
         }
       });
-      let string;
+      let node;
       expect(() => {
-        string = _('key');
+        node = _('key');
       }).to.not.throw();
-      expect(string).to.have.text('A {msg}');
+      expect(node).to.have.text('A {msg}');
     }
   );
 
   it(
     'should return function which does not throw with extra supplied ' +
     'formatters and `throwOnExtraSuppliedFormatters` disabled and should ' +
-    'return the formatted string',
+    'return the formatted string node',
     async function () {
       const _ = await i18n({
         locales: ['fr'],
         forceNodeReturn: true,
         throwOnExtraSuppliedFormatters: false
       });
-      const string = _('key', {
+      const node = _('key', {
         msg: 'message',
         anExtraOne: 'why am I here?'
       });
-      expect(string).to.have.text('A message');
+      expect(node).to.have.text('A message');
     }
   );
 
@@ -1253,7 +1545,7 @@ describe('i18n', function () {
         messageStyle: 'plain'
       });
       const string = _('key', {});
-      expect(string).to.equal(this.expectedPlainStyleObject.key);
+      expect(string).to.equal(this.expectedPlainStyleObject.body.key);
     }
   );
 
@@ -1270,7 +1562,7 @@ describe('i18n', function () {
           myKey: 'somethingElse'
         }
       });
-      expect(string).to.equal(this.expectedPlainStyleObject.key);
+      expect(string).to.equal(this.expectedPlainStyleObject.body.key);
     }
   );
   it(
@@ -1284,7 +1576,7 @@ describe('i18n', function () {
       const string = _('key', null, {
         defaults: false
       });
-      expect(string).to.equal(this.expectedPlainStyleObject.key);
+      expect(string).to.equal(this.expectedPlainStyleObject.body.key);
     }
   );
 
@@ -1325,20 +1617,311 @@ describe('i18n', function () {
   );
 
   it(
+    'should return a function that accepts an `allSubstitutions` function to ' +
+    'apply to all callback calls (for DOM)',
+    async function () {
+      const _ = await i18n({
+        locales: ['yy'],
+        allSubstitutions ({value, arg, key}) {
+          return arg === 'UPPER' ? value.toUpperCase() : value;
+        }
+      });
+      const string = _('key', {
+        substitution1: document.createElement('br'),
+        substitution2: 'sub2'
+      });
+      expect(string).to.have.fragmentHtml('SUB2 <br>');
+    }
+  );
+
+  it(
+    'should return a function which does not perform `NumberFormat` ' +
+    'processing when passing number and `allSubstitutions` is `null`',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US'],
+        allSubstitutions: null
+      });
+      const string = _('apples', {
+        appleCount: 123456.4567
+      });
+      expect(string).to.equal('123456.4567 apples');
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `NumberFormat` processing',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('apples', {
+        appleCount: 123456.4567
+      });
+      expect(string).to.equal('123,456.457 apples');
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `DateTimeFormat` processing',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('dateKey', {
+        todayDate: new Date(Date.UTC(2000, 11, 28, 3, 4, 5))
+      });
+      expect(string).to.equal('It is now 12/28/2000');
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `NumberFormat` processing (with options)',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('apples', {
+        appleCount: {
+          number: [123456.4567, {maximumSignificantDigits: 6}]
+        }
+      });
+      expect(string).to.equal('123,456 apples');
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `NumberFormat` processing with options overridden within ' +
+    'locale argument',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('oranges', {
+        orangeCount: {
+          number: [123456.4567, {maximumSignificantDigits: 6}]
+        }
+      });
+      expect(string).to.equal('123,456.5 oranges');
+    }
+  );
+
+  it(
+    'should return a function which despite `null` `allSubstitutions` will ' +
+    'perform `NumberFormat` processing with options specified within ' +
+    'locale argument',
+    async function () {
+      const _ = await i18n({
+        allSubstitutions: null,
+        locales: ['en-US']
+      });
+      const string = _('oranges', {
+        orangeCount: {
+          number: [123456.4567, {maximumSignificantDigits: 6}]
+        }
+      });
+      expect(string).to.equal('123,456.5 oranges');
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `NumberFormat` processing with options overridden within ' +
+    'locale argument (without extra arguments)',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('beets', {
+        beetCount: {
+          number: [123456.4567, {maximumFractionDigits: 5}]
+        }
+      });
+      // Only 3 as `maximumFractionDigits` defaults to 3
+      expect(string).to.equal('123,456.457 beets');
+    }
+  );
+
+  it(
+    'should return a function which despite `null` `allSubstitutions` will ' +
+    'perform `NumberFormat` processing with options specified within ' +
+    'locale argument (without extra arguments)',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('beets', {
+        beetCount: {
+          number: [123456.4567, {maximumFractionDigits: 5}]
+        }
+      });
+      // Only 3 as `maximumFractionDigits` defaults to 3
+      expect(string).to.equal('123,456.457 beets');
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `NumberFormat` processing (with options) overridden by ' +
+    'locale argument',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('oranges', {
+        orangeCount: {
+          number: 123456.4567
+        }
+      });
+      expect(string).to.equal('123,456.5 oranges');
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `NumberFormat` processing (with options) with options ' +
+    'not overridden by argument of a non-number type',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('dragonFruit', {
+        fruitCount: {
+          number: [123456.4567, {maximumSignificantDigits: 6}]
+        }
+      });
+      expect(string).to.equal('123,456 dragon fruit');
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `NumberFormat` processing (with options) with options ' +
+    'not overridden by argument of a non-number type (with extra args)',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('pineapples', {
+        fruitCount: {
+          number: [123456.4567, {maximumSignificantDigits: 6}]
+        }
+      });
+      expect(string).to.equal('123,456 pineapples');
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `DateTimeFormat` processing (with options)',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('dateKey', {
+        todayDate: {
+          date: [
+            new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+            {
+              year: 'numeric', month: 'numeric', day: 'numeric',
+              hour: 'numeric', timeZone: 'America/Los_Angeles'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal('It is now 12/27/2000, 7 PM');
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `RelativeTimeFormat` processing (with options)',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('relativeKey', {
+        relativeTime: {
+          relative: [
+            -3,
+            'month',
+            {
+              style: 'short'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal('It was 3 mo. ago');
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `RelativeTimeFormat` processing (with options)',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('listKey', {
+        listItems: {
+          list: [
+            [
+              'a', 'z', 'ä', 'a'
+            ],
+            {
+              type: 'disjunction'
+            },
+            {
+              sensitivity: 'base'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal('The list is: a, ä, a, or z');
+    }
+  );
+
+  it(
+    'should return a function that accepts an `allSubstitutions` array of ' +
+    'functions to apply to all callback calls',
+    async function () {
+      const _ = await i18n({
+        locales: ['yy'],
+        allSubstitutions: [({value, arg, key}) => {
+          return arg === 'UPPER' ? value.toUpperCase() : value;
+        }, ({value, arg, key}) => {
+          return arg === 'UPPER'
+            ? '<strong>' + value.toUpperCase() + '</strong>'
+            : value;
+        }]
+      });
+      const string = _('key', {
+        substitution1: 'sub1',
+        substitution2: 'sub2'
+      });
+      expect(string).to.equal('<strong>SUB2</strong> sub1');
+    }
+  );
+
+  it(
     'should return a function that returns a string text node ' +
     ' (with `dom` on options object)',
     async function () {
       let _ = await i18n();
-      let string = _('abc', null, {
+      let node = _('abc', null, {
         dom: true
       });
-      expect(string).to.have.text(this.expectedEnUS.abc.message);
+      expect(node).to.have.text(this.expectedEnUS.body.abc.message);
 
       _ = await i18n({});
-      string = _('abc', null, {
+      node = _('abc', null, {
         dom: true
       });
-      expect(string).to.have.text(this.expectedEnUS.abc.message);
+      expect(node).to.have.text(this.expectedEnUS.body.abc.message);
     }
   );
 
@@ -1349,10 +1932,10 @@ describe('i18n', function () {
       const _ = await i18n({
         throwOnMissingSuppliedFormatters: false
       });
-      const string = _('abc', null, {
+      const node = _('abc', null, {
         forceNodeReturn: true
       });
-      expect(string).to.have.text(this.expectedEnUS.abc.message);
+      expect(node).to.have.text(this.expectedEnUS.body.abc.message);
     }
   );
 
@@ -1365,20 +1948,20 @@ describe('i18n', function () {
         locales: ['fr'],
         forceNodeReturn: true
       });
-      let string;
+      let node;
       expect(() => {
-        string = _('key', {}, {
+        node = _('key', {}, {
           throwOnMissingSuppliedFormatters: false
         });
       }).to.not.throw();
-      expect(string).to.have.text('A {msg}');
+      expect(node).to.have.text('A {msg}');
 
       expect(() => {
-        string = _('key', null, {
+        node = _('key', null, {
           throwOnMissingSuppliedFormatters: false
         });
       }).to.not.throw();
-      expect(string).to.have.text('A {msg}');
+      expect(node).to.have.text('A {msg}');
     }
   );
 
@@ -1391,29 +1974,50 @@ describe('i18n', function () {
         locales: ['fr'],
         forceNodeReturn: true
       });
-      const string = _('key', {
+      const node = _('key', {
         msg: 'message',
         anExtraOne: 'why am I here?'
       }, {
         throwOnExtraSuppliedFormatters: false
       });
-      expect(string).to.have.text('A message');
+      expect(node).to.have.text('A message');
     }
   );
 
-  it('should return string with default substitutions', async function () {
-    const _ = await i18n({
-      locales: ['fr'],
-      substitutions: {
-        msg: 'message'
-      }
-    });
-    const string = _('key');
-    expect(string).to.equal('A message');
-  });
+  it(
+    'should function that can return string with default substitutions',
+    async function () {
+      const _ = await i18n({
+        locales: ['fr'],
+        substitutions: {
+          msg: 'message'
+        }
+      });
+      const string = _('key');
+      expect(string).to.equal('A message');
+    }
+  );
 
   it(
-    'should return string with default and overriding substitutions',
+    'should return function that can return string with default and ' +
+    'overriding substitutions',
+    async function () {
+      const _ = await i18n({
+        locales: ['de'],
+        substitutions: {
+          msg: 'message'
+        }
+      });
+      const string = _('key', {
+        simp: 'simple'
+      });
+      expect(string).to.equal('A simple message');
+    }
+  );
+
+  it(
+    'should return function that can return string with default and ' +
+    'overriding substitutions',
     async function () {
       const _ = await i18n({
         locales: ['de'],

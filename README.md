@@ -1,3 +1,16 @@
+[![npm](http://img.shields.io/npm/v/intl-dom.svg)](https://www.npmjs.com/package/intl-dom)
+[![Dependencies](https://img.shields.io/david/brettz9/intl-dom.svg)](https://david-dm.org/brettz9/intl-dom)
+[![devDependencies](https://img.shields.io/david/dev/brettz9/intl-dom.svg)](https://david-dm.org/brettz9/intl-dom?type=dev)
+
+[![Actions Status](https://github.com/brettz9/intl-dom/workflows/Node%20CI/badge.svg)](https://github.com/brettz9/intl-dom/actions)
+[![Actions Status](https://github.com/brettz9/intl-dom/workflows/Coverage/badge.svg)](https://github.com/brettz9/intl-dom/actions)
+
+[![Known Vulnerabilities](https://snyk.io/test/github/brettz9/intl-dom/badge.svg)](https://snyk.io/test/github/brettz9/intl-dom)
+[![Total Alerts](https://img.shields.io/lgtm/alerts/g/brettz9/intl-dom.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/brettz9/intl-dom/alerts)
+[![Code Quality: Javascript](https://img.shields.io/lgtm/grade/javascript/g/brettz9/intl-dom.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/brettz9/intl-dom/context:javascript)
+
+[![License](https://img.shields.io/npm/l/intl-dom.svg)](LICENSE-MIT)
+
 # intl-dom
 
 This library allows applications to discover locale files (even untrusted ones)
@@ -45,6 +58,8 @@ const {JSDOM} = require('jsdom');
 const {
   promiseChainForValues,
   defaultLocaleResolver,
+  defaultAllSubstitutions,
+  defaultInsertNodes,
   getMessageForKeyByStyle,
   getStringFromMessageAndDefaults,
   getDOMForLocaleString,
@@ -61,6 +76,23 @@ global.document = (new JSDOM()).window.document;
 
 There are two built-in formats which you can specify for obtaining messages
 out of locale files or objects.
+
+Both of the default styles have the following high-level structure:
+
+```json
+{
+  "head": {},
+  "body": {
+  }
+}
+```
+
+The `head` is optional, but it can be used to store:
+
+1. Language code and direction (especially until JavaScript may provide an API
+    for obtaining directionality dynamically from a locale)
+2. Translator name and/or contact info
+3. Local variables (See the "Local variables" section)
 
 ### "plain"
 
@@ -94,6 +126,38 @@ to represent simple messages.
 }
 ```
 
+### Local variables
+
+In the `head` is a property `locals` for storing localized strings (including potentially hierarchically-nested ones) which are intended for reading variables set within the locale, rather than variables set at runtime by the calling script.
+
+The format follows the same key-value or key-object-with-message-and-values structure
+as the formats described under "Message styles".
+
+So for the "rich" style, it might look like:
+
+```json
+{
+  "head": {
+    "locals": {
+      "aKey": {
+        "message": "Value of key that can be referenced elsewhere in the locale"
+      }
+    }
+  }
+}
+```
+
+TODO:
+To reference local variables...
+
+### Built-in functions
+
+TODO:
+
+### Conditionals (including plurals)
+
+TODO:
+
 ### Custom formats
 
 You can define your own (JSON) formats. See the `localeResolver`
@@ -117,6 +181,8 @@ by the first two and can be used as part of a custom localization system.)
 1. `getDOMForLocaleString`
 1. `findLocaleStrings`
 1. `defaultLocaleResolver`
+1. `defaultAllSubstitutions`
+1. `defaultInsertNodes`
 1. `promiseChainForValues`
 
 ### API Usage
@@ -236,9 +302,9 @@ const _ = await i18n({
   // See `defaultLocaleResolver`
   localeResolver: defaultLocaleResolver,
 
-  // "rich", "plain", or a function; see "Message styles" and
+  // "richNested", "rich", "plain", or a function; see "Message styles" and
   //   `getMessageForKeyByStyle`
-  messageStyle: 'rich',
+  messageStyle: 'richNested',
 
   // A regular expression with the first capturing group identifying
   //   a formatted subject (by default, the contents within curly brackets);
@@ -296,7 +362,10 @@ _(
   // Optional options object
   {
     // TODO: document meaning of each and in relation to defaults
-    allSubstitutions: null,
+    // Applied after individual substitutions (and each item in the array
+    //   pipes to the next)
+    allSubstitutions: defaultAllSubstitutions,
+    defaults: null,
     substitutions: false,
     dom: false,
     forceNodeReturn: false,
@@ -330,13 +399,46 @@ is set to `true`.
 
 #### `findLocaleStrings`
 
-Dynamically obtains locale file data to return a JSON object. Uses
+Dynamically obtains locale file data to return a JSON object with the data
+as `strings` and the successfully resolved locale as `locale`. Uses
 `defaultLocaleResolver` by default for path resolution.
+
+To use a different strategy than "lookup", you can supply a function for
+`localeMatcher` which accepts a locale string and should return a string
+or a Promise that resolves to another locale to try (or it can throw if
+none is found).
 
 #### `defaultLocaleResolver`
 
 Converts a base path and language code into a path, i.e.,
 `<basePath>/_locales/<locale>/messages.json`.
+
+### `defaultAllSubstitutions`
+
+Passed information for a substitution and returns the replacement,
+automatically applying [`Intl.NumberFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat) to numbers and [`Intl.DateTimeFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat)
+to `Date` objects.
+
+Shortcuts also exist for utilizing [`Intl.RelativeTimeFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RelativeTimeFormat)
+and [`Intl.ListFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ListFormat).
+
+For more on `Intl` in the browser, see <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl>.
+
+For Node, see <https://nodejs.org/api/intl.html>; note that support or
+non-English support for `Intl` may need to be built in at compile time
+with special flags detailed on that page, though Node 13 is to build
+in support [by default](https://github.com/nodejs/node/commit/1a25e901b7c380929f0d08599f49dd77897a627f).
+
+In our own tests, the `intl-mocha` script uses the `full-icu`
+package. Passing `--with-intl=full-icu` seems to require Node having been
+prebuilt as such, so we use (and as per `full-icu` instructions),
+`--icu-data-dir` instead.
+
+#### `defaultInsertNodes`
+
+The default function for `insertNodes`. Processes the specific string
+format for substitutions, conditionals/plurals, local variables, and
+built-in functions/arguments, returning the resulting string or Node array.
 
 #### `promiseChainForValues`
 
@@ -348,8 +450,21 @@ used internally for locale discovery but made available for reuse.)
 (This may be swapped out in the future for an equivalent third-party
 Promise utility.)
 
+## Collation
+
+--TODO
+
+Collator (demo complex use and refer to how making default for simple cases with `ListFormat`)
+
+- Handle at level *after* retrieving localized items yet before insertion into
+  DOM template (however, potentially an intl-dom localized template)
+  - [Collation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator)
+    - Use `localeMatcher`, e.g., if "lookup" or "best fit" otherwise
+
 ## To-dos
 
+- Ensure coverage in browser is ok?
+- Option to parse Fluent files?
 - We might accept a `defaultPath` argument to `i18n` to obtain default values
   out of a file, potentially resolvable by a template function which can take
   a locale as argument.
@@ -365,23 +480,24 @@ Promise utility.)
       - Arguments to **conditionally process local variables and placeholders**
         - **Selectors** (locale level control; with default)
           - Accept **numbers**: Plurals (zero, one, two, few, many, and other: <http://www.unicode.org/cldr/charts/30/supplemental/language_plural_rules.html>)
-            - Use [PluralRules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/PluralRules)
+            - Use [PluralRules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/PluralRules);
+              - Use `localeMatcher`, e.g., if "lookup" or "best fit" otherwise
           - Conditional based on **attribute** for local variable ("term") value (e.g.,
             gender, animacy, vowel-starting, etc.)
           - Accept arbitrary numbers/strings to **strings** (enum/switch)
     - Built-in **functions for number, datetime**
+        Ensure built-in functions (and local variables) can be called within
+          formatting args or within plain text (and there accepting local
+          vars or formatting expressions)
   - Handle at level of formatting style (rich, plain, etc.)
     - **Nested attribute** values which share same prefix (easier to type)
     - **Comments within** `message`/`description` (comments for file, group, or item?)
   - Handle at level of processing (as we do DOM); just demo in `allSubstitutions`,
     though also change to allow substitutions to have 2-item arrays with key and
-    options, e.g., so can pass on number formatting instructions?
+    options, e.g., so can pass on number formatting instructions? (and also accept
+    array of functions)
     - **Auto-convert** by default into locale format (using `Intl`)?
+      Use `localeMatcher`, e.g., if "lookup" or "best fit" otherwise
       - [Numbers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat)
       - [DateTime](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat)
       - [RelativeTime](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RelativeTimeFormat)
-  - Handle at level *after* retrieving localized items yet before insertion into
-    DOM template (however, potentially an intl-dom localized template)
-    - [Collation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator)
-  - Handle at level of pre-file loading (abstract out current hyphen removing)
-    - [localeMatcher](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl) ("lookup" or "best fit")

@@ -1,4 +1,5 @@
 node_modules
 dist
 coverage
-test/browser/vendor
+test/browser/vendor/*.js
+!test/browser/vendor/fragmentHtml.js

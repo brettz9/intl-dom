@@ -1,3 +1,5 @@
+.babelrc
+.github
 lgtm.yml
 test
 .nyc_output

@@ -1,6 +1,11 @@
 import babel from 'rollup-plugin-babel';
 import {terser} from 'rollup-plugin-terser';
 
+// We don't need this so long as we are hard-coding the
+//  `node_modules` path for the sake of the browser, but keeping
+//  in event we can use import paths later
+import nodeResolve from 'rollup-plugin-node-resolve';
+
 /**
  * @external RollupConfig
  * @type {PlainObject}
@@ -23,7 +28,8 @@ function getRollupObject ({minifying, format = 'umd'} = {}) {
       name: 'IntlDom'
     },
     plugins: [
-      babel()
+      babel(),
+      nodeResolve()
     ]
   };
   if (minifying) {

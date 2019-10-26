@@ -123,6 +123,1602 @@ function _nonIterableRest() {
   throw new TypeError("Invalid attempt to destructure non-iterable instance");
 }
 
+function createCommonjsModule(fn, module) {
+  return module = {
+    exports: {}
+  }, fn(module, module.exports), module.exports;
+}
+
+var json6 = createCommonjsModule(function (module, exports) {
+  const VALUE_UNDEFINED = -1;
+  const VALUE_UNSET = 0;
+  const VALUE_NULL = 1;
+  const VALUE_TRUE = 2;
+  const VALUE_FALSE = 3;
+  const VALUE_STRING = 4;
+  const VALUE_NUMBER = 5;
+  const VALUE_OBJECT = 6;
+  const VALUE_ARRAY = 7;
+  const VALUE_NEG_NAN = 8;
+  const VALUE_NAN = 9;
+  const VALUE_NEG_INFINITY = 10;
+  const VALUE_INFINITY = 11;
+  const VALUE_EMPTY = 13; // [,] makes an array with 'empty item'
+
+  const WORD_POS_RESET = 0;
+  const WORD_POS_TRUE_1 = 1;
+  const WORD_POS_TRUE_2 = 2;
+  const WORD_POS_TRUE_3 = 3;
+  const WORD_POS_FALSE_1 = 5;
+  const WORD_POS_FALSE_2 = 6;
+  const WORD_POS_FALSE_3 = 7;
+  const WORD_POS_FALSE_4 = 8;
+  const WORD_POS_NULL_1 = 9;
+  const WORD_POS_NULL_2 = 10;
+  const WORD_POS_NULL_3 = 11;
+  const WORD_POS_UNDEFINED_1 = 12;
+  const WORD_POS_UNDEFINED_2 = 13;
+  const WORD_POS_UNDEFINED_3 = 14;
+  const WORD_POS_UNDEFINED_4 = 15;
+  const WORD_POS_UNDEFINED_5 = 16;
+  const WORD_POS_UNDEFINED_6 = 17;
+  const WORD_POS_UNDEFINED_7 = 18;
+  const WORD_POS_UNDEFINED_8 = 19;
+  const WORD_POS_NAN_1 = 20;
+  const WORD_POS_NAN_2 = 21;
+  const WORD_POS_INFINITY_1 = 22;
+  const WORD_POS_INFINITY_2 = 23;
+  const WORD_POS_INFINITY_3 = 24;
+  const WORD_POS_INFINITY_4 = 25;
+  const WORD_POS_INFINITY_5 = 26;
+  const WORD_POS_INFINITY_6 = 27;
+  const WORD_POS_INFINITY_7 = 28;
+  const WORD_POS_FIELD = 29;
+  const WORD_POS_AFTER_FIELD = 30;
+  const WORD_POS_END = 31;
+  const CONTEXT_UNKNOWN = 0;
+  const CONTEXT_IN_ARRAY = 1;
+  const CONTEXT_OBJECT_FIELD = 3;
+  const CONTEXT_OBJECT_FIELD_VALUE = 4;
+  const contexts = [];
+
+  function getContext() {
+    var ctx = contexts.pop();
+    if (!ctx) ctx = {
+      context: CONTEXT_UNKNOWN,
+      elements: null,
+      element_array: null
+    };
+    return ctx;
+  }
+
+  function dropContext(ctx) {
+    contexts.push(ctx);
+  }
+
+  const buffers = [];
+
+  function getBuffer() {
+    var buf = buffers.pop();
+    if (!buf) buf = {
+      buf: null,
+      n: 0
+    };else buf.n = 0;
+    return buf;
+  }
+
+  function dropBuffer(buf) {
+    buffers.push(buf);
+  }
+
+  var JSON6 = exports;
+
+  JSON6.escape = function (string) {
+    var n;
+    var output = '';
+    if (!string) return string;
+
+    for (n = 0; n < string.length; n++) {
+      if (string[n] == '"' || string[n] == '\\' || string[n] == '`' || string[n] == '\'') {
+        output += '\\';
+      }
+
+      output += string[n];
+    }
+
+    return output;
+  };
+
+  JSON6.begin = function (cb, reviver) {
+    const val = {
+      name: null,
+      // name of this value (if it's contained in an object)
+      value_type: VALUE_UNSET,
+      // value from above indiciating the type of this value
+      string: '',
+      // the string value of this value (strings and number types only)
+      contains: null
+    };
+    const pos = {
+      line: 1,
+      col: 1
+    };
+    let n = 0;
+    let str;
+    var word = WORD_POS_RESET,
+        status = true,
+        negative = false,
+        result = null,
+        elements = undefined,
+        element_array = [],
+        context_stack = {
+      first: null,
+      last: null,
+      saved: null,
+
+      push(node) {
+        var recover = this.saved;
+
+        if (recover) {
+          this.saved = recover.next;
+          recover.node = node;
+          recover.next = null;
+          recover.prior = this.last;
+        } else {
+          recover = {
+            node: node,
+            next: null,
+            prior: this.last
+          };
+        }
+
+        if (!this.last) this.first = recover;
+        this.last = recover;
+      },
+
+      pop() {
+        var result = this.last;
+        if (!result) return null;
+        if (!(this.last = result.prior)) this.first = null;
+        result.next = this.saved;
+        this.saved = result;
+        return result.node;
+      }
+
+    },
+        parse_context = CONTEXT_UNKNOWN,
+        comment = 0,
+        fromHex = false,
+        decimal = false,
+        exponent = false,
+        exponent_sign = false,
+        exponent_digit = false,
+        inQueue = {
+      first: null,
+      last: null,
+      saved: null,
+
+      push(node) {
+        var recover = this.saved;
+
+        if (recover) {
+          this.saved = recover.next;
+          recover.node = node;
+          recover.next = null;
+          recover.prior = this.last;
+        } else {
+          recover = {
+            node: node,
+            next: null,
+            prior: this.last
+          };
+        }
+
+        if (!this.last) this.first = recover;
+        this.last = recover;
+      },
+
+      shift() {
+        var result = this.first;
+        if (!result) return null;
+        if (!(this.first = result.next)) this.last = null;
+        result.next = this.saved;
+        this.saved = result;
+        return result.node;
+      },
+
+      unshift(node) {
+        var recover = this.saved;
+
+        if (recover) {
+          this.saved = recover.next;
+          recover.node = node;
+          recover.next = this.first;
+          recover.prior = null;
+        } else {
+          recover = {
+            node: node,
+            next: this.first,
+            prior: null
+          };
+        }
+
+        if (!this.first) this.last = recover;
+        this.first = recover;
+      }
+
+    },
+        gatheringStringFirstChar = null,
+        gatheringString = false,
+        gatheringNumber = false,
+        stringEscape = false,
+        cr_escaped = false,
+        unicodeWide = false,
+        stringUnicode = false,
+        stringHex = false,
+        hex_char = 0,
+        hex_char_len = 0,
+        stringOct = false,
+        completed = false;
+    return {
+      value() {
+        var r = result;
+        result = undefined;
+        return r;
+      },
+
+      reset() {
+        word = WORD_POS_RESET;
+        status = true;
+        if (inQueue.last) inQueue.last.next = inQueue.save;
+        inQueue.save = inQueue.first;
+        inQueue.first = inQueue.last = null;
+        if (context_stack.last) context_stack.last.next = context_stack.save;
+        context_stack.save = inQueue.first;
+        context_stack.first = context_stack.last = null; //= [];
+
+        element_array = null;
+        elements = undefined;
+        parse_context = CONTEXT_UNKNOWN;
+        val.value_type = VALUE_UNSET;
+        val.name = null;
+        val.string = '';
+        pos.line = 1;
+        pos.col = 1;
+        negative = false;
+        comment = 0;
+        completed = false;
+        gatheringString = false;
+        stringEscape = false; // string stringEscape intro
+
+        cr_escaped = false; // carraige return escaped
+        //stringUnicode = false;  // reading \u
+        //unicodeWide = false;  // reading \u{} in string
+        //stringHex = false;  // reading \x in string
+        //stringOct = false;  // reading \[0-3]xx in string
+      },
+
+      write(msg) {
+        var retcode;
+        if (typeof msg !== "string") msg = String(msg);
+
+        for (retcode = this._write(msg, false); retcode > 0; retcode = this._write()) {
+          if (result) {
+            if (typeof reviver === 'function') (function walk(holder, key) {
+              var k,
+                  v,
+                  value = holder[key];
+
+              if (value && typeof value === 'object') {
+                for (k in value) {
+                  if (Object.prototype.hasOwnProperty.call(value, k)) {
+                    v = walk(value, k);
+
+                    if (v !== undefined) {
+                      value[k] = v;
+                    } else {
+                      delete value[k];
+                    }
+                  }
+                }
+              }
+
+              return reviver.call(holder, key, value);
+            })({
+              '': result
+            }, '');
+            cb(result);
+            result = undefined;
+          }
+
+          if (retcode < 2) break;
+        }
+      },
+
+      _write(msg, complete_at_end) {
+        var cInt;
+        var input;
+        var buf;
+        var retval = 0;
+
+        function throwError(leader, c) {
+          throw new Error(`${leader} '${String.fromCodePoint(c)}' unexpected at ${n} (near '${buf.substr(n > 4 ? n - 4 : 0, n > 4 ? 3 : n - 1)}[${String.fromCodePoint(c)}]${buf.substr(n, 10)}') [${pos.line}:${pos.col}]`);
+        }
+
+        function RESET_VAL() {
+          val.value_type = VALUE_UNSET;
+          val.string = '';
+        }
+
+        function numberConvert(string) {
+          if (string.length > 1) {
+            if (!fromHex && !decimal && !exponent) {
+              if (string.charCodeAt(0) === 48
+              /*'0'*/
+              ) return (negative ? -1 : 1) * Number("0o" + string);
+            }
+          }
+
+          return (negative ? -1 : 1) * Number(string);
+        }
+
+        function arrayPush() {
+          switch (val.value_type) {
+            case VALUE_NUMBER:
+              element_array.push(numberConvert(val.string)); //(negative?-1:1) * Number( val.string ) );
+
+              break;
+
+            case VALUE_STRING:
+              element_array.push(val.string);
+              break;
+
+            case VALUE_TRUE:
+              element_array.push(true);
+              break;
+
+            case VALUE_FALSE:
+              element_array.push(false);
+              break;
+
+            case VALUE_NEG_NAN:
+              element_array.push(-NaN);
+              break;
+
+            case VALUE_NAN:
+              element_array.push(NaN);
+              break;
+
+            case VALUE_NEG_INFINITY:
+              element_array.push(-Infinity);
+              break;
+
+            case VALUE_INFINITY:
+              element_array.push(Infinity);
+              break;
+
+            case VALUE_NULL:
+              element_array.push(null);
+              break;
+
+            case VALUE_UNDEFINED:
+              element_array.push(undefined);
+              break;
+
+            case VALUE_EMPTY:
+              element_array.push(undefined);
+              delete element_array[element_array.length - 1];
+              break;
+
+            case VALUE_OBJECT:
+              element_array.push(val.contains);
+              break;
+
+            case VALUE_ARRAY:
+              element_array.push(val.contains);
+              break;
+
+            default:
+              console.log("Unhandled array push.");
+              break;
+          }
+        }
+
+        function objectPush() {
+          switch (val.value_type) {
+            case VALUE_NUMBER:
+              elements[val.name] = numberConvert(val.string); //(negative?-1:1) * Number( val.string );
+
+              break;
+
+            case VALUE_STRING:
+              elements[val.name] = val.string;
+              break;
+
+            case VALUE_TRUE:
+              elements[val.name] = true;
+              break;
+
+            case VALUE_FALSE:
+              elements[val.name] = false;
+              break;
+
+            case VALUE_NEG_NAN:
+              elements[val.name] = -NaN;
+              break;
+
+            case VALUE_NAN:
+              elements[val.name] = NaN;
+              break;
+
+            case VALUE_NEG_INFINITY:
+              elements[val.name] = -Infinity;
+              break;
+
+            case VALUE_INFINITY:
+              elements[val.name] = Infinity;
+              break;
+
+            case VALUE_NULL:
+              elements[val.name] = null;
+              break;
+
+            case VALUE_UNDEFINED:
+              elements[val.name] = undefined;
+              break;
+
+            case VALUE_OBJECT:
+              elements[val.name] = val.contains;
+              break;
+
+            case VALUE_ARRAY:
+              elements[val.name] = val.contains;
+              break;
+          }
+        }
+
+        function gatherString(start_c) {
+          let retval = 0;
+
+          while (retval == 0 && n < buf.length) {
+            str = buf.charAt(n);
+            let cInt = buf.codePointAt(n++);
+
+            if (cInt >= 0x10000) {
+              str += buf.charAt(n);
+              n++;
+            } //console.log( "gathering....", stringEscape, str, cInt, unicodeWide, stringHex, stringUnicode, hex_char_len );
+
+
+            pos.col++;
+
+            if (cInt == start_c) //( cInt == 34/*'"'*/ ) || ( cInt == 39/*'\''*/ ) || ( cInt == 96/*'`'*/ ) )
+              {
+                if (stringEscape) {
+                  val.string += str;
+                  stringEscape = false;
+                } else {
+                  retval = -1;
+                  if (stringOct) throwError("Incomplete Octal sequence", cInt);else if (stringHex) throwError("Incomplete hexidecimal sequence", cInt);else if (stringUnicode) throwError("Incomplete unicode sequence", cInt);else if (unicodeWide) throwError("Incomplete long unicode sequence", cInt);
+                  retval = 1;
+                }
+              } else if (stringEscape) {
+              if (stringOct) {
+                if (hex_char_len < 3 && cInt >= 48
+                /*'0'*/
+                && cInt <= 57
+                /*'9'*/
+                ) {
+                    hex_char *= 8;
+                    hex_char += cInt - 0x30;
+                    hex_char_len++;
+
+                    if (hex_char_len === 3) {
+                      val.string += String.fromCodePoint(hex_char);
+                      stringOct = false;
+                      stringEscape = false;
+                      continue;
+                    }
+
+                    continue;
+                  } else {
+                  if (hex_char > 255) {
+                    throwError("(escaped character, parsing octal escape val=%d) fault while parsing", cInt);
+                    retval = -1;
+                    break;
+                  }
+
+                  val.string += String.fromCodePoint(hex_char);
+                  stringOct = false;
+                  stringEscape = false;
+                  continue;
+                }
+              } else if (unicodeWide) {
+                if (cInt == 125
+                /*'}'*/
+                ) {
+                    val.string += String.fromCodePoint(hex_char);
+                    unicodeWide = false;
+                    stringUnicode = false;
+                    stringEscape = false;
+                    continue;
+                  }
+
+                hex_char *= 16;
+                if (cInt >= 48
+                /*'0'*/
+                && cInt <= 57
+                /*'9'*/
+                ) hex_char += cInt - 0x30;else if (cInt >= 65
+                /*'A'*/
+                && cInt <= 70
+                /*'F'*/
+                ) hex_char += cInt - 65 + 10;else if (cInt >= 97
+                /*'a'*/
+                && cInt <= 102
+                /*'f'*/
+                ) hex_char += cInt - 97 + 10;else {
+                  throwError("(escaped character, parsing hex of \\u)", cInt);
+                  retval = -1;
+                  unicodeWide = false;
+                  stringEscape = false;
+                  continue;
+                }
+                continue;
+              } else if (stringHex || stringUnicode) {
+                if (hex_char_len === 0 && cInt === 123
+                /*'{'*/
+                ) {
+                    unicodeWide = true;
+                    continue;
+                  }
+
+                if (hex_char_len < 2 || stringUnicode && hex_char_len < 4) {
+                  hex_char *= 16;
+                  if (cInt >= 48
+                  /*'0'*/
+                  && cInt <= 57
+                  /*'9'*/
+                  ) hex_char += cInt - 0x30;else if (cInt >= 65
+                  /*'A'*/
+                  && cInt <= 70
+                  /*'F'*/
+                  ) hex_char += cInt - 65 + 10;else if (cInt >= 97
+                  /*'a'*/
+                  && cInt <= 102
+                  /*'f'*/
+                  ) hex_char += cInt - 97 + 10;else {
+                    throwError(stringUnicode ? "(escaped character, parsing hex of \\u)" : "(escaped character, parsing hex of \\x)", cInt);
+                    retval = -1;
+                    stringHex = false;
+                    stringEscape = false;
+                    continue;
+                  }
+                  hex_char_len++;
+
+                  if (stringUnicode) {
+                    if (hex_char_len == 4) {
+                      val.string += String.fromCodePoint(hex_char);
+                      stringUnicode = false;
+                      stringEscape = false;
+                    }
+                  } else if (hex_char_len == 2) {
+                    val.string += String.fromCodePoint(hex_char);
+                    stringHex = false;
+                    stringEscape = false;
+                  }
+
+                  continue;
+                }
+              }
+
+              switch (cInt) {
+                case 13
+                /*'\r'*/
+                :
+                  cr_escaped = true;
+                  pos.col = 1;
+                  continue;
+
+                case 10
+                /*'\n'*/
+                :
+                case 2028: // LS (Line separator)
+
+                case 2029:
+                  // PS (paragraph separate)
+                  pos.line++;
+                  break;
+
+                case 116
+                /*'t'*/
+                :
+                  val.string += '\t';
+                  break;
+
+                case 98
+                /*'b'*/
+                :
+                  val.string += '\b';
+                  break;
+
+                case 110
+                /*'n'*/
+                :
+                  val.string += '\n';
+                  break;
+
+                case 114
+                /*'r'*/
+                :
+                  val.string += '\r';
+                  break;
+
+                case 102
+                /*'f'*/
+                :
+                  val.string += '\f';
+                  break;
+
+                case 48
+                /*'0'*/
+                :
+                case 49
+                /*'1'*/
+                :
+                case 50
+                /*'2'*/
+                :
+                case 51
+                /*'3'*/
+                :
+                  stringOct = true;
+                  hex_char = cInt - 48;
+                  hex_char_len = 1;
+                  continue;
+
+                case 120
+                /*'x'*/
+                :
+                  stringHex = true;
+                  hex_char_len = 0;
+                  hex_char = 0;
+                  continue;
+
+                case 117
+                /*'u'*/
+                :
+                  stringUnicode = true;
+                  hex_char_len = 0;
+                  hex_char = 0;
+                  continue;
+                //case 47/*'/'*/:
+                //case 92/*'\\'*/:
+                //case 34/*'"'*/:
+                //case 39/*"'"*/:
+                //case 96/*'`'*/:
+
+                default:
+                  val.string += str;
+                  break;
+              } //console.log( "other..." );
+
+
+              stringEscape = false;
+            } else if (cInt === 92
+            /*'\\'*/
+            ) {
+                if (stringEscape) {
+                  val.string += '\\';
+                  stringEscape = false;
+                } else stringEscape = true;
+              } else {
+              if (cr_escaped) {
+                cr_escaped = false;
+
+                if (cInt == 10
+                /*'\n'*/
+                ) {
+                    pos.line++;
+                    pos.col = 1;
+                    stringEscape = false;
+                    continue;
+                  } else {
+                  pos.line++;
+                  pos.col = 1;
+                }
+
+                continue;
+              }
+
+              val.string += str;
+            }
+          }
+
+          return retval;
+        }
+
+        function collectNumber() {
+          let _n;
+
+          while ((_n = n) < buf.length) {
+            str = buf.charAt(_n);
+            let cInt = buf.codePointAt(n++);
+
+            if (cInt >= 0x10000) {
+              throwError("fault while parsing number;", cInt);
+              str += buf.charAt(n);
+              n++;
+            }
+
+            if (cInt == 95
+            /*_*/
+            ) continue;
+            pos.col++; // leading zeros should be forbidden.
+
+            if (cInt >= 48
+            /*'0'*/
+            && cInt <= 57
+            /*'9'*/
+            ) {
+                if (exponent) {
+                  exponent_digit = true;
+                }
+
+                val.string += str;
+              } else if (cInt == 45
+            /*'-'*/
+            || cInt == 43
+            /*'+'*/
+            ) {
+                if (val.string.length == 0 || exponent && !exponent_sign && !exponent_digit) {
+                  val.string += str;
+                  exponent_sign = true;
+                } else {
+                  status = false;
+                  throwError("fault while parsing number;", cInt);
+                  break;
+                }
+              } else if (cInt == 46
+            /*'.'*/
+            ) {
+                if (!decimal && !fromHex && !exponent) {
+                  val.string += str;
+                  decimal = true;
+                } else {
+                  status = false;
+                  throwError("fault while parsing number;", cInt);
+                  break;
+                }
+              } else if (cInt == 120
+            /*'x'*/
+            || cInt == 98
+            /*'b'*/
+            || cInt == 111
+            /*'o'*/
+            || cInt == 88
+            /*'X'*/
+            || cInt == 66
+            /*'B'*/
+            || cInt == 79
+            /*'O'*/
+            ) {
+                // hex conversion.
+                if (!fromHex && val.string == '0') {
+                  fromHex = true;
+                  val.string += str;
+                } else {
+                  status = false;
+                  throwError("fault while parsing number;", cInt);
+                  break;
+                }
+              } else if (cInt == 101
+            /*'e'*/
+            || cInt == 69
+            /*'E'*/
+            ) {
+              if (!exponent) {
+                val.string += str;
+                exponent = true;
+              } else {
+                status = false;
+                throwError("fault while parsing number;", cInt);
+                break;
+              }
+            } else {
+              if (cInt == 32
+              /*' '*/
+              || cInt == 13 || cInt == 10 || cInt == 9 || cInt == 0xFEFF || cInt == 44
+              /*','*/
+              || cInt == 125
+              /*'}'*/
+              || cInt == 93
+              /*']'*/
+              || cInt == 58
+              /*':'*/
+              ) {
+                  break;
+                } else {
+                if (complete_at_end) {
+                  status = false;
+                  throwError("fault while parsing number;", cInt);
+                }
+
+                break;
+              }
+            }
+          }
+
+          n = _n;
+
+          if (!complete_at_end && n == buf.length) {
+            gatheringNumber = true;
+          } else {
+            gatheringNumber = false;
+            val.value_type = VALUE_NUMBER;
+
+            if (parse_context == CONTEXT_UNKNOWN) {
+              completed = true;
+            }
+          }
+        }
+
+        if (!status) return -1;
+
+        if (msg && msg.length) {
+          input = getBuffer();
+          input.buf = msg;
+          inQueue.push(input);
+        } else {
+          if (gatheringNumber) {
+            //console.log( "Force completed.")
+            gatheringNumber = false;
+            val.value_type = VALUE_NUMBER;
+
+            if (parse_context == CONTEXT_UNKNOWN) {
+              completed = true;
+            }
+
+            retval = 1; // if returning buffers, then obviously there's more in this one.
+          }
+        }
+
+        while (status && (input = inQueue.shift())) {
+          n = input.n;
+          buf = input.buf;
+
+          if (gatheringString) {
+            let string_status = gatherString(gatheringStringFirstChar);
+            if (string_status < 0) status = false;else if (string_status > 0) {
+              gatheringString = false;
+              if (status) val.value_type = VALUE_STRING;
+            }
+          }
+
+          if (gatheringNumber) {
+            collectNumber();
+          }
+
+          while (!completed && status && n < buf.length) {
+            str = buf.charAt(n);
+            cInt = buf.codePointAt(n++);
+
+            if (cInt >= 0x10000) {
+              str += buf.charAt(n);
+              n++;
+            }
+
+            pos.col++;
+
+            if (comment) {
+              if (comment == 1) {
+                if (cInt == 42
+                /*'*'*/
+                ) {
+                    comment = 3;
+                    continue;
+                  }
+
+                if (cInt != 47
+                /*'/'*/
+                ) {
+                    throwError("fault while parsing;", cInt);
+                    status = false;
+                  } else comment = 2;
+
+                continue;
+              }
+
+              if (comment == 2) {
+                if (cInt == 10
+                /*'\n'*/
+                ) {
+                    comment = 0;
+                    continue;
+                  } else continue;
+              }
+
+              if (comment == 3) {
+                if (cInt == 42
+                /*'*'*/
+                ) {
+                    comment = 4;
+                    continue;
+                  } else continue;
+              }
+
+              if (comment == 4) {
+                if (cInt == 47
+                /*'/'*/
+                ) {
+                    comment = 0;
+                    continue;
+                  } else {
+                  if (cInt != 42
+                  /*'*'*/
+                  ) comment = 3;
+                  continue;
+                }
+              }
+            }
+
+            switch (cInt) {
+              case 47
+              /*'/'*/
+              :
+                if (!comment) comment = 1;
+                break;
+
+              case 123
+              /*'{'*/
+              :
+                if (word == WORD_POS_FIELD || word == WORD_POS_AFTER_FIELD || parse_context == CONTEXT_OBJECT_FIELD && word == WORD_POS_RESET) {
+                  throwError("fault while parsing; getting field name unexpected ", cInt);
+                  status = false;
+                  break;
+                }
+
+                {
+                  let old_context = getContext();
+                  val.value_type = VALUE_OBJECT;
+                  let tmpobj = {};
+                  if (parse_context == CONTEXT_UNKNOWN) result = elements = tmpobj; //else if( parse_context == CONTEXT_IN_ARRAY )
+                  //	element_array.push( tmpobj );
+                  else if (parse_context == CONTEXT_OBJECT_FIELD_VALUE) elements[val.name] = tmpobj;
+                  old_context.context = parse_context;
+                  old_context.elements = elements;
+                  old_context.element_array = element_array;
+                  old_context.name = val.name;
+                  elements = tmpobj;
+                  context_stack.push(old_context);
+                  RESET_VAL();
+                  parse_context = CONTEXT_OBJECT_FIELD;
+                }
+                break;
+
+              case 91
+              /*'['*/
+              :
+                if (parse_context == CONTEXT_OBJECT_FIELD || word == WORD_POS_FIELD || word == WORD_POS_AFTER_FIELD) {
+                  throwError("Fault while parsing; while getting field name unexpected", cInt);
+                  status = false;
+                  break;
+                }
+
+                {
+                  let old_context = getContext();
+                  val.value_type = VALUE_ARRAY;
+                  let tmparr = [];
+                  if (parse_context == CONTEXT_UNKNOWN) result = element_array = tmparr; //else if( parse_context == CONTEXT_IN_ARRAY )
+                  //	element_array.push( tmparr );
+                  else if (parse_context == CONTEXT_OBJECT_FIELD_VALUE) elements[val.name] = tmparr;
+                  old_context.context = parse_context;
+                  old_context.elements = elements;
+                  old_context.element_array = element_array;
+                  old_context.name = val.name;
+                  element_array = tmparr;
+                  context_stack.push(old_context);
+                  RESET_VAL();
+                  parse_context = CONTEXT_IN_ARRAY;
+                }
+                break;
+
+              case 58
+              /*':'*/
+              :
+                //if(_DEBUG_PARSING) console.log( "colon context:", parse_context );
+                if (parse_context == CONTEXT_OBJECT_FIELD) {
+                  if (word != WORD_POS_RESET && word != WORD_POS_FIELD && word != WORD_POS_AFTER_FIELD) {
+                    // allow starting a new word
+                    status = FALSE;
+                    thorwError(`fault while parsing; unquoted keyword used as object field name (state:${word})`, cInt);
+                    break;
+                  }
+
+                  word = WORD_POS_RESET;
+                  val.name = val.string;
+                  val.string = '';
+                  parse_context = CONTEXT_OBJECT_FIELD_VALUE;
+                  val.value_type = VALUE_UNSET;
+                } else {
+                  if (parse_context == CONTEXT_IN_ARRAY) throwError("(in array, got colon out of string):parsing fault;", cInt);else throwError("(outside any object, got colon out of string):parsing fault;", cInt);
+                  status = false;
+                }
+
+                break;
+
+              case 125
+              /*'}'*/
+              :
+                //if(_DEBUG_PARSING) console.log( "close bracket context:", word, parse_context );
+                if (word == WORD_POS_END) {
+                  // allow starting a new word
+                  word = WORD_POS_RESET;
+                } // coming back after pushing an array or sub-object will reset the contxt to FIELD, so an end with a field should still push value.
+
+
+                if (parse_context == CONTEXT_OBJECT_FIELD) {
+                  RESET_VAL();
+                  let old_context = context_stack.pop();
+                  parse_context = old_context.context; // this will restore as IN_ARRAY or OBJECT_FIELD
+
+                  elements = old_context.elements;
+                  element_array = old_context.element_array;
+                  dropContext(old_context);
+
+                  if (parse_context == CONTEXT_UNKNOWN) {
+                    completed = true;
+                  }
+                } else if (parse_context == CONTEXT_OBJECT_FIELD_VALUE) {
+                  if (val.value_type != VALUE_UNSET) {
+                    objectPush();
+                  }
+
+                  val.value_type = VALUE_OBJECT;
+                  val.contains = elements; //let old_context = context_stack.pop();
+
+                  var old_context = context_stack.pop();
+                  val.name = old_context.name;
+                  parse_context = old_context.context; // this will restore as IN_ARRAY or OBJECT_FIELD
+
+                  elements = old_context.elements;
+                  element_array = old_context.element_array;
+                  dropContext(old_context);
+
+                  if (parse_context == CONTEXT_UNKNOWN) {
+                    completed = true;
+                  }
+                } else {
+                  throwError("Fault while parsing; unexpected", cInt);
+                  status = false;
+                }
+
+                negative = false;
+                break;
+
+              case 93
+              /*']'*/
+              :
+                if (word == WORD_POS_END) word = WORD_POS_RESET;
+
+                if (parse_context == CONTEXT_IN_ARRAY) {
+                  if (val.value_type != VALUE_UNSET) {
+                    arrayPush();
+                  } //RESET_VAL();
+
+
+                  val.value_type = VALUE_ARRAY;
+                  val.contains = element_array;
+                  {
+                    var old_context = context_stack.pop();
+                    val.name = old_context.name;
+                    parse_context = old_context.context;
+                    elements = old_context.elements;
+                    element_array = old_context.element_array;
+                    dropContext(old_context);
+                  }
+
+                  if (parse_context == CONTEXT_UNKNOWN) {
+                    completed = true;
+                  }
+                } else {
+                  throwError(`bad context ${parse_context}; fault while parsing`, cInt); // fault
+
+                  status = false;
+                }
+
+                negative = false;
+                break;
+
+              case 44
+              /*','*/
+              :
+                if (word == WORD_POS_END) word = WORD_POS_RESET; // allow collect new keyword
+
+                if (parse_context == CONTEXT_IN_ARRAY) {
+                  if (val.value_type == VALUE_UNSET) val.value_type = VALUE_EMPTY; // in an array, elements after a comma should init as undefined...
+
+                  if (val.value_type != VALUE_UNSET) {
+                    arrayPush();
+                    RESET_VAL();
+                  } // undefined allows [,,,] to be 4 values and [1,2,3,] to be 4 values with an undefined at end.
+
+                } else if (parse_context == CONTEXT_OBJECT_FIELD_VALUE) {
+                  parse_context = CONTEXT_OBJECT_FIELD;
+
+                  if (val.value_type != VALUE_UNSET) {
+                    objectPush();
+                    RESET_VAL();
+                  }
+                } else {
+                  status = false;
+                  throwError("bad context; excessive commas while parsing;", cInt); // fault
+                }
+
+                negative = false;
+                break;
+
+              default:
+                if (parse_context == CONTEXT_OBJECT_FIELD) {
+                  switch (cInt) {
+                    case 96: //'`':
+
+                    case 34: //'"':
+
+                    case 39:
+                      //'\'':
+                      if (word == WORD_POS_RESET) {
+                        let string_status = gatherString(cInt);
+
+                        if (string_status) {
+                          val.value_type = VALUE_STRING;
+                        } else {
+                          gatheringStringFirstChar = cInt;
+                          gatheringString = true;
+                        }
+                      } else {
+                        throwError("fault while parsing; quote not at start of field name", cInt);
+                      }
+
+                      break;
+
+                    case 10:
+                      //'\n':
+                      pos.line++;
+                      pos.col = 1;
+                    // fall through to normal space handling - just updated line/col position
+
+                    case 13: //'\r':
+
+                    case 32: //' ':
+
+                    case 9: //'\t':
+
+                    case 0xFEFF:
+                      // ZWNBS is WS though
+                      if (word == WORD_POS_END) {
+                        // allow collect new keyword
+                        word = WORD_POS_RESET;
+
+                        if (parse_context == CONTEXT_UNKNOWN) {
+                          completed = true;
+                        }
+
+                        break;
+                      }
+
+                      if (word == WORD_POS_RESET || word == WORD_POS_AFTER_FIELD) // ignore leading and trailing whitepsace
+                        break;else if (word == WORD_POS_FIELD) {
+                        word = WORD_POS_AFTER_FIELD;
+                      } else {
+                        status = false;
+                        throwError("fault while parsing; whitepsace unexpected", cInt);
+                      } // skip whitespace
+
+                      break;
+
+                    default:
+                      if (word == WORD_POS_AFTER_FIELD) {
+                        status = false;
+                        throwError("fault while parsing; character unexpected", cInt);
+                      }
+
+                      if (word == WORD_POS_RESET) word = WORD_POS_FIELD;
+                      val.string += str;
+                      break;
+                    // default
+                  }
+                } else switch (cInt) {
+                  case 96: //'`':
+
+                  case 34: //'"':
+
+                  case 39:
+                    //'\'':
+                    {
+                      let string_status = gatherString(cInt);
+
+                      if (string_status) {
+                        val.value_type = VALUE_STRING;
+                        word = WORD_POS_END;
+                      } else {
+                        gatheringStringFirstChar = cInt;
+                        gatheringString = true;
+                      }
+
+                      break;
+                    }
+
+                  case 10:
+                    //'\n':
+                    pos.line++;
+                    pos.col = 1;
+
+                  case 32: //' ':
+
+                  case 9: //'\t':
+
+                  case 13: //'\r':
+
+                  case 0xFEFF:
+                    //'\uFEFF':
+                    if (word == WORD_POS_END) {
+                      word = WORD_POS_RESET;
+
+                      if (parse_context == CONTEXT_UNKNOWN) {
+                        completed = true;
+                      }
+
+                      break;
+                    }
+
+                    if (word == WORD_POS_RESET) break;else if (word == WORD_POS_FIELD) {
+                      word = WORD_POS_AFTER_FIELD;
+                    } else {
+                      status = false;
+                      throwError("fault parsing whitespace", cInt);
+                    }
+                    break;
+                  //----------------------------------------------------------
+                  //  catch characters for true/false/null/undefined which are values outside of quotes
+
+                  case 116:
+                    //'t':
+                    if (word == WORD_POS_RESET) word = WORD_POS_TRUE_1;else if (word == WORD_POS_INFINITY_6) word = WORD_POS_INFINITY_7;else {
+                      status = false;
+                      throwError("fault parsing", cInt);
+                    } // fault
+
+                    break;
+
+                  case 114:
+                    //'r':
+                    if (word == WORD_POS_TRUE_1) word = WORD_POS_TRUE_2;else {
+                      status = false;
+                      throwError("fault parsing", cInt);
+                    } // fault
+
+                    break;
+
+                  case 117:
+                    //'u':
+                    if (word == WORD_POS_TRUE_2) word = WORD_POS_TRUE_3;else if (word == WORD_POS_NULL_1) word = WORD_POS_NULL_2;else if (word == WORD_POS_RESET) word = WORD_POS_UNDEFINED_1;else {
+                      status = false;
+                      throwError("fault parsing", cInt);
+                    } // fault
+
+                    break;
+
+                  case 101:
+                    //'e':
+                    if (word == WORD_POS_TRUE_3) {
+                      val.value_type = VALUE_TRUE;
+                      word = WORD_POS_END;
+                    } else if (word == WORD_POS_FALSE_4) {
+                      val.value_type = VALUE_FALSE;
+                      word = WORD_POS_END;
+                    } else if (word == WORD_POS_UNDEFINED_3) word = WORD_POS_UNDEFINED_4;else if (word == WORD_POS_UNDEFINED_7) word = WORD_POS_UNDEFINED_8;else {
+                      status = false;
+                      throwError("fault parsing", cInt);
+                    } // fault
+
+
+                    break;
+
+                  case 110:
+                    //'n':
+                    if (word == WORD_POS_RESET) word = WORD_POS_NULL_1;else if (word == WORD_POS_UNDEFINED_1) word = WORD_POS_UNDEFINED_2;else if (word == WORD_POS_UNDEFINED_6) word = WORD_POS_UNDEFINED_7;else if (word == WORD_POS_INFINITY_1) word = WORD_POS_INFINITY_2;else if (word == WORD_POS_INFINITY_4) word = WORD_POS_INFINITY_5;else {
+                      status = false;
+                      throwError("fault parsing", cInt);
+                    } // fault
+
+                    break;
+
+                  case 100:
+                    //'d':
+                    if (word == WORD_POS_UNDEFINED_2) word = WORD_POS_UNDEFINED_3;else if (word == WORD_POS_UNDEFINED_8) {
+                      val.value_type = VALUE_UNDEFINED;
+                      word = WORD_POS_END;
+                    } else {
+                      status = false;
+                      throwError("fault parsing", cInt);
+                    } // fault
+
+                    break;
+
+                  case 105:
+                    //'i':
+                    if (word == WORD_POS_UNDEFINED_5) word = WORD_POS_UNDEFINED_6;else if (word == WORD_POS_INFINITY_3) word = WORD_POS_INFINITY_4;else if (word == WORD_POS_INFINITY_5) word = WORD_POS_INFINITY_6;else {
+                      status = false;
+                      throwError("fault parsing", cInt);
+                    } // fault
+
+                    break;
+
+                  case 108:
+                    //'l':
+                    if (word == WORD_POS_NULL_2) word = WORD_POS_NULL_3;else if (word == WORD_POS_NULL_3) {
+                      val.value_type = VALUE_NULL;
+                      word = WORD_POS_END;
+                    } else if (word == WORD_POS_FALSE_2) word = WORD_POS_FALSE_3;else {
+                      status = false;
+                      throwError("fault parsing", cInt);
+                    } // fault
+
+                    break;
+
+                  case 102:
+                    //'f':
+                    if (word == WORD_POS_RESET) word = WORD_POS_FALSE_1;else if (word == WORD_POS_UNDEFINED_4) word = WORD_POS_UNDEFINED_5;else if (word == WORD_POS_INFINITY_2) word = WORD_POS_INFINITY_3;else {
+                      status = false;
+                      throwError("fault parsing", cInt);
+                    } // fault
+
+                    break;
+
+                  case 97:
+                    //'a':
+                    if (word == WORD_POS_FALSE_1) word = WORD_POS_FALSE_2;else if (word == WORD_POS_NAN_1) word = WORD_POS_NAN_2;else {
+                      status = false;
+                      throwError("fault parsing", cInt);
+                    } // fault
+
+                    break;
+
+                  case 115:
+                    //'s':
+                    if (word == WORD_POS_FALSE_3) word = WORD_POS_FALSE_4;else {
+                      status = false;
+                      throwError("fault parsing", cInt);
+                    } // fault
+
+                    break;
+
+                  case 73:
+                    //'I':
+                    if (word == WORD_POS_RESET) word = WORD_POS_INFINITY_1;else {
+                      status = false;
+                      throwError("fault parsing", cInt);
+                    } // fault
+
+                    break;
+
+                  case 78:
+                    //'N':
+                    if (word == WORD_POS_RESET) word = WORD_POS_NAN_1;else if (word == WORD_POS_NAN_2) {
+                      val.value_type = negative ? VALUE_NEG_NAN : VALUE_NAN;
+                      negative = false;
+                      word = WORD_POS_END;
+                    } else {
+                      status = false;
+                      throwError("fault parsing", cInt);
+                    } // fault
+
+                    break;
+
+                  case 121:
+                    //'y':
+                    if (word == WORD_POS_INFINITY_7) {
+                      val.value_type = negative ? VALUE_NEG_INFINITY : VALUE_INFINITY;
+                      negative = false;
+                      word = WORD_POS_END;
+                    } else {
+                      status = false;
+                      throwError("fault parsing", cInt);
+                    } // fault
+
+
+                    break;
+
+                  case 45:
+                    //'-':
+                    if (word == WORD_POS_RESET) negative = !negative;else {
+                      status = false;
+                      throwError("fault parsing", cInt);
+                    } // fault
+
+                    break;
+                  //
+                  //----------------------------------------------------------
+
+                  default:
+                    if (cInt >= 48
+                    /*'0'*/
+                    && cInt <= 57
+                    /*'9'*/
+                    || cInt == 43
+                    /*'+'*/
+                    || cInt == 46
+                    /*'.'*/
+                    || cInt == 45
+                    /*'-'*/
+                    ) {
+                      fromHex = false;
+                      exponent = false;
+                      exponent_sign = false;
+                      exponent_digit = false;
+                      decimal = false;
+                      val.string = str;
+                      input.n = n;
+                      collectNumber();
+                    } else {
+                      status = false;
+                      throwError("fault parsing", cInt);
+                    }
+
+                    break;
+                  // default
+                }
+
+                break;
+              // default of high level switch
+            }
+
+            if (completed) {
+              if (word == WORD_POS_END) {
+                word = WORD_POS_RESET;
+              }
+
+              break;
+            }
+          }
+
+          if (n == buf.length) {
+            dropBuffer(input);
+
+            if (gatheringString || gatheringNumber || parse_context == CONTEXT_OBJECT_FIELD) {
+              retval = 0;
+            } else {
+              if (parse_context == CONTEXT_UNKNOWN && (val.value_type != VALUE_UNSET || result)) {
+                completed = true;
+                retval = 1;
+              }
+            }
+          } else {
+            // put these back into the stack.
+            input.n = n;
+            inQueue.unshift(input);
+            retval = 2; // if returning buffers, then obviously there's more in this one.
+          }
+
+          if (completed) break;
+        }
+
+        if (!status) return -1;
+
+        if (completed && val.value_type != VALUE_UNSET) {
+          switch (val.value_type) {
+            case VALUE_NUMBER:
+              result = numberConvert(val.string);
+              break;
+
+            case VALUE_STRING:
+              result = val.string;
+              break;
+
+            case VALUE_TRUE:
+              result = true;
+              break;
+
+            case VALUE_FALSE:
+              result = false;
+              break;
+
+            case VALUE_NULL:
+              result = null;
+              break;
+
+            case VALUE_UNDEFINED:
+              result = undefined;
+              break;
+
+            case VALUE_NAN:
+              result = NaN;
+              break;
+
+            case VALUE_NEG_NAN:
+              result = -NaN;
+              break;
+
+            case VALUE_INFINITY:
+              result = Infinity;
+              break;
+
+            case VALUE_NEG_INFINITY:
+              result = -Infinity;
+              break;
+
+            case VALUE_OBJECT:
+              // never happens
+              result = val.contains;
+              break;
+
+            case VALUE_ARRAY:
+              // never happens
+              result = val.contains;
+              break;
+          }
+
+          negative = false;
+          val.string = '';
+          val.value_type = VALUE_UNSET;
+        }
+
+        completed = false;
+        return retval;
+      }
+
+    };
+  };
+
+  const _parser = [Object.freeze(JSON6.begin())];
+  var _parse_level = 0;
+
+  JSON6.parse = function (msg, reviver) {
+    //var parser = JSON6.begin();
+    var parse_level = _parse_level++;
+    var parser;
+    if (_parser.length <= parse_level) _parser.push(Object.freeze(JSON6.begin()));
+    parser = _parser[parse_level];
+    if (typeof msg !== "string") msg = String(msg);
+    parser.reset();
+
+    if (parser._write(msg, true) > 0) {
+      var result = parser.value();
+      var reuslt = typeof reviver === 'function' ? function walk(holder, key) {
+        var k,
+            v,
+            value = holder[key];
+
+        if (value && typeof value === 'object') {
+          for (k in value) {
+            if (Object.prototype.hasOwnProperty.call(value, k)) {
+              v = walk(value, k);
+
+              if (v !== undefined) {
+                value[k] = v;
+              } else {
+                delete value[k];
+              }
+            }
+          }
+        }
+
+        return reviver.call(holder, key, value);
+      }({
+        '': result
+      }, '') : result;
+      _parse_level--;
+      return result;
+    }
+
+    return undefined;
+  };
+
+  JSON6.stringify = JSON.stringify;
+});
+var lib = json6;
+
 /**
 * @callback PromiseChainErrback
 * @param {any} errBack
@@ -157,6 +1753,7 @@ function _nonIterableRest() {
    });
  });
  */
+
 function _await(value, then, direct) {
   if (direct) {
     return then ? then(value) : value;
@@ -171,36 +1768,90 @@ function _await(value, then, direct) {
 /**
 * @callback SubstitutionCallback
 * @param {PlainObject} cfg
-* @param {string} cfg.arg Accepts the third portion of the `formattingRegex` of
-*   `i18n`, i.e., to allow the locale to supply arguments back to the
-*   calling script.
+* @param {string} cfg.arg By default, accepts the third portion of the
+*   `formattingRegex` within `insertNodes`, i.e., to allow the locale to
+*   supply arguments back to the calling script.
 * @param {string} cfg.key The substitution key
 * @returns {string|Element} The replacement text or element
 */
 
 /**
+ * May have additional properties if supplying options to an underlying
+ * formatter.
+ * @typedef {GenericArray} ValueArray
+ * @property {string|Node|number|Date} 0 The main value
+ * @property {PlainObject} [1] The options related to the main value
+ * @property {PlainObject} [2] Any additional options
+*/
+
+/**
+* @typedef {PlainObject} RelativeTimeInfo
+* @param {ValueArray} relative
+*/
+
+/**
+* @typedef {PlainObject} ListInfo
+* @param {ValueArray} list
+*/
+
+/**
+* @typedef {PlainObject} NumberInfo
+* @param {ValueArray} number
+*/
+
+/**
+* @typedef {PlainObject} DateInfo
+* @param {ValueArray} date
+*/
+
+/* eslint-disable max-len */
+
+/**
 * @callback AllSubstitutionCallback
 * @param {PlainObject} cfg
-* @param {string|Element} cfg.value The value returned by the
-*   individual substitution
+* @param {string|Node|number|Date|RelativeTimeInfo|ListInfo|NumberInfo|DateInfo} cfg.value Contains
+*   the value returned by the individual substitution
 * @param {string} cfg.arg See `cfg.arg` of {@link SubstitutionCallback}.
 * @param {string} cfg.key The substitution key
 * @returns {string|Element} The replacement text or element
 */
 
+/* eslint-enable max-len */
+
 /**
-* @typedef {Object<string, string>} PlainLocaleStringObject
+* @typedef {Object<string, string>} PlainLocaleStringBodyObject
+*/
+
+/**
+* @typedef {PlainObject} SwitchCaseInfo
+* @property {boolean} [default=false] Whether this conditional is the default
+*/
+
+/**
+* @typedef {GenericArray} SwitchCase
+* @property {string} 0 The type
+* @property {string} 1 The message
+* @property {SwitchCaseInfo} [2] Info about the switch case
+*/
+
+/**
+* @typedef {PlainObject<string, SwitchCase>} Switch
+*/
+
+/**
+* @typedef {PlainObject<{string, Switch}>} Switches
 */
 
 /**
 * @typedef {PlainObject} LocaleStringSubObject
-* @property {string} message The locale message with any formatting
-*   place-holders
-* @property {string} description A description to add translators
+* @property {string} [message] The locale message with any formatting
+*   place-holders; defaults to use of any single conditional
+* @property {string} [description] A description to add translators
+* @property {Switches} [switches] Conditionals
 */
 
 /**
-* @typedef {PlainObject<string, LocaleStringSubObject>} LocaleStringObject
+* @typedef {PlainObject<string, LocaleStringSubObject>} LocaleStringBodyObject
 */
 
 /**
@@ -517,34 +2168,185 @@ var defaultLocaleResolver = function defaultLocaleResolver(localesBasePath, loca
   return "".concat(localesBasePath.replace(/\/$/, ''), "/_locales/").concat(locale, "/messages.json");
 };
 /**
-* @callback MessageStyleCallback
-* @param {LocaleStringObject|PlainLocaleStringObject|PlainObject} obj The exact
-*   format depends on the `cfg.defaults` of `i18n`
-* @param {string} key
-* @returns {false|string} If `false`, will resort to default
+ * @type {AllSubstitutionCallback}
+ */
+
+var defaultAllSubstitutions = function defaultAllSubstitutions(_ref) {
+  var value = _ref.value,
+      arg = _ref.arg,
+      key = _ref.key,
+      locale = _ref.locale;
+
+  // Strings or DOM Nodes
+  if (typeof value === 'string' || value && _typeof(value) === 'object' && 'nodeType' in value) {
+    return value;
+  }
+
+  var opts, extraOpts;
+
+  if (value && _typeof(value) === 'object') {
+    var singleKey = Object.keys(value)[0];
+
+    if (['number', 'date', 'relative', 'list'].includes(singleKey)) {
+      if (Array.isArray(value[singleKey])) {
+        var _value$singleKey = _slicedToArray(value[singleKey], 3);
+
+        value = _value$singleKey[0];
+        opts = _value$singleKey[1];
+        extraOpts = _value$singleKey[2];
+      } else {
+        value = value[singleKey];
+      } // Todo: Call `applyArgs` for `relative` and `list` options
+      //  so user can call themselves or customize defaults?
+      // RelativeTimeFormat
+
+
+      if (singleKey === 'relative') {
+        return new Intl.RelativeTimeFormat(locale, extraOpts).format(value, opts);
+      } // ListFormat (with Collator)
+
+
+      if (singleKey === 'list') {
+        value.sort(new Intl.Collator(locale, extraOpts).compare);
+        return new Intl.ListFormat(locale, opts).format(value);
+      } // Let `number` and `date` types drop through so their options
+      //  can be applied
+
+    }
+  }
+
+  var applyArgs = function applyArgs(type) {
+    if (typeof arg === 'string') {
+      var extraArgDividerPos = arg.indexOf('|');
+      var userType, extraArgs;
+
+      if (extraArgDividerPos === -1) {
+        userType = arg;
+
+        if (userType === type) {
+          opts = {};
+        }
+      } else {
+        userType = arg.slice(0, extraArgDividerPos);
+
+        if (userType === type) {
+          extraArgs = arg.slice(extraArgDividerPos + 1); // Todo: Allow escaping and restoring of pipe symbol
+
+          opts = _objectSpread2({}, opts, {}, lib.parse( // Doesn't actually currently allow explicit brackets,
+          //  but in case we change our regex to allow inner brackets
+          '{' + extraArgs.replace(/^\{/, '').replace(/\}$/, '') + '}'));
+        }
+      }
+    }
+
+    return opts;
+  }; // Numbers
+
+
+  if (typeof value === 'number') {
+    return new Intl.NumberFormat(locale, applyArgs('NUMBER')).format(value);
+  } // Dates
+
+
+  if (value && _typeof(value) === 'object' && typeof value.getTime === 'function') {
+    return new Intl.DateTimeFormat(locale, applyArgs('DATETIME')).format(value);
+  }
+
+  throw new TypeError('Unknown formatter');
+};
+/**
+* @typedef {LocaleBody} LocalObject
 */
 
 /**
+ * May also contain language code and direction, translator name and
+ * contact, etc., but no defaults currently apply besides reserving `locals`
+ * @typedef {PlainObject} LocaleHead
+ * @property {LocalObject} locals
+*/
+
+/**
+* @typedef {LocaleStringBodyObject|PlainLocaleStringBodyObject|PlainObject}
+* LocaleBody
+*/
+
+/**
+* @typedef {PlainObject} LocaleObject
+* @property {LocaleHead} [head]
+* @property {LocaleBody} body
+*/
+
+/**
+* @typedef {PlainObject} MessageStyleCallbackResult
+* @property {string} value Regardless of message style, will contain the
+*   string result
+* @property {LocaleStringSubObject} [info] Full info on the localized item
+*   (for rich message styles only)
+*/
+
+/**
+* @callback MessageStyleCallback
+* @param {LocaleObject} obj The exact
+*   format depends on the `cfg.defaults` of `i18n`
+* @param {string} key
+* @returns {false|MessageStyleCallbackResult} If `false`, will resort to default
+*/
+
+/* eslint-disable max-len */
+
+/**
  * @param {PlainObject} [cfg]
- * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
+ * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
  * @returns {MessageStyleCallback}
  */
 
 var getMessageForKeyByStyle = function getMessageForKeyByStyle() {
-  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-      _ref$messageStyle = _ref.messageStyle,
-      messageStyle = _ref$messageStyle === void 0 ? 'rich' : _ref$messageStyle;
+  var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      _ref2$messageStyle = _ref2.messageStyle,
+      messageStyle = _ref2$messageStyle === void 0 ? 'richNested' : _ref2$messageStyle;
 
-  return typeof messageStyle === 'function' ? messageStyle : messageStyle === 'rich' ? function (obj, key) {
+  return typeof messageStyle === 'function' ? messageStyle : messageStyle === 'richNested' ? function (mainObj, key) {
+    var obj = mainObj && _typeof(mainObj) === 'object' && mainObj.body;
+    var keys = key.split('.');
+    var ret = false;
+    var currObj = obj;
+    keys.some(function (ky, i, kys) {
+      if (!currObj || _typeof(currObj) !== 'object') {
+        return true;
+      }
+
+      if ( // If specified key is too deep, we should fail
+      i === kys.length - 1 && ky in currObj && currObj[ky] && _typeof(currObj[ky]) === 'object' && 'message' in currObj[ky] && // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
+      typeof currObj[ky].message === 'string') {
+        ret = {
+          value: currObj[ky].message,
+          info: currObj[ky]
+        };
+      }
+
+      currObj = currObj[ky];
+      return false;
+    });
+    return ret;
+  } : messageStyle === 'rich' ? function (mainObj, key) {
+    var obj = mainObj && _typeof(mainObj) === 'object' && mainObj.body;
+
     if (obj && _typeof(obj) === 'object' && key in obj && obj[key] && _typeof(obj[key]) === 'object' && 'message' in obj[key] && // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
     typeof obj[key].message === 'string') {
-      return obj[key].message;
+      return {
+        value: obj[key].message,
+        info: obj[key]
+      };
     }
 
     return false;
-  } : messageStyle === 'plain' ? function (obj, key) {
+  } : messageStyle === 'plain' ? function (mainObj, key) {
+    var obj = mainObj && _typeof(mainObj) === 'object' && mainObj.body;
+
     if (obj && _typeof(obj) === 'object' && key in obj && obj[key] && typeof obj[key] === 'string') {
-      return obj[key];
+      return {
+        value: obj[key]
+      };
     }
 
     return false;
@@ -557,32 +2359,46 @@ var getMessageForKeyByStyle = function getMessageForKeyByStyle() {
 /**
  * @param {PlainObject} cfg
  * @param {string} [cfg.message] If present, this string will be the return value.
- * @param {false|null|undefined|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
- * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
+ * @param {false|null|undefined|LocaleObject} [cfg.defaults]
+ * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
  * @param {MessageStyleCallback} [cfg.messageForKey] Defaults to getting `MessageStyleCallback` based on `messageStyle`
  * @param {string} cfg.key Key to check against object of strings; used to find a default if no string `message` is provided.
  * @returns {string}
  */
 
 var getStringFromMessageAndDefaults = function getStringFromMessageAndDefaults() {
-  var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-      message = _ref2.message,
-      defaults = _ref2.defaults,
-      messageStyle = _ref2.messageStyle,
-      _ref2$messageForKey = _ref2.messageForKey,
-      messageForKey = _ref2$messageForKey === void 0 ? getMessageForKeyByStyle({
+  var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      message = _ref3.message,
+      defaults = _ref3.defaults,
+      messageStyle = _ref3.messageStyle,
+      _ref3$messageForKey = _ref3.messageForKey,
+      messageForKey = _ref3$messageForKey === void 0 ? getMessageForKeyByStyle({
     messageStyle: messageStyle
-  }) : _ref2$messageForKey,
-      key = _ref2.key;
+  }) : _ref3$messageForKey,
+      key = _ref3.key;
 
   if (typeof key !== 'string') {
     throw new TypeError('An options object with a `key` string is expected on ' + '`getStringFromMessageAndDefaults`');
   } // NECESSARY CHECK FOR SECURITY ON UNTRUSTED LOCALES
 
 
-  var str = typeof message === 'string' ? message : defaults === false || defaults === undefined || defaults === null ? false : defaults && _typeof(defaults) === 'object' ? messageForKey(defaults, key) : function () {
+  var str;
+
+  if (typeof message === 'string') {
+    str = message;
+  } else if (defaults === false || defaults === undefined || defaults === null) {
+    str = false;
+  } else if (defaults && _typeof(defaults) === 'object') {
+    str = messageForKey({
+      body: defaults
+    }, key);
+
+    if (str) {
+      str = str.value;
+    }
+  } else {
     throw new TypeError("Default locale strings must resolve to `false`, " + "nullish, or an object!");
-  }();
+  }
 
   if (str === false) {
     throw new Error("Key value not found for key: (".concat(key, ")"));
@@ -590,36 +2406,217 @@ var getStringFromMessageAndDefaults = function getStringFromMessageAndDefaults()
 
   return str;
 };
+/* eslint-disable max-len */
+
+/**
+ * @callback InsertNodesCallback
+ * @param {PlainObject} cfg
+ * @param {string} cfg.string The localized string
+ * @param {boolean} [cfg.dom] If substitutions known to contain DOM, can be set
+ *   to `true` to optimize
+ * @param {string[]} [cfg.usedKeys=[]] Array for tracking which keys have been used
+ * @param {SubstitutionObject} cfg.substitutions The formatting substitutions object
+ * @param {?(AllSubstitutionCallback|AllSubstitutionCallback[])} [cfg.allSubstitutions] The
+ *   callback or array composed thereof for applying to each substitution.
+ * @param {string} locale The successfully resolved locale
+ * @param {MissingSuppliedFormattersCallback} [cfg.missingSuppliedFormatters] Callback
+ *   supplied key to throw if the supplied key is present (if
+ *   `throwOnMissingSuppliedFormatters` is enabled). Defaults to no-op.
+ * @param {CheckExtraSuppliedFormattersCallback} [cfg.checkExtraSuppliedFormatters] No
+ *   argument callback to check if any formatters are not present in `string`
+ *   (if `throwOnExtraSuppliedFormatters` is enabled). Defaults to no-op.
+ * @returns {string|Array<Node|string>}
+ */
+
+/**
+ * @type {InsertNodesCallback}
+ */
+
+var defaultInsertNodes = function defaultInsertNodes(_ref4) {
+  var string = _ref4.string,
+      dom = _ref4.dom,
+      usedKeys = _ref4.usedKeys,
+      substitutions = _ref4.substitutions,
+      allSubstitutions = _ref4.allSubstitutions,
+      locale = _ref4.locale,
+      missingSuppliedFormatters = _ref4.missingSuppliedFormatters,
+      checkExtraSuppliedFormatters = _ref4.checkExtraSuppliedFormatters;
+
+  /*
+  1. Support additional arguments
+    1. Conditionals/Plurals (specific to each format, but should operate
+        with the same inputs/outputs); test
+    2. Builtin functions (number and date)
+  2. Other syntaxes
+    1. process `switch` blocks
+    2. Local variables (within text or functions/formatting args); test
+  */
+  // eslint-disable-next-line max-len
+  // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
+  var formattingRegex = /(\\*)\{((?:(?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])|\\\})*?)(?:(\|)((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g;
+
+  if (allSubstitutions) {
+    allSubstitutions = Array.isArray(allSubstitutions) ? allSubstitutions : [allSubstitutions];
+  }
+
+  var getSubstitution = function getSubstitution(_ref5) {
+    var key = _ref5.key,
+        arg = _ref5.arg;
+    var substitution = substitutions[key];
+
+    if (typeof substitution === 'function') {
+      substitution = substitution({
+        arg: arg,
+        key: key
+      });
+    } // Todo: Even for `null` `allSubstitutions`, we could have
+    //  a mode to throw for non-string/non-DOM (non-numbers?),
+    //  or whatever is not likely intended as a target for `toString()`.
+
+
+    if (allSubstitutions) {
+      substitution = allSubstitutions.reduce(function (subst, allSubst) {
+        return allSubst({
+          value: subst,
+          arg: arg,
+          key: key,
+          locale: locale
+        });
+      }, substitution);
+    } else if (arg && arg.match(/^(?:NUMBER|DATE)(?:\||$)/)) {
+      substitution = defaultAllSubstitutions({
+        value: substitution,
+        arg: arg,
+        key: key,
+        locale: locale
+      });
+    }
+
+    return substitution;
+  }; // Give chance to avoid this block when known to contain DOM
+
+
+  if (!dom) {
+    var returnsDOM = false; // Run this block to optimize non-DOM substitutions
+
+    var ret = string.replace(formattingRegex, function (_, esc, ky, pipe, arg) {
+      if (esc.length % 2) {
+        // Unescape end of odd sequences of escape sequences
+        return esc.slice(0, -2) + '{' + ky + (pipe || '') + (arg || '') + '}';
+      }
+
+      if (missingSuppliedFormatters(ky)) {
+        return _;
+      }
+
+      var substitution = getSubstitution({
+        key: ky,
+        arg: arg
+      });
+      returnsDOM = returnsDOM || substitution && _typeof(substitution) === 'object' && 'nodeType' in substitution;
+      usedKeys.push(ky); // Unescape and add substitution
+
+      return esc.slice(0, esc.length / 2) + substitution;
+    });
+
+    if (!returnsDOM) {
+      checkExtraSuppliedFormatters();
+      return ret;
+    }
+
+    usedKeys.length = 0;
+  }
+
+  var nodes = [];
+  var result;
+  var previousIndex = 0;
+
+  while ((result = formattingRegex.exec(string)) !== null) {
+    var _result3 = result,
+        _result4 = _slicedToArray(_result3, 5),
+        _ = _result4[0],
+        esc = _result4[1],
+        ky = _result4[2],
+        pipe = _result4[3],
+        arg = _result4[4];
+
+    var lastIndex = formattingRegex.lastIndex;
+    var startBracketPos = lastIndex - esc.length - ky.length - (pipe || '').length - (arg || '').length - 2;
+
+    if (startBracketPos > previousIndex) {
+      nodes.push(string.slice(previousIndex, startBracketPos));
+    }
+
+    if (esc.length % 2) {
+      // Unescape final part of odd sequences of escape sequences
+      nodes.push(esc.slice(0, -2) + '{' + ky + (pipe || '') + (arg || '') + '}');
+      previousIndex = lastIndex;
+      continue;
+    }
+
+    if (missingSuppliedFormatters(ky)) {
+      nodes.push(_);
+    } else {
+      if (esc.length) {
+        // Unescape
+        nodes.push(esc.slice(0, esc.length / 2));
+      }
+
+      var substitution = getSubstitution({
+        key: ky,
+        arg: arg
+      });
+      nodes.push(substitution);
+    }
+
+    previousIndex = lastIndex;
+    usedKeys.push(ky);
+  }
+
+  if (previousIndex !== string.length) {
+    // Get text at end
+    nodes.push(string.slice(previousIndex));
+  }
+
+  checkExtraSuppliedFormatters();
+  return nodes;
+};
+/* eslint-disable max-len */
+
 /**
  *
  * @param {PlainObject} cfg
  * @param {string} cfg.string
+ * @param {string} cfg.locale The (possibly already resolved) locale for use by
+ *   configuring formatters
+ * @param {?(AllSubstitutionCallback|AllSubstitutionCallback[])} [cfg.allSubstitutions=[defaultAllSubstitutions]]
+ * @param {InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
  * @param {false|SubstitutionObject} [cfg.substitutions=false]
  * @param {boolean} [cfg.dom=false]
  * @param {boolean} [cfg.forceNodeReturn=false]
  * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
  * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
- * @param {RegExp} [cfg.formattingRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
  * @returns {string|DocumentFragment}
  */
 
 var getDOMForLocaleString = function getDOMForLocaleString() {
-  var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-      string = _ref3.string,
-      _ref3$allSubstitution = _ref3.allSubstitutions,
-      allSubstitutions = _ref3$allSubstitution === void 0 ? null : _ref3$allSubstitution,
-      _ref3$substitutions = _ref3.substitutions,
-      substitutions = _ref3$substitutions === void 0 ? false : _ref3$substitutions,
-      _ref3$dom = _ref3.dom,
-      dom = _ref3$dom === void 0 ? false : _ref3$dom,
-      _ref3$forceNodeReturn = _ref3.forceNodeReturn,
-      forceNodeReturn = _ref3$forceNodeReturn === void 0 ? false : _ref3$forceNodeReturn,
-      _ref3$throwOnMissingS = _ref3.throwOnMissingSuppliedFormatters,
-      throwOnMissingSuppliedFormatters = _ref3$throwOnMissingS === void 0 ? true : _ref3$throwOnMissingS,
-      _ref3$throwOnExtraSup = _ref3.throwOnExtraSuppliedFormatters,
-      throwOnExtraSuppliedFormatters = _ref3$throwOnExtraSup === void 0 ? true : _ref3$throwOnExtraSup,
-      _ref3$formattingRegex = _ref3.formattingRegex,
-      formattingRegex = _ref3$formattingRegex === void 0 ? /(\\*)\{((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*?)(?:\|((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g : _ref3$formattingRegex;
+  var _ref6 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      string = _ref6.string,
+      locale = _ref6.locale,
+      _ref6$allSubstitution = _ref6.allSubstitutions,
+      allSubstitutions = _ref6$allSubstitution === void 0 ? [defaultAllSubstitutions] : _ref6$allSubstitution,
+      _ref6$insertNodes = _ref6.insertNodes,
+      insertNodes = _ref6$insertNodes === void 0 ? defaultInsertNodes : _ref6$insertNodes,
+      _ref6$substitutions = _ref6.substitutions,
+      substitutions = _ref6$substitutions === void 0 ? false : _ref6$substitutions,
+      _ref6$dom = _ref6.dom,
+      dom = _ref6$dom === void 0 ? false : _ref6$dom,
+      _ref6$forceNodeReturn = _ref6.forceNodeReturn,
+      forceNodeReturn = _ref6$forceNodeReturn === void 0 ? false : _ref6$forceNodeReturn,
+      _ref6$throwOnMissingS = _ref6.throwOnMissingSuppliedFormatters,
+      throwOnMissingSuppliedFormatters = _ref6$throwOnMissingS === void 0 ? true : _ref6$throwOnMissingS,
+      _ref6$throwOnExtraSup = _ref6.throwOnExtraSuppliedFormatters,
+      throwOnExtraSuppliedFormatters = _ref6$throwOnExtraSup === void 0 ? true : _ref6$throwOnExtraSup;
 
   if (typeof string !== 'string') {
     throw new TypeError('An options object with a `string` property set to a string must ' + 'be provided for `getDOMForLocaleString`.');
@@ -630,21 +2627,41 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
   };
 
   var usedKeys = [];
+  /**
+  * @callback CheckExtraSuppliedFormattersCallback
+  * @throws {Error} Upon an extra formatting key being found
+  * @returns {void}
+  */
+
+  /**
+   * @type {CheckExtraSuppliedFormattersCallback}
+   */
 
   var checkExtraSuppliedFormatters = function checkExtraSuppliedFormatters() {
     if (throwOnExtraSuppliedFormatters) {
       Object.keys(substitutions).forEach(function (key) {
-        if (!usedKeys.includes(key)) {
+        if (!key.startsWith('-') && !usedKeys.includes(key)) {
           throw new Error("Extra formatting key: ".concat(key));
         }
       });
     }
   };
+  /**
+  * @callback MissingSuppliedFormattersCallback
+  * @param {string} key
+  * @throws {Error} If missing formatting key
+  * @returns {boolean}
+  */
 
-  var missingSuppliedFormatters = function missingSuppliedFormatters(ky) {
-    if (!(ky in substitutions)) {
+  /**
+   * @type {MissingSuppliedFormattersCallback}
+   */
+
+
+  var missingSuppliedFormatters = function missingSuppliedFormatters(key) {
+    if (!key.startsWith('-') && !(key in substitutions)) {
       if (throwOnMissingSuppliedFormatters) {
-        throw new Error("Missing formatting key: ".concat(ky));
+        throw new Error("Missing formatting key: ".concat(key));
       }
 
       return true;
@@ -659,168 +2676,123 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
 
   if (!substitutions) {
     substitutions = {};
-  } // Give chance to avoid this block when known to contain DOM
-
-
-  if (!dom) {
-    var returnsDOM = false; // Run this block to optimize non-DOM substitutions
-
-    var ret = string.replace(formattingRegex, function (_, esc, ky, arg) {
-      if (esc.length % 2) {
-        // Ignore odd sequences of escape sequences
-        return _;
-      }
-
-      if (missingSuppliedFormatters(ky)) {
-        return _;
-      }
-
-      var substitution = substitutions[ky];
-
-      if (typeof substitution === 'function') {
-        substitution = substitution({
-          arg: arg,
-          key: ky
-        });
-      }
-
-      if (allSubstitutions) {
-        substitution = allSubstitutions({
-          value: substitution,
-          arg: arg,
-          key: ky
-        });
-      }
-
-      returnsDOM = returnsDOM || substitution && substitution.nodeType === 1;
-      usedKeys.push(ky);
-      return esc + substitution;
-    });
-    checkExtraSuppliedFormatters();
-
-    if (!returnsDOM) {
-      return stringOrTextNode(ret);
-    }
-
-    usedKeys.length = 0;
   }
 
-  var nodes = [];
-  var result;
-  var previousIndex = 0;
+  var nodes = insertNodes({
+    string: string,
+    dom: dom,
+    usedKeys: usedKeys,
+    substitutions: substitutions,
+    allSubstitutions: allSubstitutions,
+    locale: locale,
+    missingSuppliedFormatters: missingSuppliedFormatters,
+    checkExtraSuppliedFormatters: checkExtraSuppliedFormatters
+  });
 
-  while ((result = formattingRegex.exec(string)) !== null) {
-    var _result3 = result,
-        _result4 = _slicedToArray(_result3, 4),
-        _ = _result4[0],
-        esc = _result4[1],
-        ky = _result4[2],
-        arg = _result4[3];
-
-    var lastIndex = formattingRegex.lastIndex;
-
-    if (esc % 2) {
-      // Ignore odd sequences of escape sequences
-      continue;
-    }
-
-    var startBracketPos = lastIndex - ky.length - 2;
-
-    if (startBracketPos > previousIndex) {
-      nodes.push(string.slice(previousIndex, startBracketPos));
-    }
-
-    if (missingSuppliedFormatters(ky)) {
-      nodes.push(_);
-    } else {
-      if (esc.length) {
-        nodes.push(esc);
-      }
-
-      var substitution = substitutions[ky];
-
-      if (typeof substitution === 'function') {
-        substitution = substitution(arg, ky);
-      }
-
-      nodes.push(substitution);
-    }
-
-    previousIndex = lastIndex;
-    usedKeys.push(ky);
+  if (typeof nodes === 'string') {
+    return stringOrTextNode(nodes);
   }
 
-  if (previousIndex !== string.length) {
-    // Get text at end
-    nodes.push(string.slice(previousIndex));
-  }
-
-  checkExtraSuppliedFormatters();
   var container = document.createDocumentFragment(); // console.log('nodes', nodes);
 
-  container.append.apply(container, nodes);
+  container.append.apply(container, _toConsumableArray(nodes));
   return container;
 };
+/**
+* @callback LocaleMatcher
+* @param {string} locale The failed locale
+* @returns {string|Promise<string>} The new locale to check
+*/
+
+/**
+* @typedef {PlainObject} LocaleObjectInfo
+* @property {LocaleObject} strings The successfully retrieved locale strings
+* @property {string} locale The successfully resolved locale
+*/
+
 /**
  * @param {PlainObject} [cfg={}]
  * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
  * @param {string[]} [cfg.defaultLocales=['en-US']]
  * @param {string} [cfg.localesBasePath='.']
  * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
- * @returns {Promise<LocaleStringObject|PlainLocaleStringObject|PlainObject>}
+ * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher]
+ * @returns {Promise<LocaleObjectInfo>}
  */
 
 var findLocaleStrings = _async(function () {
-  var _ref4 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-      _ref4$locales = _ref4.locales,
-      locales = _ref4$locales === void 0 ? navigator.languages : _ref4$locales,
-      _ref4$defaultLocales = _ref4.defaultLocales,
-      defaultLocales = _ref4$defaultLocales === void 0 ? ['en-US'] : _ref4$defaultLocales,
-      _ref4$localeResolver = _ref4.localeResolver,
-      localeResolver = _ref4$localeResolver === void 0 ? defaultLocaleResolver : _ref4$localeResolver,
-      _ref4$localesBasePath = _ref4.localesBasePath,
-      localesBasePath = _ref4$localesBasePath === void 0 ? '.' : _ref4$localesBasePath;
+  /**
+   * @callback getLocale
+   * @throws {SyntaxError|TypeError|Error}
+   * @param {string} locale
+   * @returns {Promise<LocaleObjectInfo>}
+   */
+  var getLocale = _async(function (locale) {
+    if (typeof locale !== 'string') {
+      throw new TypeError('Non-string locale type');
+    }
 
-  // eslint-disable-next-line no-return-await
-  return promiseChainForValues([].concat(_toConsumableArray(locales), _toConsumableArray(defaultLocales)), function getLocale(locale) {
-    try {
-      if (typeof locale !== 'string') {
-        throw new TypeError('Non-string locale type');
-      }
+    var url = localeResolver(localesBasePath, locale);
 
-      var url = localeResolver(localesBasePath, locale);
+    if (typeof url !== 'string') {
+      throw new TypeError('`localeResolver` expected to resolve to (URL) string.');
+    }
 
-      if (typeof url !== 'string') {
-        throw new TypeError('`localeResolver` expected to resolve to (URL) string.');
-      }
+    return _catch(function () {
+      return _await(fetch(url), function (resp) {
+        // Todo [file-fetch@>1.2.0]: Remove this ignore; https://github.com/bergos/file-fetch/pull/6
 
-      return _catch(function () {
-        return _await(fetch(url), function (resp) {
-          if (resp.status === 404) {
-            // Don't allow browser (tested in Firefox) to continue
-            //  and give `SyntaxError` with missing file or we won't be
-            //  able to try without the hyphen
-            throw new Error('Trying again');
-          }
-
-          return _await(resp.json());
-        });
-      }, function (err) {
-        if (err.name === 'SyntaxError') {
-          throw err;
+        /* istanbul ignore next */
+        if (resp.status === 404) {
+          // Don't allow browser (tested in Firefox) to continue
+          //  and give `SyntaxError` with missing file or we won't be
+          //  able to try without the hyphen
+          throw new Error('Trying again');
         }
 
-        if (!locale.includes('-')) {
-          throw new Error('Locale not available');
-        } // Try without hyphen
-
-
-        return getLocale(locale.replace(/\x2D(?:[\0-\t\x0B\f\x0E-\u2027\u202A-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*$/, ''));
+        return _await(resp.json(), function (strings) {
+          return {
+            locale: locale,
+            strings: strings
+          };
+        });
       });
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }, 'No matching locale found!');
+    }, function (err) {
+      if (err.name === 'SyntaxError') {
+        throw err;
+      }
+
+      return _await(localeMatcher(locale), getLocale);
+    });
+  });
+
+  var _ref7 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      _ref7$locales = _ref7.locales,
+      locales = _ref7$locales === void 0 ? navigator.languages : _ref7$locales,
+      _ref7$defaultLocales = _ref7.defaultLocales,
+      defaultLocales = _ref7$defaultLocales === void 0 ? ['en-US'] : _ref7$defaultLocales,
+      _ref7$localeResolver = _ref7.localeResolver,
+      localeResolver = _ref7$localeResolver === void 0 ? defaultLocaleResolver : _ref7$localeResolver,
+      _ref7$localesBasePath = _ref7.localesBasePath,
+      localesBasePath = _ref7$localesBasePath === void 0 ? '.' : _ref7$localesBasePath,
+      _ref7$localeMatcher = _ref7.localeMatcher,
+      localeMatcher = _ref7$localeMatcher === void 0 ? 'lookup' : _ref7$localeMatcher;
+
+  if (localeMatcher === 'lookup') {
+    localeMatcher = function localeMatcher(locale) {
+      if (!locale.includes('-')) {
+        throw new Error('Locale not available');
+      } // Try without hyphen ("lookup" algorithm: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl )
+
+
+      return locale.replace(/\x2D(?:[\0-\t\x0B\f\x0E-\u2027\u202A-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*$/, '');
+    };
+  } else if (typeof localeMatcher !== 'function') {
+    throw new TypeError('`localeMatcher` must be "lookup" or a function!');
+  } // eslint-disable-next-line no-return-await
+
+
+  return promiseChainForValues([].concat(_toConsumableArray(locales), _toConsumableArray(defaultLocales)), getLocale, 'No matching locale found!');
 });
 /* eslint-disable max-len */
 
@@ -830,10 +2802,11 @@ var findLocaleStrings = _async(function () {
  * @param {string[]} [cfg.defaultLocales=['en-US']]
  * @param {string} [cfg.localesBasePath='.']
  * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
- * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
- * @param {RegExp} [cfg.formattingRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
- * @param {?AllSubstitutionCallback} [cfg.allSubstitutions]
- * @param {false|null|undefined|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
+ * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher='lookup']
+ * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
+ * @param {?AllSubstitutionCallback|AllSubstitutionCallback[]} [cfg.allSubstitutions]
+ * @param {InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
+ * @param {false|null|undefined|LocaleObject} [cfg.defaults]
  * @param {false|SubstitutionObject} [cfg.substitutions={}]
  * @param {boolean} [cfg.dom=false]
  * @param {boolean} [cfg.forceNodeReturn=false]
@@ -843,31 +2816,36 @@ var findLocaleStrings = _async(function () {
  */
 
 var i18n = function i18n() {
-  var _ref5 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-      locales = _ref5.locales,
-      defaultLocales = _ref5.defaultLocales,
-      localesBasePath = _ref5.localesBasePath,
-      localeResolver = _ref5.localeResolver,
-      messageStyle = _ref5.messageStyle,
-      formattingRegex = _ref5.formattingRegex,
-      defaultAllSubstitutions = _ref5.allSubstitutions,
-      defaultDefaults = _ref5.defaults,
-      defaultSubstitutions = _ref5.substitutions,
-      _ref5$dom = _ref5.dom,
-      domDefaults = _ref5$dom === void 0 ? false : _ref5$dom,
-      _ref5$forceNodeReturn = _ref5.forceNodeReturn,
-      forceNodeReturnDefault = _ref5$forceNodeReturn === void 0 ? false : _ref5$forceNodeReturn,
-      _ref5$throwOnMissingS = _ref5.throwOnMissingSuppliedFormatters,
-      throwOnMissingSuppliedFormattersDefault = _ref5$throwOnMissingS === void 0 ? true : _ref5$throwOnMissingS,
-      _ref5$throwOnExtraSup = _ref5.throwOnExtraSuppliedFormatters,
-      throwOnExtraSuppliedFormattersDefault = _ref5$throwOnExtraSup === void 0 ? true : _ref5$throwOnExtraSup;
+  var _ref8 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      locales = _ref8.locales,
+      defaultLocales = _ref8.defaultLocales,
+      localesBasePath = _ref8.localesBasePath,
+      localeResolver = _ref8.localeResolver,
+      localeMatcher = _ref8.localeMatcher,
+      messageStyle = _ref8.messageStyle,
+      defaultAllSubstitutionsValue = _ref8.allSubstitutions,
+      insertNodes = _ref8.insertNodes,
+      defaultDefaults = _ref8.defaults,
+      defaultSubstitutions = _ref8.substitutions,
+      _ref8$dom = _ref8.dom,
+      domDefaults = _ref8$dom === void 0 ? false : _ref8$dom,
+      _ref8$forceNodeReturn = _ref8.forceNodeReturn,
+      forceNodeReturnDefault = _ref8$forceNodeReturn === void 0 ? false : _ref8$forceNodeReturn,
+      _ref8$throwOnMissingS = _ref8.throwOnMissingSuppliedFormatters,
+      throwOnMissingSuppliedFormattersDefault = _ref8$throwOnMissingS === void 0 ? true : _ref8$throwOnMissingS,
+      _ref8$throwOnExtraSup = _ref8.throwOnExtraSuppliedFormatters,
+      throwOnExtraSuppliedFormattersDefault = _ref8$throwOnExtraSup === void 0 ? true : _ref8$throwOnExtraSup;
 
   return _await(findLocaleStrings({
     locales: locales,
     defaultLocales: defaultLocales,
     localeResolver: localeResolver,
-    localesBasePath: localesBasePath
-  }), function (strings) {
+    localesBasePath: localesBasePath,
+    localeMatcher: localeMatcher
+  }), function (_ref9) {
+    var strings = _ref9.strings,
+        resolvedLocale = _ref9.locale;
+
     if (!strings || _typeof(strings) !== 'object') {
       throw new TypeError("Locale strings must be an object!");
     }
@@ -876,31 +2854,32 @@ var i18n = function i18n() {
       messageStyle: messageStyle
     });
     return function (key, substitutions) {
-      var _ref6 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-          _ref6$allSubstitution = _ref6.allSubstitutions,
-          allSubstitutions = _ref6$allSubstitution === void 0 ? defaultAllSubstitutions : _ref6$allSubstitution,
-          _ref6$defaults = _ref6.defaults,
-          defaults = _ref6$defaults === void 0 ? defaultDefaults : _ref6$defaults,
-          _ref6$dom = _ref6.dom,
-          dom = _ref6$dom === void 0 ? domDefaults : _ref6$dom,
-          _ref6$forceNodeReturn = _ref6.forceNodeReturn,
-          forceNodeReturn = _ref6$forceNodeReturn === void 0 ? forceNodeReturnDefault : _ref6$forceNodeReturn,
-          _ref6$throwOnMissingS = _ref6.throwOnMissingSuppliedFormatters,
-          throwOnMissingSuppliedFormatters = _ref6$throwOnMissingS === void 0 ? throwOnMissingSuppliedFormattersDefault : _ref6$throwOnMissingS,
-          _ref6$throwOnExtraSup = _ref6.throwOnExtraSuppliedFormatters,
-          throwOnExtraSuppliedFormatters = _ref6$throwOnExtraSup === void 0 ? throwOnExtraSuppliedFormattersDefault : _ref6$throwOnExtraSup;
+      var _ref10 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+          _ref10$allSubstitutio = _ref10.allSubstitutions,
+          allSubstitutions = _ref10$allSubstitutio === void 0 ? defaultAllSubstitutionsValue : _ref10$allSubstitutio,
+          _ref10$defaults = _ref10.defaults,
+          defaults = _ref10$defaults === void 0 ? defaultDefaults : _ref10$defaults,
+          _ref10$dom = _ref10.dom,
+          dom = _ref10$dom === void 0 ? domDefaults : _ref10$dom,
+          _ref10$forceNodeRetur = _ref10.forceNodeReturn,
+          forceNodeReturn = _ref10$forceNodeRetur === void 0 ? forceNodeReturnDefault : _ref10$forceNodeRetur,
+          _ref10$throwOnMissing = _ref10.throwOnMissingSuppliedFormatters,
+          throwOnMissingSuppliedFormatters = _ref10$throwOnMissing === void 0 ? throwOnMissingSuppliedFormattersDefault : _ref10$throwOnMissing,
+          _ref10$throwOnExtraSu = _ref10.throwOnExtraSuppliedFormatters,
+          throwOnExtraSuppliedFormatters = _ref10$throwOnExtraSu === void 0 ? throwOnExtraSuppliedFormattersDefault : _ref10$throwOnExtraSu;
 
       var message = messageForKey(strings, key);
       var string = getStringFromMessageAndDefaults({
-        message: message,
+        message: message && message.value || false,
         defaults: defaults,
         messageForKey: messageForKey,
         key: key
       });
       return getDOMForLocaleString({
         string: string,
-        formattingRegex: formattingRegex,
+        locale: resolvedLocale,
         allSubstitutions: allSubstitutions,
+        insertNodes: insertNodes,
         substitutions: _objectSpread2({}, defaultSubstitutions, {}, substitutions),
         dom: dom,
         forceNodeReturn: forceNodeReturn,
@@ -911,4 +2890,4 @@ var i18n = function i18n() {
   });
 };
 
-export { defaultLocaleResolver, findLocaleStrings, getDOMForLocaleString, getMessageForKeyByStyle, getStringFromMessageAndDefaults, i18n, promiseChainForValues };
+export { defaultAllSubstitutions, defaultInsertNodes, defaultLocaleResolver, findLocaleStrings, getDOMForLocaleString, getMessageForKeyByStyle, getStringFromMessageAndDefaults, i18n, promiseChainForValues };

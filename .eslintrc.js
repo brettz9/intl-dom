@@ -6,8 +6,7 @@ module.exports = {
     sourceType: 'module'
   },
   plugins: [
-    'chai-expect',
-    'chai-friendly'
+    'chai-expect'
   ],
   env: {
     browser: true,
@@ -19,6 +18,7 @@ module.exports = {
       'console',
       'Error',
       'fetch',
+      'Intl',
       'JSON',
       'Object.defineProperty',
       'Object.keys',
@@ -27,6 +27,7 @@ module.exports = {
     ]
   },
   overrides: [{
+    extends: ['plugin:chai-friendly/recommended'],
     files: ['test/**'],
     globals: {
       expect: true,
@@ -36,8 +37,6 @@ module.exports = {
       mocha: true
     },
     rules: {
-      "no-unused-expressions": 0,
-      "chai-friendly/no-unused-expressions": 2,
       "chai-expect/missing-assertion": 2,
       "chai-expect/terminating-properties": 1
     }

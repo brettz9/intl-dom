@@ -11,16 +11,31 @@
         <div id="mocha"></div>
 
         <!-- Test Environment -->
+        <!-- For ESM: https://github.com/mochajs/mocha/issues/3006 -->
         <script src="../../node_modules/mocha/mocha.js"></script>
+
+        <!-- For ESM: To support in 5.0; release 4.3.0 to be done
+           first: https://github.com/chaijs/chai/pull/1266 -->
         <script src="../../node_modules/chai/chai.js"></script>
+
         <script src="../../node_modules/chai-dom/chai-dom.js"></script>
+
+        <!-- Maintainer wouldn't change source to ESM, so would need to make own -->
         <script src="vendor/chai-as-promised.js"></script>
         <!-- <script src="../../node_modules/sinon/pkg/sinon-no-sourcemaps.js"></script> -->
 
-        <script>
+        <script type="module">
         /* globals chai, chaiAsPromised */
+
+        // Needed for Firefox (not Chrome)
+        import '../../node_modules/intl-list-format/dist/index.js';
+        import '../../node_modules/intl-list-format/locale-data/en-US.js';
+        // https://github.com/nathanboktae/chai-dom/issues/41
+        import fragmentHtml from './vendor/fragmentHtml.js';
+
         window.expect = chai.expect;
         chai.use(chaiAsPromised);
+        chai.use(fragmentHtml);
         mocha.setup('bdd');
 
         window.setNavigatorLanguages = (languages) => {
@@ -31,8 +46,9 @@
           );
         };
         </script>
-        <script type="module" src="../test.js"></script>
         <script type="module">
+        import '../test.js';
+
         mocha.run();
         </script>
     </body>

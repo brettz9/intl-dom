@@ -1,5 +1,10 @@
 {
-  "key": {
-    "message": "{substitution2|UPPER} {substitution1}"
+  "head": {
+
+  },
+  "body": {
+    "key": {
+      "message": "{substitution2|UPPER} {substitution1}"
+    }
   }
 }

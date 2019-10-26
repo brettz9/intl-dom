@@ -1,0 +1,17 @@
+{
+  "head": {},
+  "body": {
+    "key": {
+      "that": {
+        "lessNested": {
+          "message": "anotherKeyValue"
+        },
+        "is": {
+          "nested": {
+            "message": "myKeyValue"
+          }
+        }
+      }
+    }
+  }
+}

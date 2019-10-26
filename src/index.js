@@ -1,3 +1,8 @@
+// We want it to work in the browser, so commenting out
+// import jsonExtra from 'json5';
+// import jsonExtra from 'json-6';
+import jsonExtra from '../node_modules/json-6/dist/index.mjs';
+
 /**
 * @callback PromiseChainErrback
 * @param {any} errBack
@@ -76,36 +81,88 @@ export const promiseChainForValues = (
 /**
 * @callback SubstitutionCallback
 * @param {PlainObject} cfg
-* @param {string} cfg.arg Accepts the third portion of the `formattingRegex` of
-*   `i18n`, i.e., to allow the locale to supply arguments back to the
-*   calling script.
+* @param {string} cfg.arg By default, accepts the third portion of the
+*   `formattingRegex` within `insertNodes`, i.e., to allow the locale to
+*   supply arguments back to the calling script.
 * @param {string} cfg.key The substitution key
 * @returns {string|Element} The replacement text or element
 */
 
 /**
+ * May have additional properties if supplying options to an underlying
+ * formatter.
+ * @typedef {GenericArray} ValueArray
+ * @property {string|Node|number|Date} 0 The main value
+ * @property {PlainObject} [1] The options related to the main value
+ * @property {PlainObject} [2] Any additional options
+*/
+
+/**
+* @typedef {PlainObject} RelativeTimeInfo
+* @param {ValueArray} relative
+*/
+
+/**
+* @typedef {PlainObject} ListInfo
+* @param {ValueArray} list
+*/
+
+/**
+* @typedef {PlainObject} NumberInfo
+* @param {ValueArray} number
+*/
+
+/**
+* @typedef {PlainObject} DateInfo
+* @param {ValueArray} date
+*/
+
+/* eslint-disable max-len */
+/**
 * @callback AllSubstitutionCallback
 * @param {PlainObject} cfg
-* @param {string|Element} cfg.value The value returned by the
-*   individual substitution
+* @param {string|Node|number|Date|RelativeTimeInfo|ListInfo|NumberInfo|DateInfo} cfg.value Contains
+*   the value returned by the individual substitution
 * @param {string} cfg.arg See `cfg.arg` of {@link SubstitutionCallback}.
 * @param {string} cfg.key The substitution key
 * @returns {string|Element} The replacement text or element
 */
+/* eslint-enable max-len */
 
 /**
-* @typedef {Object<string, string>} PlainLocaleStringObject
+* @typedef {Object<string, string>} PlainLocaleStringBodyObject
+*/
+
+/**
+* @typedef {PlainObject} SwitchCaseInfo
+* @property {boolean} [default=false] Whether this conditional is the default
+*/
+
+/**
+* @typedef {GenericArray} SwitchCase
+* @property {string} 0 The type
+* @property {string} 1 The message
+* @property {SwitchCaseInfo} [2] Info about the switch case
+*/
+
+/**
+* @typedef {PlainObject<string, SwitchCase>} Switch
+*/
+
+/**
+* @typedef {PlainObject<{string, Switch}>} Switches
 */
 
 /**
 * @typedef {PlainObject} LocaleStringSubObject
-* @property {string} message The locale message with any formatting
-*   place-holders
-* @property {string} description A description to add translators
+* @property {string} [message] The locale message with any formatting
+*   place-holders; defaults to use of any single conditional
+* @property {string} [description] A description to add translators
+* @property {Switches} [switches] Conditionals
 */
 
 /**
-* @typedef {PlainObject<string, LocaleStringSubObject>} LocaleStringObject
+* @typedef {PlainObject<string, LocaleStringSubObject>} LocaleStringBodyObject
 */
 
 /**
@@ -155,49 +212,200 @@ export const defaultLocaleResolver = (localesBasePath, locale) => {
 };
 
 /**
-* @callback MessageStyleCallback
-* @param {LocaleStringObject|PlainLocaleStringObject|PlainObject} obj The exact
-*   format depends on the `cfg.defaults` of `i18n`
-* @param {string} key
-* @returns {false|string} If `false`, will resort to default
+ * @type {AllSubstitutionCallback}
+ */
+export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
+  // Strings or DOM Nodes
+  if (
+    typeof value === 'string' || (value && typeof value === 'object' &&
+    'nodeType' in value)
+  ) {
+    return value;
+  }
+
+  let opts, extraOpts;
+  if (value && typeof value === 'object') {
+    const singleKey = Object.keys(value)[0];
+    if (['number', 'date', 'relative', 'list'].includes(singleKey)) {
+      if (Array.isArray(value[singleKey])) {
+        [value, opts, extraOpts] = value[singleKey];
+      } else {
+        value = value[singleKey];
+      }
+
+      // Todo: Call `applyArgs` for `relative` and `list` options
+      //  so user can call themselves or customize defaults?
+      // RelativeTimeFormat
+      if (singleKey === 'relative') {
+        return new Intl.RelativeTimeFormat(
+          locale, extraOpts
+        ).format(value, opts);
+      }
+
+      // ListFormat (with Collator)
+      if (singleKey === 'list') {
+        value.sort(new Intl.Collator(locale, extraOpts).compare);
+        return new Intl.ListFormat(locale, opts).format(value);
+      }
+      // Let `number` and `date` types drop through so their options
+      //  can be applied
+    }
+  }
+
+  const applyArgs = (type) => {
+    if (typeof arg === 'string') {
+      const extraArgDividerPos = arg.indexOf('|');
+      let userType, extraArgs;
+      if (extraArgDividerPos === -1) {
+        userType = arg;
+        if (userType === type) {
+          opts = {};
+        }
+      } else {
+        userType = arg.slice(0, extraArgDividerPos);
+        if (userType === type) {
+          extraArgs = arg.slice(extraArgDividerPos + 1);
+          // Todo: Allow escaping and restoring of pipe symbol
+          opts = {...opts, ...jsonExtra.parse(
+            // Doesn't actually currently allow explicit brackets,
+            //  but in case we change our regex to allow inner brackets
+            '{' + extraArgs.replace(/^\{/u, '').replace(/\}$/u, '') + '}'
+          )};
+        }
+      }
+    }
+    return opts;
+  };
+
+  // Numbers
+  if (typeof value === 'number') {
+    return new Intl.NumberFormat(locale, applyArgs('NUMBER')).format(value);
+  }
+
+  // Dates
+  if (
+    value && typeof value === 'object' &&
+    typeof value.getTime === 'function'
+  ) {
+    return new Intl.DateTimeFormat(locale, applyArgs('DATETIME')).format(value);
+  }
+
+  throw new TypeError('Unknown formatter');
+};
+
+/**
+* @typedef {LocaleBody} LocalObject
 */
 
 /**
+ * May also contain language code and direction, translator name and
+ * contact, etc., but no defaults currently apply besides reserving `locals`
+ * @typedef {PlainObject} LocaleHead
+ * @property {LocalObject} locals
+*/
+
+/**
+* @typedef {LocaleStringBodyObject|PlainLocaleStringBodyObject|PlainObject}
+* LocaleBody
+*/
+
+/**
+* @typedef {PlainObject} LocaleObject
+* @property {LocaleHead} [head]
+* @property {LocaleBody} body
+*/
+
+/**
+* @typedef {PlainObject} MessageStyleCallbackResult
+* @property {string} value Regardless of message style, will contain the
+*   string result
+* @property {LocaleStringSubObject} [info] Full info on the localized item
+*   (for rich message styles only)
+*/
+
+/**
+* @callback MessageStyleCallback
+* @param {LocaleObject} obj The exact
+*   format depends on the `cfg.defaults` of `i18n`
+* @param {string} key
+* @returns {false|MessageStyleCallbackResult} If `false`, will resort to default
+*/
+
+/* eslint-disable max-len */
+/**
  * @param {PlainObject} [cfg]
- * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
+ * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
  * @returns {MessageStyleCallback}
  */
 export const getMessageForKeyByStyle = ({
-  messageStyle = 'rich'
+  /* eslint-enable max-len */
+  messageStyle = 'richNested'
 } = {}) => {
   return typeof messageStyle === 'function'
     ? messageStyle
-    : (messageStyle === 'rich'
-      ? (obj, key) => {
-        if (
-          obj && typeof obj === 'object' &&
-          key in obj && obj[key] && typeof obj[key] === 'object' &&
-          'message' in obj[key] &&
-          // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
-          typeof obj[key].message === 'string'
-        ) {
-          return obj[key].message;
-        }
-        return false;
+    : (messageStyle === 'richNested'
+      ? (mainObj, key) => {
+        const obj = mainObj && typeof mainObj === 'object' && mainObj.body;
+        const keys = key.split('.');
+
+        let ret = false;
+        let currObj = obj;
+        keys.some((ky, i, kys) => {
+          if (!currObj || typeof currObj !== 'object') {
+            return true;
+          }
+          if (
+            // If specified key is too deep, we should fail
+            i === kys.length - 1 &&
+            ky in currObj && currObj[ky] && typeof currObj[ky] === 'object' &&
+            'message' in currObj[ky] &&
+            // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
+            typeof currObj[ky].message === 'string'
+          ) {
+            ret = {
+              value: currObj[ky].message,
+              info: currObj[ky]
+            };
+          }
+          currObj = currObj[ky];
+
+          return false;
+        });
+        return ret;
       }
-      : (messageStyle === 'plain'
-        ? (obj, key) => {
+      : (messageStyle === 'rich'
+        ? (mainObj, key) => {
+          const obj = mainObj && typeof mainObj === 'object' && mainObj.body;
           if (
             obj && typeof obj === 'object' &&
-            key in obj && obj[key] && typeof obj[key] === 'string'
+            key in obj && obj[key] && typeof obj[key] === 'object' &&
+            'message' in obj[key] &&
+            // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
+            typeof obj[key].message === 'string'
           ) {
-            return obj[key];
+            return {
+              value: obj[key].message,
+              info: obj[key]
+            };
           }
           return false;
         }
-        : (() => {
-          throw new TypeError(`Unknown \`messageStyle\` ${messageStyle}`);
-        })()
+        : (messageStyle === 'plain'
+          ? (mainObj, key) => {
+            const obj = mainObj && typeof mainObj === 'object' && mainObj.body;
+            if (
+              obj && typeof obj === 'object' &&
+              key in obj && obj[key] && typeof obj[key] === 'string'
+            ) {
+              return {
+                value: obj[key]
+              };
+            }
+            return false;
+          }
+          : (() => {
+            throw new TypeError(`Unknown \`messageStyle\` ${messageStyle}`);
+          })())
       )
     );
 };
@@ -206,8 +414,8 @@ export const getMessageForKeyByStyle = ({
 /**
  * @param {PlainObject} cfg
  * @param {string} [cfg.message] If present, this string will be the return value.
- * @param {false|null|undefined|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
- * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
+ * @param {false|null|undefined|LocaleObject} [cfg.defaults]
+ * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
  * @param {MessageStyleCallback} [cfg.messageForKey] Defaults to getting `MessageStyleCallback` based on `messageStyle`
  * @param {string} cfg.key Key to check against object of strings; used to find a default if no string `message` is provided.
  * @returns {string}
@@ -227,49 +435,202 @@ export const getStringFromMessageAndDefaults = ({
     );
   }
   // NECESSARY CHECK FOR SECURITY ON UNTRUSTED LOCALES
-  const str = typeof message === 'string'
-    ? message
-    : (defaults === false || defaults === undefined || defaults === null
-      ? false
-      : (defaults && typeof defaults === 'object'
-        ? messageForKey(defaults, key)
-        : (() => {
-          throw new TypeError(
-            `Default locale strings must resolve to \`false\`, ` +
-            `nullish, or an object!`
-          );
-        })()
-      )
+  let str;
+  if (typeof message === 'string') {
+    str = message;
+  } else if (
+    defaults === false || defaults === undefined || defaults === null
+  ) {
+    str = false;
+  } else if (defaults && typeof defaults === 'object') {
+    str = messageForKey({body: defaults}, key);
+    if (str) {
+      str = str.value;
+    }
+  } else {
+    throw new TypeError(
+      `Default locale strings must resolve to \`false\`, ` +
+      `nullish, or an object!`
     );
+  }
   if (str === false) {
     throw new Error(`Key value not found for key: (${key})`);
   }
   return str;
 };
 
+/* eslint-disable max-len */
+/**
+ * @callback InsertNodesCallback
+ * @param {PlainObject} cfg
+ * @param {string} cfg.string The localized string
+ * @param {boolean} [cfg.dom] If substitutions known to contain DOM, can be set
+ *   to `true` to optimize
+ * @param {string[]} [cfg.usedKeys=[]] Array for tracking which keys have been used
+ * @param {SubstitutionObject} cfg.substitutions The formatting substitutions object
+ * @param {?(AllSubstitutionCallback|AllSubstitutionCallback[])} [cfg.allSubstitutions] The
+ *   callback or array composed thereof for applying to each substitution.
+ * @param {string} locale The successfully resolved locale
+ * @param {MissingSuppliedFormattersCallback} [cfg.missingSuppliedFormatters] Callback
+ *   supplied key to throw if the supplied key is present (if
+ *   `throwOnMissingSuppliedFormatters` is enabled). Defaults to no-op.
+ * @param {CheckExtraSuppliedFormattersCallback} [cfg.checkExtraSuppliedFormatters] No
+ *   argument callback to check if any formatters are not present in `string`
+ *   (if `throwOnExtraSuppliedFormatters` is enabled). Defaults to no-op.
+ * @returns {string|Array<Node|string>}
+ */
+
+/**
+ * @type {InsertNodesCallback}
+ */
+export const defaultInsertNodes = ({
+  /* eslint-enable max-len */
+  string, dom, usedKeys, substitutions, allSubstitutions, locale,
+  missingSuppliedFormatters,
+  checkExtraSuppliedFormatters
+}) => {
+  /*
+  1. Support additional arguments
+    1. Conditionals/Plurals (specific to each format, but should operate
+        with the same inputs/outputs); test
+    2. Builtin functions (number and date)
+  2. Other syntaxes
+    1. process `switch` blocks
+    2. Local variables (within text or functions/formatting args); test
+  */
+
+  // eslint-disable-next-line max-len
+  // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
+  const formattingRegex = /(\\*)\{((?:[^}]|\\\})*?)(?:(\|)([^}]*))?\}/gu;
+  if (allSubstitutions) {
+    allSubstitutions = Array.isArray(allSubstitutions)
+      ? allSubstitutions
+      : [allSubstitutions];
+  }
+
+  const getSubstitution = ({key, arg}) => {
+    let substitution = substitutions[key];
+    if (typeof substitution === 'function') {
+      substitution = substitution({arg, key});
+    }
+    // Todo: Even for `null` `allSubstitutions`, we could have
+    //  a mode to throw for non-string/non-DOM (non-numbers?),
+    //  or whatever is not likely intended as a target for `toString()`.
+    if (allSubstitutions) {
+      substitution = allSubstitutions.reduce((subst, allSubst) => {
+        return allSubst({
+          value: subst, arg, key, locale
+        });
+      }, substitution);
+    } else if (arg && arg.match(/^(?:NUMBER|DATE)(?:\||$)/u)) {
+      substitution = defaultAllSubstitutions({
+        value: substitution, arg, key, locale
+      });
+    }
+    return substitution;
+  };
+
+  // Give chance to avoid this block when known to contain DOM
+  if (!dom) {
+    let returnsDOM = false;
+    // Run this block to optimize non-DOM substitutions
+    const ret = string.replace(formattingRegex, (_, esc, ky, pipe, arg) => {
+      if (esc.length % 2) {
+        // Unescape end of odd sequences of escape sequences
+        return esc.slice(0, -2) + '{' +
+          ky + (pipe || '') + (arg || '') + '}';
+      }
+      if (missingSuppliedFormatters(ky)) {
+        return _;
+      }
+
+      const substitution = getSubstitution({key: ky, arg});
+
+      returnsDOM = returnsDOM ||
+        (substitution && typeof substitution === 'object' &&
+        'nodeType' in substitution);
+      usedKeys.push(ky);
+      // Unescape and add substitution
+      return esc.slice(0, esc.length / 2) + substitution;
+    });
+    if (!returnsDOM) {
+      checkExtraSuppliedFormatters();
+      return ret;
+    }
+    usedKeys.length = 0;
+  }
+  const nodes = [];
+  let result;
+  let previousIndex = 0;
+  while ((result = formattingRegex.exec(string)) !== null) {
+    const [_, esc, ky, pipe, arg] = result;
+
+    const {lastIndex} = formattingRegex;
+    const startBracketPos = lastIndex - esc.length - ky.length -
+      (pipe || '').length - (arg || '').length - 2;
+    if (startBracketPos > previousIndex) {
+      nodes.push(string.slice(previousIndex, startBracketPos));
+    }
+    if (esc.length % 2) {
+      // Unescape final part of odd sequences of escape sequences
+      nodes.push(
+        esc.slice(0, -2) + '{' +
+        ky + (pipe || '') + (arg || '') + '}'
+      );
+      previousIndex = lastIndex;
+      continue;
+    }
+
+    if (missingSuppliedFormatters(ky)) {
+      nodes.push(_);
+    } else {
+      if (esc.length) { // Unescape
+        nodes.push(esc.slice(0, esc.length / 2));
+      }
+
+      const substitution = getSubstitution({key: ky, arg});
+      nodes.push(substitution);
+    }
+
+    previousIndex = lastIndex;
+    usedKeys.push(ky);
+  }
+  if (previousIndex !== string.length) { // Get text at end
+    nodes.push(string.slice(previousIndex));
+  }
+  checkExtraSuppliedFormatters();
+  return nodes;
+};
+
+/* eslint-disable max-len */
 /**
  *
  * @param {PlainObject} cfg
  * @param {string} cfg.string
+ * @param {string} cfg.locale The (possibly already resolved) locale for use by
+ *   configuring formatters
+ * @param {?(AllSubstitutionCallback|AllSubstitutionCallback[])} [cfg.allSubstitutions=[defaultAllSubstitutions]]
+ * @param {InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
  * @param {false|SubstitutionObject} [cfg.substitutions=false]
  * @param {boolean} [cfg.dom=false]
  * @param {boolean} [cfg.forceNodeReturn=false]
  * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
  * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
- * @param {RegExp} [cfg.formattingRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
  * @returns {string|DocumentFragment}
  */
 export const getDOMForLocaleString = ({
+  /* eslint-enable max-len */
   string,
-  allSubstitutions = null,
+  locale,
+  allSubstitutions = [
+    defaultAllSubstitutions
+  ],
+  insertNodes = defaultInsertNodes,
   substitutions = false,
   dom = false,
   forceNodeReturn = false,
   throwOnMissingSuppliedFormatters = true,
-  throwOnExtraSuppliedFormatters = true,
-  // eslint-disable-next-line max-len
-  // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
-  formattingRegex = /(\\*)\{([^}]*?)(?:\|([^}]*))?\}/gu
+  throwOnExtraSuppliedFormatters = true
 } = {}) => {
   if (typeof string !== 'string') {
     throw new TypeError(
@@ -282,19 +643,39 @@ export const getDOMForLocaleString = ({
   };
 
   const usedKeys = [];
+
+  /**
+  * @callback CheckExtraSuppliedFormattersCallback
+  * @throws {Error} Upon an extra formatting key being found
+  * @returns {void}
+  */
+
+  /**
+   * @type {CheckExtraSuppliedFormattersCallback}
+   */
   const checkExtraSuppliedFormatters = () => {
     if (throwOnExtraSuppliedFormatters) {
       Object.keys(substitutions).forEach((key) => {
-        if (!usedKeys.includes(key)) {
+        if (!key.startsWith('-') && !usedKeys.includes(key)) {
           throw new Error(`Extra formatting key: ${key}`);
         }
       });
     }
   };
-  const missingSuppliedFormatters = (ky) => {
-    if (!(ky in substitutions)) {
+
+  /**
+  * @callback MissingSuppliedFormattersCallback
+  * @param {string} key
+  * @throws {Error} If missing formatting key
+  * @returns {boolean}
+  */
+  /**
+   * @type {MissingSuppliedFormattersCallback}
+   */
+  const missingSuppliedFormatters = (key) => {
+    if (!key.startsWith('-') && !(key in substitutions)) {
       if (throwOnMissingSuppliedFormatters) {
-        throw new Error(`Missing formatting key: ${ky}`);
+        throw new Error(`Missing formatting key: ${key}`);
       }
       return true;
     }
@@ -310,77 +691,15 @@ export const getDOMForLocaleString = ({
   if (!substitutions) {
     substitutions = {};
   }
-  // Give chance to avoid this block when known to contain DOM
-  if (!dom) {
-    let returnsDOM = false;
-    // Run this block to optimize non-DOM substitutions
-    const ret = string.replace(formattingRegex, (_, esc, ky, arg) => {
-      if (esc.length % 2) {
-        // Ignore odd sequences of escape sequences
-        return _;
-      }
-      if (missingSuppliedFormatters(ky)) {
-        return _;
-      }
 
-      let substitution = substitutions[ky];
-      if (typeof substitution === 'function') {
-        substitution = substitution({arg, key: ky});
-      }
-      if (allSubstitutions) {
-        substitution = allSubstitutions({
-          value: substitution, arg, key: ky
-        });
-      }
-      returnsDOM = returnsDOM ||
-        (substitution && substitution.nodeType === 1);
-      usedKeys.push(ky);
-      return esc + substitution;
-    });
-    checkExtraSuppliedFormatters();
-    if (!returnsDOM) {
-      return stringOrTextNode(ret);
-    }
-    usedKeys.length = 0;
+  const nodes = insertNodes({
+    string, dom, usedKeys, substitutions, allSubstitutions, locale,
+    missingSuppliedFormatters,
+    checkExtraSuppliedFormatters
+  });
+  if (typeof nodes === 'string') {
+    return stringOrTextNode(nodes);
   }
-  const nodes = [];
-  let result;
-  let previousIndex = 0;
-  while ((result = formattingRegex.exec(string)) !== null) {
-    const [_, esc, ky, arg] = result;
-
-    const {lastIndex} = formattingRegex;
-    if (esc % 2) {
-      // Ignore odd sequences of escape sequences
-      continue;
-    }
-    const startBracketPos = lastIndex - ky.length - 2;
-    if (startBracketPos > previousIndex) {
-      nodes.push(string.slice(previousIndex, startBracketPos));
-    }
-
-    if (missingSuppliedFormatters(ky)) {
-      nodes.push(_);
-    } else {
-      if (esc.length) {
-        nodes.push(esc);
-      }
-
-      let substitution = substitutions[ky];
-      if (typeof substitution === 'function') {
-        substitution = substitution(arg, ky);
-      }
-      nodes.push(substitution);
-    }
-
-    previousIndex = lastIndex;
-    usedKeys.push(ky);
-  }
-  if (previousIndex !== string.length) { // Get text at end
-    nodes.push(string.slice(previousIndex));
-  }
-
-  checkExtraSuppliedFormatters();
 
   const container = document.createDocumentFragment();
 
@@ -390,52 +709,87 @@ export const getDOMForLocaleString = ({
 };
 
 /**
+* @callback LocaleMatcher
+* @param {string} locale The failed locale
+* @returns {string|Promise<string>} The new locale to check
+*/
+
+/**
+* @typedef {PlainObject} LocaleObjectInfo
+* @property {LocaleObject} strings The successfully retrieved locale strings
+* @property {string} locale The successfully resolved locale
+*/
+
+/**
  * @param {PlainObject} [cfg={}]
  * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
  * @param {string[]} [cfg.defaultLocales=['en-US']]
  * @param {string} [cfg.localesBasePath='.']
  * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
- * @returns {Promise<LocaleStringObject|PlainLocaleStringObject|PlainObject>}
+ * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher]
+ * @returns {Promise<LocaleObjectInfo>}
  */
 export const findLocaleStrings = async ({
   locales = navigator.languages,
   defaultLocales = ['en-US'],
   localeResolver = defaultLocaleResolver,
-  localesBasePath = '.'
+  localesBasePath = '.',
+  localeMatcher = 'lookup'
 } = {}) => {
+  /**
+   * @callback getLocale
+   * @throws {SyntaxError|TypeError|Error}
+   * @param {string} locale
+   * @returns {Promise<LocaleObjectInfo>}
+   */
+  async function getLocale (locale) {
+    if (typeof locale !== 'string') {
+      throw new TypeError('Non-string locale type');
+    }
+    const url = localeResolver(localesBasePath, locale);
+    if (typeof url !== 'string') {
+      throw new TypeError(
+        '`localeResolver` expected to resolve to (URL) string.'
+      );
+    }
+    try {
+      const resp = await fetch(url);
+      // Todo [file-fetch@>1.2.0]: Remove this ignore; https://github.com/bergos/file-fetch/pull/6
+      /* istanbul ignore next */
+      if (resp.status === 404) {
+        // Don't allow browser (tested in Firefox) to continue
+        //  and give `SyntaxError` with missing file or we won't be
+        //  able to try without the hyphen
+        throw new Error('Trying again');
+      }
+      const strings = await (resp.json());
+      return {
+        locale,
+        strings
+      };
+    } catch (err) {
+      if (err.name === 'SyntaxError') {
+        throw err;
+      }
+      const newLocale = await localeMatcher(locale);
+      return getLocale(newLocale);
+    }
+  }
+  if (localeMatcher === 'lookup') {
+    localeMatcher = function (locale) {
+      if (!locale.includes('-')) {
+        throw new Error('Locale not available');
+      }
+      // Try without hyphen ("lookup" algorithm: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl )
+      return locale.replace(/-.*$/u, '');
+    };
+  } else if (typeof localeMatcher !== 'function') {
+    throw new TypeError('`localeMatcher` must be "lookup" or a function!');
+  }
   // eslint-disable-next-line no-return-await
   return await promiseChainForValues(
     [...locales, ...defaultLocales],
-    async function getLocale (locale) {
-      if (typeof locale !== 'string') {
-        throw new TypeError('Non-string locale type');
-      }
-      const url = localeResolver(localesBasePath, locale);
-      if (typeof url !== 'string') {
-        throw new TypeError(
-          '`localeResolver` expected to resolve to (URL) string.'
-        );
-      }
-      try {
-        const resp = await fetch(url);
-        if (resp.status === 404) {
-          // Don't allow browser (tested in Firefox) to continue
-          //  and give `SyntaxError` with missing file or we won't be
-          //  able to try without the hyphen
-          throw new Error('Trying again');
-        }
-        return await (resp.json());
-      } catch (err) {
-        if (err.name === 'SyntaxError') {
-          throw err;
-        }
-        if (!locale.includes('-')) {
-          throw new Error('Locale not available');
-        }
-        // Try without hyphen ("best fit" algorithm: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl )
-        return getLocale(locale.replace(/-.*$/u, ''));
-      }
-    },
+    getLocale,
     'No matching locale found!'
   );
 };
@@ -447,10 +801,11 @@ export const findLocaleStrings = async ({
  * @param {string[]} [cfg.defaultLocales=['en-US']]
  * @param {string} [cfg.localesBasePath='.']
  * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
- * @param {"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='rich']
- * @param {RegExp} [cfg.formattingRegex=/\{([^}]*?)(?:\|([^}]*))?\}/gu]
- * @param {?AllSubstitutionCallback} [cfg.allSubstitutions]
- * @param {false|null|undefined|LocaleStringObject|PlainLocaleStringObject|PlainObject} [cfg.defaults]
+ * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher='lookup']
+ * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
+ * @param {?AllSubstitutionCallback|AllSubstitutionCallback[]} [cfg.allSubstitutions]
+ * @param {InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
+ * @param {false|null|undefined|LocaleObject} [cfg.defaults]
  * @param {false|SubstitutionObject} [cfg.substitutions={}]
  * @param {boolean} [cfg.dom=false]
  * @param {boolean} [cfg.forceNodeReturn=false]
@@ -464,9 +819,10 @@ export const i18n = async function i18n ({
   defaultLocales,
   localesBasePath,
   localeResolver,
+  localeMatcher,
   messageStyle,
-  formattingRegex,
-  allSubstitutions: defaultAllSubstitutions,
+  allSubstitutions: defaultAllSubstitutionsValue,
+  insertNodes,
   defaults: defaultDefaults,
   substitutions: defaultSubstitutions,
   dom: domDefaults = false,
@@ -476,15 +832,15 @@ export const i18n = async function i18n ({
   throwOnExtraSuppliedFormatters:
     throwOnExtraSuppliedFormattersDefault = true
 } = {}) {
-  const strings = await findLocaleStrings({
-    locales, defaultLocales, localeResolver, localesBasePath
+  const {strings, locale: resolvedLocale} = await findLocaleStrings({
+    locales, defaultLocales, localeResolver, localesBasePath, localeMatcher
   });
   if (!strings || typeof strings !== 'object') {
     throw new TypeError(`Locale strings must be an object!`);
   }
   const messageForKey = getMessageForKeyByStyle({messageStyle});
   return (key, substitutions, {
-    allSubstitutions = defaultAllSubstitutions,
+    allSubstitutions = defaultAllSubstitutionsValue,
     defaults = defaultDefaults,
     dom = domDefaults,
     forceNodeReturn = forceNodeReturnDefault,
@@ -493,7 +849,7 @@ export const i18n = async function i18n ({
   } = {}) => {
     const message = messageForKey(strings, key);
     const string = getStringFromMessageAndDefaults({
-      message,
+      message: (message && message.value) || false,
       defaults,
       messageForKey,
       key
@@ -501,8 +857,9 @@ export const i18n = async function i18n ({
 
     return getDOMForLocaleString({
       string,
-      formattingRegex,
+      locale: resolvedLocale,
       allSubstitutions,
+      insertNodes,
       substitutions: {...defaultSubstitutions, ...substitutions},
       dom,
       forceNodeReturn,
