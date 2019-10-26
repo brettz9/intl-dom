@@ -383,3 +383,5 @@ Promise utility.)
   - Handle at level *after* retrieving localized items yet before insertion into
     DOM template (however, potentially an intl-dom localized template)
     - [Collation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator)
+  - Handle at level of pre-file loading (abstract out current hyphen removing)
+    - [localeMatcher](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl) ("lookup" or "best fit")
