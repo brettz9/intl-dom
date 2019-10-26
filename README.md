@@ -364,11 +364,11 @@ Promise utility.)
       and **Placeholders**
       - Arguments to **conditionally process local variables and placeholders**
         - **Selectors** (locale level control; with default)
-          - Accept **strings**
           - Accept **numbers**: Plurals (zero, one, two, few, many, and other: <http://www.unicode.org/cldr/charts/30/supplemental/language_plural_rules.html>)
             - Use [PluralRules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/PluralRules)
           - Conditional based on **attribute** for local variable ("term") value (e.g.,
             gender, animacy, vowel-starting, etc.)
+          - Accept arbitrary numbers/strings to **strings** (enum/switch)
     - Built-in **functions for number, datetime**
   - Handle at level of formatting style (rich, plain, etc.)
     - **Nested attribute** values which share same prefix (easier to type)
