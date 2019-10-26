@@ -366,11 +366,20 @@ Promise utility.)
         - **Selectors** (locale level control; with default)
           - Accept **strings**
           - Accept **numbers**: Plurals (zero, one, two, few, many, and other: <http://www.unicode.org/cldr/charts/30/supplemental/language_plural_rules.html>)
+            - Use [PluralRules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/PluralRules)
           - Conditional based on **attribute** for local variable ("term") value (e.g.,
             gender, animacy, vowel-starting, etc.)
     - Built-in **functions for number, datetime**
   - Handle at level of formatting style (rich, plain, etc.)
     - **Nested attribute** values which share same prefix (easier to type)
     - **Comments within** `message`/`description` (comments for file, group, or item?)
-  - Handle at level of processing (as we do DOM)
-    - **Auto-convert numbers** by default into locale format
+  - Handle at level of processing (as we do DOM); just demo in `allSubstitutions`,
+    though also change to allow substitutions to have 2-item arrays with key and
+    options, e.g., so can pass on number formatting instructions?
+    - **Auto-convert** by default into locale format (using `Intl`)?
+      - [Numbers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat)
+      - [DateTime](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat)
+      - [RelativeTime](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RelativeTimeFormat)
+  - Handle at level *after* retrieving localized items yet before insertion into
+    DOM template (however, potentially an intl-dom localized template)
+    - [Collation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator)
