@@ -432,7 +432,7 @@ export const findLocaleStrings = async ({
         if (!locale.includes('-')) {
           throw new Error('Locale not available');
         }
-        // Try without hyphen
+        // Try without hyphen ("best fit" algorithm: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl )
         return getLocale(locale.replace(/-.*$/u, ''));
       }
     },
