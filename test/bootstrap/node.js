@@ -1,3 +1,4 @@
+import 'intl-pluralrules';
 import 'intl-relative-time-format';
 import 'intl-relative-time-format/locale-data/en-US.js';
 import 'intl-list-format';
