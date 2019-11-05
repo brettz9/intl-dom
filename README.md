@@ -14,14 +14,17 @@
 # intl-dom
 
 This library allows applications to discover locale files (even untrusted ones)
-and utilize the strings while inserting DOM elements amidst them, returning a
-document fragment.
+and safely utilize the strings while inserting DOM elements amidst them,
+returning a document fragment.
 
 This allows locales to specify the sequence of elements through placeholders
-without actually containing the technically-oriented and potentially unsafe
-HTML. Projects need not be shoe-horned into always appending any HTML
-after localized strings of text, but allowing them to be interspersed within
-the text (e.g., for localized links or buttons).
+without locales needing to contain the technically-oriented and potentially
+unsafe HTML. Projects need not shoe-horn their localizations into always
+appending HTML after localized strings of text; projects can instead allow
+HTML to be interspersed within the text (e.g., for localized links or buttons).
+
+A number of other facilities for pluralization; number, date-time and
+relative time formatting; and list sorting.
 
 ## Installation
 
@@ -56,6 +59,8 @@ import {i18n} from 'intl-dom';
 //   `getDOMForLocaleString`, `findLocaleStrings`, `i18n`
 const {JSDOM} = require('jsdom');
 const {
+  Formatter, LocalFormatter, RegularFormatter,
+  unescapeBackslashes, parseJSONExtra,
   promiseChainForValues,
   defaultLocaleResolver,
   defaultAllSubstitutions,
@@ -461,6 +466,12 @@ Collator (demo complex use and refer to how making default for simple cases with
   - [Collation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator)
     - Use `localeMatcher`, e.g., if "lookup" or "best fit" otherwise
 
+--TODO:  Example where server script produces global and is fed
+
+## Credits
+
+This project has been heavily inspired by [Fluent](https://projectfluent.org/fluent/guide/).
+
 ## To-dos
 
 - Ensure coverage in browser is ok?
@@ -468,36 +479,7 @@ Collator (demo complex use and refer to how making default for simple cases with
 - We might accept a `defaultPath` argument to `i18n` to obtain default values
   out of a file, potentially resolvable by a template function which can take
   a locale as argument.
+- Support `switches` that are available as sibling to `message`, i.e.,
+  in a particular context
 - Support named capturing groups for `formattingRegex`
-- [Fluent](https://projectfluent.org/fluent/guide/)-inspired:
-  - Implement as generic interceptor as function argument to
-    `getMessageForKeyByStyle` and/or `getDOMForLocaleString`?
-  - Accept generic function in place of `formattingRegex` for more precise and
-    possibly easier parsing (could then return tokens of local variable references, placeholders, conditionals (as arguments to those local variable references and placeholders?), built-in function calls)
-    - Variables for **intra-locale local variables** references, including
-      passing params into them with enumerated selector selection
-      and **Placeholders**
-      - Arguments to **conditionally process local variables and placeholders**
-        - **Selectors** (locale level control; with default)
-          - Accept **numbers**: Plurals (zero, one, two, few, many, and other: <http://www.unicode.org/cldr/charts/30/supplemental/language_plural_rules.html>)
-            - Use [PluralRules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/PluralRules);
-              - Use `localeMatcher`, e.g., if "lookup" or "best fit" otherwise
-          - Conditional based on **attribute** for local variable ("term") value (e.g.,
-            gender, animacy, vowel-starting, etc.)
-          - Accept arbitrary numbers/strings to **strings** (enum/switch)
-    - Built-in **functions for number, datetime**
-        Ensure built-in functions (and local variables) can be called within
-          formatting args or within plain text (and there accepting local
-          vars or formatting expressions)
-  - Handle at level of formatting style (rich, plain, etc.)
-    - **Nested attribute** values which share same prefix (easier to type)
-    - **Comments within** `message`/`description` (comments for file, group, or item?)
-  - Handle at level of processing (as we do DOM); just demo in `allSubstitutions`,
-    though also change to allow substitutions to have 2-item arrays with key and
-    options, e.g., so can pass on number formatting instructions? (and also accept
-    array of functions)
-    - **Auto-convert** by default into locale format (using `Intl`)?
-      Use `localeMatcher`, e.g., if "lookup" or "best fit" otherwise
-      - [Numbers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat)
-      - [DateTime](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat)
-      - [RelativeTime](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RelativeTimeFormat)
+- In rich formats, bless particular style for adding **comments** alongside `message`/`description` (comments for file, group, or item?)

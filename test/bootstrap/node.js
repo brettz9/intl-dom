@@ -23,3 +23,12 @@ global.setNavigatorLanguages = (languages) => {
     languages
   };
 };
+
+setTimeout(() => {
+  // Make path resolutions consistent in Node with HTML
+  if (typeof process !== 'undefined') {
+    // eslint-disable-next-line global-require
+    process.chdir(require('path').resolve(__dirname, '../browser'));
+  }
+  run();
+});
