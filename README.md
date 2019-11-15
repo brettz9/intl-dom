@@ -21,10 +21,11 @@ This allows locales to specify the sequence of elements through placeholders
 without locales needing to contain the technically-oriented and potentially
 unsafe HTML. Projects need not shoe-horn their localizations into always
 appending HTML after localized strings of text; projects can instead allow
-HTML to be interspersed within the text (e.g., for localized links or buttons).
+HTML to be interspersed within the text as suitable for that language
+(e.g., for localized links or buttons).
 
-A number of other facilities for pluralization; number, date-time and
-relative time formatting; and list sorting.
+A number of other facilities are available: for pluralization; number,
+date-time and relative time formatting; and list sorting.
 
 ## Installation
 
@@ -58,22 +59,33 @@ import {i18n} from 'intl-dom';
 // `jsdom` or such is needed for:
 //   `getDOMForLocaleString`, `findLocaleStrings`, `i18n`
 const {JSDOM} = require('jsdom');
+
+// `fileFetch` or the like is needed for `findLocaleStrings` and `i18n`
+const fileFetch = require('file-fetch');
+
 const {
+  // UTILITIES
   Formatter, LocalFormatter, RegularFormatter,
   unescapeBackslashes, parseJSONExtra,
   promiseChainForValues,
+
+  // DEFAULTS
   defaultLocaleResolver,
   defaultAllSubstitutions,
   defaultInsertNodes,
+
+  // COMPONENTS
   getMessageForKeyByStyle,
   getStringFromMessageAndDefaults,
   getDOMForLocaleString,
   findLocaleStrings,
+
+  // INTEGRATED
   i18n
 } = require('intl-dom');
 
 global.document = (new JSDOM()).window.document;
-
+global.fetch = fileFetch;
 // Now you can use the `intl-dom` methods
 ```
 
@@ -95,9 +107,12 @@ Both of the default styles have the following high-level structure:
 The `head` is optional, but it can be used to store:
 
 1. Language code and direction (especially until JavaScript may provide an API
-    for obtaining directionality dynamically from a locale)
+    for [obtaining directionality](https://github.com/tc39/ecma402/issues/205)
+    dynamically from a locale); one might also use:
+    [i18nizeElement](https://github.com/brettz9/i18nizeElement)
 2. Translator name and/or contact info
 3. Local variables (See the "Local variables" section)
+4. Switches (See the "Switches (Conditionals (including plurals))" section)
 
 ### "plain"
 
@@ -159,7 +174,7 @@ To reference local variables...
 
 TODO:
 
-### Conditionals (including plurals)
+### Switches (Conditionals (including plurals))
 
 TODO:
 
@@ -471,6 +486,10 @@ Collator (demo complex use and refer to how making default for simple cases with
 ## Credits
 
 This project has been heavily inspired by [Fluent](https://projectfluent.org/fluent/guide/).
+
+## See also
+
+- [i18nizeElement](https://github.com/brettz9/i18nizeElement)
 
 ## To-dos
 
