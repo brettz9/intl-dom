@@ -1922,7 +1922,8 @@ function (_Formatter3) {
     value: function getSubstitution(key, _ref3) {
       var locale = _ref3.locale,
           usedKeys = _ref3.usedKeys,
-          arg = _ref3.arg;
+          arg = _ref3.arg,
+          missingSuppliedFormatters = _ref3.missingSuppliedFormatters;
       var ky = this.constructor.getKey(key).slice(1); // Expression might not actually use formatter, e.g., for singular,
       //  the conditional might just write out "one"
 
@@ -1945,7 +1946,11 @@ function (_Formatter3) {
       }
 
       if (!body) {
-        throw new Error("Switch missing for ".concat(ky));
+        missingSuppliedFormatters({
+          key: key,
+          formatter: this
+        });
+        return '\\{' + key + '}';
       }
       /*
       if (!(ky in this.substitutions)) {
@@ -2007,8 +2012,11 @@ function (_Formatter3) {
   }, {
     key: "isMatch",
     value: function isMatch(key) {
-      var ky = this.constructor.getKey(key);
-      return ky && this.constructor.isMatchingKey(ky) && ky in this.switches;
+      var _this4 = this;
+
+      return key && this.constructor.isMatchingKey(key) && Object.keys(this.switches).some(function (switchKey) {
+        return key.slice(1) === _this4.constructor.getKey(switchKey);
+      });
     }
   }], [{
     key: "isMatchingKey",
@@ -2018,7 +2026,7 @@ function (_Formatter3) {
   }, {
     key: "getKey",
     value: function getKey(key) {
-      var match = key.match(/^(?:[\0-\t\x0B\f\x0E-\u2027\u202A-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*(?!\|)/);
+      var match = key.match(/^(?:[\0-\{\}-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*/);
       return match && match[0];
     }
   }]);
@@ -2544,160 +2552,6 @@ var defaultAllSubstitutions = function defaultAllSubstitutions(_ref) {
   throw new TypeError('Unknown formatter');
 };
 
-/**
-* @typedef {LocaleBody} LocalObject
-*/
-
-/**
- * May also contain language code and direction, translator name and
- * contact, etc., but no defaults currently apply besides reserving `locals`
- * @typedef {PlainObject} LocaleHead
- * @property {LocalObject} locals
-*/
-
-/**
-* @typedef {LocaleStringBodyObject|PlainLocaleStringBodyObject|PlainObject}
-* LocaleBody
-*/
-
-/**
-* @typedef {PlainObject} LocaleObject
-* @property {LocaleHead} [head]
-* @property {LocaleBody} body
-*/
-
-/**
-* @typedef {PlainObject} MessageStyleCallbackResult
-* @property {string} value Regardless of message style, will contain the
-*   string result
-* @property {LocaleStringSubObject} [info] Full info on the localized item
-*   (for rich message styles only)
-*/
-
-/**
-* @callback MessageStyleCallback
-* @param {LocaleObject} obj The exact
-*   format depends on the `cfg.defaults` of `i18n`
-* @param {string} key
-* @returns {false|MessageStyleCallbackResult} If `false`, will resort to default
-*/
-
-/* eslint-disable max-len */
-
-/**
- * @param {PlainObject} [cfg]
- * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
- * @returns {MessageStyleCallback}
- */
-var getMessageForKeyByStyle = function getMessageForKeyByStyle() {
-  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-      _ref$messageStyle = _ref.messageStyle,
-      messageStyle = _ref$messageStyle === void 0 ? 'richNested' : _ref$messageStyle;
-
-  // Todo: Support `plainNested` style
-  return typeof messageStyle === 'function' ? messageStyle : messageStyle === 'richNested' ? function (mainObj, key) {
-    var obj = mainObj && _typeof(mainObj) === 'object' && mainObj.body;
-    var keys = key.split('.');
-    var ret = false;
-    var currObj = obj;
-    keys.some(function (ky, i, kys) {
-      if (!currObj || _typeof(currObj) !== 'object') {
-        return true;
-      }
-
-      if ( // If specified key is too deep, we should fail
-      i === kys.length - 1 && ky in currObj && currObj[ky] && _typeof(currObj[ky]) === 'object' && 'message' in currObj[ky] && // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
-      typeof currObj[ky].message === 'string') {
-        ret = {
-          value: currObj[ky].message,
-          info: currObj[ky]
-        };
-      }
-
-      currObj = currObj[ky];
-      return false;
-    });
-    return ret;
-  } : messageStyle === 'rich' ? function (mainObj, key) {
-    var obj = mainObj && _typeof(mainObj) === 'object' && mainObj.body;
-
-    if (obj && _typeof(obj) === 'object' && key in obj && obj[key] && _typeof(obj[key]) === 'object' && 'message' in obj[key] && // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
-    typeof obj[key].message === 'string') {
-      return {
-        value: obj[key].message,
-        info: obj[key]
-      };
-    }
-
-    return false;
-  } : messageStyle === 'plain' ? function (mainObj, key) {
-    var obj = mainObj && _typeof(mainObj) === 'object' && mainObj.body;
-
-    if (obj && _typeof(obj) === 'object' && key in obj && obj[key] && typeof obj[key] === 'string') {
-      return {
-        value: obj[key]
-      };
-    }
-
-    return false;
-  } : function () {
-    throw new TypeError("Unknown `messageStyle` ".concat(messageStyle));
-  }();
-};
-
-/* eslint-disable max-len */
-
-/**
- * @param {PlainObject} cfg
- * @param {string} [cfg.message] If present, this string will be the return value.
- * @param {false|null|undefined|LocaleObject} [cfg.defaults]
- * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
- * @param {MessageStyleCallback} [cfg.messageForKey] Defaults to getting `MessageStyleCallback` based on `messageStyle`
- * @param {string} cfg.key Key to check against object of strings; used to find a default if no string `message` is provided.
- * @returns {string}
- */
-
-var getStringFromMessageAndDefaults = function getStringFromMessageAndDefaults() {
-  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-      message = _ref.message,
-      defaults = _ref.defaults,
-      messageStyle = _ref.messageStyle,
-      _ref$messageForKey = _ref.messageForKey,
-      messageForKey = _ref$messageForKey === void 0 ? getMessageForKeyByStyle({
-    messageStyle: messageStyle
-  }) : _ref$messageForKey,
-      key = _ref.key;
-
-  if (typeof key !== 'string') {
-    throw new TypeError('An options object with a `key` string is expected on ' + '`getStringFromMessageAndDefaults`');
-  } // NECESSARY CHECK FOR SECURITY ON UNTRUSTED LOCALES
-
-
-  var str;
-
-  if (typeof message === 'string') {
-    str = message;
-  } else if (defaults === false || defaults === undefined || defaults === null) {
-    str = false;
-  } else if (defaults && _typeof(defaults) === 'object') {
-    str = messageForKey({
-      body: defaults
-    }, key);
-
-    if (str) {
-      str = str.value;
-    }
-  } else {
-    throw new TypeError("Default locale strings must resolve to `false`, " + "nullish, or an object!");
-  }
-
-  if (str === false) {
-    throw new Error("Key value not found for key: (".concat(key, ")"));
-  }
-
-  return str;
-};
-
 /* eslint-disable max-len */
 
 /**
@@ -2773,7 +2627,8 @@ var defaultInsertNodes = function defaultInsertNodes(_ref) {
       substitution = switchFormatter.getSubstitution(key, {
         locale: locale,
         usedKeys: usedKeys,
-        arg: arg
+        arg: arg,
+        missingSuppliedFormatters: missingSuppliedFormatters
       });
     } else {
       substitution = substs[key];
@@ -2818,7 +2673,6 @@ var defaultInsertNodes = function defaultInsertNodes(_ref) {
         ky = _ref3.ky,
         arg = _ref3.arg,
         processSubsts = _ref3.processSubsts;
-    console.log('1111');
 
     if (typeof substitution === 'string' && substitution.includes('{')) {
       if (recursiveLocalCount++ > maximumLocalNestingDepth) {
@@ -3007,6 +2861,160 @@ var defaultInsertNodes = function defaultInsertNodes(_ref) {
 
     return node;
   });
+};
+
+/**
+* @typedef {LocaleBody} LocalObject
+*/
+
+/**
+ * May also contain language code and direction, translator name and
+ * contact, etc., but no defaults currently apply besides reserving `locals`
+ * @typedef {PlainObject} LocaleHead
+ * @property {LocalObject} locals
+*/
+
+/**
+* @typedef {LocaleStringBodyObject|PlainLocaleStringBodyObject|PlainObject}
+* LocaleBody
+*/
+
+/**
+* @typedef {PlainObject} LocaleObject
+* @property {LocaleHead} [head]
+* @property {LocaleBody} body
+*/
+
+/**
+* @typedef {PlainObject} MessageStyleCallbackResult
+* @property {string} value Regardless of message style, will contain the
+*   string result
+* @property {LocaleStringSubObject} [info] Full info on the localized item
+*   (for rich message styles only)
+*/
+
+/**
+* @callback MessageStyleCallback
+* @param {LocaleObject} obj The exact
+*   format depends on the `cfg.defaults` of `i18n`
+* @param {string} key
+* @returns {false|MessageStyleCallbackResult} If `false`, will resort to default
+*/
+
+/* eslint-disable max-len */
+
+/**
+ * @param {PlainObject} [cfg]
+ * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
+ * @returns {MessageStyleCallback}
+ */
+var getMessageForKeyByStyle = function getMessageForKeyByStyle() {
+  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      _ref$messageStyle = _ref.messageStyle,
+      messageStyle = _ref$messageStyle === void 0 ? 'richNested' : _ref$messageStyle;
+
+  // Todo: Support `plainNested` style
+  return typeof messageStyle === 'function' ? messageStyle : messageStyle === 'richNested' ? function (mainObj, key) {
+    var obj = mainObj && _typeof(mainObj) === 'object' && mainObj.body;
+    var keys = key.split('.');
+    var ret = false;
+    var currObj = obj;
+    keys.some(function (ky, i, kys) {
+      if (!currObj || _typeof(currObj) !== 'object') {
+        return true;
+      }
+
+      if ( // If specified key is too deep, we should fail
+      i === kys.length - 1 && ky in currObj && currObj[ky] && _typeof(currObj[ky]) === 'object' && 'message' in currObj[ky] && // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
+      typeof currObj[ky].message === 'string') {
+        ret = {
+          value: currObj[ky].message,
+          info: currObj[ky]
+        };
+      }
+
+      currObj = currObj[ky];
+      return false;
+    });
+    return ret;
+  } : messageStyle === 'rich' ? function (mainObj, key) {
+    var obj = mainObj && _typeof(mainObj) === 'object' && mainObj.body;
+
+    if (obj && _typeof(obj) === 'object' && key in obj && obj[key] && _typeof(obj[key]) === 'object' && 'message' in obj[key] && // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
+    typeof obj[key].message === 'string') {
+      return {
+        value: obj[key].message,
+        info: obj[key]
+      };
+    }
+
+    return false;
+  } : messageStyle === 'plain' ? function (mainObj, key) {
+    var obj = mainObj && _typeof(mainObj) === 'object' && mainObj.body;
+
+    if (obj && _typeof(obj) === 'object' && key in obj && obj[key] && typeof obj[key] === 'string') {
+      return {
+        value: obj[key]
+      };
+    }
+
+    return false;
+  } : function () {
+    throw new TypeError("Unknown `messageStyle` ".concat(messageStyle));
+  }();
+};
+
+/* eslint-disable max-len */
+
+/**
+ * @param {PlainObject} cfg
+ * @param {string} [cfg.message] If present, this string will be the return value.
+ * @param {false|null|undefined|LocaleObject} [cfg.defaults]
+ * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
+ * @param {MessageStyleCallback} [cfg.messageForKey] Defaults to getting `MessageStyleCallback` based on `messageStyle`
+ * @param {string} cfg.key Key to check against object of strings; used to find a default if no string `message` is provided.
+ * @returns {string}
+ */
+
+var getStringFromMessageAndDefaults = function getStringFromMessageAndDefaults() {
+  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      message = _ref.message,
+      defaults = _ref.defaults,
+      messageStyle = _ref.messageStyle,
+      _ref$messageForKey = _ref.messageForKey,
+      messageForKey = _ref$messageForKey === void 0 ? getMessageForKeyByStyle({
+    messageStyle: messageStyle
+  }) : _ref$messageForKey,
+      key = _ref.key;
+
+  if (typeof key !== 'string') {
+    throw new TypeError('An options object with a `key` string is expected on ' + '`getStringFromMessageAndDefaults`');
+  } // NECESSARY CHECK FOR SECURITY ON UNTRUSTED LOCALES
+
+
+  var str;
+
+  if (typeof message === 'string') {
+    str = message;
+  } else if (defaults === false || defaults === undefined || defaults === null) {
+    str = false;
+  } else if (defaults && _typeof(defaults) === 'object') {
+    str = messageForKey({
+      body: defaults
+    }, key);
+
+    if (str) {
+      str = str.value;
+    }
+  } else {
+    throw new TypeError("Default locale strings must resolve to `false`, " + "nullish, or an object!");
+  }
+
+  if (str === false) {
+    throw new Error("Key value not found for key: (".concat(key, ")"));
+  }
+
+  return str;
 };
 
 /* eslint-disable max-len */

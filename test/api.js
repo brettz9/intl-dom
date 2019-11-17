@@ -1,4 +1,6 @@
 import {
+  Formatter, LocalFormatter, RegularFormatter,
+  unescapeBackslashes, parseJSONExtra,
   promiseChainForValues,
   defaultLocaleResolver,
   defaultAllSubstitutions,
@@ -12,7 +14,15 @@ import {
 } from '../src/index.js';
 
 describe('API', function () {
+  it('should export utility classes', function () {
+    expect(Formatter).to.be.a('function');
+    expect(LocalFormatter).to.be.a('function');
+    expect(RegularFormatter).to.be.a('function');
+  });
+
   it('should export functions', function () {
+    expect(unescapeBackslashes).to.be.a('function');
+    expect(parseJSONExtra).to.be.a('function');
     expect(promiseChainForValues).to.be.a('function');
     expect(defaultLocaleResolver).to.be.a('function');
     expect(defaultAllSubstitutions).to.be.a('function');
