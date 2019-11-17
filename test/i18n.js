@@ -511,12 +511,30 @@ describe('i18n', function () {
     'locale argument (without extra arguments)',
     async function () {
       const _ = await i18n({
+        allSubstitutions: null,
         locales: ['en-US']
       });
       const string = _('beets', {
         beetCount: {
           number: [123456.4567, {maximumFractionDigits: 5}]
         }
+      });
+      // Only 3 as `maximumFractionDigits` defaults to 3
+      expect(string).to.equal('123,456.457 beets');
+    }
+  );
+
+  it(
+    'should return a function which despite `null` `allSubstitutions` will ' +
+    'perform `NumberFormat` processing with options specified within ' +
+    'locale argument (without extra arguments), directly using number',
+    async function () {
+      const _ = await i18n({
+        allSubstitutions: null,
+        locales: ['en-US']
+      });
+      const string = _('beets', {
+        beetCount: 123456.4567
       });
       // Only 3 as `maximumFractionDigits` defaults to 3
       expect(string).to.equal('123,456.457 beets');
@@ -536,6 +554,22 @@ describe('i18n', function () {
         orangeCount: {
           number: 123456.4567
         }
+      });
+      expect(string).to.equal('123,456.5 oranges');
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `NumberFormat` processing (with options) overridden by ' +
+    'locale argument, directly using number',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('oranges', {
+        oranges: 'oranges',
+        orangeCount: 123456.4567
       });
       expect(string).to.equal('123,456.5 oranges');
     }
