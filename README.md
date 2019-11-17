@@ -422,6 +422,8 @@ allowing for variation in case the term or its translation might change
 TODO:
 including plurals
 
+Todo: Allow substitutions to set plural defaults (which
+        locales can override)
 
 ### Built-in functions
 

@@ -44,13 +44,6 @@ export const defaultInsertNodes = ({
   const localFormatter = new LocalFormatter(locals);
   const regularFormatter = new RegularFormatter(substitutions);
   const switchFormatter = new SwitchFormatter(switches, {substitutions});
-  /*
-  1. Support additional arguments
-    1. Conditionals/Plurals (specific to each format, but should operate
-        with the same inputs/outputs); test
-  2. Other syntaxes
-    1. process `switch` blocks
-  */
 
   // eslint-disable-next-line max-len
   // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex

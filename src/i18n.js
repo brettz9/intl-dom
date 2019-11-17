@@ -70,8 +70,6 @@ export const i18n = async function i18n ({
   }
   const messageForKey = getMessageForKeyByStyle({messageStyle});
   return (key, substitutions, {
-    // Todo: Add option or substitutions which set plural defaults (which
-    //   locales can override)?
     allSubstitutions = defaultAllSubstitutionsValue,
     defaults = defaultDefaults,
     dom = domDefaults,
