@@ -38,6 +38,9 @@ export const defaultInsertNodes = ({
   missingSuppliedFormatters,
   checkExtraSuppliedFormatters
 }) => {
+  if (typeof maximumLocalNestingDepth !== 'number') {
+    throw new TypeError('`maximumLocalNestingDepth` must be a number.');
+  }
   const localFormatter = new LocalFormatter(locals);
   const regularFormatter = new RegularFormatter(substitutions);
   const switchFormatter = new SwitchFormatter(switches, {substitutions});

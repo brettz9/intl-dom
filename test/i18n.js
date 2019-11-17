@@ -4,17 +4,6 @@ import {
 // } from '../dist/index.esm.min.js';
 } from '../src/index.js';
 
-/*
-// Currently covered elsewhere indirectly
-describe('defaultInsertNodes', function () {
-  it('', function () {
-    defaultInsertNodes({
-      string: ''
-    });
-  });
-});
-*/
-
 describe('i18n', function () {
   beforeEach(function () {
     setNavigatorLanguages([]);
