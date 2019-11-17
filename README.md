@@ -189,6 +189,9 @@ potentially hierarchically-nested ones) which are intended to be defined
 privately by the locale, rather than being set (or queries) at runtime by
 the calling script.
 
+These can allow for reuse of frequent strings as well as allow for avoiding
+hard-coding names which could change over time.
+
 The format follows the same key-value or key-object-with-message-and-values
 structure as the formats described under "Message styles".
 
@@ -273,6 +276,11 @@ _('parameterizedLocalUsingKey', {
 Still giving:
 
 > "A warm and sunny day"
+
+Parameterized locals can be particularly useful for a locale indicating
+various grammatical cases of a variable/term and referencing them, again,
+allowing for variation in case the term or its translation might change
+(only the local variable would need to be updated).
 
 ### Conditionals/Plurals (`switches`)
 
