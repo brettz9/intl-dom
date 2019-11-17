@@ -180,6 +180,34 @@ Note that while `richNested` is the default format (including both code-supplied
 formatters and locale-supplied `locals`), `rich` is used in locale `switches`
 since `switches` can have values for which `.` is expected (e.g., decimals).
 
+### Body content
+
+The main keys--of whatever style--are stored within a root `body`:
+
+```json
+{
+  "body": {
+
+  }
+}
+```
+
+The default format of messages processed by `getDOMForLocaleString` (and
+therefore by `i18n` as well), is defined in `defaultInsertNodes`. This
+format has the following features:
+
+1. Regular formatters are found by surrounded by curly brackets
+    (`{formatterKey}`).
+2. A local variable reference has an initial hyphen with curly brackets
+    (`{-localKey}`). See the "Local variables" section.
+3. A conditional/plural (i.e., `switch`) has an initial tilde with curly
+    brackets (`{~switchKey}`). See the "Conditionals/Plurals" section.
+4. Additional arguments can be supplied by adding a pipe symbol (`|`)
+    and the argument(s). The only arguments with any built-in meaning are
+    `NUMBER`,
+5. Literal brackets can be escaped with a single backslash, i.e., `\{`,
+    which, escaped in JSON, becomes `\\{`.
+
 ### Head sections
 
 #### Local variables (`locals`)
@@ -291,6 +319,8 @@ including plurals
 ### Built-in functions
 
 TODO:
+
+Mention current lack of RelativeTimeFormat and ListFormat built-ins?
 
 ### Custom formats
 
