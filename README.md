@@ -128,7 +128,8 @@ to target the `lang` pseudo-class in CSS and allow for locale-specific
 stylesheets.
 
 ```css
-:lang(fr) div.explanationIsLongInFrench {
+:lang(fr) div.explanation {
+  /* As this explanation takes longer in French, make the size smaller */
   font-size: small;
 }
 ```
