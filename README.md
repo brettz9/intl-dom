@@ -109,15 +109,7 @@ constituents, e.g., from `linkFormat`, are not composed in such a manner as
 to treat them all as trusted HTML, . Only the run-time-supplied DOM will be
 treated as a DOM object, while the rest are just pure strings (You must
 still escape or sanitize when injecting into the DOM, e.g., if you are using
-`innerHTML` yourself). (If you need locale-specific styling, it is recommended
-to target the `lang` pseudo-class in CSS and allow for locale-specific
-stylesheets).
-
-```css
-:lang(fr) div.explanationIsLongInFrench {
-  font-size: small;
-}
-```
+`innerHTML` yourself).<sup>1</sup>
 
 This offers security while allowing for flexibility by language as far as
 where the link is placed within the text. There is also no need for
@@ -130,6 +122,16 @@ and date formatting, and list formatting, detailed below, allowing locales
 to implement as per their own needs, without the calling code having to
 be aware of or itself apply formatting rules; the calling code need only
 supply the key and items for substitution.
+
+<sup>1</sup> If you need locale-specific styling, it is recommended
+to target the `lang` pseudo-class in CSS and allow for locale-specific
+stylesheets.
+
+```css
+:lang(fr) div.explanationIsLongInFrench {
+  font-size: small;
+}
+```
 
 ## Installation
 
