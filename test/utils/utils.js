@@ -121,6 +121,12 @@ export const setExpectedData = function () {
       dateKey: {
         message: 'It is {now} {todayDate}'
       },
+      dateWithArgKey: {
+        message: 'It is {now} {todayDate|DATETIME}'
+      },
+      dateWithArgAndOptionsKey: {
+        message: "It is {now} {todayDate|DATETIME|year: 'numeric', month: 'long', day: 'numeric'}"
+      },
       relativeKey: {
         message: 'It was {relativeTime}'
       },
