@@ -427,7 +427,8 @@ including plurals
 
 TODO:
 
-Mention current lack of RelativeTimeFormat and ListFormat built-ins?
+(First add tests for `RelativeTimeFormat` and `ListFormat` built-ins to bring
+coverage back to 100%!)
 
 ## Collation
 
@@ -756,6 +757,8 @@ The default format in `intl-dom` is intended to be compatible with Project
 Fluent, and it should be largely round-trippable (`switches` were added
 to our JSON format to avoid clumsiness in long JSON strings, but these
 are essentially an out-of-line version of Fluent's inline "selectors").
+We did add `RELATIVE` and `LIST` type built-ins, however, and are using
+`PLURAL` instead of `NUMBER` for forced plural options.
 
 ## Credits
 

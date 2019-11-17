@@ -24,6 +24,30 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
     return value;
   }
 
+  const applyArgs = ({type, options = opts, checkArgOptions = false}) => {
+    if (typeof arg === 'string') {
+      const [userType, extraArgs, argOptions] = arg.split('|');
+      if (!extraArgs && !checkArgOptions) {
+        if (userType === type) {
+          options = {};
+        }
+      } else if (
+        userType === type &&
+        (
+          (!checkArgOptions && extraArgs) ||
+          (checkArgOptions && argOptions)
+        )
+      ) {
+        // Todo: Allow escaping and restoring of pipe symbol
+        options = {
+          ...options,
+          ...parseJSONExtra(extraArgs || argOptions)
+        };
+      }
+    }
+    return options;
+  };
+
   let opts, extraOpts;
   if (value && typeof value === 'object') {
     const singleKey = Object.keys(value)[0];
@@ -34,49 +58,38 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
         value = value[singleKey];
       }
 
-      // Todo: Call `applyArgs` for `relative` and `list` options
-      //  so user can call themselves or customize defaults?
-      // RelativeTimeFormat
       if (singleKey === 'relative') {
+        // The second argument actually contains the primary options, so swap
+        [extraOpts, opts] = [opts, extraOpts];
         return new Intl.RelativeTimeFormat(
-          locale, extraOpts
-        ).format(value, opts);
+          locale, applyArgs({type: 'RELATIVE'})
+        ).format(value, extraOpts);
       }
 
       // ListFormat (with Collator)
       if (singleKey === 'list') {
-        value.sort(new Intl.Collator(locale, extraOpts).compare);
-        return new Intl.ListFormat(locale, opts).format(value);
+        value.sort(new Intl.Collator(
+          locale,
+          applyArgs({
+            type: 'LIST', options: extraOpts, checkArgOptions: true
+          })
+        ).compare);
+
+        return new Intl.ListFormat(
+          locale, applyArgs({type: 'LIST'})
+        ).format(value);
       }
       // Let `number` and `date` types drop through so their options
       //  can be applied
     }
   }
 
-  const applyArgs = (type) => {
-    if (typeof arg === 'string') {
-      const extraArgDividerPos = arg.indexOf('|');
-      let userType, extraArgs;
-      if (extraArgDividerPos === -1) {
-        userType = arg;
-        if (userType === type) {
-          opts = {};
-        }
-      } else {
-        userType = arg.slice(0, extraArgDividerPos);
-        if (userType === type) {
-          extraArgs = arg.slice(extraArgDividerPos + 1);
-          // Todo: Allow escaping and restoring of pipe symbol
-          opts = {...opts, ...parseJSONExtra(extraArgs)};
-        }
-      }
-    }
-    return opts;
-  };
-
   // Numbers
   if (typeof value === 'number') {
-    return new Intl.NumberFormat(locale, applyArgs('NUMBER')).format(value);
+    return new Intl.NumberFormat(
+      locale,
+      applyArgs({type: 'NUMBER'})
+    ).format(value);
   }
 
   // Dates
@@ -84,7 +97,10 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
     value && typeof value === 'object' &&
     typeof value.getTime === 'function'
   ) {
-    return new Intl.DateTimeFormat(locale, applyArgs('DATETIME')).format(value);
+    return new Intl.DateTimeFormat(
+      locale,
+      applyArgs({type: 'DATETIME'})
+    ).format(value);
   }
 
   // console.log('value', value);
