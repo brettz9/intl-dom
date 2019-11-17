@@ -244,7 +244,8 @@ export const setExpectedData = function () {
   this.expectedPlainStyleObject = {
     head: {},
     body: {
-      key: 'myKeyValue'
+      key: 'myKeyValue',
+      message: 'myMessage'
     }
   };
   this.expectedRichStyleObject = {
@@ -252,6 +253,9 @@ export const setExpectedData = function () {
     body: {
       key: {
         message: 'myKeyValue'
+      },
+      'key.with.dots': {
+        message: 'keyWithDotsValue'
       }
     }
   };

@@ -91,6 +91,9 @@ describe('getMessageForKeyByStyle', function () {
         body: {
           key: {
             message: 'myKeyValue'
+          },
+          'key.with.dots': {
+            message: 'keyWithDotsValue'
           }
         }
       };
@@ -99,6 +102,12 @@ describe('getMessageForKeyByStyle', function () {
       );
       expect(func(localeObj, 'key').info).to.deep.equal(
         this.expectedRichStyleObject.body.key
+      );
+      expect(func(localeObj, 'key.with.dots').value).to.equal(
+        this.expectedRichStyleObject.body['key.with.dots'].message
+      );
+      expect(func(localeObj, 'key.with.dots').info).to.deep.equal(
+        this.expectedRichStyleObject.body['key.with.dots']
       );
       expect(func(localeObj, 'missingKey')).to.equal(false);
     });
@@ -149,6 +158,9 @@ describe('getMessageForKeyByStyle', function () {
       });
       expect(func(this.expectedPlainStyleObject, 'key').value).to.equal(
         this.expectedPlainStyleObject.body.key
+      );
+      expect(func(this.expectedPlainStyleObject, 'message').value).to.equal(
+        this.expectedPlainStyleObject.body.message
       );
       expect(func(this.expectedPlainStyleObject, 'missingKey')).to.equal(false);
     });
