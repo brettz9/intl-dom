@@ -38,7 +38,7 @@ English, as the pattern for all locales. For example, they might have:
 {
   "linkIntro": "Here is the ",
   "linkURL": "http://example.com",
-  "linkText": "link",
+  "linkText": "cool link",
   "linkEnd": "I was talking about"
 }
 ```
@@ -67,7 +67,7 @@ within their locales, e.g.:
 
 ```json
 {
-  "someKey": "Here is the <a href=\"http://example.com\">link</a> I was talking about"
+  "someKey": "Here is the <a href=\"http://example.com\">cool link</a> I was talking about"
 }
 ```
 
@@ -98,6 +98,25 @@ link.href = _('linkURL');
 link.textContent = _('linkText');
 
 const linkDOM = _('linkFormat', {link});
+
+// The following fragment, which can be appended, is built:
+
+// "Here is the <a href="http://example.com">cool link</a> I was talking about"
+```
+
+Note that while the resulting `linkDOM` is a DOM element, the
+constituents, e.g., from `linkFormat`, are not composed in such a manner as
+to treat them all as trusted HTML, . Only the run-time-supplied DOM will be
+treated as a DOM object, while the rest are just pure strings (You must
+still escape or sanitize when injecting into the DOM, e.g., if you are using
+`innerHTML` yourself). (If you need locale-specific styling, it is recommended
+to target the `lang` pseudo-class in CSS and allow for locale-specific
+stylesheets).
+
+```css
+:lang(fr) div.explanationIsLongInFrench {
+  font-size: small;
+}
 ```
 
 This offers security while allowing for flexibility by language as far as
@@ -107,7 +126,10 @@ code adds whole segments to the DOM (e.g., a whole paragraph, or in this
 case a link with the surrounding text).
 
 `intl-dom` also takes advantage of facilities for pluralization, number
-and date formatting, and list formatting, detailed below.
+and date formatting, and list formatting, detailed below, allowing locales
+to implement as per their own needs, without the calling code having to
+be aware of or itself apply formatting rules; the calling code need only
+supply the key and items for substitution.
 
 ## Installation
 
