@@ -176,9 +176,9 @@ _('key.that.is.nested');
 
 (This comes at the cost of reserving `.` for references.)
 
-Note that while `richNested` is the default format, `rich` is used in its
-place for `switches` since `switches` can have values for which `.` is
-expected (e.g., decimals).
+Note that while `richNested` is the default format (including both code-supplied
+formatters and locale-supplied `locals`), `rich` is used in locale `switches`
+since `switches` can have values for which `.` is expected (e.g., decimals).
 
 ### Head sections
 
@@ -216,6 +216,63 @@ initial hyphen within curly brackets:
   }
 }
 ```
+
+`richNested` can target nested locals with dots:
+
+```json
+{
+  "nestedUsingKey": {
+    "message": "There is {-nested.local}"
+  }
+}
+```
+
+Locals can also be passed parameters, where the parameters are expressed as
+JSON <!--
+// https://github.com/d3x0r/JSON6/issues/18
+[JSON5](https://github.com/json5/json5),
+--> or [JSON6](https://github.com/d3x0r/JSON6) objects, dropping the
+curly brackets:
+
+```json
+{
+  "parameterizedLocalUsingKey": {
+    "message": "A {-aParameterizedLocalVar|adjective1: \"warm\", adjective2: \"sunny\"}"
+  }
+}
+```
+
+The keys `adjective1` and `adjective2` would then be substituted within `aParameterizedLocalVar` within `locals` as in the following:
+
+```json
+{
+  "locals": {
+    "aParameterizedLocalVar":  {
+      "message": "{adjective1} and {adjective2} day"
+    }
+  }
+}
+```
+
+...producing:
+
+> "A warm and sunny day"
+
+Note that the the locals key message can, as with the main key message,
+include regular substitution formatter references, but if a substitution
+formatter is of the same name as the parameter, the locale-supplied
+parameters take precedence, i.e., with the above locale, the following
+would produce the same result despite supplying its own `adjective1`:
+
+```js
+_('parameterizedLocalUsingKey', {
+  adjective1: 'cold'
+});
+```
+
+Still giving:
+
+> "A warm and sunny day"
 
 ### Conditionals/Plurals (`switches`)
 

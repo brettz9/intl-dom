@@ -923,6 +923,22 @@ describe('i18n', function () {
   );
 
   it(
+    'should return function that can return a string based on ' +
+    'resolving of a local parameterized variable, ignoring supplied ' +
+    'formatter of the same name',
+    async function () {
+      const _ = await i18n();
+      const string = _('parameterizedLocalUsingKey', {
+        subst: 'substitution',
+        adjective1: 'cold'
+      });
+      expect(string).to.equal(
+        'A warm and sunny day; substitution; with a substitution'
+      );
+    }
+  );
+
+  it(
     'should return function that can return a fragment based on ' +
     'resolving of a local parameterized variable',
     async function () {
