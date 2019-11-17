@@ -30,5 +30,7 @@ setTimeout(() => {
     // eslint-disable-next-line global-require
     process.chdir(require('path').resolve(__dirname, '../browser'));
   }
+  // Delayed mocha beginning for sake of `process.chdir` which cannot
+  //  be added earlier or it will hide tests themselves
   run();
 });
