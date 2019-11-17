@@ -322,6 +322,17 @@ TODO:
 
 Mention current lack of RelativeTimeFormat and ListFormat built-ins?
 
+## Collation
+
+--TODO
+
+Collator (demo complex use and refer to how making default for simple cases with `ListFormat`)
+
+- Handle at level *after* retrieving localized items yet before insertion into
+  DOM template (however, potentially an intl-dom localized template)
+  - [Collation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator)
+    - Use `localeMatcher`, e.g., if "lookup" or "best fit" otherwise
+
 ### Custom formats
 
 (TODO: move this section above also)
@@ -617,18 +628,27 @@ used internally for locale discovery but made available for reuse.)
 (This may be swapped out in the future for an equivalent third-party
 Promise utility.)
 
-## Collation
-
---TODO
-
-Collator (demo complex use and refer to how making default for simple cases with `ListFormat`)
-
-- Handle at level *after* retrieving localized items yet before insertion into
-  DOM template (however, potentially an intl-dom localized template)
-  - [Collation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator)
-    - Use `localeMatcher`, e.g., if "lookup" or "best fit" otherwise
+### Server code
 
 --TODO:  Example where server script produces global and is fed
+
+## FAQ
+
+### Why are you using your own JSON format over the Fluent file format?
+
+While I am open to adding built-in support for the Fluent file format,
+I felt more comfortable using JSON for starters, because:
+
+1. It is well-known and developers are comfortable parsing it, e.g.,
+    to develop translation interfaces.
+2. JSON may be more adaptable to some environments like WebExtension
+    add-ons (though our default syntax expects `head` and `body`, these
+    should be fairly readily convertible programmatically).
+
+The default format in `intl-dom` is intended to be compatible with Project
+Fluent, and it should be largely round-trippable (`switches` were added
+to our JSON format to avoid clumsiness in long JSON strings, but these
+are essentially an out-of-line version of Fluent's inline "selectors").
 
 ## Credits
 
