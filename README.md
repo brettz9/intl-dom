@@ -109,7 +109,7 @@ constituents, e.g., from `linkFormat`, are not composed in such a manner as
 to treat them all as trusted HTML, . Only the run-time-supplied DOM will be
 treated as a DOM object, while the rest are just pure strings (You must
 still escape or sanitize when injecting into the DOM, e.g., if you are using
-`innerHTML` yourself).<sup>1</sup>
+`innerHTML` yourself.<sup>1</sup>)
 
 This offers security while allowing for flexibility by language as far as
 where the link is placed within the text. There is also no need for
