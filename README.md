@@ -232,7 +232,7 @@ JSON <!--
 // https://github.com/d3x0r/JSON6/issues/18
 [JSON5](https://github.com/json5/json5),
 --> or [JSON6](https://github.com/d3x0r/JSON6) objects, dropping the
-curly brackets:
+outer curly brackets:
 
 ```json
 {
