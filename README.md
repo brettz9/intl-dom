@@ -286,8 +286,11 @@ TODO:
 
 ### Custom formats
 
-You can define your own (JSON) formats. See the `localeResolver`
-argument to `i18n`.
+(TODO: move this section above also)
+
+You can define your own (JSON) formats.
+
+TODO:
 
 ## API
 
@@ -591,7 +594,8 @@ Collator (demo complex use and refer to how making default for simple cases with
 
 ## Credits
 
-This project has been heavily inspired by [Fluent](https://projectfluent.org/fluent/guide/).
+This project has been heavily inspired by
+[Fluent](https://projectfluent.org/fluent/guide/).
 
 ## See also
 
