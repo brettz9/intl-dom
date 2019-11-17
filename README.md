@@ -91,10 +91,11 @@ global.fetch = fileFetch;
 
 ## Message styles
 
-There are two built-in formats which you can specify for obtaining messages
-out of locale files or objects.
+There are three built-in formats which you can specify for obtaining messages
+out of locale files or objects (detailed in the "Built-in styles"
+subsections below).
 
-Both of the default styles have the following high-level structure:
+All of the built-in styles have the following high-level structure:
 
 ```json
 {
@@ -111,13 +112,15 @@ The `head` is optional, but it can be used to store:
     dynamically from a locale); one might also use:
     [i18nizeElement](https://github.com/brettz9/i18nizeElement)
 2. Translator name and/or contact info
-3. Local variables (See the "Local variables" section)
-4. Switches (See the "Switches (Conditionals (including plurals))" section)
+3. `locals` - See the "Local variables" section
+4. `switches` - See the "Conditionals/Plurals" section
 
-### "plain"
+### Built-in styles
 
-This format is just a simple key-value map. Its advantage is in its brevity,
-and its disadvantage is that additional meta-data cannot be added inline,
+#### "plain"
+
+This format is just a simple key-value map. Its advantage is in its brevity.
+Its disadvantage is that additional meta-data cannot be added inline,
 e.g., a `description` of the locale entry (see the "rich" format).
 
 ```json
@@ -127,7 +130,7 @@ e.g., a `description` of the locale entry (see the "rich" format).
 }
 ```
 
-### "rich"
+#### "rich"
 
 This format is used in the likes of Chrome/WebExtensions i18n. Its
 advantage lies in being able to add other meta-data such as `description`
@@ -146,20 +149,56 @@ to represent simple messages.
 }
 ```
 
-### Local variables
+#### `richNested`
 
-In the `head` is a property `locals` for storing localized strings (including potentially hierarchically-nested ones) which are intended for reading variables set within the locale, rather than variables set at runtime by the calling script.
+This format is follows the same format as `rich`, though it allows nested
+keys:
 
-The format follows the same key-value or key-object-with-message-and-values structure
-as the formats described under "Message styles".
+```json
+  {
+    "key": {
+      "that": {
+        "is": {
+          "nested": {
+            "message": "myKeyValue"
+          }
+        }
+      }
+    }
+  }
+```
 
-So for the "rich" style, it might look like:
+Such keys are referenced with a `.` separator:
+
+```js
+_('key.that.is.nested');
+```
+
+(This comes at the cost of reserving `.` for references.)
+
+Note that while `richNested` is the default format, `rich` is used in its
+place for `switches` since `switches` can have values for which `.` is
+expected (e.g., decimals).
+
+### Head sections
+
+#### Local variables (`locals`)
+
+In the `head` is a property `locals` for storing localized strings (including
+potentially hierarchically-nested ones) which are intended to be defined
+privately by the locale, rather than being set (or queries) at runtime by
+the calling script.
+
+The format follows the same key-value or key-object-with-message-and-values
+structure as the formats described under "Message styles".
+
+So for the "rich" (or "richNested") style, it might look like:
 
 ```json
 {
   "head": {
     "locals": {
-      "aKey": {
+      "aLocalVar": {
         "message": "Value of key that can be referenced elsewhere in the locale"
       }
     }
@@ -167,14 +206,24 @@ So for the "rich" style, it might look like:
 }
 ```
 
+A locale string in the `body` can then reference such locals with an
+initial hyphen within curly brackets:
+
+```json
+{
+  "localUsingKey": {
+    "message": "Here is {-aLocalVar}"
+  }
+}
+```
+
+### Conditionals/Plurals (`switches`)
+
 TODO:
-To reference local variables...
+including plurals
+
 
 ### Built-in functions
-
-TODO:
-
-### Switches (Conditionals (including plurals))
 
 TODO:
 
