@@ -27,6 +27,88 @@ HTML to be interspersed within the text as suitable for that language
 A number of other facilities are available: for pluralization; number,
 date-time and relative time formatting; and list sorting.
 
+## Project rationale by example
+
+Let's say you have a sentence to internationalize, and it has a link.
+
+Some projects might attempt to compose the HTML in pieces, using, e.g.,
+English, as the pattern for all locales. For example, they might have:
+
+```json
+{
+  "linkIntro": "Here is the ",
+  "linkURL": "http://example.com",
+  "linkText": "link",
+  "linkEnd": "I was talking about"
+}
+```
+
+The calling code might then compose these:
+
+```js
+const link = _('linkIntro') +
+  '<a href="' + encodeURI(_('linkURL')) + '">' +
+  escapeHTML(_('linkText')) +
+  '</a>' +
+  _('linkEnd');
+```
+
+This approach suffers from being English-dependent. Some languages might put
+the link at the beginning or end only, or otherwise have different text as an
+intro or conclusion than the corresponding English. Worse, if the calling code
+only allowed for an intro or conclusion, the locale might have no choice but
+to add the link at the end, even if it is not suitable for that language.
+
+And adding language-specific code, e.g., adding a conclusion if the locale is
+Spanish, etc., is not a well-maintainable solution.
+
+Some projects might instead attempt to solve this by allowing HTML strings
+within their locales, e.g.:
+
+```json
+{
+  "someKey": "Here is the <a href=\"http://example.com\">link</a> I was talking about"
+}
+```
+
+The problem with this approach is that, besides being unsafe (if the locale
+designers don't know HTML or are untrusted sources which are not thoroughly
+vetted), such inclusion of code makes it more difficult to change the HTML
+structure. If you wanted to add a `target` attribute, for example, you would
+need to do so to all locale files.
+
+`intl-dom` therefore uses an approach like this:
+
+```json
+{
+  "linkFormat": "Here is the {link} I was talking about",
+  "linkURL": "http://example.com",
+  "linkText": "cool link"
+}
+```
+
+...where the calling code could look like:
+
+```js
+
+const link = document.createElement('a');
+link.href = _('linkURL');
+
+// Use `textContent` instead of `innerHTML` in case locale uses HTML characters
+link.textContent = _('linkText');
+
+const linkDOM = _('linkFormat', {link});
+```
+
+This offers security while allowing for flexibility by language as far as
+where the link is placed within the text. There is also no need for
+locale-specific handling within the calling code as long as the calling
+code adds whole segments to the DOM (e.g., a whole paragraph, or in this
+case a link with the surrounding text).
+
+`intl-dom` also takes advantage of facilities for pluralization, number
+and date formatting, and list formatting, detailed below.
+
 ## Installation
 
 ```shell
