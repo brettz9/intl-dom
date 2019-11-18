@@ -130,6 +130,12 @@ export const setExpectedData = function () {
       relativeKey: {
         message: 'It was {relativeTime}'
       },
+      relativeWithArgKey: {
+        message: 'It was {relativeTime|RELATIVE}'
+      },
+      relativeWithArgAndOptionsKey: {
+        message: 'It was {relativeTime|RELATIVE|style: "long"}'
+      },
       listKey: {
         message: 'The list is: {listItems}'
       },

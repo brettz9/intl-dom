@@ -399,7 +399,7 @@ describe('i18n', function () {
   it(
     'should return a function which despite `null` `allSubstitutions` will ' +
     'perform `DateTimeFormat` processing with options overridden by ' +
-    'locale argument',
+    'locale argument (with options)',
     async function () {
       const _ = await i18n({
         allSubstitutions: null,
@@ -733,6 +733,100 @@ describe('i18n', function () {
         }
       });
       expect(string).to.equal('It was 3 mo. ago');
+    }
+  );
+
+  it(
+    'should return a function which despite `null` `allSubstitutions` will ' +
+    'perform `RelativeTimeFormat` processing with options overridden by ' +
+    'locale argument',
+    async function () {
+      const _ = await i18n({
+        allSubstitutions: null,
+        locales: ['en-US']
+      });
+      const string = _('relativeWithArgKey', {
+        relativeTime: {
+          relative: [
+            -3,
+            'month',
+            {
+              style: 'short'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal('It was 3 months ago');
+    }
+  );
+
+  it(
+    'should return a function with default `allSubstitutions` will ' +
+    'perform `RelativeTimeFormat` processing with options overridden by ' +
+    'locale argument',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('relativeWithArgKey', {
+        relativeTime: {
+          relative: [
+            -3,
+            'month',
+            {
+              style: 'short'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal('It was 3 months ago');
+    }
+  );
+
+  it(
+    'should return a function which despite `null` `allSubstitutions` will ' +
+    'perform `RelativeTimeFormat` processing with options overridden by ' +
+    'locale argument (with options)',
+    async function () {
+      const _ = await i18n({
+        allSubstitutions: null,
+        locales: ['en-US']
+      });
+      const string = _('relativeWithArgAndOptionsKey', {
+        relativeTime: {
+          relative: [
+            -3,
+            'month',
+            {
+              style: 'short'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal('It was 3 months ago');
+    }
+  );
+
+  it(
+    'should return a function with default `allSubstitutions` will ' +
+    'perform `RelativeTimeFormat` processing with options overridden by ' +
+    'locale argument (with options)',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('relativeWithArgAndOptionsKey', {
+        relativeTime: {
+          relative: [
+            -3,
+            'month',
+            {
+              style: 'short'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal('It was 3 months ago');
     }
   );
 

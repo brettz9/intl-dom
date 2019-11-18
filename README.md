@@ -429,7 +429,7 @@ Todo: Allow substitutions to set plural defaults (which
 
 TODO:
 
-(First add tests for `RelativeTimeFormat` and `ListFormat` built-ins to bring
+(First add tests for `ListFormat` built-ins to bring
 coverage back to 100%!)
 
 ## Collation
