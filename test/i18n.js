@@ -738,7 +738,7 @@ describe('i18n', function () {
 
   it(
     'should return a function whose default `allSubstitutions` will ' +
-    'perform `RelativeTimeFormat` processing (inheriting formatter options)',
+    'perform `ListFormat` processing (inheriting formatter options)',
     async function () {
       const _ = await i18n({
         locales: ['en-US']
