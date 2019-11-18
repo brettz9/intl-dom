@@ -857,6 +857,60 @@ describe('i18n', function () {
   );
 
   it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `ListFormat` processing with options overridden by ' +
+    'locale argument',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('listWithArgKey', {
+        listItems: {
+          list: [
+            [
+              'a', 'z', 'ä', 'a'
+            ],
+            {
+              type: 'disjunction'
+            },
+            {
+              sensitivity: 'base'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal('The list is: a, a, ä, and z');
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `ListFormat` processing with options overridden by ' +
+    'locale argument (with options)',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('listWithArgAndOptionsKey', {
+        listItems: {
+          list: [
+            [
+              'a', 'z', 'ä', 'a'
+            ],
+            {
+              type: 'disjunction'
+            },
+            {
+              sensitivity: 'base'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal('The list is: a, a, ä, and z');
+    }
+  );
+
+  it(
     'should return a function that accepts an `allSubstitutions` array of ' +
     'functions to apply to all callback calls',
     async function () {

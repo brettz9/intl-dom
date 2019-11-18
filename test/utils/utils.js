@@ -139,6 +139,12 @@ export const setExpectedData = function () {
       listKey: {
         message: 'The list is: {listItems}'
       },
+      listWithArgKey: {
+        message: 'The list is: {listItems|LIST}'
+      },
+      listWithArgAndOptionsKey: {
+        message: 'The list is: {listItems|LIST|style: "long", type: "conjunction"|sensitivity: "variant"}'
+      },
       localUsingKey: {
         message: 'Here is {-aLocalVar}'
       },

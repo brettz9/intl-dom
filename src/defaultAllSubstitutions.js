@@ -27,7 +27,7 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
   const applyArgs = ({type, options = opts, checkArgOptions = false}) => {
     if (typeof arg === 'string') {
       const [userType, extraArgs, argOptions] = arg.split('|');
-      if (!extraArgs && !checkArgOptions) {
+      if (!extraArgs) {
         if (userType === type) {
           options = {};
         }
@@ -41,7 +41,9 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
         // Todo: Allow escaping and restoring of pipe symbol
         options = {
           ...options,
-          ...parseJSONExtra(extraArgs || argOptions)
+          ...parseJSONExtra(
+            checkArgOptions && argOptions ? argOptions : extraArgs
+          )
         };
       }
     }
@@ -74,7 +76,6 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
             type: 'LIST', options: extraOpts, checkArgOptions: true
           })
         ).compare);
-
         return new Intl.ListFormat(
           locale, applyArgs({type: 'LIST'})
         ).format(value);
