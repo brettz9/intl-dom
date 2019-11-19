@@ -2486,6 +2486,33 @@
       return value;
     }
 
+    var applyArgs = function applyArgs(_ref2) {
+      var type = _ref2.type,
+          _ref2$options = _ref2.options,
+          options = _ref2$options === void 0 ? opts : _ref2$options,
+          _ref2$checkArgOptions = _ref2.checkArgOptions,
+          checkArgOptions = _ref2$checkArgOptions === void 0 ? false : _ref2$checkArgOptions;
+
+      if (typeof arg === 'string') {
+        var _arg$split = arg.split('|'),
+            _arg$split2 = _slicedToArray(_arg$split, 3),
+            userType = _arg$split2[0],
+            extraArgs = _arg$split2[1],
+            argOptions = _arg$split2[2];
+
+        if (!extraArgs) {
+          if (userType === type) {
+            options = {};
+          }
+        } else if (userType === type && (!checkArgOptions && extraArgs || checkArgOptions && argOptions)) {
+          // Todo: Allow escaping and restoring of pipe symbol
+          options = _objectSpread2({}, options, {}, parseJSONExtra(checkArgOptions && argOptions ? argOptions : extraArgs));
+        }
+      }
+
+      return options;
+    };
+
     var opts, extraOpts;
 
     if (value && _typeof(value) === 'object') {
@@ -2500,58 +2527,46 @@
           extraOpts = _value$singleKey[2];
         } else {
           value = value[singleKey];
-        } // Todo: Call `applyArgs` for `relative` and `list` options
-        //  so user can call themselves or customize defaults?
-        // RelativeTimeFormat
-
+        }
 
         if (singleKey === 'relative') {
-          return new Intl.RelativeTimeFormat(locale, extraOpts).format(value, opts);
+          // The second argument actually contains the primary options, so swap
+          var _ref3 = [opts, extraOpts];
+          extraOpts = _ref3[0];
+          opts = _ref3[1];
+          return new Intl.RelativeTimeFormat(locale, applyArgs({
+            type: 'RELATIVE'
+          })).format(value, extraOpts);
         } // ListFormat (with Collator)
 
 
         if (singleKey === 'list') {
-          value.sort(new Intl.Collator(locale, extraOpts).compare);
-          return new Intl.ListFormat(locale, opts).format(value);
+          value.sort(new Intl.Collator(locale, applyArgs({
+            type: 'LIST',
+            options: extraOpts,
+            checkArgOptions: true
+          })).compare);
+          return new Intl.ListFormat(locale, applyArgs({
+            type: 'LIST'
+          })).format(value);
         } // Let `number` and `date` types drop through so their options
         //  can be applied
 
       }
-    }
-
-    var applyArgs = function applyArgs(type) {
-      if (typeof arg === 'string') {
-        var extraArgDividerPos = arg.indexOf('|');
-        var userType, extraArgs;
-
-        if (extraArgDividerPos === -1) {
-          userType = arg;
-
-          if (userType === type) {
-            opts = {};
-          }
-        } else {
-          userType = arg.slice(0, extraArgDividerPos);
-
-          if (userType === type) {
-            extraArgs = arg.slice(extraArgDividerPos + 1); // Todo: Allow escaping and restoring of pipe symbol
-
-            opts = _objectSpread2({}, opts, {}, parseJSONExtra(extraArgs));
-          }
-        }
-      }
-
-      return opts;
-    }; // Numbers
+    } // Numbers
 
 
     if (typeof value === 'number') {
-      return new Intl.NumberFormat(locale, applyArgs('NUMBER')).format(value);
+      return new Intl.NumberFormat(locale, applyArgs({
+        type: 'NUMBER'
+      })).format(value);
     } // Dates
 
 
     if (value && _typeof(value) === 'object' && typeof value.getTime === 'function') {
-      return new Intl.DateTimeFormat(locale, applyArgs('DATETIME')).format(value);
+      return new Intl.DateTimeFormat(locale, applyArgs({
+        type: 'DATETIME'
+      })).format(value);
     } // console.log('value', value);
 
 
@@ -2599,19 +2614,16 @@
         maximumLocalNestingDepth = _ref$maximumLocalNest === void 0 ? 3 : _ref$maximumLocalNest,
         missingSuppliedFormatters = _ref.missingSuppliedFormatters,
         checkExtraSuppliedFormatters = _ref.checkExtraSuppliedFormatters;
+
+    if (typeof maximumLocalNestingDepth !== 'number') {
+      throw new TypeError('`maximumLocalNestingDepth` must be a number.');
+    }
+
     var localFormatter = new LocalFormatter(locals);
     var regularFormatter = new RegularFormatter(substitutions);
     var switchFormatter = new SwitchFormatter(switches, {
       substitutions: substitutions
-    });
-    /*
-    1. Support additional arguments
-      1. Conditionals/Plurals (specific to each format, but should operate
-          with the same inputs/outputs); test
-    2. Other syntaxes
-      1. process `switch` blocks
-    */
-    // eslint-disable-next-line max-len
+    }); // eslint-disable-next-line max-len
     // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
 
     var formattingRegex = /(\\*)\{((?:(?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])|\\\})*?)(?:(\|)((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g;
@@ -2660,7 +2672,7 @@
             locale: locale
           });
         }, substitution);
-      } else if (arg && arg.match(/^(?:NUMBER|DATE)(?:\||$)/)) {
+      } else if (arg && arg.match(/^(?:NUMBER|DATETIME|RELATIVE|LIST)(?:\||$)/)) {
         substitution = defaultAllSubstitutions({
           value: substitution,
           arg: arg,
