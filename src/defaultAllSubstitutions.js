@@ -34,7 +34,7 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
       } else if (
         userType === type &&
         (
-          (!checkArgOptions && extraArgs) ||
+          (!checkArgOptions) ||
           (checkArgOptions && argOptions)
         )
       ) {
