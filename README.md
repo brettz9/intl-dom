@@ -1,4 +1,4 @@
-[![npm](http://img.shields.io/npm/v/intl-dom.svg)](https://www.npmjs.com/package/intl-dom)
+[![npm](https://img.shields.io/npm/v/intl-dom.svg)](https://www.npmjs.com/package/intl-dom)
 [![Dependencies](https://img.shields.io/david/brettz9/intl-dom.svg)](https://david-dm.org/brettz9/intl-dom)
 [![devDependencies](https://img.shields.io/david/dev/brettz9/intl-dom.svg)](https://david-dm.org/brettz9/intl-dom?type=dev)
 
@@ -37,7 +37,7 @@ English, as the pattern for all locales. For example, they might have:
 ```json
 {
   "linkIntro": "Here is the ",
-  "linkURL": "http://example.com",
+  "linkURL": "https://example.com",
   "linkText": "cool link",
   "linkEnd": "I was talking about"
 }
@@ -67,7 +67,7 @@ within their locales, e.g.:
 
 ```json
 {
-  "someKey": "Here is the <a href=\"http://example.com\">cool link</a> I was talking about"
+  "someKey": "Here is the <a href=\"https://example.com\">cool link</a> I was talking about"
 }
 ```
 
@@ -82,7 +82,7 @@ need to do so to all locale files.
 ```json
 {
   "linkFormat": "Here is the {link} I was talking about",
-  "linkURL": "http://example.com",
+  "linkURL": "https://example.com",
   "linkText": "cool link"
 }
 ```
@@ -101,7 +101,7 @@ const linkDOM = _('linkFormat', {link});
 
 // The following fragment, which can be appended, is built:
 
-// "Here is the <a href="http://example.com">cool link</a> I was talking about"
+// "Here is the <a href="https://example.com">cool link</a> I was talking about"
 ```
 
 Note that while the resulting `linkDOM` is a DOM element, the
