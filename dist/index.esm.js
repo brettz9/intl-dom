@@ -2498,7 +2498,7 @@ var defaultAllSubstitutions = function defaultAllSubstitutions(_ref) {
         if (userType === type) {
           options = {};
         }
-      } else if (userType === type && (!checkArgOptions || checkArgOptions && argOptions)) {
+      } else if (userType === type && (!checkArgOptions || argOptions)) {
         // Todo: Allow escaping and restoring of pipe symbol
         options = _objectSpread2({}, options, {}, parseJSONExtra(checkArgOptions && argOptions ? argOptions : extraArgs));
       }
