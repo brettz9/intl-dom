@@ -68,13 +68,13 @@ function _objectSpread2(target) {
     var source = arguments[i] != null ? arguments[i] : {};
 
     if (i % 2) {
-      ownKeys(source, true).forEach(function (key) {
+      ownKeys(Object(source), true).forEach(function (key) {
         _defineProperty(target, key, source[key]);
       });
     } else if (Object.getOwnPropertyDescriptors) {
       Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
     } else {
-      ownKeys(source).forEach(function (key) {
+      ownKeys(Object(source)).forEach(function (key) {
         Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
       });
     }
@@ -2498,7 +2498,7 @@ var defaultAllSubstitutions = function defaultAllSubstitutions(_ref) {
         if (userType === type) {
           options = {};
         }
-      } else if (userType === type && (!checkArgOptions && extraArgs || checkArgOptions && argOptions)) {
+      } else if (userType === type && (!checkArgOptions || checkArgOptions && argOptions)) {
         // Todo: Allow escaping and restoring of pipe symbol
         options = _objectSpread2({}, options, {}, parseJSONExtra(checkArgOptions && argOptions ? argOptions : extraArgs));
       }
