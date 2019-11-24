@@ -33,10 +33,7 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
         }
       } else if (
         userType === type &&
-        (
-          (!checkArgOptions) ||
-          (checkArgOptions && argOptions)
-        )
+        (!checkArgOptions || argOptions)
       ) {
         // Todo: Allow escaping and restoring of pipe symbol
         options = {
