@@ -71,5 +71,7 @@ module.exports = {
     SharedArrayBuffer: 'readonly'
   },
   rules: {
+    // https://github.com/sindresorhus/eslint-plugin-unicorn/issues/446
+    'unicorn/regex-shorthand': 0
   }
 };
