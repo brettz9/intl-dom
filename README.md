@@ -212,13 +212,9 @@ global.fetch = fileFetch;
 // Now you can use the `intl-dom` methods
 ```
 
-## Message styles
+## Document Structure
 
-There are three built-in formats which you can specify for obtaining messages
-out of locale files or objects (detailed in the "Built-in styles"
-subsections below).
-
-All of the built-in styles have the following high-level structure:
+All of the locale built-in styles have the following high-level structure:
 
 ```json
 {
@@ -227,6 +223,12 @@ All of the built-in styles have the following high-level structure:
   }
 }
 ```
+
+## Message styles
+
+There are three built-in formats which you can specify for obtaining messages
+out of locale files or objects (detailed in the "Built-in styles"
+subsections below).
 
 The `head` is optional, but it can be used to store:
 
@@ -313,7 +315,7 @@ _('key.that.is.nested');
 It is the default style for code-supplied formatters and locale-supplied
 `locals`.
 
-### Body content
+## Body content
 
 The main keys--of whatever style--are stored within a root `body`:
 
@@ -344,9 +346,9 @@ format has the following features:
 5. Literal brackets can be escaped with a single backslash, i.e., `\{`,
     which, escaped in JSON, becomes `\\{`.
 
-### Head sections
+## Head sections
 
-#### Local variables (`locals`)
+### Local variables (`locals`)
 
 In the `head` is a property `locals` for storing localized strings (including
 potentially hierarchically-nested ones) which are intended to be defined
@@ -482,7 +484,7 @@ To adapt an example from the project that inspired much of this one,
 }
 ```
 
-### Built-in functions
+## Built-in functions
 
 TODO:
 
@@ -497,7 +499,7 @@ Collator (demo complex use and refer to how making default for simple cases with
   - [Collation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator)
     - Use `localeMatcher`, e.g., if "lookup" or "best fit" otherwise
 
-### Custom formats
+## Custom formats
 
 (TODO: move this section above also)
 
