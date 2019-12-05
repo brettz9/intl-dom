@@ -125,6 +125,23 @@ export class SwitchFormatter extends Formatter {
         const {value, options} = getFormatterInfo({
           object: formatterValue[singleKey]
         });
+        const typeMatches = singleKey.toUpperCase() === type;
+        if (!typeMatches) {
+          throw new TypeError(
+            `Expecting type "${type}"; instead found "${singleKey}"`
+          );
+        }
+        switch (type) {
+        case 'NUMBER':
+          match = getNumberFormat(formatterValue, options);
+          break;
+        case 'PLURAL':
+          match = getPluralFormat(formatterValue, options);
+          break;
+        default:
+          match = new Intl.PluralRules(locale).select(formatterValue);
+          break;
+        }
         // eslint-disable-next-line default-case
         switch (singleKey) {
         case 'number':
