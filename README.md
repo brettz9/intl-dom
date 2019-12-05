@@ -233,8 +233,10 @@ The `head` is optional, but it can be used to store:
 1. Language code and direction (especially until JavaScript may provide an API
     for [obtaining directionality](https://github.com/tc39/ecma402/issues/205)
     dynamically from a locale); one might also use:
-    [i18nizeElement](https://github.com/brettz9/i18nizeElement)
-2. Translator name and/or contact info
+    [i18nizeElement](https://github.com/brettz9/i18nizeElement). The properties
+    `code` and `direction` are recommended, but not in use.
+2. Translator name and/or contact info. No specific format is currently
+    recommended.
 3. `locals` - See the "Local variables" section
 4. `switches` - See the "Conditionals/Plurals" section
 
