@@ -342,7 +342,7 @@ format has the following features:
     brackets (`{~switchKey}`). See the "Conditionals/Plurals" section.
 4. Additional arguments can be supplied by adding a pipe symbol (`|`)
     and the argument(s). The only arguments with any built-in meaning are
-    `NUMBER`,
+    detailed in the "Built-in functions" section.
 5. Literal brackets can be escaped with a single backslash, i.e., `\{`,
     which, escaped in JSON, becomes `\\{`.
 
