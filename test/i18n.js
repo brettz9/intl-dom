@@ -1563,6 +1563,56 @@ describe('i18n', function () {
   );
 
   it(
+    'should return function that throws when processing a plural ' +
+    'switch with arguments that has a default argument of a different type',
+    async function () {
+      const _ = await i18n();
+      expect(() => {
+        _('keyUsingOrdinalSwitch', {
+          rank: {
+            number: [1]
+          }
+        });
+      }).to.throw(
+        TypeError,
+        'Expecting type "plural"; instead found "number".'
+      );
+    }
+  );
+
+  it(
+    'should return function that can return a string that processes a ' +
+    'plural switch with arguments and default arguments',
+    async function () {
+      const _ = await i18n();
+      let string = _('keyUsingOrdinalSwitch', {
+        rank: {
+          plural: [1]
+        }
+      });
+      expect(string).to.equal('You got 1st.');
+      string = _('keyUsingOrdinalSwitch', {
+        rank: {
+          plural: [2]
+        }
+      });
+      expect(string).to.equal('You got 2nd.');
+      string = _('keyUsingOrdinalSwitch', {
+        rank: {
+          plural: [3]
+        }
+      });
+      expect(string).to.equal('You got 3rd.');
+      string = _('keyUsingOrdinalSwitch', {
+        rank: {
+          plural: [17]
+        }
+      });
+      expect(string).to.equal('You got 17th.');
+    }
+  );
+
+  it(
     'should return function that can return a string that processes a ' +
     'local with a plural switch with arguments',
     async function () {
