@@ -906,6 +906,33 @@ describe('i18n', function () {
           ]
         }
       });
+      expect(string).to.equal('The list is: a, ä, a, and z');
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `ListFormat` processing with options overridden by ' +
+    'locale argument (with collator and list options)',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('listWithArgAndMultipleOptionsKey', {
+        listItems: {
+          list: [
+            [
+              'a', 'z', 'ä', 'a'
+            ],
+            {
+              type: 'disjunction'
+            },
+            {
+              sensitivity: 'base'
+            }
+          ]
+        }
+      });
       expect(string).to.equal('The list is: a, a, ä, and z');
     }
   );

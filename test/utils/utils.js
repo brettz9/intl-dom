@@ -143,6 +143,9 @@ export const setExpectedData = function () {
         message: 'The list is: {listItems|LIST}'
       },
       listWithArgAndOptionsKey: {
+        message: 'The list is: {listItems|LIST|style: "long", type: "conjunction"}'
+      },
+      listWithArgAndMultipleOptionsKey: {
         message: 'The list is: {listItems|LIST|style: "long", type: "conjunction"|sensitivity: "variant"}'
       },
       localUsingKey: {
