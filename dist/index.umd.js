@@ -3502,6 +3502,7 @@
   exports.Formatter = Formatter;
   exports.LocalFormatter = LocalFormatter;
   exports.RegularFormatter = RegularFormatter;
+  exports.SwitchFormatter = SwitchFormatter;
   exports.defaultAllSubstitutions = defaultAllSubstitutions;
   exports.defaultInsertNodes = defaultInsertNodes;
   exports.defaultLocaleResolver = defaultLocaleResolver;

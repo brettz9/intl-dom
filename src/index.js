@@ -1,5 +1,7 @@
 // UTILITIES
-export {Formatter, LocalFormatter, RegularFormatter} from './Formatter.js';
+export {
+  Formatter, LocalFormatter, RegularFormatter, SwitchFormatter
+} from './Formatter.js';
 export {unescapeBackslashes, parseJSONExtra} from './utils.js';
 export {promiseChainForValues} from './promiseChainForValues.js';
 

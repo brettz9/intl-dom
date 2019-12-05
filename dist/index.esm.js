@@ -3493,4 +3493,4 @@ var i18n = function i18n() {
   }
 };
 
-export { Formatter, LocalFormatter, RegularFormatter, defaultAllSubstitutions, defaultInsertNodes, defaultLocaleResolver, findLocaleStrings, getDOMForLocaleString, getMessageForKeyByStyle, getStringFromMessageAndDefaults, i18n, parseJSONExtra, promiseChainForValues, unescapeBackslashes };
+export { Formatter, LocalFormatter, RegularFormatter, SwitchFormatter, defaultAllSubstitutions, defaultInsertNodes, defaultLocaleResolver, findLocaleStrings, getDOMForLocaleString, getMessageForKeyByStyle, getStringFromMessageAndDefaults, i18n, parseJSONExtra, promiseChainForValues, unescapeBackslashes };

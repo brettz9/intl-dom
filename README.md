@@ -243,11 +243,11 @@ The `head` is optional, but it can be used to store:
 ### Built-in styles
 
 `richNested` is the default format (including both code-supplied
-formatters and locale-supplied `locals`).
+formatters and locale-supplied `locals`). See `getMessageForKeyByStyle`.
 
-However `rich` is used in locale `switches` since `switches` needs to allow
-for values including `.` (e.g., decimals), which `richNested` instead uses
-for nesting.
+However `rich` is used in locale `switches` (see `SwitchFormatter`) since
+`switches` needs to allow for values including `.` (e.g., decimals), which
+`richNested` instead uses for nesting.
 
 #### "plain"
 
