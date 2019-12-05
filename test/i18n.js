@@ -1669,7 +1669,37 @@ describe('i18n', function () {
 
   it(
     'should return function that can return a string that processes a ' +
-    'plural switch with arguments and default arguments',
+    'plural switch with no arguments but with default argument',
+    async function () {
+      const _ = await i18n();
+      const string = _('keyUsingSwitchNoCasting', {
+        points: {
+          plural: [1, {
+            minimumFractionDigits: 1
+          }]
+        }
+      });
+      expect(string).to.equal('You finished with 1.0 points');
+    }
+  );
+
+  it(
+    'should return function that can return a string that processes a ' +
+    'plural switch with no arguments and no default argument',
+    async function () {
+      const _ = await i18n();
+      const string = _('keyUsingSwitchNoCasting', {
+        points: {
+          plural: [1]
+        }
+      });
+      expect(string).to.equal('You finished with one point');
+    }
+  );
+
+  it(
+    'should return function that can return a string that processes a ' +
+    'plural switch with no arguments and no default arguments',
     async function () {
       const _ = await i18n();
       let string = _('keyUsingOrdinalSwitch', {

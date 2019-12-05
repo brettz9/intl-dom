@@ -62,9 +62,6 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
       } = getFormatterInfo({object: value[singleKey]}));
 
       switch (singleKey) {
-      case 'plural':
-        // Options handled by switch formatter
-        return value;
       case 'relative':
         // The second argument actually contains the primary options, so swap
         [extraOpts, opts] = [opts, extraOpts];
@@ -86,6 +83,7 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
       default:
         // Let `number` and `date` types drop through so their options
         //  can be applied
+        // Let `plural` be treated as number (since value should be a number)
         break;
       }
     }
