@@ -488,6 +488,12 @@ To adapt an example from the project that inspired much of this one,
 
 TODO:
 
+NUMBER|DATETIME|RELATIVE|LIST
+
+Note that PLURAL is not a built-in though used for passing options to plurals (see that section).
+
+(Rename DATETIME for parity?)
+
 ## Collation
 
 --TODO
@@ -584,8 +590,15 @@ const fragment = _('key2', {
 });
 ```
 
+For other substitution types besides strings and fragments, see
+"Substitution types".
+
 The "Return value of callback" subsection demonstrates the callback's
 options object, though see "Arguments and defaults" for a fuller discussion.
+
+##### Substitution types
+
+Todo: 'number', 'date', 'relative', 'list', 'plural'
 
 ##### Return value of callback
 
