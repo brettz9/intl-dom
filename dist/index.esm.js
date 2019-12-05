@@ -1797,7 +1797,139 @@ var unescapeBackslashes = function unescapeBackslashes(str) {
 var parseJSONExtra = function parseJSONExtra(args) {
   return lib.parse( // Doesn't actually currently allow explicit brackets,
   //  but in case we change our regex to allow inner brackets
-  '{' + args.replace(/^\{/, '').replace(/\}$/, '') + '}');
+  '{' + (args || '').replace(/^\{/, '').replace(/\}$/, '') + '}');
+};
+
+var getFormatterInfo = function getFormatterInfo(_ref) {
+  var object = _ref.object;
+
+  if (Array.isArray(object)) {
+    var _object = _slicedToArray(object, 3),
+        value = _object[0],
+        options = _object[1],
+        extraOpts = _object[2];
+
+    return {
+      value: value,
+      options: options,
+      extraOpts: extraOpts
+    };
+  }
+
+  return {
+    value: object
+  };
+};
+/* eslint-disable max-len */
+
+/**
+* @callback AllSubstitutionCallback
+* @param {PlainObject} cfg
+* @param {string|Node|number|Date|RelativeTimeInfo|ListInfo|NumberInfo|DateInfo} cfg.value Contains
+*   the value returned by the individual substitution
+* @param {string} cfg.arg See `cfg.arg` of {@link SubstitutionCallback}.
+* @param {string} cfg.key The substitution key
+* @returns {string|Element} The replacement text or element
+*/
+
+/* eslint-enable max-len */
+
+/**
+ * @type {AllSubstitutionCallback}
+ */
+
+var defaultAllSubstitutions = function defaultAllSubstitutions(_ref2) {
+  var value = _ref2.value,
+      arg = _ref2.arg,
+      key = _ref2.key,
+      locale = _ref2.locale;
+
+  // Strings or DOM Nodes
+  if (typeof value === 'string' || value && _typeof(value) === 'object' && 'nodeType' in value) {
+    return value;
+  }
+
+  var opts, extraOpts;
+
+  var applyArgs = function applyArgs(_ref3) {
+    var type = _ref3.type,
+        _ref3$options = _ref3.options,
+        options = _ref3$options === void 0 ? opts : _ref3$options,
+        _ref3$checkArgOptions = _ref3.checkArgOptions,
+        checkArgOptions = _ref3$checkArgOptions === void 0 ? false : _ref3$checkArgOptions;
+
+    if (typeof arg === 'string') {
+      var _arg$split = arg.split('|'),
+          _arg$split2 = _slicedToArray(_arg$split, 3),
+          userType = _arg$split2[0],
+          extraArgs = _arg$split2[1],
+          argOptions = _arg$split2[2];
+
+      if (userType === type) {
+        if (!extraArgs) {
+          options = {};
+        } else if (!checkArgOptions || argOptions) {
+          // Todo: Allow escaping and restoring of pipe symbol
+          options = _objectSpread2({}, options, {}, parseJSONExtra(checkArgOptions && argOptions ? argOptions : extraArgs));
+        }
+      }
+    }
+
+    return options;
+  };
+
+  if (value && _typeof(value) === 'object') {
+    var singleKey = Object.keys(value)[0];
+
+    if (['number', 'date', 'relative', 'list', 'plural'].includes(singleKey)) {
+      var _getFormatterInfo = getFormatterInfo({
+        object: value[singleKey]
+      });
+
+      value = _getFormatterInfo.value;
+      opts = _getFormatterInfo.options;
+      extraOpts = _getFormatterInfo.extraOpts;
+
+      switch (singleKey) {
+        case 'relative':
+          // The second argument actually contains the primary options, so swap
+          var _ref4 = [opts, extraOpts];
+          extraOpts = _ref4[0];
+          opts = _ref4[1];
+          return new Intl.RelativeTimeFormat(locale, applyArgs({
+            type: 'RELATIVE'
+          })).format(value, extraOpts);
+        // ListFormat (with Collator)
+
+        case 'list':
+          value.sort(new Intl.Collator(locale, applyArgs({
+            type: 'LIST',
+            options: extraOpts,
+            checkArgOptions: true
+          })).compare);
+          return new Intl.ListFormat(locale, applyArgs({
+            type: 'LIST'
+          })).format(value);
+      }
+    }
+  } // Numbers
+
+
+  if (typeof value === 'number') {
+    return new Intl.NumberFormat(locale, applyArgs({
+      type: 'NUMBER'
+    })).format(value);
+  } // Dates
+
+
+  if (value && _typeof(value) === 'object' && typeof value.getTime === 'function') {
+    return new Intl.DateTimeFormat(locale, applyArgs({
+      type: 'DATETIME'
+    })).format(value);
+  } // console.log('value', value);
+
+
+  throw new TypeError('Unknown formatter');
 };
 
 var Formatter = function Formatter() {
@@ -1959,16 +2091,63 @@ function (_Formatter3) {
       */
 
 
+      var getNumberFormat = function getNumberFormat(value, defaultOptions) {
+        var numberOpts = parseJSONExtra(opts);
+        return new Intl.NumberFormat(locale, _objectSpread2({}, defaultOptions, {}, numberOpts)).format(value);
+      };
+
+      var getPluralFormat = function getPluralFormat(value, defaultOptions) {
+        var pluralOpts = parseJSONExtra(opts);
+        return new Intl.PluralRules(locale, _objectSpread2({}, defaultOptions, {}, pluralOpts)).select(value);
+      };
+
       var formatterValue = this.substitutions[ky];
       var match = formatterValue;
 
       if (typeof formatterValue === 'number') {
-        if (type === 'NUMBER') {
-          var numberOpts = parseJSONExtra(opts);
-          match = new Intl.NumberFormat(locale, numberOpts).format(formatterValue);
-        } else {
-          var pluralOpts = type === 'PLURAL' ? parseJSONExtra(opts) : undefined;
-          match = new Intl.PluralRules(locale, pluralOpts).select(formatterValue);
+        switch (type) {
+          case 'NUMBER':
+            match = getNumberFormat(formatterValue);
+            break;
+
+          case 'PLURAL':
+            match = getPluralFormat(formatterValue);
+            break;
+
+          default:
+            match = new Intl.PluralRules(locale).select(formatterValue);
+            break;
+        }
+      } else if (formatterValue && _typeof(formatterValue) === 'object') {
+        var singleKey = Object.keys(formatterValue)[0];
+
+        if (['number', 'plural'].includes(singleKey)) {
+          var _getFormatterInfo = getFormatterInfo({
+            object: formatterValue[singleKey]
+          }),
+              value = _getFormatterInfo.value,
+              options = _getFormatterInfo.options;
+
+          if (!type) {
+            type = singleKey.toUpperCase();
+          }
+
+          var typeMatches = singleKey.toUpperCase() === type;
+
+          if (!typeMatches) {
+            throw new TypeError("Expecting type \"".concat(type.toLowerCase(), "\"; instead found \"").concat(singleKey, "\"."));
+          } // eslint-disable-next-line default-case
+
+
+          switch (type) {
+            case 'NUMBER':
+              match = getNumberFormat(value, options);
+              break;
+
+            case 'PLURAL':
+              match = getPluralFormat(value, options);
+              break;
+          }
         }
       } // We do not want the default `richNested` here as that will split
       //  up the likes of `0.0`
@@ -2449,122 +2628,6 @@ var defaultLocaleResolver = function defaultLocaleResolver(localesBasePath, loca
   }
 
   return "".concat(localesBasePath.replace(/\/$/, ''), "/_locales/").concat(locale, "/messages.json");
-};
-
-/* eslint-disable max-len */
-
-/**
-* @callback AllSubstitutionCallback
-* @param {PlainObject} cfg
-* @param {string|Node|number|Date|RelativeTimeInfo|ListInfo|NumberInfo|DateInfo} cfg.value Contains
-*   the value returned by the individual substitution
-* @param {string} cfg.arg See `cfg.arg` of {@link SubstitutionCallback}.
-* @param {string} cfg.key The substitution key
-* @returns {string|Element} The replacement text or element
-*/
-
-/* eslint-enable max-len */
-
-/**
- * @type {AllSubstitutionCallback}
- */
-
-var defaultAllSubstitutions = function defaultAllSubstitutions(_ref) {
-  var value = _ref.value,
-      arg = _ref.arg,
-      key = _ref.key,
-      locale = _ref.locale;
-
-  // Strings or DOM Nodes
-  if (typeof value === 'string' || value && _typeof(value) === 'object' && 'nodeType' in value) {
-    return value;
-  }
-
-  var applyArgs = function applyArgs(_ref2) {
-    var type = _ref2.type,
-        _ref2$options = _ref2.options,
-        options = _ref2$options === void 0 ? opts : _ref2$options,
-        _ref2$checkArgOptions = _ref2.checkArgOptions,
-        checkArgOptions = _ref2$checkArgOptions === void 0 ? false : _ref2$checkArgOptions;
-
-    if (typeof arg === 'string') {
-      var _arg$split = arg.split('|'),
-          _arg$split2 = _slicedToArray(_arg$split, 3),
-          userType = _arg$split2[0],
-          extraArgs = _arg$split2[1],
-          argOptions = _arg$split2[2];
-
-      if (!extraArgs) {
-        if (userType === type) {
-          options = {};
-        }
-      } else if (userType === type && (!checkArgOptions || argOptions)) {
-        // Todo: Allow escaping and restoring of pipe symbol
-        options = _objectSpread2({}, options, {}, parseJSONExtra(checkArgOptions && argOptions ? argOptions : extraArgs));
-      }
-    }
-
-    return options;
-  };
-
-  var opts, extraOpts;
-
-  if (value && _typeof(value) === 'object') {
-    var singleKey = Object.keys(value)[0];
-
-    if (['number', 'date', 'relative', 'list'].includes(singleKey)) {
-      if (Array.isArray(value[singleKey])) {
-        var _value$singleKey = _slicedToArray(value[singleKey], 3);
-
-        value = _value$singleKey[0];
-        opts = _value$singleKey[1];
-        extraOpts = _value$singleKey[2];
-      } else {
-        value = value[singleKey];
-      }
-
-      if (singleKey === 'relative') {
-        // The second argument actually contains the primary options, so swap
-        var _ref3 = [opts, extraOpts];
-        extraOpts = _ref3[0];
-        opts = _ref3[1];
-        return new Intl.RelativeTimeFormat(locale, applyArgs({
-          type: 'RELATIVE'
-        })).format(value, extraOpts);
-      } // ListFormat (with Collator)
-
-
-      if (singleKey === 'list') {
-        value.sort(new Intl.Collator(locale, applyArgs({
-          type: 'LIST',
-          options: extraOpts,
-          checkArgOptions: true
-        })).compare);
-        return new Intl.ListFormat(locale, applyArgs({
-          type: 'LIST'
-        })).format(value);
-      } // Let `number` and `date` types drop through so their options
-      //  can be applied
-
-    }
-  } // Numbers
-
-
-  if (typeof value === 'number') {
-    return new Intl.NumberFormat(locale, applyArgs({
-      type: 'NUMBER'
-    })).format(value);
-  } // Dates
-
-
-  if (value && _typeof(value) === 'object' && typeof value.getTime === 'function') {
-    return new Intl.DateTimeFormat(locale, applyArgs({
-      type: 'DATETIME'
-    })).format(value);
-  } // console.log('value', value);
-
-
-  throw new TypeError('Unknown formatter');
 };
 
 /* eslint-disable max-len */
