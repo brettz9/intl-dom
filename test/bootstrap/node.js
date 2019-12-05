@@ -4,13 +4,15 @@ import 'intl-relative-time-format/locale-data/en-US.js';
 import 'intl-list-format';
 import 'intl-list-format/locale-data/en-US.js';
 
+// Testing
 import chai from 'chai';
 import chaiDOM from 'chai-dom';
 import chaiAsPromised from 'chai-as-promised';
+// eslint-disable-next-line import/order
+import fragmentHtml from '../browser/vendor/fragmentHtml.js';
 
 import {JSDOM} from 'jsdom';
 import fileFetch from 'file-fetch';
-import fragmentHtml from '../browser/vendor/fragmentHtml.js';
 
 chai.use(chaiDOM);
 chai.use(chaiAsPromised);

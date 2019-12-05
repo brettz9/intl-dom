@@ -13,19 +13,20 @@
 
 # intl-dom
 
-This library allows applications to discover locale files (even untrusted ones)
-and safely utilize the strings while inserting DOM elements amidst them,
-returning a document fragment.
+This library allows applications to discover locale files and safely
+utilize the strings while inserting DOM elements amidst them, returning
+a document fragment.
 
-This allows locales to specify the sequence of elements through placeholders
-without locales needing to contain the technically-oriented and potentially
-unsafe HTML. Projects need not shoe-horn their localizations into always
-appending HTML after localized strings of text; projects can instead allow
-HTML to be interspersed within the text as suitable for that language
+One may thus allow locales to specify the sequence of elements through
+placeholders without their needing to contain the technically-oriented
+and potentially unsafe HTML. And projects need not confine their
+internationalized apps into always having HTML appended after localized
+strings of text; the calling code can instead allow HTML to be interspersed
+within the localized text as suitable for that language
 (e.g., for localized links or buttons).
 
-A number of other facilities are available: for pluralization; number,
-date-time and relative time formatting; and list sorting.
+A number of other facilities are available in `intl-dom`: pluralization;
+number, date-time and relative time formatting; and list sorting.
 
 ## Project rationale by example
 
@@ -53,14 +54,19 @@ const link = _('linkIntro') +
   _('linkEnd');
 ```
 
-This approach suffers from being English-dependent. Some languages might put
-the link at the beginning or end only, or otherwise have different text as an
-intro or conclusion than the corresponding English. Worse, if the calling code
-only allowed for an intro or conclusion, the locale might have no choice but
-to add the link at the end, even if it is not suitable for that language.
+This approach suffers from being English-dependent; some languages might
+necessitate the link at the beginning or end only, or otherwise have
+different text content as an intro or conclusion than the corresponding
+English (which would have been worse had we been tempted to label our
+`linkEnd` as something like `talking_about`).
 
-And adding language-specific code, e.g., adding a conclusion if the locale is
-Spanish, etc., is not a well-maintainable solution.
+Worse, if the calling code only allows for an intro or conclusion, the
+locale might have no choice but to add the link at the end, even if it
+is not suitable for that language.
+
+And adding language-specific code within the app programming logic, e.g.,
+adding a conclusion if the locale is Spanish, etc., is not a
+maintainable solution.
 
 Some projects might instead attempt to solve this by allowing HTML strings
 within their locales, e.g.:
@@ -71,13 +77,13 @@ within their locales, e.g.:
 }
 ```
 
-The problem with this approach is that, besides being unsafe (if the locale
+One problem with this approach--besides being unsafe (if the locale
 designers don't know HTML or are untrusted sources which are not thoroughly
-vetted), such inclusion of code makes it more difficult to change the HTML
+vetted--such inclusion of code makes it more difficult to change the HTML
 structure. If you wanted to add a `target` attribute, for example, you would
 need to do so to all locale files.
 
-`intl-dom` therefore uses an approach like this:
+`intl-dom` therefore uses an approach like this instead:
 
 ```json
 {
@@ -94,7 +100,8 @@ need to do so to all locale files.
 const link = document.createElement('a');
 link.href = _('linkURL');
 
-// Use `textContent` instead of `innerHTML` in case locale uses HTML characters
+// Use `textContent` instead of `innerHTML` in case the localization of
+//  `linkText` uses HTML characters!
 link.textContent = _('linkText');
 
 const linkDOM = _('linkFormat', {link});
@@ -105,27 +112,29 @@ const linkDOM = _('linkFormat', {link});
 ```
 
 Note that while the resulting `linkDOM` is a DOM element, the
-constituents, e.g., from `linkFormat`, are not composed in such a manner as
-to treat them all as trusted HTML, . Only the run-time-supplied DOM will be
-treated as a DOM object, while the rest are just pure strings (You must
-still escape or sanitize when injecting into the DOM, e.g., if you are using
-`innerHTML` yourself.<sup>1</sup>)
+constituents, e.g., those of `linkFormat`, are not composed in such a manner
+as to treat them all as trusted HTML. Only the run-time-supplied DOM will be
+treated as a DOM object, while the rest are just pure strings. (You must,
+as noted in the comment about `textContent`, still escape or sanitize when
+injecting into the DOM, e.g., if you are using `innerHTML`
+yourself.)
 
 This offers security while allowing for flexibility by language as far as
 where the link is placed within the text. There is also no need for
 locale-specific handling within the calling code as long as the calling
 code adds whole segments to the DOM (e.g., a whole paragraph, or in this
-case a link with the surrounding text).
+case, a pattern for a link including its surrounding text).
 
 `intl-dom` also takes advantage of facilities for pluralization, number
 and date formatting, and list formatting, detailed below, allowing locales
 to implement as per their own needs, without the calling code having to
 be aware of or itself apply formatting rules; the calling code need only
-supply the key and items for substitution.
+supply the key and items for substitution. However, the calling code can
+provide defaulting behavior to the default.
 
-<sup>1</sup> If you need locale-specific styling, it is recommended
+Note: If you need locale-specific styling, it is recommended
 to target the `lang` pseudo-class in CSS and allow for locale-specific
-stylesheets.
+stylesheets, e.g.:
 
 ```css
 :lang(fr) div.explanation {
@@ -140,7 +149,14 @@ stylesheets.
 npm install --save intl-dom
 ```
 
-For older browser support, you may also need `core-js-bundle`.
+For older browser support, you may need `core-js-bundle` as well.
+
+And for both Node or the browser, depending on the versions you are
+supporting, you may need any of the following:
+
+- [`intl-pluralrules`](https://www.npmjs.com/package/intl-pluralrules)
+- [`intl-relative-time-format`](https://www.npmjs.com/package/intl-list-format) (including, e.g., `intl-relative-time-format/locale-data/en-US.js`)
+- [`intl-list-format`](https://www.npmjs.com/package/intl-list-format) (including, e.g., `intl-list-format/locale-data/en-US.js`)
 
 ### Browser
 
