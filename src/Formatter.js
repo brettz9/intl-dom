@@ -108,12 +108,16 @@ export class SwitchFormatter extends Formatter {
 
     let match = formatterValue;
     if (typeof formatterValue === 'number') {
-      if (type === 'NUMBER') {
+      switch (type) {
+      case 'NUMBER':
         match = getNumberFormat(formatterValue);
-      } else if (type === 'PLURAL') {
+        break;
+      case 'PLURAL':
         match = getPluralFormat(formatterValue);
-      } else {
+        break;
+      default:
         match = new Intl.PluralRules(locale).select(formatterValue);
+        break;
       }
     } else if (formatterValue && typeof formatterValue === 'object') {
       const singleKey = Object.keys(formatterValue)[0];
