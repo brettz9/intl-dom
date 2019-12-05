@@ -1,5 +1,6 @@
 import {getMessageForKeyByStyle} from './index.js';
 import {parseJSONExtra} from './utils.js';
+import {getFormatterInfo} from './defaultAllSubstitutions.js';
 
 export class Formatter {
 }
@@ -89,20 +90,46 @@ export class SwitchFormatter extends Formatter {
     }
     */
 
+    const getNumberFormat = (value, defaultOptions) => {
+      const numberOpts = parseJSONExtra(opts);
+      return new Intl.NumberFormat(locale, {
+        ...defaultOptions, ...numberOpts
+      }).format(value);
+    };
+
+    const getPluralFormat = (value, defaultOptions) => {
+      const pluralOpts = parseJSONExtra(opts);
+      return new Intl.PluralRules(locale, {
+        ...defaultOptions, ...pluralOpts
+      }).select(value);
+    };
+
     const formatterValue = this.substitutions[ky];
 
     let match = formatterValue;
     if (typeof formatterValue === 'number') {
       if (type === 'NUMBER') {
-        const numberOpts = parseJSONExtra(opts);
-        match = new Intl.NumberFormat(locale, numberOpts).format(
-          formatterValue
-        );
+        match = getNumberFormat(formatterValue);
+      } else if (type === 'PLURAL') {
+        match = getPluralFormat(formatterValue);
       } else {
-        const pluralOpts = type === 'PLURAL' ? parseJSONExtra(opts) : undefined;
-        match = new Intl.PluralRules(locale, pluralOpts).select(
-          formatterValue
-        );
+        match = new Intl.PluralRules(locale).select(formatterValue);
+      }
+    } else if (formatterValue && typeof formatterValue === 'object') {
+      const singleKey = Object.keys(formatterValue)[0];
+      if (['number', 'plural'].includes(singleKey)) {
+        const {value, options} = getFormatterInfo({
+          object: formatterValue[singleKey]
+        });
+        // eslint-disable-next-line default-case
+        switch (singleKey) {
+        case 'number':
+          match = getNumberFormat(value, options);
+          break;
+        case 'plural':
+          match = getPluralFormat(value, options);
+          break;
+        }
       }
     }
 
