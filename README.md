@@ -317,10 +317,10 @@ It is the default style for code-supplied formatters and locale-supplied
 
 The main keys--of whatever style--are stored within a root `body`:
 
-```js
+```json
 {
   "body": {
-    // Keys here
+
   }
 }
 ```
