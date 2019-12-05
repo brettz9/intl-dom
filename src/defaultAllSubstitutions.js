@@ -2,8 +2,8 @@ import {parseJSONExtra} from './utils.js';
 
 export const getFormatterInfo = ({object}) => {
   if (Array.isArray(object)) {
-    const [value, opts, extraOpts] = object;
-    return {value, opts, extraOpts};
+    const [value, options, extraOpts] = object;
+    return {value, options, extraOpts};
   }
   return {value: object};
 };
@@ -60,7 +60,9 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
   if (value && typeof value === 'object') {
     const singleKey = Object.keys(value)[0];
     if (['number', 'date', 'relative', 'list'].includes(singleKey)) {
-      ({value, opts, extraOpts} = getFormatterInfo({object: value[singleKey]}));
+      ({
+        value, options: opts, extraOpts
+      } = getFormatterInfo({object: value[singleKey]}));
 
       if (singleKey === 'relative') {
         // The second argument actually contains the primary options, so swap
