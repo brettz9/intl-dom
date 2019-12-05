@@ -1,5 +1,13 @@
 import {parseJSONExtra} from './utils.js';
 
+export const getFormatterInfo = ({object}) => {
+  if (Array.isArray(object)) {
+    const [value, opts, extraOpts] = object;
+    return {value, opts, extraOpts};
+  }
+  return {value: object};
+};
+
 /* eslint-disable max-len */
 /**
 * @callback AllSubstitutionCallback
@@ -24,6 +32,8 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
     return value;
   }
 
+  let opts, extraOpts;
+
   const applyArgs = ({type, options = opts, checkArgOptions = false}) => {
     if (typeof arg === 'string') {
       const [userType, extraArgs, argOptions] = arg.split('|');
@@ -47,15 +57,10 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
     return options;
   };
 
-  let opts, extraOpts;
   if (value && typeof value === 'object') {
     const singleKey = Object.keys(value)[0];
     if (['number', 'date', 'relative', 'list'].includes(singleKey)) {
-      if (Array.isArray(value[singleKey])) {
-        [value, opts, extraOpts] = value[singleKey];
-      } else {
-        value = value[singleKey];
-      }
+      ({value, opts, extraOpts} = getFormatterInfo({object: value[singleKey]}));
 
       if (singleKey === 'relative') {
         // The second argument actually contains the primary options, so swap
