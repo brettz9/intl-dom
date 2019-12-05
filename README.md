@@ -444,7 +444,8 @@ _('parameterizedLocalUsingKey', {
 Parameterized locals can be particularly useful for a locale indicating
 various grammatical cases of a variable/term and referencing them, again,
 allowing for variation in case the term or its translation might change
-(only the local variable would need to be updated).
+(only the local variable would need to be updated). See the section on
+plurals for such use cases.
 
 ### Conditionals/Plurals (`switches`)
 
@@ -459,6 +460,27 @@ casting may need number formatting))
 
 Todo: Allow substitutions to set plural defaults (which
         locales can override)
+
+To adapt an example from the project that inspired much of this one,
+[Fluent](https://projectfluent.org/fluent/guide/terms.html),
+
+```json
+{
+  "head": {
+    "switches": {
+      "brand-name": {
+        "*nominative": "Firefox",
+        "locative": "Firefoxa"
+      }
+    },
+  },
+  "body": {
+    "about": {
+      "message": "Informacje o {~brand-name|case: 'locative'}."
+    }
+  }
+}
+```
 
 ### Built-in functions
 
