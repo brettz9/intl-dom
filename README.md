@@ -242,6 +242,13 @@ The `head` is optional, but it can be used to store:
 
 ### Built-in styles
 
+`richNested` is the default format (including both code-supplied
+formatters and locale-supplied `locals`).
+
+However `rich` is used in locale `switches` since `switches` needs to allow
+for values including `.` (e.g., decimals), which `richNested` instead uses
+for nesting.
+
 #### "plain"
 
 This format is just a simple key-value map. Its advantage is in its brevity.
@@ -262,6 +269,8 @@ advantage lies in being able to add other meta-data such as `description`
 to the individual items. It comes at the cost that it takes more characters
 to represent simple messages.
 
+This format is used for locale `switches`.
+
 ```json
 {
   "myKey": {
@@ -276,8 +285,8 @@ to represent simple messages.
 
 #### `richNested`
 
-This format is follows the same format as `rich`, though it allows nested
-keys:
+This format follows the same format as `rich`, though it also allows
+nested keys:
 
 ```json
   {
@@ -301,18 +310,17 @@ _('key.that.is.nested');
 
 (This comes at the cost of reserving `.` for references.)
 
-Note that while `richNested` is the default format (including both code-supplied
-formatters and locale-supplied `locals`), `rich` is used in locale `switches`
-since `switches` can have values for which `.` is expected (e.g., decimals).
+It is the default style for code-supplied formatters and locale-supplied
+`locals`.
 
 ### Body content
 
 The main keys--of whatever style--are stored within a root `body`:
 
-```json
+```js
 {
   "body": {
-
+    // Keys here
   }
 }
 ```
