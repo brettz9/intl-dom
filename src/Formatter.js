@@ -128,27 +128,20 @@ export class SwitchFormatter extends Formatter {
         const typeMatches = singleKey.toUpperCase() === type;
         if (!typeMatches) {
           throw new TypeError(
-            `Expecting type "${type}"; instead found "${singleKey}"`
+            `Expecting type "${
+              type.toLowerCase()
+            }"; instead found "${singleKey}".`
           );
         }
         switch (type) {
         case 'NUMBER':
-          match = getNumberFormat(formatterValue, options);
-          break;
-        case 'PLURAL':
-          match = getPluralFormat(formatterValue, options);
-          break;
-        default:
-          match = new Intl.PluralRules(locale).select(formatterValue);
-          break;
-        }
-        // eslint-disable-next-line default-case
-        switch (singleKey) {
-        case 'number':
           match = getNumberFormat(value, options);
           break;
-        case 'plural':
+        case 'PLURAL':
           match = getPluralFormat(value, options);
+          break;
+        default:
+          match = new Intl.PluralRules(locale).select(value);
           break;
         }
       }

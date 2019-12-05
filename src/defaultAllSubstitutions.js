@@ -56,12 +56,15 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
 
   if (value && typeof value === 'object') {
     const singleKey = Object.keys(value)[0];
-    if (['number', 'date', 'relative', 'list'].includes(singleKey)) {
+    if (['number', 'date', 'relative', 'list', 'plural'].includes(singleKey)) {
       ({
         value, options: opts, extraOpts
       } = getFormatterInfo({object: value[singleKey]}));
 
       switch (singleKey) {
+      case 'plural':
+        // Options handled by switch formatter
+        return value;
       case 'relative':
         // The second argument actually contains the primary options, so swap
         [extraOpts, opts] = [opts, extraOpts];
