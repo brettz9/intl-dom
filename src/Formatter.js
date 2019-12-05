@@ -133,15 +133,13 @@ export class SwitchFormatter extends Formatter {
             }"; instead found "${singleKey}".`
           );
         }
+        // eslint-disable-next-line default-case
         switch (type) {
         case 'NUMBER':
           match = getNumberFormat(value, options);
           break;
         case 'PLURAL':
           match = getPluralFormat(value, options);
-          break;
-        default:
-          match = new Intl.PluralRules(locale).select(value);
           break;
         }
       }

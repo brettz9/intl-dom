@@ -1512,6 +1512,58 @@ describe('i18n', function () {
 
   it(
     'should return function that can return a string that processes a ' +
+    'number switch with arguments and default arguments',
+    async function () {
+      const _ = await i18n();
+      let string = _('keyUsingSwitchAndArguments', {
+        score: {
+          number: [0]
+        }
+      });
+      expect(string).to.equal('You finished with zero points');
+      string = _('keyUsingSwitchAndArguments', {
+        score: {
+          number: [1]
+        }
+      });
+      expect(string).to.equal('You finished with 1.0 points');
+      string = _('keyUsingSwitchAndArguments', {
+        score: {
+          number: [3.5]
+        }
+      });
+      expect(string).to.equal('You finished with 3.5 points');
+      string = _('keyUsingSwitchAndArguments', {
+        score: {
+          number: [3.73]
+        }
+      });
+      expect(string).to.equal('You finished with 3.73 points');
+      string = _('keyUsingSwitchAndArguments', {
+        score: {
+          number: [4]
+        }
+      });
+      expect(string).to.equal('You finished with 4.0 points');
+    }
+  );
+
+  it(
+    'should return function that can return a string that processes a ' +
+    'non-number switch with arguments and default arguments',
+    async function () {
+      const _ = await i18n();
+      const string = _('keyUsingSwitchAndArguments', {
+        score: {
+          relative: [0, 'second']
+        }
+      });
+      expect(string).to.equal('You finished with in 0 seconds points');
+    }
+  );
+
+  it(
+    'should return function that can return a string that processes a ' +
     'local with a number switch with arguments',
     async function () {
       const _ = await i18n();
