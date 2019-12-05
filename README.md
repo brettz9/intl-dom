@@ -422,6 +422,12 @@ allowing for variation in case the term or its translation might change
 TODO:
 including plurals
 
+Todo: Mention how plural formatting options from default argument still
+passed on to number formatter (e.g., to pass on `minimumFractionDigits`)
+and how not used as explicit argument (use `~` instead with `PLURAL`
+baked in; note too that casting won't affect formatting (e.g., plural
+casting may need number formatting))
+
 Todo: Allow substitutions to set plural defaults (which
         locales can override)
 

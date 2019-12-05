@@ -51,6 +51,14 @@ export const setExpectedData = function () {
             message: '{points} points'
           }
         },
+        'pointsFraction|PLURAL|minimumFractionDigits: 1': {
+          one: {
+            message: 'one point'
+          },
+          '*other': {
+            message: '{pointsFraction|NUMBER|minimumFractionDigits: 1} points'
+          }
+        },
         "rank|PLURAL|type: 'ordinal'": {
           one: {
             message: '{rank}st'
@@ -199,6 +207,9 @@ export const setExpectedData = function () {
       },
       keyUsingSwitchWithoutDefault: {
         message: '{~switch-without-default}'
+      },
+      keyUsingSwitchCasting: {
+        message: 'You finished with {~pointsFraction}'
       },
       keyUsingSwitchNoCasting: {
         message: 'You finished with {~points}'

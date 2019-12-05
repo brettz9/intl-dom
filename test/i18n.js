@@ -1685,6 +1685,18 @@ describe('i18n', function () {
 
   it(
     'should return function that can return a string that processes a ' +
+    'plural switch with casting and no effective default argument',
+    async function () {
+      const _ = await i18n();
+      const string = _('keyUsingSwitchCasting', {
+        pointsFraction: 1
+      });
+      expect(string).to.equal('You finished with 1.0 points');
+    }
+  );
+
+  it(
+    'should return function that can return a string that processes a ' +
     'plural switch with no arguments and no default argument',
     async function () {
       const _ = await i18n();
