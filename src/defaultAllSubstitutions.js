@@ -37,21 +37,18 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
   const applyArgs = ({type, options = opts, checkArgOptions = false}) => {
     if (typeof arg === 'string') {
       const [userType, extraArgs, argOptions] = arg.split('|');
-      if (!extraArgs) {
-        if (userType === type) {
+      if (userType === type) {
+        if (!extraArgs) {
           options = {};
+        } else if (!checkArgOptions || argOptions) {
+          // Todo: Allow escaping and restoring of pipe symbol
+          options = {
+            ...options,
+            ...parseJSONExtra(
+              checkArgOptions && argOptions ? argOptions : extraArgs
+            )
+          };
         }
-      } else if (
-        userType === type &&
-        (!checkArgOptions || argOptions)
-      ) {
-        // Todo: Allow escaping and restoring of pipe symbol
-        options = {
-          ...options,
-          ...parseJSONExtra(
-            checkArgOptions && argOptions ? argOptions : extraArgs
-          )
-        };
       }
     }
     return options;
