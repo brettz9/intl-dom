@@ -1512,12 +1512,47 @@ describe('i18n', function () {
 
   it(
     'should return function that can return a string that processes a ' +
+    'number switch with no arguments but with default arguments',
+    async function () {
+      const _ = await i18n();
+      const string = _('keyUsingSwitchNoCastingAndArguments', {
+        scoreNoCasting: {
+          number: [0, {
+            minimumFractionDigits: 1
+          }]
+        }
+      });
+      expect(string).to.equal('You finished with zero points');
+    }
+  );
+
+  it(
+    'should return function that can return a string that processes a ' +
+    'number switch with no arguments but with default arguments',
+    async function () {
+      const _ = await i18n();
+      const string = _('keyUsingSwitchNoCastingAndArguments', {
+        scoreNoCasting: {
+          number: [0, {
+            minimumFractionDigits: 5
+          }]
+        }
+      });
+      expect(string).to.equal('You finished with 0.00000 points');
+    }
+  );
+
+  it(
+    'should return function that can return a string that processes a ' +
     'number switch with arguments and default arguments',
     async function () {
       const _ = await i18n();
       let string = _('keyUsingSwitchAndArguments', {
         score: {
-          number: [0]
+          number: [0, {
+            // Overridden
+            minimumFractionDigits: 3
+          }]
         }
       });
       expect(string).to.equal('You finished with zero points');

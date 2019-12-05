@@ -27,6 +27,14 @@ export const setExpectedData = function () {
             message: '{bananas} bananas'
           }
         },
+        scoreNoCasting: {
+          '0.0': {
+            message: 'zero points'
+          },
+          '*other': {
+            message: '{scoreNoCasting} points'
+          }
+        },
         'score|NUMBER|minimumFractionDigits: 1': {
           '0.0': {
             message: 'zero points'
@@ -186,6 +194,9 @@ export const setExpectedData = function () {
       },
       keyUsingSwitchAndArguments: {
         message: 'You finished with {~score}'
+      },
+      keyUsingSwitchNoCastingAndArguments: {
+        message: 'You finished with {~scoreNoCasting}'
       },
       keyUsingOrdinalSwitch: {
         message: 'You got {~rank}.'

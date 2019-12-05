@@ -125,6 +125,9 @@ export class SwitchFormatter extends Formatter {
         const {value, options} = getFormatterInfo({
           object: formatterValue[singleKey]
         });
+        if (!type) {
+          type = singleKey.toUpperCase();
+        }
         const typeMatches = singleKey.toUpperCase() === type;
         if (!typeMatches) {
           throw new TypeError(

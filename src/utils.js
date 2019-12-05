@@ -13,6 +13,6 @@ export const parseJSONExtra = (args) => {
   return jsonExtra.parse(
     // Doesn't actually currently allow explicit brackets,
     //  but in case we change our regex to allow inner brackets
-    '{' + args.replace(/^\{/u, '').replace(/\}$/u, '') + '}'
+    '{' + (args || '').replace(/^\{/u, '').replace(/\}$/u, '') + '}'
   );
 };
