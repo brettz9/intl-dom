@@ -325,6 +325,9 @@ The main keys--of whatever style--are stored within a root `body`:
 }
 ```
 
+While the styles described above determine how the keys are placed, the
+specific formatting within messages is determined elsewhere.
+
 The default format of messages processed by `getDOMForLocaleString` (and
 therefore by `i18n` as well), is defined in `defaultInsertNodes`. This
 format has the following features:
