@@ -350,11 +350,11 @@ format has the following features:
 
 In the `head` is a property `locals` for storing localized strings (including
 potentially hierarchically-nested ones) which are intended to be defined
-privately by the locale, rather than being set (or queries) at runtime by
+privately by the locale, rather than being set (or queried) at runtime by
 the calling script.
 
 These can allow for reuse of frequent strings as well as allow for avoiding
-hard-coding names which could change over time.
+hard-coding translated terms which could change over time.
 
 The format follows the same key-value or key-object-with-message-and-values
 structure as the formats described under "Message styles".
@@ -425,7 +425,7 @@ The keys `adjective1` and `adjective2` would then be substituted within `aParame
 
 > "A warm and sunny day"
 
-Note that the the locals key message can, as with the main key message,
+Note that the locals key message can, as with the main key message,
 include regular substitution formatter references, but if a substitution
 formatter is of the same name as the parameter, the locale-supplied
 parameters take precedence, i.e., with the above locale, the following
@@ -437,7 +437,7 @@ _('parameterizedLocalUsingKey', {
 });
 ```
 
-Still giving:
+...i.e., still giving:
 
 > "A warm and sunny day"
 
