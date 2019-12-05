@@ -64,16 +64,16 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
         value, options: opts, extraOpts
       } = getFormatterInfo({object: value[singleKey]}));
 
-      if (singleKey === 'relative') {
+      switch (singleKey) {
+      case 'relative':
         // The second argument actually contains the primary options, so swap
         [extraOpts, opts] = [opts, extraOpts];
         return new Intl.RelativeTimeFormat(
           locale, applyArgs({type: 'RELATIVE'})
         ).format(value, extraOpts);
-      }
 
       // ListFormat (with Collator)
-      if (singleKey === 'list') {
+      case 'list':
         value.sort(new Intl.Collator(
           locale,
           applyArgs({
@@ -83,9 +83,11 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
         return new Intl.ListFormat(
           locale, applyArgs({type: 'LIST'})
         ).format(value);
+      default:
+        // Let `number` and `date` types drop through so their options
+        //  can be applied
+        break;
       }
-      // Let `number` and `date` types drop through so their options
-      //  can be applied
     }
   }
 
