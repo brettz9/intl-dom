@@ -13,6 +13,8 @@
 
 # intl-dom
 
+**Note that this README is currently under construction.**
+
 This library allows applications to discover locale files and safely
 utilize the strings while inserting DOM elements amidst them, returning
 a document fragment.
@@ -449,6 +451,11 @@ allowing for variation in case the term or its translation might change
 (only the local variable would need to be updated). See the section on
 "Conditionals/Plurals" for such use cases.
 
+Locals can even reference other locals (and `switches`), though to prevent
+accidentally deep nesting or recursion, the `maximumLocalNestingDepth` is
+set to `3` by default (in `i18n`, `getDOMForLocaleString`, and
+`defaultInsertNodes`).
+
 ### Conditionals/Plurals (`switches`)
 
 The `switches` section of the `head`, like `locals`, is not meant to be
@@ -458,8 +465,111 @@ directly queried by the calling code, but is instead referenced within
 Note that this section does not allow nested keys as with the "richNested"
 style. It instead expects the "rich" format (see "Message styles").
 
+An example might look like this:
+
+```json
+{
+  "head": {
+    "switches": {
+      "executive-pronoun": {
+        "*nominative": {
+          "message": "he"
+        },
+        "accusative": {
+          "message": "him"
+        }
+      }
+    }
+  }
+}
+```
+
+A locale string within `body` (or `locals`) can then reference such switches
+with an initial tilde within curly brackets:
+
+```json
+{
+  "switchUsingKey": {
+    "message": "I gave it to {~executive-pronoun|accusative}"
+  }
+}
+```
+
+Note that the initial `*` has a special meaning to indicate that this
+is the default value; if you don't pass an argument that value will be used.
+
 TODO:
 including plurals
+
+```json
+{
+  "bananas": {
+    "one": {
+      "message": "one banana"
+    },
+    "*other": {
+      "message": "{bananas} bananas"
+    }
+  }
+}
+
+```json
+{
+  "scoreNoCasting": {
+    "0.0": {
+      "message": "zero points"
+    },
+    "*other": {
+      "message": "{scoreNoCasting} points"
+    }
+  }
+}
+```
+
+```json
+{
+  "score|NUMBER|minimumFractionDigits: 1": {
+    "0.0": {
+      "message": "zero points"
+    },
+    "*other": {
+      "message": "{score|NUMBER|minimumFractionDigits:1} points"
+    }
+  }
+}
+```
+
+```json
+{
+  "pointsFraction|PLURAL|minimumFractionDigits: 1": {
+    "one": {
+      "message": "one point"
+    },
+    "*other": {
+      "message": "{pointsFraction|NUMBER|minimumFractionDigits: 1} points"
+    }
+  }
+}
+```
+
+```json
+{
+  "rank|PLURAL|type: 'ordinal'": {
+    "one": {
+      "message": "{rank}st"
+    },
+    "two": {
+      "message": "{rank}nd"
+    },
+    "few": {
+      "message": "{rank}rd"
+    },
+    "*other": {
+      "message": "{rank}th"
+    }
+  }
+}
+```
 
 Todo: Mention how plural formatting options from default argument still
 passed on to number formatter (e.g., to pass on `minimumFractionDigits`)
@@ -477,7 +587,7 @@ To adapt an example from the project that inspired much of this one,
 {
   "head": {
     "switches": {
-      "brand-name": {
+      "brand-name-case": {
         "*nominative": "Firefox",
         "locative": "Firefoxa"
       }
@@ -485,7 +595,7 @@ To adapt an example from the project that inspired much of this one,
   },
   "body": {
     "about": {
-      "message": "Informacje o {~brand-name|case: 'locative'}."
+      "message": "Informacje o {~brand-name-case|locative}."
     }
   }
 }
@@ -851,6 +961,8 @@ This project has been heavily inspired by
 
 - Ensure coverage in browser is ok?
 - Option to parse Fluent files?
+- Expect `{default: true}` instead of `*` in switches or at least allow
+  asterisks through escaping
 - We might accept a `defaultPath` argument to `i18n` to obtain default values
   out of a file, potentially resolvable by a template function which can take
   a locale as argument.
