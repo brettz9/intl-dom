@@ -352,7 +352,7 @@ format has the following features:
 
 In the `head` is a property `locals` for storing localized strings (including
 potentially hierarchically-nested ones) which are intended to be defined
-privately by the locale, rather than being set (or queried) at runtime by
+privately by the locale. They cannot be directly queried at runtime by
 the calling script.
 
 These can allow for reuse of frequent strings as well as allow for avoiding
@@ -447,9 +447,16 @@ Parameterized locals can be particularly useful for a locale indicating
 various grammatical cases of a variable/term and referencing them, again,
 allowing for variation in case the term or its translation might change
 (only the local variable would need to be updated). See the section on
-plurals for such use cases.
+"Conditionals/Plurals" for such use cases.
 
 ### Conditionals/Plurals (`switches`)
+
+The `switches` section of the `head`, like `locals`, is not meant to be
+directly queried by the calling code, but is instead referenced within
+`body` messages (through `{~aName}`-type syntax).
+
+Note that this section does not allow nested keys as with the "richNested"
+style. It instead expects the "rich" format (see "Message styles").
 
 TODO:
 including plurals
