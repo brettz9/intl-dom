@@ -588,14 +588,80 @@ To adapt an example from the project that inspired much of this one,
   "head": {
     "switches": {
       "brand-name-case": {
-        "*nominative": "Firefox",
-        "locative": "Firefoxa"
+        "*nominative": {
+          "message": "Firefox"
+        },
+        "locative": {
+          "message": "Firefoxa"
+        }
       }
-    },
+    }
   },
   "body": {
     "about": {
       "message": "Informacje o {~brand-name-case|locative}."
+    }
+  }
+}
+```
+<!--
+
+Change behavior to allow nested switches requiring escape for `.` and `\`
+
+Alternatively, this could be implemented with local variables as well as
+switches (remember that switches can't be nested--but locals can):
+
+```json
+{
+  "head": {
+    "switches": {
+      "brand-name-case": {
+        "*nominative": {
+          "message": "Firefox"
+        },
+        "locative": {
+          "message": "Firefoxa"
+        }
+      }
+    },
+    "locals": {
+      "brand-name": {
+        "case": {
+          "message": "{~brand-name-case|}"
+        }
+      }
+    }
+  },
+  "body": {
+    "about": {
+      "message": "Informacje o {-brand-name.case|locative}."
+    }
+  }
+}
+```
+-->
+
+Or, though without default behavior, with locals only:
+
+```json
+{
+  "head": {
+    "locals": {
+      "brand-name": {
+        "case": {
+          "nominative": {
+            "message": "Firefox"
+          },
+          "locative": {
+            "message": "Firefoxa"
+          }
+        }
+      }
+    }
+  },
+  "body": {
+    "about": {
+      "message": "Informacje o {-brand-name.case.locative}."
     }
   }
 }
