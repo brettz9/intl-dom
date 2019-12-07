@@ -247,11 +247,8 @@ The `head` is optional, but it can be used to store:
 ### Built-in styles
 
 `richNested` is the default format (including both code-supplied
-formatters and locale-supplied `locals`). See `getMessageForKeyByStyle`.
-
-However `rich` is used in locale `switches` (see `SwitchFormatter`) since
-`switches` needs to allow for values including `.` (e.g., decimals), which
-`richNested` instead uses for nesting.
+formatters, locale-supplied `locals`, and `switches`).
+See `getMessageForKeyByStyle`.
 
 #### "plain"
 
@@ -272,8 +269,6 @@ This format is used in the likes of Chrome/WebExtensions i18n. Its
 advantage lies in being able to add other meta-data such as `description`
 to the individual items. It comes at the cost that it takes more characters
 to represent simple messages.
-
-This format is used for locale `switches`.
 
 ```json
 {
@@ -312,10 +307,16 @@ Such keys are referenced with a `.` separator:
 _('key.that.is.nested');
 ```
 
-(This comes at the cost of reserving `.` for references.)
+It is the default style for code-supplied formatters, locale-supplied
+`locals`, and `switches`.
 
-It is the default style for code-supplied formatters and locale-supplied
-`locals`.
+This comes at the cost of reserving `.` for references (and backslashes
+needing escaping). You can escape an actual `.` with `richNested` with
+a backslash.
+
+Note that although `switches` follows `richNested`, you do not need
+to escape dots and backslashes within its values nor when passing
+arguments.
 
 ## Body content
 
@@ -462,9 +463,6 @@ The `switches` section of the `head`, like `locals`, is not meant to be
 directly queried by the calling code, but is instead referenced within
 `body` messages (through `{~aName}`-type syntax).
 
-Note that this section does not allow nested keys as with the "richNested"
-style. It instead expects the "rich" format (see "Message styles").
-
 An example might look like this:
 
 ```json
@@ -605,8 +603,6 @@ To adapt an example from the project that inspired much of this one,
 }
 ```
 <!--
-
-Change behavior to allow nested switches requiring escape for `.` and `\`
 
 Alternatively, this could be implemented with local variables as well as
 switches (remember that switches can't be nested--but locals can):

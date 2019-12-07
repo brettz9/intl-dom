@@ -70,6 +70,16 @@
         "*other": {
           "message": "{rank}th"
         }
+      },
+      "nested": {
+        "switcher": {
+          "0.0": {
+            "message": "zero points"
+          },
+          "*other": {
+            "message": "{nested.switcher} points"
+          }
+        }
       }
     },
     "locals": {

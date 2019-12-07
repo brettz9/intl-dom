@@ -2159,12 +2159,16 @@
         //  up the likes of `0.0`
 
 
-        var messageStyle = 'rich';
+        var messageStyle = 'richNested';
+
+        var preventNesting = function preventNesting(s) {
+          return s.replace(/\\/g, '\\\\').replace(/\./g, '\\.');
+        };
 
         try {
           return _getSubstitution({
             messageStyle: messageStyle,
-            key: match || arg,
+            key: match ? preventNesting(match) : arg,
             body: body,
             type: 'switch'
           });
@@ -2172,7 +2176,7 @@
           try {
             return _getSubstitution({
               messageStyle: messageStyle,
-              key: '*' + match,
+              key: '*' + preventNesting(match),
               body: body,
               type: 'switch'
             });
@@ -2187,7 +2191,7 @@
 
             return _getSubstitution({
               messageStyle: messageStyle,
-              key: k,
+              key: preventNesting(k),
               body: body,
               type: 'switch'
             });
@@ -2867,11 +2871,12 @@
             _ = _result2[0],
             esc = _result2[1],
             ky = _result2[2],
-            pipe = _result2[3],
-            arg = _result2[4];
+
+        /* pipe */
+        arg = _result2[4];
 
         var lastIndex = regex.lastIndex;
-        var startBracketPos = lastIndex - esc.length - ky.length - (pipe || '').length - (arg || '').length - 2;
+        var startBracketPos = lastIndex - _.length;
 
         if (startBracketPos > previousIndex) {
           nodes.push(str.slice(previousIndex, startBracketPos));
@@ -2989,6 +2994,7 @@
    * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
    * @returns {MessageStyleCallback}
    */
+
   var getMessageForKeyByStyle = function getMessageForKeyByStyle() {
     var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
         _ref$messageStyle = _ref.messageStyle,
@@ -2997,10 +3003,60 @@
     // Todo: Support `plainNested` style
     return typeof messageStyle === 'function' ? messageStyle : messageStyle === 'richNested' ? function (mainObj, key) {
       var obj = mainObj && _typeof(mainObj) === 'object' && mainObj.body;
-      var keys = key.split('.');
+      var keys = []; // eslint-disable-next-line prefer-named-capture-group
+
+      var possiblyEscapedCharPattern = /(\\*)\./g;
+      var previousIndex = 0;
+      var match;
+
+      var mergeWithPreviousOrStart = function mergeWithPreviousOrStart(val) {
+        if (!keys.length) {
+          keys[0] = '';
+        }
+
+        keys[keys.length - 1] += val;
+      };
+
+      while ((match = possiblyEscapedCharPattern.exec(key)) !== null) {
+        var _match = match,
+            _match2 = _slicedToArray(_match, 2),
+            _ = _match2[0],
+            esc = _match2[1];
+
+        var lastIndex = possiblyEscapedCharPattern.lastIndex;
+        var startMatchPos = lastIndex - _.length;
+
+        if (startMatchPos > previousIndex) {
+          mergeWithPreviousOrStart(key.slice(previousIndex, startMatchPos));
+        } // If odd, this is just an escaped dot, so merge content with
+        //   any previous
+
+
+        if (esc.length % 2) {
+          previousIndex = lastIndex;
+          mergeWithPreviousOrStart(_);
+          continue;
+        } // If even, there are no backslashes, or they are just escaped
+        //  backslashes and not an escaped dot, so start anew, though
+        //  first merge any backslashes
+
+
+        mergeWithPreviousOrStart(esc);
+        keys.push('');
+        previousIndex = lastIndex; // Todo collect items before and after index
+      }
+
+      if (previousIndex !== key.length) {
+        // Get text at end
+        mergeWithPreviousOrStart(key.slice(previousIndex));
+      }
+
+      var keysUnescaped = keys.map(function (ky) {
+        return unescapeBackslashes(ky);
+      });
       var ret = false;
       var currObj = obj;
-      keys.some(function (ky, i, kys) {
+      keysUnescaped.some(function (ky, i, kys) {
         if (!currObj || _typeof(currObj) !== 'object') {
           return true;
         }

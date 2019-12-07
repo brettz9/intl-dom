@@ -37,6 +37,23 @@ describe('getMessageForKeyByStyle', function () {
                 nested: {
                   message: 'myKeyValue'
                 }
+              },
+              'has.dot': {
+                message: 'dotKeyValue'
+              },
+              'has.dot.at.end.': {
+                message: 'dotAtEndKeyValue'
+              },
+              'has..double-dots': {
+                message: 'doubleDotsKeyValue'
+              },
+              'has\\': {
+                backslashes: {
+                  message: 'backslashesKeyValue'
+                }
+              },
+              'has\\.backslashesWithDot': {
+                message: 'backslashesWithDotKeyValue'
               }
             }
           }
@@ -44,16 +61,44 @@ describe('getMessageForKeyByStyle', function () {
       };
       expect(func(localeObj, 'key.that.is.nested').value).to.equal(
         this.expectedRichNestedStyleObject.body.key.that.is.nested.message
-      );
+      ).and.to.be.a('string');
       expect(func(localeObj, 'key.that.lessNested').value).to.equal(
         this.expectedRichNestedStyleObject.body.key.that.lessNested.message
-      );
+      ).and.to.be.a('string');
       expect(func(localeObj, 'key.that.is.nested').info).to.deep.equal(
         this.expectedRichNestedStyleObject.body.key.that.is.nested
-      );
+      ).and.to.be.an('object');
       expect(func(localeObj, 'key.that.lessNested').info).to.deep.equal(
         this.expectedRichNestedStyleObject.body.key.that.lessNested
-      );
+      ).and.to.be.an('object');
+      expect(func(localeObj, 'key.that.has\\.dot').info).to.deep.equal(
+        this.expectedRichNestedStyleObject.body.key.that['has.dot']
+      ).and.to.be.an('object');
+      expect(
+        func(localeObj, 'key.that.has\\.dot\\.at\\.end\\.').info
+      ).to.deep.equal(
+        this.expectedRichNestedStyleObject.body.key.that['has.dot.at.end.']
+      ).and.to.be.an('object');
+      expect(
+        func(localeObj, 'key.that.has\\.\\.double-dots').info
+      ).to.deep.equal(
+        this.expectedRichNestedStyleObject.body.key.that['has..double-dots']
+      ).and.to.be.an('object');
+      expect(
+        func(localeObj, 'key.that.has\\\\.backslashes').info
+      ).to.deep.equal(
+        this.expectedRichNestedStyleObject.body.key.that[
+          'has\\'
+        ].backslashes
+      ).and.to.be.an('object');
+      expect(
+        func(localeObj, 'key.that.has\\\\\\.backslashesWithDot').info
+      ).to.deep.equal(
+        this.expectedRichNestedStyleObject.body.key.that[
+          'has\\.backslashesWithDot'
+        ]
+      ).and.to.be.an('object');
+
       expect(func(localeObj, 'key.that')).to.equal(false);
       expect(func(localeObj, 'key.that.is.nested.too.deep')).to.equal(false);
       expect(func(localeObj, 'a.nested.missingKey')).to.equal(false);

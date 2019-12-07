@@ -150,15 +150,23 @@ export class SwitchFormatter extends Formatter {
 
     // We do not want the default `richNested` here as that will split
     //  up the likes of `0.0`
-    const messageStyle = 'rich';
+    const messageStyle = 'richNested';
+
+    const preventNesting = (s) => {
+      return s.replace(/\\/gu, '\\\\').replace(/\./gu, '\\.');
+    };
+
     try {
       return getSubstitution({
-        messageStyle, key: match || arg, body, type: 'switch'
+        messageStyle,
+        key: match ? preventNesting(match) : arg,
+        body,
+        type: 'switch'
       });
     } catch (err) {
       try {
         return getSubstitution({
-          messageStyle, key: '*' + match, body, type: 'switch'
+          messageStyle, key: '*' + preventNesting(match), body, type: 'switch'
         });
       } catch (error) {
         const k = Object.keys(body).find(
@@ -167,7 +175,9 @@ export class SwitchFormatter extends Formatter {
         if (!k) {
           throw new Error(`No defaults found for switch ${ky}`);
         }
-        return getSubstitution({messageStyle, key: k, body, type: 'switch'});
+        return getSubstitution({
+          messageStyle, key: preventNesting(k), body, type: 'switch'
+        });
       }
     }
   }

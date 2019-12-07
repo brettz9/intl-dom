@@ -72,6 +72,16 @@ export const setExpectedData = function () {
           '*other': {
             message: '{rank}th'
           }
+        },
+        nested: {
+          switcher: {
+            '0.0': {
+              message: 'zero points'
+            },
+            '*other': {
+              message: '{nested.switcher} points'
+            }
+          }
         }
       },
       locals: {
@@ -325,6 +335,23 @@ export const setExpectedData = function () {
             nested: {
               message: 'myKeyValue'
             }
+          },
+          'has.dot': {
+            message: 'dotKeyValue'
+          },
+          'has.dot.at.end.': {
+            message: 'dotAtEndKeyValue'
+          },
+          'has..double-dots': {
+            message: 'doubleDotsKeyValue'
+          },
+          'has\\': {
+            backslashes: {
+              message: 'backslashesKeyValue'
+            }
+          },
+          'has\\.backslashesWithDot': {
+            message: 'backslashesWithDotKeyValue'
           }
         }
       }
