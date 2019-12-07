@@ -177,11 +177,10 @@ export const defaultInsertNodes = ({
     // uses the same regex copy)
     const regex = new RegExp(formattingRegex, 'gu');
     while ((result = regex.exec(str)) !== null) {
-      const [_, esc, ky, pipe, arg] = result;
+      const [_, esc, ky, /* pipe */, arg] = result;
 
       const {lastIndex} = regex;
-      const startBracketPos = lastIndex - esc.length - ky.length -
-        (pipe || '').length - (arg || '').length - 2;
+      const startBracketPos = lastIndex - _.length;
       if (startBracketPos > previousIndex) {
         nodes.push(str.slice(previousIndex, startBracketPos));
       }
