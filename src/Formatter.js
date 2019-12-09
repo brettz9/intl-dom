@@ -59,18 +59,29 @@ export class SwitchFormatter extends Formatter {
     this.switches = switches;
     this.substitutions = substitutions;
   }
+  getMatch (ky) {
+    const ks = ky.split('.');
+    return ks.reduce((obj, k, i) => {
+      if (i < ks.length - 1) {
+        if (!(k in obj)) {
+          throw new Error(`Switch key "${k}" not found (from ${ky})`);
+        }
+        return obj[k];
+      }
+      // Todo: Should throw on encountering duplicate fundamental keys (even
+      //  if there are different arguments, that should not be allowed)
+      return Object.entries(obj).find(([switchKey]) => {
+        return switchKey.split('|')[0] === ky;
+      }) || [];
+    }, this.switches);
+  }
   getSubstitution (key, {locale, usedKeys, arg, missingSuppliedFormatters}) {
     const ky = this.constructor.getKey(key).slice(1);
     // Expression might not actually use formatter, e.g., for singular,
     //  the conditional might just write out "one"
     usedKeys.push(ky);
 
-    // Todo: Should throw on encountering duplicate fundamental keys (even
-    //  if there are different arguments, that should not be allowed)
-    const objKey = Object.keys(this.switches).find((switchKey) => {
-      return switchKey.split('|')[0] === ky;
-    });
-    const body = this.switches[objKey];
+    const [objKey, body] = this.getMatch(ky);
 
     let type, opts;
     if (objKey && objKey.includes('|')) {

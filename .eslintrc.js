@@ -18,6 +18,7 @@ module.exports = {
       'Intl',
       'JSON',
       'Object.defineProperty',
+      'Object.entries',
       'Object.keys',
       'Promise',
       'Promise.reject'
