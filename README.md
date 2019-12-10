@@ -838,7 +838,9 @@ TODO:
 
 NUMBER|DATETIME (or DATE)|RELATIVE|LIST
 
-Note that PLURAL is not a built-in though used for passing options to plurals (see that section).
+Note that PLURAL is not a built-in though used for casting numbers as plurals (see that section).
+
+See also "Substitution types".
 
 ## Collation
 
@@ -945,6 +947,8 @@ options object, though see "Arguments and defaults" for a fuller discussion.
 ##### Substitution types
 
 Todo: 'number', 'date', 'relative', 'list', 'plural'
+
+See also "Built-in functions".
 
 ##### Return value of callback
 
