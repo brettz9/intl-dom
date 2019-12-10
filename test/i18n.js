@@ -1858,6 +1858,30 @@ describe('i18n', function () {
 
   it(
     'should return function that can return a string that processes a ' +
+    'string switch, providing the default explicitly',
+    async function () {
+      const _ = await i18n();
+      const string = _('keyUsingStringSwitch', {
+        'executive-pronoun': 'nominative'
+      });
+      expect(string).to.equal('This pronoun is nominative: he');
+    }
+  );
+
+  it(
+    'should return function that can return a string that processes a ' +
+    'string switch, overriding the value',
+    async function () {
+      const _ = await i18n();
+      const string = _('keyUsingStringSwitch', {
+        'executive-pronoun': 'accusative'
+      });
+      expect(string).to.equal('This pronoun is nominative: him');
+    }
+  );
+
+  it(
+    'should return function that can return a string that processes a ' +
     'local with a string switch',
     async function () {
       const _ = await i18n();

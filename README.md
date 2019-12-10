@@ -483,7 +483,8 @@ An example might look like this:
 ```
 
 A locale string within `body` (or `locals`) can then reference such switches
-with an initial tilde within curly brackets:
+with an initial tilde within curly brackets, optionally specifying an
+argument:
 
 ```json
 {
@@ -494,7 +495,13 @@ with an initial tilde within curly brackets:
 ```
 
 Note that the initial `*` has a special meaning to indicate that this
-is the default value; if you don't pass an argument that value will be used.
+is the default value; if you don't pass an argument, that value will be used.
+
+Also note that besides accepting explicit or entirely missing arguments,
+switches can, unlike `locals`, accept run-time substitution arguments.
+
+
+
 
 TODO:
 including plurals
