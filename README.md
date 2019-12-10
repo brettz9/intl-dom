@@ -593,8 +593,9 @@ The reason for this discrepancy is that the (depth of) nesting of the
 switch is meant to be private to the locale, a mere implementation detail,
 whereas a substitution--if needed--can be public.
 
-For another example, and adapting an example from the project that inspired
-much of this one, [Fluent](https://projectfluent.org/fluent/guide/terms.html):
+For another example which shows the benefits of the nesting and reusability
+in `switches` (or `locals`), and adapting an example from the project that
+inspired much of this one, [Fluent](https://projectfluent.org/fluent/guide/terms.html):
 
 ```json
 {
@@ -620,7 +621,7 @@ much of this one, [Fluent](https://projectfluent.org/fluent/guide/terms.html):
 }
 ```
 
-Note that while the following could be implemented by locals, this would
+Note that while the following could be implemented by `locals`, this would
 not come with defaulting behavior:
 
 ```json
@@ -649,7 +650,9 @@ not come with defaulting behavior:
 
 #### Plurals
 
-Conditionals also have built-in logic for handling plurals.
+Conditionals also have built-in logic for mapping numbers to a suitable
+localization (e.g., with different forms of grammr), depending on the
+degree of the plural.
 
 If a switch has keys set to the values returnable by [Intl.PluralRules#select](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/PluralRules/select), i.e., one of "zero", "one", "two", "few", "many" or "other",
 depending on the locale, these may be selected in the event a number
@@ -671,7 +674,7 @@ For example, with the following:
   },
   "body": {
     "keyUsingSwitch": {
-      "message": "You have {~bananas}"
+      "message": "You have {~bananas}."
     }
   }
 }
@@ -680,12 +683,24 @@ For example, with the following:
 ```js
 (async () => {
   const _ = await i18n();
-  const string = _('keyUsingSwitch', {
+
+  const string1 = _('keyUsingSwitch', {
     bananas: 20
   });
-  // `string` will be "You have 20 bananas"
+  // `string1` will be "You have 20 bananas."
+
+  const string2 = _('keyUsingSwitch', {
+    bananas: 1
+  });
+  // `string2` will be "You have one banana."
 })();
 ```
+
+Note that English only has the "one" and "other" forms for cardinal numbers
+(the default), but other languages have distinct forms as their grammar
+varies, e.g., if there are 0, 1, 2, or 3 items or few vs. many.
+
+TODO: Finish
 
 ```json
 {
