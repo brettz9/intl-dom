@@ -483,13 +483,12 @@ An example might look like this:
 ```
 
 A locale string within `body` (or `locals`) can then reference such switches
-with an initial tilde within curly brackets, optionally specifying an
-argument:
+with an initial tilde within curly brackets:
 
 ```json
 {
   "switchUsingKey": {
-    "message": "I gave it to {~executive-pronoun|accusative}"
+    "message": "I gave it to {~executive-pronoun}"
   }
 }
 ```
@@ -498,25 +497,91 @@ Note that the initial `*` has a special meaning to indicate that this
 is the default value; if you don't pass an argument, that value will be used.
 
 Also note that besides accepting explicit or entirely missing arguments,
-switches can, unlike `locals`, accept run-time substitution arguments.
+switches can, unlike `locals`, accept run-time substitution arguments
+which will be used in place of the default.
 
+```js
+(async () => {
+  const _ = await i18n();
+  const string = _('switchUsingKey', {
+    'executive-pronoun': 'accusative'
+  });
+  // `string` will be "I gave it to him"
+})();
+```
 
+However, run-time substitutions will be overridden if the switch is
+given an explicit argument in the locale (by a pipe symbol followed by an
+explicit argument):
 
+```json
+{
+  "switchUsingKey": {
+    "message": "I think {~executive-pronoun|nominative} saw me."
+  }
+}
+```
+
+...which will return the following regardless of any runtime
+substitution value:
+
+> "I think he saw me."
+
+Run-time substitutions can be used in switch messages. For example,
+if we had the following above instead:
+
+```json
+"executive-pronoun": {
+  "*nominative": {
+    "message": "he ({executive-pronoun})"
+  },
+  "accusative": {
+    "message": "him ({executive-pronoun})"
+  }
+}
+```
+
+...this could instead return the following:
+
+> "I think he (nominative) saw me."
+
+Note that the defaulting `*` is not added to the message.
 
 TODO:
 including plurals
 
+
+For example, with the following:
+
 ```json
 {
-  "bananas": {
-    "one": {
-      "message": "one banana"
-    },
-    "*other": {
-      "message": "{bananas} bananas"
+  "locals": {
+    "bananas": {
+      "one": {
+        "message": "one banana"
+      },
+      "*other": {
+        "message": "{bananas} bananas"
+      }
+    }
+  },
+  "body": {
+    "keyUsingSwitch": {
+      "message": "You have {~bananas}"
     }
   }
 }
+```
+
+```js
+(async () => {
+  const _ = await i18n();
+  const string = _('keyUsingSwitch', {
+    bananas: 20
+  });
+  // `string` will be "You have 20 bananas"
+})();
+```
 
 ```json
 {
