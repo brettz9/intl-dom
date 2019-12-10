@@ -783,7 +783,9 @@ Note that number formatting is still needed here (for the "other" form) to
 ensure this output string with the dynamic number is always shown with one
 decimal, but such casting has the benefit of helping the runtime avoid the
 need for supplying formatting and also brings control to the locale
-as the locale takes precedence regardless of any runtime default setting.
+as the locale takes precedence regardless of any runtime default setting
+(settings are merged, so a run-time-provided setting can still seep through
+to act as a default even if the locale overrides one or more other settings).
 
 In the casting, one can also use "PLURAL" settings (based on
 [`Intl.PluralRules`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/PluralRules)):
@@ -828,15 +830,6 @@ Note that if we had not provided the `type: 'ordinal'` config, the
 `rank` would not be able to have more than the `"one"` and `"*other"`
 categories, as English is limited to these for cardinal numbers, the
 default.
-
-
-Todo: Mention how plural formatting options from default argument still
-passed on to number formatter (e.g., to pass on `minimumFractionDigits`)
-and how not used as explicit argument (use `~` instead with `PLURAL`
-baked in; note too that casting won't affect formatting (e.g., plural
-casting may need number formatting))
-
-Todo: substitutions setting plural defaults (which locales can override)
 
 ## Built-in functions
 
