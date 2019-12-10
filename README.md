@@ -805,8 +805,7 @@ and how not used as explicit argument (use `~` instead with `PLURAL`
 baked in; note too that casting won't affect formatting (e.g., plural
 casting may need number formatting))
 
-Todo: Allow substitutions to set plural defaults (which
-        locales can override)
+Todo: substitutions setting plural defaults (which locales can override)
 
 ## Built-in functions
 
