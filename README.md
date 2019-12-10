@@ -759,7 +759,10 @@ forms, explicit matches can also be made; in this example, for the number,
 the text "zero" will be displayed if the supplied value is "0",
 and the number will be displayed to one decimal point otherwise.
 
-Rather than requiring the run-time code to supply the formatting needed
+##### Casting
+
+Continuing with the example in the previous section, rather than
+requiring the run-time code to supply the formatting needed
 for conditional key selection, locales can cast the supplied value within
 the key, using the built-in function approach.
 
@@ -834,13 +837,27 @@ default, and therefore a number of 2 or 3 would end up mistakenly as
 
 ## Built-in functions
 
-TODO:
+There are some cases where locales will want to override or otherwise control
+how a passed-in value is formatted, e.g., in cases where space is limited due
+to the language requiring a longer translation in places.
 
-NUMBER|DATETIME (or DATE)|RELATIVE|LIST
+The following is a list of these built-in functions:
 
-Note that PLURAL is not a built-in though used for casting numbers as plurals (see that section).
+1. `NUMBER` - See [Intl.NumberFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat) for options.
+1. `DATETIME` (or `DATE`) - See [Intl.DateTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat) for options.
+1. `RELATIVE` - See [Intl.RelativeTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RelativeTimeFormat) for options.
+1. `LIST` - See [Intl.ListFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ListFormat) for options (and for secondary options, see [Intl.Collator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator)).
 
-See also "Substitution types".
+TODO: Show examples, including for secondary options for LIST.
+
+Note that although `PLURAL` follows a similar format in casting (see the "Casting" section), this is not available as a built-in function usable within normal or local
+key messages.
+
+Each of the built-in functions has a corresponding subsitution type
+(see "Substitution types"). Note, however, that if a built-in function is used,
+a substitution type is not always required in the case of number or date
+values; the substitution type is needed for the runtime to provide default
+configuration options, however.
 
 ## Collation
 
@@ -945,6 +962,16 @@ The "Return value of callback" subsection demonstrates the callback's
 options object, though see "Arguments and defaults" for a fuller discussion.
 
 ##### Substitution types
+
+In adition to supplying literal values such as strings, numbers, and
+DOM elements/fragments, one may also provide an object with a one (and
+only one) of the following keys:
+
+1. `number`
+1. `date` (or `datetime`)
+1. `relative`
+1. `list`
+1. `plural`- See the "Plurals" section.
 
 Todo: 'number', 'date', 'relative', 'list', 'plural'
 
