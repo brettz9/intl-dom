@@ -65,11 +65,12 @@ export const i18n = async function i18n ({
   const {strings, locale: resolvedLocale} = await findLocaleStrings({
     locales, defaultLocales, localeResolver, localesBasePath, localeMatcher
   });
+
   if (!strings || typeof strings !== 'object') {
     throw new TypeError(`Locale strings must be an object!`);
   }
   const messageForKey = getMessageForKeyByStyle({messageStyle});
-  return (key, substitutions, {
+  const formatter = (key, substitutions, {
     allSubstitutions = defaultAllSubstitutionsValue,
     defaults = defaultDefaults,
     dom = domDefaults,
@@ -100,4 +101,8 @@ export const i18n = async function i18n ({
       throwOnExtraSuppliedFormatters
     });
   };
+
+  formatter.resolvedLocale = resolvedLocale;
+
+  return formatter;
 };

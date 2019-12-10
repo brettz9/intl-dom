@@ -13,6 +13,13 @@ describe('i18n', function () {
     const _ = await i18n();
     expect(_).to.be.a('function');
   });
+  it(
+    'should return a function with `resolvedLocale` property',
+    async function () {
+      const _ = await i18n();
+      expect(_.resolvedLocale).to.equal('en-US');
+    }
+  );
   it('should return a function with empty object argument', async function () {
     const _ = await i18n({});
     expect(_).to.be.a('function');
