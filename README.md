@@ -547,9 +547,53 @@ if we had the following above instead:
 
 Note that the defaulting `*` is not added to the message.
 
+Also note that nested `switches` behave differently from normal nested
+keys in that only the last portion of a nested key will be available
+as a substitution. For example, had our switch been as follows:
+
+```json
+{
+  "nested": {
+    "executive-pronoun": {
+      "*nominative": {
+        "message": "he ({executive-pronoun})"
+      },
+      "accusative": {
+        "message": "him ({executive-pronoun})"
+      }
+    }
+  }
+}
+```
+
+...any run-time substitution would still provide `executive-pronoun`
+as an argument, and not `nested.executive-pronoun`. However, keys
+and locals would need to prefer to the switch with the
+`nested.executive-pronoun` syntax. So in JavaScript, we might still have:
+
+```js
+_('switchUsingKey', {
+  'executive-pronoun': 'accusative'
+});
+```
+
+...while in a key we might have:
+
+```json
+{
+  "key": {
+    "message": "The pronoun is {~nested.executive-pronoun}"
+  }
+}
+```
+
+The reason for this discrepancy is that the (depth of) nesting of the
+switch is meant to be private to the locale, a mere implementation detail,
+whereas a substitution--if needed--can be public.
+
+
 TODO:
 including plurals
-
 
 For example, with the following:
 
