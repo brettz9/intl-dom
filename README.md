@@ -725,7 +725,8 @@ can indicate config along with the provided number by using a `plural`
 
 Note, however, that while this properly selects our "other" form, it hasn't
 actually formatted our number as a decimal. To do that, the locale will
-need the built-in `NUMBER` function.
+need the built-in `NUMBER` function. (See the "Built-in functions" section
+for more.)
 
 ```json
 "*other": {
