@@ -1175,6 +1175,13 @@ on whether you have supplied DOM substitutions). See the "Return value of
 callback" subsection of why the return values may differ and how you can
 force a `Node` to be returned.
 
+Note that the returned function itself has the property `resolvedLocale`
+to allow introspection on the locale detected.
+
+The function also has a `strings` property allowing direct access to the
+resolved string messages, but this should normally not be directly used
+or needed.
+
 ##### Usage of the function returned by `i18n`
 
 This function takes up to three arguments and returns a string, text node, or
