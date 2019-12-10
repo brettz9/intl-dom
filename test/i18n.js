@@ -852,6 +852,26 @@ describe('i18n', function () {
 
   it(
     'should return a function whose default `allSubstitutions` will ' +
+    'perform `ListFormat` processing',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('listKey', {
+        listItems: {
+          list: [
+            [
+              'a', 'z', 'ä', 'a'
+            ]
+          ]
+        }
+      });
+      expect(string).to.equal('The list is: a, a, ä, and z');
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
     'perform `ListFormat` processing (inheriting formatter options)',
     async function () {
       const _ = await i18n({
