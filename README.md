@@ -1108,6 +1108,15 @@ to be stringified within a message, this will not help when you need to
 build HTML, such as `<select>` `<option>` elements, out of localized messages,
 and *then* ensure the elements are sorted.
 
+```js
+arrayOfItems.sort(new Intl.Collator(
+  locale, // e.g., from `_.resolvedLocale`
+  {
+    // Options
+  }
+).compare);
+```
+
 --TODO
 
 Collator (demo complex use and refer to how making default for simple cases with `ListFormat`)
