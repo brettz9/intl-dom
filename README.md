@@ -459,6 +459,8 @@ set to `3` by default (in `i18n`, `getDOMForLocaleString`, and
 
 ### Conditionals/Plurals (`switches`)
 
+#### Basic conditionals
+
 The `switches` section of the `head`, like `locals`, is not meant to be
 directly queried by the calling code, but is instead referenced within
 `body` messages (through `{~aName}`-type syntax).
@@ -591,9 +593,67 @@ The reason for this discrepancy is that the (depth of) nesting of the
 switch is meant to be private to the locale, a mere implementation detail,
 whereas a substitution--if needed--can be public.
 
+For another example, and adapting an example from the project that inspired
+much of this one, [Fluent](https://projectfluent.org/fluent/guide/terms.html):
 
-TODO:
-including plurals
+```json
+{
+  "head": {
+    "switches": {
+      "brand-name": {
+        "case": {
+          "*nominative": {
+            "message": "Firefox"
+          },
+          "locative": {
+            "message": "Firefoxa"
+          }
+        }
+      }
+    }
+  },
+  "body": {
+    "about": {
+      "message": "Informacje o {~brand-name.case|locative}."
+    }
+  }
+}
+```
+
+Note that while the following could be implemented by locals, this would
+not come with defaulting behavior:
+
+```json
+{
+  "head": {
+    "locals": {
+      "brand-name": {
+        "case": {
+          "nominative": {
+            "message": "Firefox"
+          },
+          "locative": {
+            "message": "Firefoxa"
+          }
+        }
+      }
+    }
+  },
+  "body": {
+    "about": {
+      "message": "Informacje o {-brand-name.case.locative}."
+    }
+  }
+}
+```
+
+#### Plurals
+
+Conditionals also have built-in logic for handling plurals.
+
+If a switch has keys set to the values returnable by [Intl.PluralRules#select](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/PluralRules/select), i.e., one of "zero", "one", "two", "few", "many" or "other",
+depending on the locale, these may be selected in the event a number
+is supplied.
 
 For example, with the following:
 
@@ -693,91 +753,6 @@ casting may need number formatting))
 
 Todo: Allow substitutions to set plural defaults (which
         locales can override)
-
-To adapt an example from the project that inspired much of this one,
-[Fluent](https://projectfluent.org/fluent/guide/terms.html),
-
-```json
-{
-  "head": {
-    "switches": {
-      "brand-name-case": {
-        "*nominative": {
-          "message": "Firefox"
-        },
-        "locative": {
-          "message": "Firefoxa"
-        }
-      }
-    }
-  },
-  "body": {
-    "about": {
-      "message": "Informacje o {~brand-name-case|locative}."
-    }
-  }
-}
-```
-<!--
-
-Alternatively, this could be implemented with local variables as well as
-switches (remember that switches can't be nested--but locals can):
-
-```json
-{
-  "head": {
-    "switches": {
-      "brand-name-case": {
-        "*nominative": {
-          "message": "Firefox"
-        },
-        "locative": {
-          "message": "Firefoxa"
-        }
-      }
-    },
-    "locals": {
-      "brand-name": {
-        "case": {
-          "message": "{~brand-name-case|}"
-        }
-      }
-    }
-  },
-  "body": {
-    "about": {
-      "message": "Informacje o {-brand-name.case|locative}."
-    }
-  }
-}
-```
--->
-
-Or, though without default behavior, with locals only:
-
-```json
-{
-  "head": {
-    "locals": {
-      "brand-name": {
-        "case": {
-          "nominative": {
-            "message": "Firefox"
-          },
-          "locative": {
-            "message": "Firefoxa"
-          }
-        }
-      }
-    }
-  },
-  "body": {
-    "about": {
-      "message": "Informacje o {-brand-name.case.locative}."
-    }
-  }
-}
-```
 
 ## Built-in functions
 
