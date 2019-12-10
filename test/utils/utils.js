@@ -79,21 +79,21 @@ export const setExpectedData = function () {
               message: 'zero points'
             },
             '*other': {
-              message: '{nested.scoreNoCasting} points'
+              message: '{scoreNoCasting} points'
             }
           },
           "rank|PLURAL|type: 'ordinal'": {
             one: {
-              message: '{nested.rank}st'
+              message: '{rank}st'
             },
             two: {
-              message: '{nested.rank}nd'
+              message: '{rank}nd'
             },
             few: {
-              message: '{nested.rank}rd'
+              message: '{rank}rd'
             },
             '*other': {
-              message: '{nested.rank}th'
+              message: '{rank}th'
             }
           }
         }

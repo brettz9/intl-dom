@@ -1548,7 +1548,7 @@ describe('i18n', function () {
     async function () {
       const _ = await i18n();
       const string = _('nestedKeyUsingSwitchNoCastingAndArguments', {
-        'nested.scoreNoCasting': {
+        scoreNoCasting: {
           number: [0, {
             minimumFractionDigits: 1
           }]
@@ -1560,11 +1560,12 @@ describe('i18n', function () {
 
   it(
     'should return function that can return a string that processes a ' +
-    'nested number switch with no arguments but with default arguments',
+    'nested number switch with no arguments but with default arguments ' +
+    'that force minimum digits not directly matching',
     async function () {
       const _ = await i18n();
       const string = _('nestedKeyUsingSwitchNoCastingAndArguments', {
-        'nested.scoreNoCasting': {
+        scoreNoCasting: {
           number: [0, {
             minimumFractionDigits: 5
           }]
@@ -1687,19 +1688,19 @@ describe('i18n', function () {
     async function () {
       const _ = await i18n();
       let string = _('keyUsingNestedOrdinalSwitch', {
-        'nested.rank': 1
+        rank: 1
       });
       expect(string).to.equal('You got 1st.');
       string = _('keyUsingNestedOrdinalSwitch', {
-        'nested.rank': 2
+        rank: 2
       });
       expect(string).to.equal('You got 2nd.');
       string = _('keyUsingNestedOrdinalSwitch', {
-        'nested.rank': 3
+        rank: 3
       });
       expect(string).to.equal('You got 3rd.');
       string = _('keyUsingNestedOrdinalSwitch', {
-        'nested.rank': 17
+        rank: 17
       });
       expect(string).to.equal('You got 17th.');
     }
@@ -1827,19 +1828,19 @@ describe('i18n', function () {
     async function () {
       const _ = await i18n();
       let string = _('keyUsingLocalWithNestedOrdinalSwitch', {
-        'nested.rank': 1
+        rank: 1
       });
       expect(string).to.equal('You got 1st. Not bad!');
       string = _('keyUsingLocalWithNestedOrdinalSwitch', {
-        'nested.rank': 2
+        rank: 2
       });
       expect(string).to.equal('You got 2nd. Not bad!');
       string = _('keyUsingLocalWithNestedOrdinalSwitch', {
-        'nested.rank': 3
+        rank: 3
       });
       expect(string).to.equal('You got 3rd. Not bad!');
       string = _('keyUsingLocalWithNestedOrdinalSwitch', {
-        'nested.rank': 17
+        rank: 17
       });
       expect(string).to.equal('You got 17th. Not bad!');
     }
@@ -2147,19 +2148,19 @@ describe('i18n', function () {
     async function () {
       const _ = await i18n({dom: true});
       let frag = _('keyUsingLocalWithNestedOrdinalSwitch', {
-        'nested.rank': 1
+        rank: 1
       });
       expect(frag).to.have.fragmentHtml('You got 1st. Not bad!');
       frag = _('keyUsingLocalWithNestedOrdinalSwitch', {
-        'nested.rank': 2
+        rank: 2
       });
       expect(frag).to.have.fragmentHtml('You got 2nd. Not bad!');
       frag = _('keyUsingLocalWithNestedOrdinalSwitch', {
-        'nested.rank': 3
+        rank: 3
       });
       expect(frag).to.have.fragmentHtml('You got 3rd. Not bad!');
       frag = _('keyUsingLocalWithNestedOrdinalSwitch', {
-        'nested.rank': 17
+        rank: 17
       });
       expect(frag).to.have.fragmentHtml('You got 17th. Not bad!');
     }

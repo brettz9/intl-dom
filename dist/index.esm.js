@@ -2059,13 +2059,13 @@ function (_Formatter3) {
       var ky = this.constructor.getKey(key).slice(1); // Expression might not actually use formatter, e.g., for singular,
       //  the conditional might just write out "one"
 
-      usedKeys.push(ky);
-
       var _this$getMatch = this.getMatch(ky),
-          _this$getMatch2 = _slicedToArray(_this$getMatch, 2),
+          _this$getMatch2 = _slicedToArray(_this$getMatch, 3),
           objKey = _this$getMatch2[0],
-          body = _this$getMatch2[1];
+          body = _this$getMatch2[1],
+          keySegment = _this$getMatch2[2];
 
+      usedKeys.push(keySegment);
       var type, opts;
 
       if (objKey && objKey.includes('|')) {
@@ -2101,7 +2101,7 @@ function (_Formatter3) {
         return new Intl.PluralRules(locale, _objectSpread2({}, defaultOptions, {}, pluralOpts)).select(value);
       };
 
-      var formatterValue = this.substitutions[ky];
+      var formatterValue = this.substitutions[keySegment];
       var match = formatterValue;
 
       if (typeof formatterValue === 'number') {
@@ -2214,12 +2214,13 @@ function (_Formatter3) {
         //  if there are different arguments, that should not be allowed)
 
 
-        return Object.entries(obj).find(function (_ref4) {
+        var ret = Object.entries(obj).find(function (_ref4) {
           var _ref5 = _slicedToArray(_ref4, 1),
               switchKey = _ref5[0];
 
           return k === _this4.constructor.getKey(switchKey);
-        }) || [];
+        });
+        return ret ? ret.concat(k) : [];
       }, this.switches);
     }
   }], [{

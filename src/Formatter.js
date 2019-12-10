@@ -63,9 +63,9 @@ export class SwitchFormatter extends Formatter {
     const ky = this.constructor.getKey(key).slice(1);
     // Expression might not actually use formatter, e.g., for singular,
     //  the conditional might just write out "one"
-    usedKeys.push(ky);
 
-    const [objKey, body] = this.getMatch(ky);
+    const [objKey, body, keySegment] = this.getMatch(ky);
+    usedKeys.push(keySegment);
 
     let type, opts;
     if (objKey && objKey.includes('|')) {
@@ -99,7 +99,7 @@ export class SwitchFormatter extends Formatter {
       }).select(value);
     };
 
-    const formatterValue = this.substitutions[ky];
+    const formatterValue = this.substitutions[keySegment];
 
     let match = formatterValue;
     if (typeof formatterValue === 'number') {
@@ -192,9 +192,11 @@ export class SwitchFormatter extends Formatter {
       }
       // Todo: Should throw on encountering duplicate fundamental keys (even
       //  if there are different arguments, that should not be allowed)
-      return Object.entries(obj).find(([switchKey]) => {
+      const ret = Object.entries(obj).find(([switchKey]) => {
         return k === this.constructor.getKey(switchKey);
-      }) || [];
+      });
+
+      return ret ? ret.concat(k) : [];
     }, this.switches);
   }
 
