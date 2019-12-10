@@ -59,22 +59,6 @@ export class SwitchFormatter extends Formatter {
     this.switches = switches;
     this.substitutions = substitutions;
   }
-  getMatch (ky) {
-    const ks = ky.split('.');
-    return ks.reduce((obj, k, i) => {
-      if (i < ks.length - 1) {
-        if (!(k in obj)) {
-          throw new Error(`Switch key "${k}" not found (from ${ky})`);
-        }
-        return obj[k];
-      }
-      // Todo: Should throw on encountering duplicate fundamental keys (even
-      //  if there are different arguments, that should not be allowed)
-      return Object.entries(obj).find(([switchKey]) => {
-        return switchKey.split('|')[0] === ky;
-      }) || [];
-    }, this.switches);
-  }
   getSubstitution (key, {locale, usedKeys, arg, missingSuppliedFormatters}) {
     const ky = this.constructor.getKey(key).slice(1);
     // Expression might not actually use formatter, e.g., for singular,
@@ -194,10 +178,26 @@ export class SwitchFormatter extends Formatter {
   }
   isMatch (key) {
     return key && this.constructor.isMatchingKey(key) &&
-      Object.keys(this.switches).some((switchKey) => {
-        return key.slice(1) === this.constructor.getKey(switchKey);
-      });
+      this.getMatch(key.slice(1)).length;
   }
+
+  getMatch (ky) {
+    const ks = ky.split('.');
+    return ks.reduce((obj, k, i) => {
+      if (i < ks.length - 1) {
+        if (!(k in obj)) {
+          throw new Error(`Switch key "${k}" not found (from ${ky})`);
+        }
+        return obj[k];
+      }
+      // Todo: Should throw on encountering duplicate fundamental keys (even
+      //  if there are different arguments, that should not be allowed)
+      return Object.entries(obj).find(([switchKey]) => {
+        return ky === this.constructor.getKey(switchKey);
+      }) || [];
+    }, this.switches);
+  }
+
   static isMatchingKey (key) {
     return key.startsWith('~');
   }

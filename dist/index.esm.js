@@ -2059,13 +2059,13 @@ function (_Formatter3) {
       var ky = this.constructor.getKey(key).slice(1); // Expression might not actually use formatter, e.g., for singular,
       //  the conditional might just write out "one"
 
-      usedKeys.push(ky); // Todo: Should throw on encountering duplicate fundamental keys (even
-      //  if there are different arguments, that should not be allowed)
+      usedKeys.push(ky);
 
-      var objKey = Object.keys(this.switches).find(function (switchKey) {
-        return switchKey.split('|')[0] === ky;
-      });
-      var body = this.switches[objKey];
+      var _this$getMatch = this.getMatch(ky),
+          _this$getMatch2 = _slicedToArray(_this$getMatch, 2),
+          objKey = _this$getMatch2[0],
+          body = _this$getMatch2[1];
+
       var type, opts;
 
       if (objKey && objKey.includes('|')) {
@@ -2195,11 +2195,32 @@ function (_Formatter3) {
   }, {
     key: "isMatch",
     value: function isMatch(key) {
+      return key && this.constructor.isMatchingKey(key) && this.getMatch(key.slice(1)).length;
+    }
+  }, {
+    key: "getMatch",
+    value: function getMatch(ky) {
       var _this4 = this;
 
-      return key && this.constructor.isMatchingKey(key) && Object.keys(this.switches).some(function (switchKey) {
-        return key.slice(1) === _this4.constructor.getKey(switchKey);
-      });
+      var ks = ky.split('.');
+      return ks.reduce(function (obj, k, i) {
+        if (i < ks.length - 1) {
+          if (!(k in obj)) {
+            throw new Error("Switch key \"".concat(k, "\" not found (from ").concat(ky, ")"));
+          }
+
+          return obj[k];
+        } // Todo: Should throw on encountering duplicate fundamental keys (even
+        //  if there are different arguments, that should not be allowed)
+
+
+        return Object.entries(obj).find(function (_ref4) {
+          var _ref5 = _slicedToArray(_ref4, 1),
+              switchKey = _ref5[0];
+
+          return ky === _this4.constructor.getKey(switchKey);
+        }) || [];
+      }, this.switches);
     }
   }], [{
     key: "isMatchingKey",
