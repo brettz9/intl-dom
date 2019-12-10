@@ -872,7 +872,8 @@ Each of the built-in functions has a corresponding subsitution type
 (see "Substitution types"). Note, however, that if a built-in function is used,
 a substitution type is not always required (in the case of number or date
 values); the substitution type is needed for the runtime to provide default
-configuration options, however.
+configuration options, however. The built-in function options, when
+specified, take precedence over defaults.
 
 #### `NUMBER`
 
@@ -1100,6 +1101,12 @@ complete list of secondary options, see
 [Intl.Collator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator)).
 
 ## Collation
+
+While the `LIST` built-in function details one use case where `Intl.Collator`
+is put to use within `intl-dom`, namely the supplying of an array of values
+to be stringified within a message, this will not help when you need to
+build HTML, such as `<select>` `<option>` elements, out of localized messages,
+and *then* ensure the elements are sorted.
 
 --TODO
 
