@@ -738,21 +738,30 @@ This will give the desired output:
 
 > "You have 1.0 bananas."
 
-
-TODO: Finish
+To take another example (and one where decimals are more likely),
+we might have the following:
 
 ```json
 {
-  "scoreNoCasting": {
-    "0.0": {
+  "score": {
+    "0": {
       "message": "zero points"
     },
     "*other": {
-      "message": "{scoreNoCasting} points"
+      "message": "{score|NUMBER|minimumFractionDigits:1} points"
     }
   }
 }
 ```
+
+This example highlights another feature, namely, that besides plural
+forms, explicit matches can also be made; in this example, for the number,
+the text "zero" will be displayed if the supplied value is "0",
+and the number will be displayed to one decimal point otherwise.
+
+Rather than requiring the run-time code to supply the formatting needed
+for conditional key selection, locales can cast the supplied value within
+the key, using the built-in function approach.
 
 ```json
 {
@@ -767,6 +776,18 @@ TODO: Finish
 }
 ```
 
+We are now able to be consistent in showing our matches as based on a single
+decimal (or as a plural category).
+
+Note that number formatting is still needed here (for the "other" form) to
+ensure this output string with the dynamic number is always shown with one
+decimal, but such casting has the benefit of helping the runtime avoid the
+need for supplying formatting and also brings control to the locale
+as the locale takes precedence regardless of any runtime default setting.
+
+In the casting, one can also use "PLURAL" settings (based on
+[`Intl.PluralRules`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/PluralRules)):
+
 ```json
 {
   "pointsFraction|PLURAL|minimumFractionDigits: 1": {
@@ -779,6 +800,10 @@ TODO: Finish
   }
 }
 ```
+
+One other situation in which explicit `PLURAL` casting is useful is in
+ordinal numbers, which may have, as with English, different pluralization
+categories for different numbers.
 
 ```json
 {
@@ -798,6 +823,12 @@ TODO: Finish
   }
 }
 ```
+
+Note that if we had not provided the `type: 'ordinal'` config, the
+`rank` would not be able to have more than the `"one"` and `"*other"`
+categories, as English is limited to these for cardinal numbers, the
+default.
+
 
 Todo: Mention how plural formatting options from default argument still
 passed on to number formatter (e.g., to pass on `minimumFractionDigits`)
