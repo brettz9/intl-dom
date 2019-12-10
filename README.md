@@ -1040,14 +1040,6 @@ const _ = await i18n({
   //   `getMessageForKeyByStyle`
   messageStyle: 'richNested',
 
-  // A regular expression with the first capturing group identifying
-  //   a formatted subject (by default, the contents within curly brackets);
-  //   the optional second capturing group identifies an optional argument
-  //   (by default, a pipe symbol `|` followed by the argument
-  //   until the closing curly bracket); named capturing groups are not
-  //   currently supported
-  formattingRegex: /\{([^}]*?)(?:\|([^}]*))?\}/gu,
-
   // `false`, `null`, or `undefined`, it will throw if a value is not found;
   //  should otherwise be an object of the same message style as the locales.
   defaults: undefined,
