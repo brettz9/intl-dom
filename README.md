@@ -835,11 +835,9 @@ default.
 
 TODO:
 
-NUMBER|DATETIME|RELATIVE|LIST
+NUMBER|DATETIME (or DATE)|RELATIVE|LIST
 
 Note that PLURAL is not a built-in though used for passing options to plurals (see that section).
-
-(Rename DATETIME for parity?)
 
 ## Collation
 

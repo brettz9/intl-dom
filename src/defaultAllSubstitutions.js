@@ -36,7 +36,11 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
 
   const applyArgs = ({type, options = opts, checkArgOptions = false}) => {
     if (typeof arg === 'string') {
-      const [userType, extraArgs, argOptions] = arg.split('|');
+      let [userType, extraArgs, argOptions] = arg.split('|');
+      // Alias
+      if (userType === 'DATE') {
+        userType = 'DATETIME';
+      }
       if (userType === type) {
         if (!extraArgs) {
           options = {};
@@ -56,7 +60,9 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
 
   if (value && typeof value === 'object') {
     const singleKey = Object.keys(value)[0];
-    if (['number', 'date', 'relative', 'list', 'plural'].includes(singleKey)) {
+    if ([
+      'number', 'date', 'datetime', 'relative', 'list', 'plural'
+    ].includes(singleKey)) {
       ({
         value, options: opts, extraOpts
       } = getFormatterInfo({object: value[singleKey]}));

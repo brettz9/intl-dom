@@ -80,7 +80,7 @@ export const defaultInsertNodes = ({
           value: subst, arg, key, locale
         });
       }, substitution);
-    } else if (arg && arg.match(/^(?:NUMBER|DATETIME|RELATIVE|LIST)(?:\||$)/u)) {
+    } else if (arg && arg.match(/^(?:NUMBER|DATE(?:TIME)?|RELATIVE|LIST)(?:\||$)/u)) {
       substitution = defaultAllSubstitutions({
         value: substitution, arg, key, locale
       });

@@ -405,10 +405,10 @@ describe('i18n', function () {
         allSubstitutions: null,
         locales: ['en-US']
       });
-      const string = _('dateWithArgAndOptionsKey', {
+      const string = _('dateAliasWithArgAndOptionsKey', {
         now: 'now',
         todayDate: {
-          date: [new Date(Date.UTC(2000, 11, 28, 3, 4, 5)), {
+          datetime: [new Date(Date.UTC(2000, 11, 28, 3, 4, 5)), {
             year: '2-digit'
           }]
         }
@@ -425,7 +425,7 @@ describe('i18n', function () {
       const _ = await i18n({
         locales: ['en-US']
       });
-      const string = _('dateWithArgAndOptionsKey', {
+      const string = _('dateAliasWithArgAndOptionsKey', {
         now: 'now',
         todayDate: {
           date: [new Date(Date.UTC(2000, 11, 28, 3, 4, 5)), {
@@ -467,6 +467,26 @@ describe('i18n', function () {
         locales: ['en-US']
       });
       const string = _('dateWithArgKey', {
+        now: 'now',
+        todayDate: {
+          date: [new Date(Date.UTC(2000, 11, 28, 3, 4, 5)), {
+            year: '2-digit'
+          }]
+        }
+      });
+      expect(string).to.equal('It is now 12/28/2000');
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `DateTimeFormat` processing being overridden by options ' +
+    'in the locale argument',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('dateAliasWithArgKey', {
         now: 'now',
         todayDate: {
           date: [new Date(Date.UTC(2000, 11, 28, 3, 4, 5)), {
