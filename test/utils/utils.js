@@ -74,12 +74,26 @@ export const setExpectedData = function () {
           }
         },
         nested: {
-          switcher: {
+          scoreNoCasting: {
             '0.0': {
               message: 'zero points'
             },
             '*other': {
-              message: '{nested.switcher} points'
+              message: '{nested.scoreNoCasting} points'
+            }
+          },
+          "rank|PLURAL|type: 'ordinal'": {
+            one: {
+              message: '{nested.rank}st'
+            },
+            two: {
+              message: '{nested.rank}nd'
+            },
+            few: {
+              message: '{nested.rank}rd'
+            },
+            '*other': {
+              message: '{nested.rank}th'
             }
           }
         }
@@ -93,6 +107,9 @@ export const setExpectedData = function () {
         },
         localWithOrdinalSwitch: {
           message: 'You got {~rank}.'
+        },
+        localWithNestedOrdinalSwitch: {
+          message: 'You got {~nested.rank}.'
         },
         localUsingStringSwitch: {
           message: '{~executive-pronoun}'
@@ -230,8 +247,14 @@ export const setExpectedData = function () {
       keyUsingSwitchNoCastingAndArguments: {
         message: 'You finished with {~scoreNoCasting}'
       },
+      nestedKeyUsingSwitchNoCastingAndArguments: {
+        message: 'You finished with {~nested.scoreNoCasting}'
+      },
       keyUsingOrdinalSwitch: {
         message: 'You got {~rank}.'
+      },
+      keyUsingNestedOrdinalSwitch: {
+        message: 'You got {~nested.rank}.'
       },
       keyUsingLocalWithSwitch: {
         message: '{-localWithSwitch}; how much did they cost?'
@@ -241,6 +264,9 @@ export const setExpectedData = function () {
       },
       keyUsingLocalWithOrdinalSwitch: {
         message: '{-localWithOrdinalSwitch} Not bad!'
+      },
+      keyUsingLocalWithNestedOrdinalSwitch: {
+        message: '{-localWithNestedOrdinalSwitch} Not bad!'
       },
       keyUsingStringSwitch: {
         message: 'This pronoun is nominative: {~executive-pronoun}'

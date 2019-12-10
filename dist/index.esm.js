@@ -2218,7 +2218,7 @@ function (_Formatter3) {
           var _ref5 = _slicedToArray(_ref4, 1),
               switchKey = _ref5[0];
 
-          return ky === _this4.constructor.getKey(switchKey);
+          return k === _this4.constructor.getKey(switchKey);
         }) || [];
       }, this.switches);
     }

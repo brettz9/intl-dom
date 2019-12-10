@@ -193,7 +193,7 @@ export class SwitchFormatter extends Formatter {
       // Todo: Should throw on encountering duplicate fundamental keys (even
       //  if there are different arguments, that should not be allowed)
       return Object.entries(obj).find(([switchKey]) => {
-        return ky === this.constructor.getKey(switchKey);
+        return k === this.constructor.getKey(switchKey);
       }) || [];
     }, this.switches);
   }
