@@ -829,7 +829,8 @@ categories for different numbers.
 Note that if we had not provided the `type: 'ordinal'` config, the
 `rank` would not be able to have more than the `"one"` and `"*other"`
 categories, as English is limited to these for cardinal numbers, the
-default.
+default, and therefore a number of 2 or 3 would end up mistakenly as
+"2th" or "3th".
 
 ## Built-in functions
 
