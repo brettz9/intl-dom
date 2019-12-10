@@ -700,6 +700,44 @@ Note that English only has the "one" and "other" forms for cardinal numbers
 (the default), but other languages have distinct forms as their grammar
 varies, e.g., if there are 0, 1, 2, or 3 items or few vs. many.
 
+Note that these forms, even for English, can vary depending on number
+formatting. For example, when there is a decimal place, English doesn't
+actually use the "one" form, but instead uses the "other" form.
+
+In order to indicate that the "other" form should be chosen, one
+can indicate config along with the provided number by using a `plural`
+(or `number`) type:
+
+```js
+(async () => {
+  const _ = await i18n();
+
+  const string1 = _('keyUsingSwitch', {
+    bananas: {
+      plural: [1, {
+        minimumFractionDigits: 1
+      }]
+    }
+  });
+  // `string1` will be "You have 1 bananas."
+})();
+```
+
+Note, however, that while this properly selects our "other" form, it hasn't
+actually formatted our number as a decimal. To do that, the locale will
+need the built-in `NUMBER` function.
+
+```json
+"*other": {
+  "message": "{bananas|NUMBER|minimumFractionDigits:1} bananas"
+}
+```
+
+This will give the desired output:
+
+> "You have 1.0 bananas."
+
+
 TODO: Finish
 
 ```json
