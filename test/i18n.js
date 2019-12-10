@@ -18,6 +18,7 @@ describe('i18n', function () {
     async function () {
       const _ = await i18n();
       expect(_.resolvedLocale).to.equal('en-US');
+      expect(_.strings).to.be.an('object');
     }
   );
   it('should return a function with empty object argument', async function () {

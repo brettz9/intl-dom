@@ -103,6 +103,7 @@ export const i18n = async function i18n ({
   };
 
   formatter.resolvedLocale = resolvedLocale;
+  formatter.strings = strings;
 
   return formatter;
 };
