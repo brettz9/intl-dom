@@ -835,29 +835,269 @@ categories, as English is limited to these for cardinal numbers, the
 default, and therefore a number of 2 or 3 would end up mistakenly as
 "2th" or "3th".
 
-## Built-in functions
+## Functions
+
+While one may define one's own functions and their behaviors, the built-in
+functions are created by passing the function name as first argument
+(following a pipe symbol), and they may optionally be passed additional
+JSON <!--
+// https://github.com/d3x0r/JSON6/issues/18
+[JSON5](https://github.com/json5/json5),
+--> or [JSON6](https://github.com/d3x0r/JSON6) objects as parameters,
+following another pipe symbol and dropping the outer curly brackets:
+
+```json
+{
+  "someKey": {
+    "message": "It is now {todayDate|DATETIME|year: 'numeric', month: 'long', day: 'numeric'}"
+  }
+}
+```
+
+### Built-in functions
 
 There are some cases where locales will want to override or otherwise control
 how a passed-in value is formatted, e.g., in cases where space is limited due
 to the language requiring a longer translation in places.
 
-The following is a list of these built-in functions:
+The following subsections document the built-in functions (available as long
+as one doesn't disable or override `i18n`'s default
+`defaultAllSubstitutions`).
 
-1. `NUMBER` - See [Intl.NumberFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat) for options.
-1. `DATETIME` (or `DATE`) - See [Intl.DateTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat) for options.
-1. `RELATIVE` - See [Intl.RelativeTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RelativeTimeFormat) for options.
-1. `LIST` - See [Intl.ListFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ListFormat) for options (and for secondary options, see [Intl.Collator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator)).
-
-TODO: Show examples, including for secondary options for LIST.
-
-Note that although `PLURAL` follows a similar format in casting (see the "Casting" section), this is not available as a built-in function usable within normal or local
-key messages.
+Note that although `PLURAL` follows a similar format in casting, this is not
+available as a built-in function usable within normal or local key messages.
+See the "Casting" section.
 
 Each of the built-in functions has a corresponding subsitution type
 (see "Substitution types"). Note, however, that if a built-in function is used,
-a substitution type is not always required in the case of number or date
-values; the substitution type is needed for the runtime to provide default
+a substitution type is not always required (in the case of number or date
+values); the substitution type is needed for the runtime to provide default
 configuration options, however.
+
+#### `NUMBER`
+
+One may call `NUMBER` with no additional arguments to ensure that basic
+number formatting is given (e.g., with commas for the thousands
+separator).
+
+```json
+"beets": {
+  "message": "{beetCount|NUMBER} beets"
+},
+```
+
+...which for the following code:
+
+```js
+const string = _('beets', {
+  beetCount: 123456.4567
+});
+```
+
+...would give:
+
+> 123,456.457 beets
+
+(Only includes 3 digits, as `maximumFractionDigits` defaults to 3.)
+
+One may also pass additional `Intl.NumberFormat` options to control the
+exact numeric formatting:
+
+```json
+"oranges": {
+  "message": "{orangeCount|NUMBER|maximumSignificantDigits: 7} oranges"
+},
+```
+
+...which, for the following code:
+
+```js
+_('oranges', {
+  orangeCount: 123456.4567
+});
+```
+
+...would give:
+
+> 123,456.5 oranges
+
+See [Intl.NumberFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat) for the complete list of options.
+
+#### `DATETIME` (or `DATE`)
+
+One may call `DATETIME` with no additional arguments to ensure that
+basic date formatting is given.
+
+```json
+"dateKey": {
+  "message": "It is now {todayDate|DATE}."
+},
+```
+
+...which for the following code:
+
+```js
+const string = _('dateKey', {
+  // The month is 0-based, so "11" is for December
+  todayDate: new Date(Date.UTC(2019, 11, 10))
+});
+```
+
+...would give:
+
+> It is now 12/10/2019.
+
+One may also pass additional `Intl.DateTimeFormat` options to control the
+exact date-time formatting:
+
+```json
+"dateAliasWithArgAndOptionsKey": {
+  "message": "It is now {todayDate|DATETIME|year: 'numeric', month: 'long', day: 'numeric'}."
+},
+```
+
+...which, for the following code:
+
+```js
+const s = _('dateAliasWithArgAndOptionsKey', {
+  // The month is 0-based, so "11" is for December
+  todayDate: new Date(Date.UTC(2019, 11, 10))
+});
+```
+
+...would give:
+
+> It is now December 10, 2019.
+
+See [Intl.DateTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat) for the complete list of options.
+
+#### `RELATIVE`
+
+Unlike `NUMBER` or `DATETIME` which can be passed literals or native objects
+as substitution values, this built-in function always expects a `relative`
+substitution type (see "Substitution types").
+
+You can override particular options that may be supplied with a `relative`
+substitution object type:
+
+```json
+"relativeWithArgAndOptionsKey": {
+  "message": "It was {relativeTime|RELATIVE|style: \"short\"}."
+},
+```
+
+...which with the following code:
+
+```js
+const string = _('relativeWithArgAndOptionsKey', {
+  relativeTime: {
+    relative: [
+      -3,
+      'month'
+    ]
+  }
+});
+```
+
+...would give:
+
+> It was 3 mo. ago.
+
+To override all supplied `relative` substitution object parameters, you can
+use the built-in function without arguments, in which case the defaults
+for `Intl.RelativeTimeFormat` will be used:
+
+```json
+"relativeWithArgKey": {
+  "message": "It was {relativeTime|RELATIVE}"
+},
+```
+
+...which with the same code above would give:
+
+> It was 3 months ago.
+
+See [Intl.RelativeTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RelativeTimeFormat) for the complete list of options.
+
+#### `LIST`
+
+Unlike `NUMBER` or `DATETIME` which can be passed literals or native objects
+as substitution values, this built-in function always expects a `list`
+substitution type (see "Substitution types").
+
+You can override particular options that may be supplied with a `list`
+substitution object type:
+
+```json
+"listWithArgAndOptionsKey": {
+  "message": "The list is: {listItems|LIST|style: \"long\", type: \"conjunction\"}"
+},
+```
+
+```js
+const string = _('listKey', {
+  listItems: {
+    list: [
+      [
+        'a', 'z', 'ä', 'a'
+      ],
+      {
+        type: 'disjunction'
+      }
+    ]
+  }
+});
+```
+
+...would give:
+
+> The list is: a, a, ä, or z
+
+To override all supplied `list` substitution object parameters, you can
+use the built-in function without arguments, in which case the defaults
+for `Intl.ListFormat` will be used:
+
+```json
+"listWithArgKey": {
+  "message": "The list is: {listItems|LIST}"
+},
+```
+
+...which with the following code:
+
+```js
+const string = _('listKey', {
+  listItems: {
+    list: [
+      [
+        'a', 'z', 'ä', 'a'
+      ]
+    ]
+  }
+});
+```
+
+...would give:
+
+> The list is: a, a, ä, and z
+
+In addition to accepting `Intl.ListFormat` arguments, `LIST` optionally
+accepts a second set of options which will be used as configuration for
+`Intl.Collator`:
+
+```json
+"listWithArgAndMultipleOptionsKey": {
+  "message": "The list is: {listItems|LIST|style: \"long\", type: \"conjunction\"|sensitivity: \"variant\"}"
+},
+```
+
+...which with the above code would give:
+
+> The list is: a, a, ä, and z
+
+See [Intl.ListFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ListFormat) for the complete list of options (and for the
+complete list of secondary options, see
+[Intl.Collator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator)).
 
 ## Collation
 
