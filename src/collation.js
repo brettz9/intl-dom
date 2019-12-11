@@ -35,7 +35,7 @@ export const arrayToSortedListFragment = (
     betweenMatches: push,
     afterMatch: push,
     onMatch (_, idx) {
-      push(map(arrayOfItems[idx]));
+      push(map(arrayOfItems[idx], idx));
     }
   });
   const container = document.createDocumentFragment();

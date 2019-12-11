@@ -20,8 +20,9 @@ describe('Collation', function () {
       function () {
         const array = arrayToSortedListFragment('en-US', [
           'a', 'z', 'ä', 'a'
-        ], (item) => {
+        ], (item, i) => {
           const a = document.createElement('a');
+          a.id = `_${i}`;
           a.textContent = item;
           return a;
         }, {
@@ -30,7 +31,8 @@ describe('Collation', function () {
           sensitivity: 'base'
         });
         expect(array).to.have.fragmentHtml(
-          '<a>a</a>, <a>ä</a>, <a>a</a>, or <a>z</a>'
+          '<a id="_0">a</a>, <a id="_1">ä</a>, ' +
+            '<a id="_2">a</a>, or <a id="_3">z</a>'
         );
       }
     );
