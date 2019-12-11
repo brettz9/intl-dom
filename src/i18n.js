@@ -51,6 +51,7 @@ export const i18n = async function i18n ({
   localeResolver,
   localeMatcher,
   messageStyle,
+  localeStringFinder = findLocaleStrings,
   allSubstitutions: defaultAllSubstitutionsValue,
   insertNodes,
   defaults: defaultDefaults,
@@ -63,7 +64,7 @@ export const i18n = async function i18n ({
   throwOnExtraSuppliedFormatters:
     throwOnExtraSuppliedFormattersDefault = true
 } = {}) {
-  const {strings, locale: resolvedLocale} = await findLocaleStrings({
+  const {strings, locale: resolvedLocale} = await localeStringFinder({
     locales, defaultLocales, localeResolver, localesBasePath, localeMatcher
   });
 

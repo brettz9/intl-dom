@@ -3592,6 +3592,8 @@
         localeResolver = _ref.localeResolver,
         localeMatcher = _ref.localeMatcher,
         messageStyle = _ref.messageStyle,
+        _ref$localeStringFind = _ref.localeStringFinder,
+        localeStringFinder = _ref$localeStringFind === void 0 ? findLocaleStrings : _ref$localeStringFind,
         defaultAllSubstitutionsValue = _ref.allSubstitutions,
         insertNodes = _ref.insertNodes,
         defaultDefaults = _ref.defaults,
@@ -3607,7 +3609,7 @@
         throwOnExtraSuppliedFormattersDefault = _ref$throwOnExtraSupp === void 0 ? true : _ref$throwOnExtraSupp;
 
     try {
-      return _await$2(findLocaleStrings({
+      return _await$2(localeStringFinder({
         locales: locales,
         defaultLocales: defaultLocales,
         localeResolver: localeResolver,

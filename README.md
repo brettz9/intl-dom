@@ -244,6 +244,11 @@ The `head` is optional, but it can be used to store:
 3. `locals` - See the "Local variables" section
 4. `switches` - See the "Conditionals/Plurals" section
 
+Note that you can pass your own `messageStyle` function to `i18n`.
+
+If you want to support a non-JSON format, you will also need to
+supply your own `localeStringFinder` to `i18n`.
+
 ### Built-in styles
 
 `richNested` is the default format (including both code-supplied
@@ -1175,14 +1180,6 @@ complete list of secondary options, see
 [Intl.Collator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator)).
 
 See also `list` under "Substitution types".
-
-## Custom formats
-
-(TODO: move this section above also)
-
-You can define your own (JSON) formats.
-
-TODO:
 
 ## API
 
