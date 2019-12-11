@@ -74,6 +74,7 @@
 */
 
 /**
+ * Takes a base path and locale and gives a URL
  * @callback LocaleResolver
  * @param {string} localesBasePath (Trailing slash optional)
  * @param {string} locale BCP-47 language string

@@ -1944,13 +1944,14 @@ var getFormatterInfo = function getFormatterInfo(_ref) {
 /* eslint-disable max-len */
 
 /**
-* @callback AllSubstitutionCallback
-* @param {PlainObject} cfg
-* @param {string|Node|number|Date|RelativeTimeInfo|ListInfo|NumberInfo|DateInfo} cfg.value Contains
-*   the value returned by the individual substitution
-* @param {string} cfg.arg See `cfg.arg` of {@link SubstitutionCallback}.
-* @param {string} cfg.key The substitution key
-* @returns {string|Element} The replacement text or element
+ * Callback to give replacement text based on a substitution value.
+ * @callback AllSubstitutionCallback
+ * @param {PlainObject} cfg
+ * @param {string|Node|number|Date|RelativeTimeInfo|ListInfo|NumberInfo|DateInfo} cfg.value Contains
+ *   the value returned by the individual substitution
+ * @param {string} cfg.arg See `cfg.arg` of {@link SubstitutionCallback}.
+ * @param {string} cfg.key The substitution key
+ * @returns {string|Element} The replacement text or element
 */
 
 /* eslint-enable max-len */
@@ -2768,6 +2769,7 @@ var promiseChainForValues = function promiseChainForValues(values, errBack) {
 */
 
 /**
+ * Takes a base path and locale and gives a URL
  * @callback LocaleResolver
  * @param {string} localesBasePath (Trailing slash optional)
  * @param {string} locale BCP-47 language string
@@ -2797,6 +2799,8 @@ var defaultLocaleResolver = function defaultLocaleResolver(localesBasePath, loca
 /* eslint-disable max-len */
 
 /**
+ * Callback to return a string or array of nodes and strings based on a localized
+ * string, substitutions object, and other metadata.
  * @callback InsertNodesCallback
  * @param {PlainObject} cfg
  * @param {string} cfg.string The localized string
@@ -3394,9 +3398,10 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
 };
 
 /**
-* @callback LocaleMatcher
-* @param {string} locale The failed locale
-* @returns {string|Promise<string>} The new locale to check
+ * Takes a locale and returns a new locale to check.
+ * @callback LocaleMatcher
+ * @param {string} locale The failed locale
+ * @returns {string|Promise<string>} The new locale to check
 */
 
 /**
@@ -3406,6 +3411,7 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
 */
 
 /**
+ * @callback LocaleStringFinder
  * @param {PlainObject} [cfg={}]
  * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
  * @param {string[]} [cfg.defaultLocales=['en-US']]
@@ -3413,6 +3419,11 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
  * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
  * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher]
  * @returns {Promise<LocaleObjectInfo>}
+ */
+
+/**
+ *
+ * @type {LocaleStringFinder}
  */
 
 function _await$1(value, then, direct) {
@@ -3550,6 +3561,7 @@ var findLocaleStrings = _async$1(function () {
  * @param {PlainObject} [cfg={}]
  * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
  * @param {string[]} [cfg.defaultLocales=['en-US']]
+ * @param {LocaleStringFinder} [cfg.localeStringFinder=findLocaleStrings]
  * @param {string} [cfg.localesBasePath='.']
  * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
  * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher='lookup']
@@ -3558,9 +3570,9 @@ var findLocaleStrings = _async$1(function () {
  * @param {InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
  * @param {false|null|undefined|LocaleObject} [cfg.defaults]
  * @param {false|SubstitutionObject} [cfg.substitutions={}]
+ * @param {Integer} [cfg.maximumLocalNestingDepth=3]
  * @param {boolean} [cfg.dom=false]
  * @param {boolean} [cfg.forceNodeReturn=false]
- * @param {Integer} [cfg.maximumLocalNestingDepth=3]
  * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
  * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
  * @returns {Promise<I18NCallback>} Rejects if no suitable locale is found.
@@ -3582,21 +3594,21 @@ var i18n = function i18n() {
   var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
       locales = _ref.locales,
       defaultLocales = _ref.defaultLocales,
+      _ref$localeStringFind = _ref.localeStringFinder,
+      localeStringFinder = _ref$localeStringFind === void 0 ? findLocaleStrings : _ref$localeStringFind,
       localesBasePath = _ref.localesBasePath,
       localeResolver = _ref.localeResolver,
       localeMatcher = _ref.localeMatcher,
       messageStyle = _ref.messageStyle,
-      _ref$localeStringFind = _ref.localeStringFinder,
-      localeStringFinder = _ref$localeStringFind === void 0 ? findLocaleStrings : _ref$localeStringFind,
       defaultAllSubstitutionsValue = _ref.allSubstitutions,
       insertNodes = _ref.insertNodes,
       defaultDefaults = _ref.defaults,
       defaultSubstitutions = _ref.substitutions,
+      maximumLocalNestingDepth = _ref.maximumLocalNestingDepth,
       _ref$dom = _ref.dom,
       domDefaults = _ref$dom === void 0 ? false : _ref$dom,
       _ref$forceNodeReturn = _ref.forceNodeReturn,
       forceNodeReturnDefault = _ref$forceNodeReturn === void 0 ? false : _ref$forceNodeReturn,
-      maximumLocalNestingDepth = _ref.maximumLocalNestingDepth,
       _ref$throwOnMissingSu = _ref.throwOnMissingSuppliedFormatters,
       throwOnMissingSuppliedFormattersDefault = _ref$throwOnMissingSu === void 0 ? true : _ref$throwOnMissingSu,
       _ref$throwOnExtraSupp = _ref.throwOnExtraSuppliedFormatters,

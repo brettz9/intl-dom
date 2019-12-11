@@ -1348,29 +1348,41 @@ const _ = await i18n({
   //       /_locales/<locale>/messages.json
   localesBasePath: '.',
 
-  // See `defaultLocaleResolver`
+  // Function to take a base path and locale (absolute or relative) and
+  //  return a URL; see `defaultLocaleResolver`
   localeResolver: defaultLocaleResolver,
 
-  // May also be a function; see `findLocaleStrings`
+  // May also be a function taking a locale and returning another
+  //  locale to check; see `findLocaleStrings`
   localeMatcher: 'lookup',
 
-  // "richNested", "rich", "plain", or a function; see "Message styles" and
-  //   `getMessageForKeyByStyle`
+  // Determines the organization structure style of the locale files;
+  //   may be "richNested", "rich", "plain", or a function; see
+  //   "Message styles" and `getMessageForKeyByStyle`
   messageStyle: 'richNested',
 
-  allSubstitutions: defaultAllSubstitutionsValue,
-  insertNodes,
+  // Callback to give replacement text based on a substitution value.
+  //  See `defaultAllSubstitutions`
+  allSubstitutions: defaultAllSubstitutions,
 
+  // Callback to return a string or array of nodes and strings based on a
+  // localized string, substitutions object, and other metadata; see
+  // `defaultInsertNodes`
+  insertNodes: defaultInsertNodes,
+
+  // Object for falling back if the locale object is missing a given key;
   // `false`, `null`, or `undefined`, it will throw if a value is not found;
   //  should otherwise be an object of the same message style as the locales.
   defaults: undefined,
 
-  // `substitutions` here indicates a substitutions object to apply to all
-  //  keys; if it is a function, it can accept arguments from the locale
-  //  and indicate a dynamic replacement. See the `substitutions` argument
-  //  discussion under the callback arguments below and
-  //  `getDOMForLocaleString` for the function format.
+  // A substitutions object to apply to all keys; if it is a function, it
+  //  can accept arguments from the locale and indicate a dynamic replacement.
+  //  See the `substitutions` argument discussion under the callback arguments
+  //  below and `getDOMForLocaleString` for the function format.
   substitutions: false,
+
+  // For avoiding recursion among local locale variable resolution
+  maximumLocalNestingDepth: 3,
 
   // See the properties of the same name below in the callback arguments
   //   section for an explanation of these values; these values can be
@@ -1380,8 +1392,6 @@ const _ = await i18n({
   dom: false,
   forceNodeReturn: false,
 
-  // For avoiding recursion among local locale variable resolution
-  maximumLocalNestingDepth: 3,
   throwOnMissingSuppliedFormatters: true,
   throwOnExtraSuppliedFormatters: true
 });

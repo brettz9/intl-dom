@@ -2,9 +2,10 @@ import {defaultLocaleResolver} from './defaultLocaleResolver.js';
 import {promiseChainForValues} from './promiseChainForValues.js';
 
 /**
-* @callback LocaleMatcher
-* @param {string} locale The failed locale
-* @returns {string|Promise<string>} The new locale to check
+ * Takes a locale and returns a new locale to check.
+ * @callback LocaleMatcher
+ * @param {string} locale The failed locale
+ * @returns {string|Promise<string>} The new locale to check
 */
 
 /**

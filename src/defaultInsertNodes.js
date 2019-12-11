@@ -6,6 +6,8 @@ import {unescapeBackslashes, parseJSONExtra, processRegex} from './utils.js';
 
 /* eslint-disable max-len */
 /**
+ * Callback to return a string or array of nodes and strings based on a localized
+ * string, substitutions object, and other metadata.
  * @callback InsertNodesCallback
  * @param {PlainObject} cfg
  * @param {string} cfg.string The localized string

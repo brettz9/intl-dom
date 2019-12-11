@@ -37,9 +37,9 @@ import {sort, sortList} from './collation.js';
  * @param {InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
  * @param {false|null|undefined|LocaleObject} [cfg.defaults]
  * @param {false|SubstitutionObject} [cfg.substitutions={}]
+ * @param {Integer} [cfg.maximumLocalNestingDepth=3]
  * @param {boolean} [cfg.dom=false]
  * @param {boolean} [cfg.forceNodeReturn=false]
- * @param {Integer} [cfg.maximumLocalNestingDepth=3]
  * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
  * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
  * @returns {Promise<I18NCallback>} Rejects if no suitable locale is found.
@@ -57,9 +57,9 @@ export const i18n = async function i18n ({
   insertNodes,
   defaults: defaultDefaults,
   substitutions: defaultSubstitutions,
+  maximumLocalNestingDepth,
   dom: domDefaults = false,
   forceNodeReturn: forceNodeReturnDefault = false,
-  maximumLocalNestingDepth,
   throwOnMissingSuppliedFormatters:
     throwOnMissingSuppliedFormattersDefault = true,
   throwOnExtraSuppliedFormatters:

@@ -15,13 +15,14 @@ export const getFormatterInfo = ({object}) => {
 
 /* eslint-disable max-len */
 /**
-* @callback AllSubstitutionCallback
-* @param {PlainObject} cfg
-* @param {string|Node|number|Date|RelativeTimeInfo|ListInfo|NumberInfo|DateInfo} cfg.value Contains
-*   the value returned by the individual substitution
-* @param {string} cfg.arg See `cfg.arg` of {@link SubstitutionCallback}.
-* @param {string} cfg.key The substitution key
-* @returns {string|Element} The replacement text or element
+ * Callback to give replacement text based on a substitution value.
+ * @callback AllSubstitutionCallback
+ * @param {PlainObject} cfg
+ * @param {string|Node|number|Date|RelativeTimeInfo|ListInfo|NumberInfo|DateInfo} cfg.value Contains
+ *   the value returned by the individual substitution
+ * @param {string} cfg.arg See `cfg.arg` of {@link SubstitutionCallback}.
+ * @param {string} cfg.key The substitution key
+ * @returns {string|Element} The replacement text or element
 */
 /* eslint-enable max-len */
 
