@@ -2,7 +2,7 @@ import {
   LocalFormatter, RegularFormatter, SwitchFormatter
 } from './Formatter.js';
 import {defaultAllSubstitutions} from './defaultAllSubstitutions.js';
-import {unescapeBackslashes, parseJSONExtra} from './utils.js';
+import {unescapeBackslashes, parseJSONExtra, processRegex} from './utils.js';
 
 /* eslint-disable max-len */
 /**
@@ -169,59 +169,48 @@ export const defaultInsertNodes = ({
     str, substs = substitutions, formatter = regularFormatter
   }) => {
     const nodes = [];
-    let result;
-    let previousIndex = 0;
 
     // Copy to ensure we are resetting index on each instance (manually
     // resetting on `formattingRegex` is problematic with recursion that
     // uses the same regex copy)
     const regex = new RegExp(formattingRegex, 'gu');
-    while ((result = regex.exec(str)) !== null) {
-      const [_, esc, ky, /* pipe */, arg] = result;
 
-      const {lastIndex} = regex;
-      const startBracketPos = lastIndex - _.length;
-      if (startBracketPos > previousIndex) {
-        nodes.push(str.slice(previousIndex, startBracketPos));
-      }
-      if (esc.length % 2) {
-        nodes.push(_);
-        previousIndex = lastIndex;
-        continue;
-      }
-      if (missingSuppliedFormatters({
-        key: ky, formatter
-      })) {
-        nodes.push(_);
-      } else {
-        if (esc.length) {
-          nodes.push(esc);
-        }
+    const push = (...args) => {
+      nodes.push(...args);
+    };
 
-        let substitution = getSubstitution({key: ky, arg, substs});
-        substitution = checkLocalVars({
-          substitution, ky, arg, processSubsts: processSubstitutions
-        });
-        if (Array.isArray(substitution)) {
-          nodes.push(...substitution);
-        } else if (
-          // Clone so that multiple instances may be added (and no
-          // side effects to user code)
-          substitution && typeof substitution === 'object' &&
-          'nodeType' in substitution
-        ) {
-          nodes.push(substitution.cloneNode(true));
+    processRegex(regex, str, {
+      extra: push,
+      onMatch (_, esc, ky, pipe, arg) {
+        if (missingSuppliedFormatters({
+          key: ky, formatter
+        })) {
+          push(_);
         } else {
-          nodes.push(substitution);
-        }
-      }
+          if (esc.length) {
+            push(esc);
+          }
 
-      previousIndex = lastIndex;
-      usedKeys.push(ky);
-    }
-    if (previousIndex !== str.length) { // Get text at end
-      nodes.push(str.slice(previousIndex));
-    }
+          let substitution = getSubstitution({key: ky, arg, substs});
+          substitution = checkLocalVars({
+            substitution, ky, arg, processSubsts: processSubstitutions
+          });
+          if (Array.isArray(substitution)) {
+            push(...substitution);
+          } else if (
+            // Clone so that multiple instances may be added (and no
+            // side effects to user code)
+            substitution && typeof substitution === 'object' &&
+            'nodeType' in substitution
+          ) {
+            push(substitution.cloneNode(true));
+          } else {
+            push(substitution);
+          }
+        }
+        usedKeys.push(ky);
+      }
+    });
     return nodes;
   };
   const nodes = processSubstitutions({str: string});

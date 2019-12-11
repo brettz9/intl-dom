@@ -1,4 +1,4 @@
-import {unescapeBackslashes} from './utils.js';
+import {unescapeBackslashes, processRegex} from './utils.js';
 
 /**
 * @typedef {LocaleBody} LocalObject
@@ -57,41 +57,24 @@ export const getMessageForKeyByStyle = ({
         const keys = [];
         // eslint-disable-next-line prefer-named-capture-group
         const possiblyEscapedCharPattern = /(\\*)\./gu;
-        let previousIndex = 0;
-        let match;
         const mergeWithPreviousOrStart = (val) => {
           if (!keys.length) {
             keys[0] = '';
           }
           keys[keys.length - 1] += val;
         };
-        while ((match = possiblyEscapedCharPattern.exec(key)) !== null) {
-          const [_, esc] = match;
-          const {lastIndex} = possiblyEscapedCharPattern;
-
-          const startMatchPos = lastIndex - _.length;
-          if (startMatchPos > previousIndex) {
-            mergeWithPreviousOrStart(key.slice(previousIndex, startMatchPos));
-          }
-
+        processRegex(possiblyEscapedCharPattern, key, {
           // If odd, this is just an escaped dot, so merge content with
           //   any previous
-          if (esc.length % 2) {
-            previousIndex = lastIndex;
-            mergeWithPreviousOrStart(_);
-            continue;
+          extra: mergeWithPreviousOrStart,
+          onMatch (_, esc) {
+            // If even, there are no backslashes, or they are just escaped
+            //  backslashes and not an escaped dot, so start anew, though
+            //  first merge any backslashes
+            mergeWithPreviousOrStart(esc);
+            keys.push('');
           }
-          // If even, there are no backslashes, or they are just escaped
-          //  backslashes and not an escaped dot, so start anew, though
-          //  first merge any backslashes
-          mergeWithPreviousOrStart(esc);
-          keys.push('');
-          previousIndex = lastIndex;
-          // Todo collect items before and after index
-        }
-        if (previousIndex !== key.length) { // Get text at end
-          mergeWithPreviousOrStart(key.slice(previousIndex));
-        }
+        });
         const keysUnescaped = keys.map((ky) => {
           return unescapeBackslashes(ky);
         });

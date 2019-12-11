@@ -16,3 +16,39 @@ export const parseJSONExtra = (args) => {
     '{' + (args || '').replace(/^\{/u, '').replace(/\}$/u, '') + '}'
   );
 };
+
+export const processRegex = (regex, str, {
+  onMatch,
+  extra,
+  betweenMatches,
+  afterMatch,
+  escapeAtOne
+}) => {
+  let match;
+  let previousIndex = 0;
+  if (extra) {
+    betweenMatches = extra;
+    afterMatch = extra;
+    escapeAtOne = extra;
+  }
+  while ((match = regex.exec(str)) !== null) {
+    const [_, esc] = match;
+    const {lastIndex} = regex;
+
+    const startMatchPos = lastIndex - _.length;
+    if (startMatchPos > previousIndex) {
+      betweenMatches(str.slice(previousIndex, startMatchPos));
+    }
+
+    if (escapeAtOne && esc.length % 2) {
+      previousIndex = lastIndex;
+      escapeAtOne(_);
+      continue;
+    }
+    onMatch(...match);
+    previousIndex = lastIndex;
+  }
+  if (previousIndex !== str.length) { // Get text at end
+    afterMatch(str.slice(previousIndex));
+  }
+};

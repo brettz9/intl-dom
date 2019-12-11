@@ -1788,7 +1788,6 @@ var json6 = createCommonjsModule(function (module, exports) {
 });
 var lib = json6;
 
-// We want it to work in the browser, so commenting out
 var unescapeBackslashes = function unescapeBackslashes(str) {
   return str.replace(/\\+/g, function (esc) {
     return esc.slice(0, esc.length / 2);
@@ -1798,6 +1797,60 @@ var parseJSONExtra = function parseJSONExtra(args) {
   return lib.parse( // Doesn't actually currently allow explicit brackets,
   //  but in case we change our regex to allow inner brackets
   '{' + (args || '').replace(/^\{/, '').replace(/\}$/, '') + '}');
+};
+var processRegex = function processRegex(regex, str, _ref) {
+  var onMatch = _ref.onMatch,
+      extra = _ref.extra,
+      betweenMatches = _ref.betweenMatches,
+      afterMatch = _ref.afterMatch,
+      escapeAtOne = _ref.escapeAtOne;
+  var match;
+  var previousIndex = 0;
+
+  if (extra) {
+    betweenMatches = extra;
+    afterMatch = extra;
+    escapeAtOne = extra;
+  }
+
+  while ((match = regex.exec(str)) !== null) {
+    var _match = match,
+        _match2 = _slicedToArray(_match, 2),
+        _ = _match2[0],
+        esc = _match2[1];
+
+    var lastIndex = regex.lastIndex;
+    var startMatchPos = lastIndex - _.length;
+
+    if (startMatchPos > previousIndex) {
+      betweenMatches(str.slice(previousIndex, startMatchPos));
+    }
+
+    if (escapeAtOne && esc.length % 2) {
+      previousIndex = lastIndex;
+      escapeAtOne(_);
+      continue;
+    }
+
+    onMatch.apply(void 0, _toConsumableArray(match));
+    previousIndex = lastIndex;
+  }
+
+  if (previousIndex !== str.length) {
+    // Get text at end
+    afterMatch(str.slice(previousIndex));
+  }
+};
+
+var sort = function sort(locale, arrayOfItems, options) {
+  return arrayOfItems.sort(new Intl.Collator(locale, options).compare);
+};
+var list = function list(locale, arrayOfItems, options) {
+  return new Intl.ListFormat(locale, options).format(arrayOfItems);
+};
+var sortedList = function sortedList(locale, arrayOfItems, listOptions, collationOptions) {
+  sort(locale, arrayOfItems, collationOptions);
+  return list(locale, arrayOfItems, listOptions);
 };
 
 var getFormatterInfo = function getFormatterInfo(_ref) {
@@ -1863,7 +1916,12 @@ var defaultAllSubstitutions = function defaultAllSubstitutions(_ref2) {
           _arg$split2 = _slicedToArray(_arg$split, 3),
           userType = _arg$split2[0],
           extraArgs = _arg$split2[1],
-          argOptions = _arg$split2[2];
+          argOptions = _arg$split2[2]; // Alias
+
+
+      if (userType === 'DATE') {
+        userType = 'DATETIME';
+      }
 
       if (userType === type) {
         if (!extraArgs) {
@@ -1881,7 +1939,7 @@ var defaultAllSubstitutions = function defaultAllSubstitutions(_ref2) {
   if (value && _typeof(value) === 'object') {
     var singleKey = Object.keys(value)[0];
 
-    if (['number', 'date', 'relative', 'list', 'plural'].includes(singleKey)) {
+    if (['number', 'date', 'datetime', 'relative', 'list', 'plural'].includes(singleKey)) {
       var _getFormatterInfo = getFormatterInfo({
         object: value[singleKey]
       });
@@ -1902,14 +1960,13 @@ var defaultAllSubstitutions = function defaultAllSubstitutions(_ref2) {
         // ListFormat (with Collator)
 
         case 'list':
-          value.sort(new Intl.Collator(locale, applyArgs({
+          return sortedList(locale, value, applyArgs({
+            type: 'LIST'
+          }), applyArgs({
             type: 'LIST',
             options: extraOpts,
             checkArgOptions: true
-          })).compare);
-          return new Intl.ListFormat(locale, applyArgs({
-            type: 'LIST'
-          })).format(value);
+          }));
       }
     }
   } // Numbers
@@ -2755,7 +2812,7 @@ var defaultInsertNodes = function defaultInsertNodes(_ref) {
           locale: locale
         });
       }, substitution);
-    } else if (arg && arg.match(/^(?:NUMBER|DATETIME|RELATIVE|LIST)(?:\||$)/)) {
+    } else if (arg && arg.match(/^(?:NUMBER|DATE(?:TIME)?|RELATIVE|LIST)(?:\||$)/)) {
       substitution = defaultAllSubstitutions({
         value: substitution,
         arg: arg,
@@ -2873,79 +2930,55 @@ var defaultInsertNodes = function defaultInsertNodes(_ref) {
         substs = _ref5$substs === void 0 ? substitutions : _ref5$substs,
         _ref5$formatter = _ref5.formatter,
         formatter = _ref5$formatter === void 0 ? regularFormatter : _ref5$formatter;
-    var nodes = [];
-    var result;
-    var previousIndex = 0; // Copy to ensure we are resetting index on each instance (manually
+    var nodes = []; // Copy to ensure we are resetting index on each instance (manually
     // resetting on `formattingRegex` is problematic with recursion that
     // uses the same regex copy)
 
     var regex = new RegExp(formattingRegex, 'gu');
 
-    while ((result = regex.exec(str)) !== null) {
-      var _result = result,
-          _result2 = _slicedToArray(_result, 5),
-          _ = _result2[0],
-          esc = _result2[1],
-          ky = _result2[2],
+    var push = function push() {
+      nodes.push.apply(nodes, arguments);
+    };
 
-      /* pipe */
-      arg = _result2[4];
-
-      var lastIndex = regex.lastIndex;
-      var startBracketPos = lastIndex - _.length;
-
-      if (startBracketPos > previousIndex) {
-        nodes.push(str.slice(previousIndex, startBracketPos));
-      }
-
-      if (esc.length % 2) {
-        nodes.push(_);
-        previousIndex = lastIndex;
-        continue;
-      }
-
-      if (missingSuppliedFormatters({
-        key: ky,
-        formatter: formatter
-      })) {
-        nodes.push(_);
-      } else {
-        if (esc.length) {
-          nodes.push(esc);
-        }
-
-        var substitution = getSubstitution({
+    processRegex(regex, str, {
+      extra: push,
+      onMatch: function onMatch(_, esc, ky, pipe, arg) {
+        if (missingSuppliedFormatters({
           key: ky,
-          arg: arg,
-          substs: substs
-        });
-        substitution = checkLocalVars({
-          substitution: substitution,
-          ky: ky,
-          arg: arg,
-          processSubsts: processSubstitutions
-        });
-
-        if (Array.isArray(substitution)) {
-          nodes.push.apply(nodes, _toConsumableArray(substitution));
-        } else if ( // Clone so that multiple instances may be added (and no
-        // side effects to user code)
-        substitution && _typeof(substitution) === 'object' && 'nodeType' in substitution) {
-          nodes.push(substitution.cloneNode(true));
+          formatter: formatter
+        })) {
+          push(_);
         } else {
-          nodes.push(substitution);
+          if (esc.length) {
+            push(esc);
+          }
+
+          var substitution = getSubstitution({
+            key: ky,
+            arg: arg,
+            substs: substs
+          });
+          substitution = checkLocalVars({
+            substitution: substitution,
+            ky: ky,
+            arg: arg,
+            processSubsts: processSubstitutions
+          });
+
+          if (Array.isArray(substitution)) {
+            push.apply(void 0, _toConsumableArray(substitution));
+          } else if ( // Clone so that multiple instances may be added (and no
+          // side effects to user code)
+          substitution && _typeof(substitution) === 'object' && 'nodeType' in substitution) {
+            push(substitution.cloneNode(true));
+          } else {
+            push(substitution);
+          }
         }
+
+        usedKeys.push(ky);
       }
-
-      previousIndex = lastIndex;
-      usedKeys.push(ky);
-    }
-
-    if (previousIndex !== str.length) {
-      // Get text at end
-      nodes.push(str.slice(previousIndex));
-    }
-
+    });
     return nodes;
   };
 
@@ -3022,8 +3055,6 @@ var getMessageForKeyByStyle = function getMessageForKeyByStyle() {
     var keys = []; // eslint-disable-next-line prefer-named-capture-group
 
     var possiblyEscapedCharPattern = /(\\*)\./g;
-    var previousIndex = 0;
-    var match;
 
     var mergeWithPreviousOrStart = function mergeWithPreviousOrStart(val) {
       if (!keys.length) {
@@ -3033,40 +3064,18 @@ var getMessageForKeyByStyle = function getMessageForKeyByStyle() {
       keys[keys.length - 1] += val;
     };
 
-    while ((match = possiblyEscapedCharPattern.exec(key)) !== null) {
-      var _match = match,
-          _match2 = _slicedToArray(_match, 2),
-          _ = _match2[0],
-          esc = _match2[1];
-
-      var lastIndex = possiblyEscapedCharPattern.lastIndex;
-      var startMatchPos = lastIndex - _.length;
-
-      if (startMatchPos > previousIndex) {
-        mergeWithPreviousOrStart(key.slice(previousIndex, startMatchPos));
-      } // If odd, this is just an escaped dot, so merge content with
+    processRegex(possiblyEscapedCharPattern, key, {
+      // If odd, this is just an escaped dot, so merge content with
       //   any previous
-
-
-      if (esc.length % 2) {
-        previousIndex = lastIndex;
-        mergeWithPreviousOrStart(_);
-        continue;
-      } // If even, there are no backslashes, or they are just escaped
-      //  backslashes and not an escaped dot, so start anew, though
-      //  first merge any backslashes
-
-
-      mergeWithPreviousOrStart(esc);
-      keys.push('');
-      previousIndex = lastIndex; // Todo collect items before and after index
-    }
-
-    if (previousIndex !== key.length) {
-      // Get text at end
-      mergeWithPreviousOrStart(key.slice(previousIndex));
-    }
-
+      extra: mergeWithPreviousOrStart,
+      onMatch: function onMatch(_, esc) {
+        // If even, there are no backslashes, or they are just escaped
+        //  backslashes and not an escaped dot, so start anew, though
+        //  first merge any backslashes
+        mergeWithPreviousOrStart(esc);
+        keys.push('');
+      }
+    });
     var keysUnescaped = keys.map(function (ky) {
       return unescapeBackslashes(ky);
     });
@@ -3528,7 +3537,8 @@ var i18n = function i18n() {
       var messageForKey = getMessageForKeyByStyle({
         messageStyle: messageStyle
       });
-      return function (key, substitutions) {
+
+      var formatter = function formatter(key, substitutions) {
         var _ref3 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
             _ref3$allSubstitution = _ref3.allSubstitutions,
             allSubstitutions = _ref3$allSubstitution === void 0 ? defaultAllSubstitutionsValue : _ref3$allSubstitution,
@@ -3565,6 +3575,19 @@ var i18n = function i18n() {
           throwOnExtraSuppliedFormatters: throwOnExtraSuppliedFormatters
         });
       };
+
+      formatter.resolvedLocale = resolvedLocale;
+      formatter.strings = strings;
+
+      formatter.sort = function () {
+        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
+        }
+
+        return sort.apply(void 0, [resolvedLocale].concat(args));
+      };
+
+      return formatter;
     });
   } catch (e) {
     return Promise.reject(e);
