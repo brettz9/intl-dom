@@ -1275,7 +1275,7 @@ options object, though see "Arguments and defaults" for a fuller discussion.
 
 ##### Substitution types
 
-In adition to supplying literal values such as strings, numbers, and
+In addition to supplying literal values such as strings, numbers, and
 DOM elements/fragments, one may also provide an object with a one (and
 only one) of the following keys:
 
@@ -1283,9 +1283,174 @@ only one) of the following keys:
 1. `date` (or `datetime`)
 1. `relative`
 1. `list`
-1. `plural`- See the "Plurals" section.
+1. `plural`
 
-Todo: 'number', 'date', 'relative', 'list', 'plural'
+The general pattern is to accept an array where the first item represents a
+value (in the case of `relative`, both the first and second items represent
+the value), and the subsequent item is an options object (`list` accepts a
+second options object as well, and also has a signature with a function that
+appears before the options objects).
+
+The following subsections state the precise signature(s) and offer an
+expressive example.
+
+###### `number` - `[number, <Intl.NumberFormat Options>]` (or `number`)
+
+**JSON:**
+
+```json
+"apples": {
+  "message": "{appleCount} apples"
+},
+```
+
+**JavaScript:**
+
+```js
+_('apples', {
+  appleCount: {
+    number: [123456.4567, {maximumSignificantDigits: 6}]
+  }
+});
+```
+
+**Returns:**
+
+> "123,456 apples"
+
+###### `date` (or `datetime`) - `[Date, <Intl.DateTimeFormat Options>]` (or `Date`)
+
+**JSON:**
+
+```json
+"dateKey": {
+  "message": "It is now {todayDate}"
+},
+```
+
+**JavaScript:**
+
+```js
+_('dateKey', {
+  todayDate: {
+    date: [
+      new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+      {
+        year: 'numeric', month: 'numeric', day: 'numeric',
+        hour: 'numeric', timeZone: 'America/Los_Angeles'
+      }
+    ]
+  }
+});
+```
+
+**Returns:**
+
+> "It is now 12/27/2000, 7 PM"
+
+###### `relative` - `[number, unit: string, <Intl.RelativeTimeFormat Options>]`
+
+**JSON:**
+
+```json
+"relativeKey": {
+  "message": "It was {relativeTime}"
+},
+```
+
+**JavaScript:**
+
+```js
+_('relativeKey', {
+  relativeTime: {
+    relative: [-3, 'month', {
+      style: 'short'
+    }]
+  }
+});
+```
+
+**Returns:**
+
+> "It was 3 mo. ago"
+
+###### `list` - `[string[], <Intl.ListFormat Options>, <Intl.Collator Options>]` or `[string[], (string, number) => string|Node, <Intl.ListFormat Options>, <Intl.Collator Options>]`
+
+**SIGNATURE 1**
+
+**JSON:**
+
+```json
+"listKey": {
+  "message": "The list is: {listItems}"
+},
+```
+
+**JavaScript:**
+
+```js
+_('listKey', {
+  listItems: {
+    list: [
+      [
+        'a', 'z', 'ä', 'a'
+      ],
+      {
+        type: 'disjunction'
+      },
+      {
+        sensitivity: 'base'
+      }
+    ]
+  }
+});
+```
+
+**Returns:**
+
+> "The list is: a, ä, a, or z"
+
+**SIGNATURE 2**
+
+**JSON:**
+
+```json
+"listKey": {
+  "message": "The list is: {listItems}"
+},
+```
+
+**JavaScript:**
+
+```js
+_('listKey', {
+  listItems: {
+    list: [
+      [
+        'a', 'z', 'ä', 'a'
+      ],
+      (item, i) => {
+        const a = document.createElement('a');
+        a.id = `_${i}`;
+        a.textContent = item;
+        return a;
+      }, {
+        type: 'disjunction'
+      }, {
+        sensitivity: 'base'
+      }
+    ]
+  }
+});
+```
+
+**Returns:**
+
+> (An HTML fragment equivalent to: `The list is: <a id="_0">a</a>, <a id="_1">ä</a>, <a id="_2">a</a>, or <a id="_3">z</a>`)
+
+###### `plural`- `[number, <Intl.PluralRules Options>]`
+
+See the "Plurals" section for example usage.
 
 See also "Built-in functions".
 
