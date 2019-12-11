@@ -1102,8 +1102,7 @@ complete list of secondary options, see
 
 ## Collation
 
-Todo: document: `sort` and `arrayToSortedListFragment`; change
-to make available on `list` substitution type
+Todo: document: `sort` and `arrayToSortedListFragment`
 
 --TODO
 
