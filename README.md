@@ -1108,7 +1108,8 @@ to be stringified within a message, this will not help when you need to
 build HTML, such as `<select>` `<option>` elements, out of localized messages,
 and *then* ensure the elements are sorted.
 
-Todo: document: `sort` and `arrayToSortedListFragment`
+Todo: document: `sort` and `arrayToSortedListFragment`; change
+to make available on `list` substitution type
 
 --TODO
 
