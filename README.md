@@ -1102,12 +1102,6 @@ complete list of secondary options, see
 
 ## Collation
 
-While the `LIST` built-in function details one use case where `Intl.Collator`
-is put to use within `intl-dom`, namely the supplying of an array of values
-to be stringified within a message, this will not help when you need to
-build HTML, such as `<select>` `<option>` elements, out of localized messages,
-and *then* ensure the elements are sorted.
-
 Todo: document: `sort` and `arrayToSortedListFragment`; change
 to make available on `list` substitution type
 

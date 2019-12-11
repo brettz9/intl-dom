@@ -1803,7 +1803,8 @@
     return lib.parse( // Doesn't actually currently allow explicit brackets,
     //  but in case we change our regex to allow inner brackets
     '{' + (args || '').replace(/^\{/, '').replace(/\}$/, '') + '}');
-  };
+  }; // Todo: Extract to own library (RegExtras?)
+
   var processRegex = function processRegex(regex, str, _ref) {
     var onMatch = _ref.onMatch,
         extra = _ref.extra,
@@ -1858,7 +1859,7 @@
     sort(locale, arrayOfItems, collationOptions);
     return list(locale, arrayOfItems, listOptions);
   };
-  var arrayIntoSortedListFragment = function arrayIntoSortedListFragment(locale, arrayOfItems, map, listOptions, collationOptions) {
+  var arrayToSortedListFragment = function arrayToSortedListFragment(locale, arrayOfItems, map, listOptions, collationOptions) {
     sort(locale, arrayOfItems, collationOptions);
 
     var placeholderArray = _toConsumableArray(arrayOfItems).map(function (_, i) {
@@ -1876,7 +1877,7 @@
       betweenMatches: push,
       afterMatch: push,
       onMatch: function onMatch(_, idx) {
-        push(map(arrayOfItems[idx]));
+        push(map(arrayOfItems[idx], idx));
       }
     });
     var container = document.createDocumentFragment();
@@ -1888,10 +1889,25 @@
     var object = _ref.object;
 
     if (Array.isArray(object)) {
-      var _object = _slicedToArray(object, 3),
-          value = _object[0],
-          options = _object[1],
-          extraOpts = _object[2];
+      if (typeof object[1] === 'function') {
+        var _object = _slicedToArray(object, 4),
+            _value = _object[0],
+            callback = _object[1],
+            _options = _object[2],
+            _extraOpts = _object[3];
+
+        return {
+          value: _value,
+          callback: callback,
+          options: _options,
+          extraOpts: _extraOpts
+        };
+      }
+
+      var _object2 = _slicedToArray(object, 3),
+          value = _object2[0],
+          options = _object2[1],
+          extraOpts = _object2[2];
 
       return {
         value: value,
@@ -1933,7 +1949,7 @@
       return value;
     }
 
-    var opts, extraOpts;
+    var opts;
 
     var applyArgs = function applyArgs(_ref3) {
       var type = _ref3.type,
@@ -1971,6 +1987,8 @@
       var singleKey = Object.keys(value)[0];
 
       if (['number', 'date', 'datetime', 'relative', 'list', 'plural'].includes(singleKey)) {
+        var extraOpts, callback;
+
         var _getFormatterInfo = getFormatterInfo({
           object: value[singleKey]
         });
@@ -1978,6 +1996,7 @@
         value = _getFormatterInfo.value;
         opts = _getFormatterInfo.options;
         extraOpts = _getFormatterInfo.extraOpts;
+        callback = _getFormatterInfo.callback;
 
         switch (singleKey) {
           case 'relative':
@@ -1991,6 +2010,16 @@
           // ListFormat (with Collator)
 
           case 'list':
+            if (callback) {
+              return arrayToSortedListFragment(locale, value, callback, applyArgs({
+                type: 'LIST'
+              }), applyArgs({
+                type: 'LIST',
+                options: extraOpts,
+                checkArgOptions: true
+              }));
+            }
+
             return sortedList(locale, value, applyArgs({
               type: 'LIST'
             }), applyArgs({
@@ -3618,12 +3647,12 @@
           return sort.apply(void 0, [resolvedLocale].concat(args));
         };
 
-        formatter.arrayIntoSortedListFragment = function () {
+        formatter.arrayToSortedListFragment = function () {
           for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
             args[_key2] = arguments[_key2];
           }
 
-          return arrayIntoSortedListFragment.apply(void 0, [resolvedLocale].concat(args));
+          return arrayToSortedListFragment.apply(void 0, [resolvedLocale].concat(args));
         };
 
         return formatter;

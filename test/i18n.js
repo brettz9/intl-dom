@@ -928,6 +928,40 @@ describe('i18n', function () {
 
   it(
     'should return a function whose default `allSubstitutions` will ' +
+    'perform `ListFormat` processing with HTMl mapping',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const array = _('listKey', {
+        listItems: {
+          list: [
+            [
+              'a', 'z', 'ä', 'a'
+            ],
+            (item, i) => {
+              const a = document.createElement('a');
+              a.id = `_${i}`;
+              a.textContent = item;
+              return a;
+            }, {
+              type: 'disjunction'
+            }, {
+              sensitivity: 'base'
+            }
+          ]
+        }
+      });
+
+      expect(array).to.have.fragmentHtml(
+        'The list is: <a id="_0">a</a>, <a id="_1">ä</a>, ' +
+          '<a id="_2">a</a>, or <a id="_3">z</a>'
+      );
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
     'perform `ListFormat` processing (inheriting formatter options)',
     async function () {
       const _ = await i18n({

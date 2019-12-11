@@ -1,8 +1,12 @@
 import {parseJSONExtra} from './utils.js';
-import {sortedList} from './collation.js';
+import {sortedList, arrayToSortedListFragment} from './collation.js';
 
 export const getFormatterInfo = ({object}) => {
   if (Array.isArray(object)) {
+    if (typeof object[1] === 'function') {
+      const [value, callback, options, extraOpts] = object;
+      return {value, callback, options, extraOpts};
+    }
     const [value, options, extraOpts] = object;
     return {value, options, extraOpts};
   }
@@ -33,7 +37,7 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
     return value;
   }
 
-  let opts, extraOpts;
+  let opts;
 
   const applyArgs = ({type, options = opts, checkArgOptions = false}) => {
     if (typeof arg === 'string') {
@@ -64,8 +68,9 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
     if ([
       'number', 'date', 'datetime', 'relative', 'list', 'plural'
     ].includes(singleKey)) {
+      let extraOpts, callback;
       ({
-        value, options: opts, extraOpts
+        value, options: opts, extraOpts, callback
       } = getFormatterInfo({object: value[singleKey]}));
 
       switch (singleKey) {
@@ -78,6 +83,15 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
 
       // ListFormat (with Collator)
       case 'list':
+        if (callback) {
+          return arrayToSortedListFragment(
+            locale, value, callback,
+            applyArgs({type: 'LIST'}),
+            applyArgs({
+              type: 'LIST', options: extraOpts, checkArgOptions: true
+            })
+          );
+        }
         return sortedList(locale, value, applyArgs({type: 'LIST'}), applyArgs({
           type: 'LIST', options: extraOpts, checkArgOptions: true
         }));
