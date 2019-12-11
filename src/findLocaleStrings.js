@@ -14,6 +14,7 @@ import {promiseChainForValues} from './promiseChainForValues.js';
 */
 
 /**
+ * @callback LocaleStringFinder
  * @param {PlainObject} [cfg={}]
  * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
  * @param {string[]} [cfg.defaultLocales=['en-US']]
@@ -21,6 +22,11 @@ import {promiseChainForValues} from './promiseChainForValues.js';
  * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
  * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher]
  * @returns {Promise<LocaleObjectInfo>}
+ */
+
+/**
+ *
+ * @type {LocaleStringFinder}
  */
 export const findLocaleStrings = async ({
   locales = navigator.languages,

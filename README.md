@@ -1190,8 +1190,9 @@ retrieve locale files at run time or just need to have locale messages (potentia
 with defaults) extracted from a locale object, and have any place-holders it
 contains replaced with strings or DOM Nodes obtained at runtime.
 
-(The first two will probably be of most general interest; the others are used
-by the first two and can be used as part of a custom localization system.)
+(The first (and possibly the second) will probably be of most general
+interest; the others are used by the first two and can be used as part
+of a custom localization system.)
 
 1. `i18n`
 1. `getStringFromMessageAndDefaults`
@@ -1251,7 +1252,8 @@ DOM fragment. See the "Return value of callback" subsection.
 `null` for the second argument as the options can't be auto-differentiated
 from substitutions.)
 
-For the simplest uses, with just a key or a key and substitutions:
+Here are some of the simplest uses, with just a key or a key and
+substitutions:
 
 ```js
 const string = _('key1');
@@ -1338,6 +1340,9 @@ const _ = await i18n({
   //  for those specified in `locales`)
   defaultLocales: ['en-US'],
 
+  // Means for obtaining locale and locale strings; see `findLocaleStrings`
+  localeStringFinder: findLocaleStrings,
+
   // String path segment; with the default locale resolver, will
   //   be followed by:
   //       /_locales/<locale>/messages.json
@@ -1346,9 +1351,15 @@ const _ = await i18n({
   // See `defaultLocaleResolver`
   localeResolver: defaultLocaleResolver,
 
+  // May also be a function; see `findLocaleStrings`
+  localeMatcher: 'lookup',
+
   // "richNested", "rich", "plain", or a function; see "Message styles" and
   //   `getMessageForKeyByStyle`
   messageStyle: 'richNested',
+
+  allSubstitutions: defaultAllSubstitutionsValue,
+  insertNodes,
 
   // `false`, `null`, or `undefined`, it will throw if a value is not found;
   //  should otherwise be an object of the same message style as the locales.
@@ -1368,6 +1379,9 @@ const _ = await i18n({
   //   to manually specify/override
   dom: false,
   forceNodeReturn: false,
+
+  // For avoiding recursion among local locale variable resolution
+  maximumLocalNestingDepth: 3,
   throwOnMissingSuppliedFormatters: true,
   throwOnExtraSuppliedFormatters: true
 });

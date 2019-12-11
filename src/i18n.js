@@ -28,6 +28,7 @@ import {sort, sortList} from './collation.js';
  * @param {PlainObject} [cfg={}]
  * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
  * @param {string[]} [cfg.defaultLocales=['en-US']]
+ * @param {LocaleStringFinder} [cfg.localeStringFinder=findLocaleStrings]
  * @param {string} [cfg.localesBasePath='.']
  * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
  * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher='lookup']
@@ -47,11 +48,11 @@ export const i18n = async function i18n ({
   /* eslint-enable max-len */
   locales,
   defaultLocales,
+  localeStringFinder = findLocaleStrings,
   localesBasePath,
   localeResolver,
   localeMatcher,
   messageStyle,
-  localeStringFinder = findLocaleStrings,
   allSubstitutions: defaultAllSubstitutionsValue,
   insertNodes,
   defaults: defaultDefaults,
