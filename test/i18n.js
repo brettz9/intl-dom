@@ -9,24 +9,48 @@ describe('i18n', function () {
     setNavigatorLanguages([]);
     setExpectedData.call(this);
   });
-  it('should return a function with empty arguments', async function () {
+  it('should return a function given empty arguments', async function () {
     const _ = await i18n();
     expect(_).to.be.a('function');
   });
   it(
-    'should return a function with `resolvedLocale` property',
+    'should return a function with `resolvedLocale` and `strings` properties',
     async function () {
       const _ = await i18n();
       expect(_.resolvedLocale).to.equal('en-US');
       expect(_.strings).to.be.an('object');
     }
   );
-  it('should return a function with empty object argument', async function () {
+  it(
+    'should return a function with `resolvedLocale` and `strings` properties',
+    async function () {
+      const _ = await i18n();
+      expect(_.resolvedLocale).to.equal('en-US');
+      expect(_.strings).to.be.an('object');
+    }
+  );
+
+  it(
+    'should return a function with `sort` method',
+    async function () {
+      const _ = await i18n();
+      expect(_.sort).to.be.a('function');
+
+      const array = _.sort([
+        'a', 'z', 'ä', 'a'
+      ], {
+        sensitivity: 'base'
+      });
+      expect(array).to.deep.equal(['a', 'ä', 'a', 'z']);
+    }
+  );
+
+  it('should return a function given empty object argument', async function () {
     const _ = await i18n({});
     expect(_).to.be.a('function');
   });
   it(
-    'should return function that can find strings with implicit `locales`',
+    'should return function that can find strings given implicit `locales`',
     async function () {
       const _ = await i18n();
       const string = _('abc');
@@ -34,7 +58,7 @@ describe('i18n', function () {
     }
   );
   it(
-    'should return function that can find strings with explicit `locales`',
+    'should return function that can find strings given explicit `locales`',
     async function () {
       const _ = await i18n({
         locales: ['en-US']
@@ -43,7 +67,7 @@ describe('i18n', function () {
       expect(string).to.equal(this.expectedEnUS.body.abc.message);
     }
   );
-  it('should reject with non-object JSON', function () {
+  it('should reject given non-object JSON', function () {
     return expect(
       i18n({
         locales: ['xx']

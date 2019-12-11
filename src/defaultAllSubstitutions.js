@@ -1,4 +1,5 @@
 import {parseJSONExtra} from './utils.js';
+import {sortedList} from './collation.js';
 
 export const getFormatterInfo = ({object}) => {
   if (Array.isArray(object)) {
@@ -77,15 +78,9 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
 
       // ListFormat (with Collator)
       case 'list':
-        value.sort(new Intl.Collator(
-          locale,
-          applyArgs({
-            type: 'LIST', options: extraOpts, checkArgOptions: true
-          })
-        ).compare);
-        return new Intl.ListFormat(
-          locale, applyArgs({type: 'LIST'})
-        ).format(value);
+        return sortedList(locale, value, applyArgs({type: 'LIST'}), applyArgs({
+          type: 'LIST', options: extraOpts, checkArgOptions: true
+        }));
       default:
         // Let `number` and `date` types drop through so their options
         //  can be applied
