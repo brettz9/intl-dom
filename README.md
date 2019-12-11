@@ -1108,23 +1108,13 @@ to be stringified within a message, this will not help when you need to
 build HTML, such as `<select>` `<option>` elements, out of localized messages,
 and *then* ensure the elements are sorted.
 
-```js
-arrayOfItems.sort(new Intl.Collator(
-  locale, // e.g., from `_.resolvedLocale`
-  {
-    // Options
-  }
-).compare);
-```
+Todo: document: `arrayToSortedListFragment`
 
 --TODO
 
-Collator (demo complex use and refer to how making default for simple cases with `ListFormat`)
-
-- Handle at level *after* retrieving localized items yet before insertion into
-  DOM template (however, potentially an intl-dom localized template)
-  - [Collation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator)
-    - Use `localeMatcher`, e.g., if "lookup" or "best fit" otherwise
+See [Intl.ListFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ListFormat) for the complete list of options (and for the
+complete list of secondary options, see
+[Intl.Collator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator)).
 
 ## Custom formats
 

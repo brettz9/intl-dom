@@ -45,6 +45,30 @@ describe('i18n', function () {
     }
   );
 
+  it(
+    'should return a function with `arrayToSortedListFragment` ' +
+    'method to handle collation-based sorting and adding to HTML',
+    async function () {
+      const _ = await i18n();
+      expect(_.arrayToSortedListFragment).to.be.a('function');
+
+      const array = _.arrayToSortedListFragment([
+        'a', 'z', 'ä', 'a'
+      ], (item) => {
+        const a = document.createElement('a');
+        a.textContent = item;
+        return a;
+      }, {
+        type: 'disjunction'
+      }, {
+        sensitivity: 'base'
+      });
+      expect(array).to.have.fragmentHtml(
+        '<a>a</a>, <a>ä</a>, <a>a</a>, or <a>z</a>'
+      );
+    }
+  );
+
   it('should return a function given empty object argument', async function () {
     const _ = await i18n({});
     expect(_).to.be.a('function');

@@ -1858,6 +1858,31 @@
     sort(locale, arrayOfItems, collationOptions);
     return list(locale, arrayOfItems, listOptions);
   };
+  var arrayIntoSortedListFragment = function arrayIntoSortedListFragment(locale, arrayOfItems, map, listOptions, collationOptions) {
+    sort(locale, arrayOfItems, collationOptions);
+
+    var placeholderArray = _toConsumableArray(arrayOfItems).map(function (_, i) {
+      return "<<S=M".concat(i, "S=M>>");
+    });
+
+    var nodes = [];
+
+    var push = function push() {
+      nodes.push.apply(nodes, arguments);
+    }; // eslint-disable-next-line prefer-named-capture-group
+
+
+    processRegex(/<<S=M([0-9])S=M>>/g, list(locale, placeholderArray, listOptions), {
+      betweenMatches: push,
+      afterMatch: push,
+      onMatch: function onMatch(_, idx) {
+        push(map(arrayOfItems[idx]));
+      }
+    });
+    var container = document.createDocumentFragment();
+    container.append.apply(container, nodes);
+    return container;
+  };
 
   var getFormatterInfo = function getFormatterInfo(_ref) {
     var object = _ref.object;
@@ -3591,6 +3616,14 @@
           }
 
           return sort.apply(void 0, [resolvedLocale].concat(args));
+        };
+
+        formatter.arrayIntoSortedListFragment = function () {
+          for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+            args[_key2] = arguments[_key2];
+          }
+
+          return arrayIntoSortedListFragment.apply(void 0, [resolvedLocale].concat(args));
         };
 
         return formatter;

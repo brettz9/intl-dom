@@ -4,7 +4,7 @@ import {getDOMForLocaleString} from './getDOMForLocaleString.js';
 import {
   getStringFromMessageAndDefaults
 } from './getStringFromMessageAndDefaults.js';
-import {sort} from './collation.js';
+import {sort, arrayToSortedListFragment} from './collation.js';
 
 /**
  * Checks a key (against an object of strings). Optionally
@@ -108,6 +108,12 @@ export const i18n = async function i18n ({
 
   formatter.sort = (...args) => {
     return sort(resolvedLocale, ...args);
+  };
+
+  formatter.arrayToSortedListFragment = (...args) => {
+    return arrayToSortedListFragment(
+      resolvedLocale, ...args
+    );
   };
 
   return formatter;
