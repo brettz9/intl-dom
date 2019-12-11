@@ -1096,19 +1096,85 @@ accepts a second set of options which will be used as configuration for
 
 > The list is: a, a, ä, and z
 
+For wrapping the list results in HTML, see `list` under "Substitution types".
+
 See [Intl.ListFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ListFormat) for the complete list of options (and for the
 complete list of secondary options, see
 [Intl.Collator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator)).
 
 ## Collation
 
-Todo: document: `sort` and `sortList`
+While the `LIST` built-in function details one use case where `Intl.Collator`
+is put to use within `intl-dom`, namely the supplying of an array of values
+to be stringified within a message, this will not help when you need to
+build HTML, such as `<select>` `<option>` elements, out of localized messages,
+and *then* ensure the elements are sorted.
 
---TODO
+`intl-dom` provides two methods, `sort` and `sortList` to assist in building
+such HTML. There are two versions of these methods. One version is in
+`intl-dom/utils.js`, and that version requires an initial argument of a locale.
+The other version comes with the locale baked in, and is available on the
+function instance returned by `i18n`.
+
+```js
+(async () => {
+  const _ = await i18n();
+
+  const sortedArray = _.sort([
+    'a', 'z', 'ä', 'a'
+  ], {
+    sensitivity: 'base'
+  });
+
+  // `sortedArray` is now: ['a', 'ä', 'a', 'z']
+
+  // Now supply the sorted array to an HTML templating
+  //  utility which builds HTMl from an array, e.g.,
+
+  $('body').append('<select>' + sortedArray.map((item) => {
+    return '<option>' + item + '</option>';
+  }).join('') + '</select>');
+})();
+```
+
+The other method `sortList` allows you to take advantage of
+[`Intl.ListFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ListFormat),
+while being able to wrap the individual list items into HTML.
+
+```js
+(async () => {
+  const _ = await i18n();
+
+  const fragment = _.sortList([
+    'a', 'z', 'ä', 'a'
+  ],
+  // You can replace this mapper with one suitable to your needs and
+  //  templating library
+  (item, i) => {
+    const a = document.createElement('a');
+    a.id = `_${i}`;
+    a.textContent = item;
+    return a;
+  },
+  // List options
+  {
+    type: 'disjunction'
+  },
+  // Collation options
+  {
+    sensitivity: 'base'
+  });
+
+  // Gives the following fragment:
+  // '<a id="_0">a</a>, <a id="_1">ä</a>, <a id="_2">a</a>, or <a id="_3">z</a>
+})();
+```
 
 See [Intl.ListFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ListFormat) for the complete list of options (and for the
 complete list of secondary options, see
 [Intl.Collator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator)).
+
+See also `list` under "Substitution types".
 
 ## Custom formats
 

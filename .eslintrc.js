@@ -20,6 +20,7 @@ module.exports = {
       'Object.defineProperty',
       'Object.entries',
       'Object.keys',
+      'performance.now',
       'Promise',
       'Promise.reject'
     ]

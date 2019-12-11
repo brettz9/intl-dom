@@ -52,10 +52,11 @@ describe('i18n', function () {
       const _ = await i18n();
       expect(_.sortList).to.be.a('function');
 
-      const array = _.sortList([
+      const frag = _.sortList([
         'a', 'z', 'ä', 'a'
-      ], (item) => {
+      ], (item, i) => {
         const a = document.createElement('a');
+        a.id = `_${i}`;
         a.textContent = item;
         return a;
       }, {
@@ -63,8 +64,9 @@ describe('i18n', function () {
       }, {
         sensitivity: 'base'
       });
-      expect(array).to.have.fragmentHtml(
-        '<a>a</a>, <a>ä</a>, <a>a</a>, or <a>z</a>'
+      expect(frag).to.have.fragmentHtml(
+        '<a id="_0">a</a>, <a id="_1">ä</a>, ' +
+          '<a id="_2">a</a>, or <a id="_3">z</a>'
       );
     }
   );
@@ -933,7 +935,7 @@ describe('i18n', function () {
       const _ = await i18n({
         locales: ['en-US']
       });
-      const array = _('listKey', {
+      const frag = _('listKey', {
         listItems: {
           list: [
             [
@@ -953,7 +955,7 @@ describe('i18n', function () {
         }
       });
 
-      expect(array).to.have.fragmentHtml(
+      expect(frag).to.have.fragmentHtml(
         'The list is: <a id="_0">a</a>, <a id="_1">ä</a>, ' +
           '<a id="_2">a</a>, or <a id="_3">z</a>'
       );

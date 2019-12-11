@@ -1843,6 +1843,28 @@ var processRegex = function processRegex(regex, str, _ref) {
   }
 };
 
+/**
+ *
+ * @returns {string}
+ */
+
+function generateUUID() {
+  //  Adapted from original: public domain/MIT: http://stackoverflow.com/a/8809472/271577
+  var d = new Date().getTime();
+
+  if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+    d += performance.now(); // use high-precision timer if available
+  }
+
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    /* eslint-disable no-bitwise */
+    var r = (d + Math.random() * 16) % 16 | 0;
+    d = Math.floor(d / 16);
+    return (c === 'x' ? r : r & 0x3 | 0x8).toString(16);
+    /* eslint-enable no-bitwise */
+  });
+}
+
 var sort = function sort(locale, arrayOfItems, options) {
   return arrayOfItems.sort(new Intl.Collator(locale, options).compare);
 };
@@ -1859,19 +1881,20 @@ var sortList = function sortList(locale, arrayOfItems, map, listOptions, collati
   }
 
   sort(locale, arrayOfItems, collationOptions);
+  var randomId = generateUUID();
 
   var placeholderArray = _toConsumableArray(arrayOfItems).map(function (_, i) {
-    return "<<S=M".concat(i, "S=M>>");
+    return "<<".concat(randomId).concat(i, ">>");
   });
 
   var nodes = [];
 
   var push = function push() {
     nodes.push.apply(nodes, arguments);
-  }; // eslint-disable-next-line prefer-named-capture-group
+  };
 
-
-  processRegex(/<<S=M([0-9])S=M>>/g, list(locale, placeholderArray, listOptions), {
+  processRegex( // // eslint-disable-next-line prefer-named-capture-group
+  new RegExp("<<".concat(randomId, "(\\d)>>"), 'gu'), list(locale, placeholderArray, listOptions), {
     betweenMatches: push,
     afterMatch: push,
     onMatch: function onMatch(_, idx) {
