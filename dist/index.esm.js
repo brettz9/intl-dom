@@ -1849,11 +1849,15 @@ var sort = function sort(locale, arrayOfItems, options) {
 var list = function list(locale, arrayOfItems, options) {
   return new Intl.ListFormat(locale, options).format(arrayOfItems);
 };
-var sortedList = function sortedList(locale, arrayOfItems, listOptions, collationOptions) {
+var sortListSimple = function sortListSimple(locale, arrayOfItems, listOptions, collationOptions) {
   sort(locale, arrayOfItems, collationOptions);
   return list(locale, arrayOfItems, listOptions);
 };
-var arrayToSortedListFragment = function arrayToSortedListFragment(locale, arrayOfItems, map, listOptions, collationOptions) {
+var sortList = function sortList(locale, arrayOfItems, map, listOptions, collationOptions) {
+  if (typeof map !== 'function') {
+    return sortListSimple(locale, arrayOfItems, map, listOptions);
+  }
+
   sort(locale, arrayOfItems, collationOptions);
 
   var placeholderArray = _toConsumableArray(arrayOfItems).map(function (_, i) {
@@ -2005,7 +2009,7 @@ var defaultAllSubstitutions = function defaultAllSubstitutions(_ref2) {
 
         case 'list':
           if (callback) {
-            return arrayToSortedListFragment(locale, value, callback, applyArgs({
+            return sortList(locale, value, callback, applyArgs({
               type: 'LIST'
             }), applyArgs({
               type: 'LIST',
@@ -2014,7 +2018,7 @@ var defaultAllSubstitutions = function defaultAllSubstitutions(_ref2) {
             }));
           }
 
-          return sortedList(locale, value, applyArgs({
+          return sortList(locale, value, applyArgs({
             type: 'LIST'
           }), applyArgs({
             type: 'LIST',
@@ -3641,12 +3645,12 @@ var i18n = function i18n() {
         return sort.apply(void 0, [resolvedLocale].concat(args));
       };
 
-      formatter.arrayToSortedListFragment = function () {
+      formatter.sortList = function () {
         for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
           args[_key2] = arguments[_key2];
         }
 
-        return arrayToSortedListFragment.apply(void 0, [resolvedLocale].concat(args));
+        return sortList.apply(void 0, [resolvedLocale].concat(args));
       };
 
       return formatter;

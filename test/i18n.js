@@ -46,13 +46,13 @@ describe('i18n', function () {
   );
 
   it(
-    'should return a function with `arrayToSortedListFragment` ' +
+    'should return a function with `sortList` ' +
     'method to handle collation-based sorting and adding to HTML',
     async function () {
       const _ = await i18n();
-      expect(_.arrayToSortedListFragment).to.be.a('function');
+      expect(_.sortList).to.be.a('function');
 
-      const array = _.arrayToSortedListFragment([
+      const array = _.sortList([
         'a', 'z', 'ä', 'a'
       ], (item) => {
         const a = document.createElement('a');

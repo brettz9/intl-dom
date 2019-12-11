@@ -13,16 +13,19 @@ export const list = (locale, arrayOfItems, options) => {
   ).format(arrayOfItems);
 };
 
-export const sortedList = (
+export const sortListSimple = (
   locale, arrayOfItems, listOptions, collationOptions
 ) => {
   sort(locale, arrayOfItems, collationOptions);
   return list(locale, arrayOfItems, listOptions);
 };
 
-export const arrayToSortedListFragment = (
+export const sortList = (
   locale, arrayOfItems, map, listOptions, collationOptions
 ) => {
+  if (typeof map !== 'function') {
+    return sortListSimple(locale, arrayOfItems, map, listOptions);
+  }
   sort(locale, arrayOfItems, collationOptions);
 
   const placeholderArray = [...arrayOfItems].map((_, i) => `<<S=M${i}S=M>>`);

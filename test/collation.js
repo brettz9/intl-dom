@@ -1,4 +1,4 @@
-import {sort, arrayToSortedListFragment} from '../src/collation.js';
+import {sort, sortList} from '../src/collation.js';
 
 describe('Collation', function () {
   describe('sort', function () {
@@ -14,11 +14,11 @@ describe('Collation', function () {
       }
     );
   });
-  describe('arrayToSortedListFragment', function () {
+  describe('sortList', function () {
     it(
       'should handle collation-based sorting and adding to HTML',
       function () {
-        const array = arrayToSortedListFragment('en-US', [
+        const array = sortList('en-US', [
           'a', 'z', 'ä', 'a'
         ], (item, i) => {
           const a = document.createElement('a');

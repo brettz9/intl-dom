@@ -1,5 +1,5 @@
 import {parseJSONExtra} from './utils.js';
-import {sortedList, arrayToSortedListFragment} from './collation.js';
+import {sortList} from './collation.js';
 
 export const getFormatterInfo = ({object}) => {
   if (Array.isArray(object)) {
@@ -84,7 +84,7 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
       // ListFormat (with Collator)
       case 'list':
         if (callback) {
-          return arrayToSortedListFragment(
+          return sortList(
             locale, value, callback,
             applyArgs({type: 'LIST'}),
             applyArgs({
@@ -92,7 +92,7 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
             })
           );
         }
-        return sortedList(locale, value, applyArgs({type: 'LIST'}), applyArgs({
+        return sortList(locale, value, applyArgs({type: 'LIST'}), applyArgs({
           type: 'LIST', options: extraOpts, checkArgOptions: true
         }));
       default:

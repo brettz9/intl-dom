@@ -1102,7 +1102,7 @@ complete list of secondary options, see
 
 ## Collation
 
-Todo: document: `sort` and `arrayToSortedListFragment`
+Todo: document: `sort` and `sortList`
 
 --TODO
 
