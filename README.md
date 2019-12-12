@@ -1592,7 +1592,7 @@ _(
     key1: 'a string',
     key2: aDOMNode,
     key3 ({arg, key}) {
-      // Depending on the key value, could return, e.g.,
+      // Depending on the key value, we return, e.g.,
       //  "KEY3" or "key3"
       return arg === 'UPPER' ? key.toUpperCase() : key;
     }
@@ -1600,7 +1600,10 @@ _(
 
   // Optional options object
   {
-    // TODO: document meaning of each and in relation to defaults
+    // The following have the same meaning as the properties of the same
+    //   name (see the subsection "Arguments and defaults" of the "i8n"
+    //   section), but, if given, they will override the default value
+    //   that is described there.
     // Applied after individual substitutions (and each item in the array
     //   pipes to the next)
     allSubstitutions: defaultAllSubstitutions,
@@ -1617,15 +1620,49 @@ _(
 #### `getStringFromMessageAndDefaults`
 
 Checks if a message is supplied and if not, checks for a default value out of
-a given object (using `getMessageForKeyByStyle` by default).
+a given object (using `getMessageForKeyByStyle` by default). Used internally
+by `i18n`.
 
-// Todo: Add example code here and in methods following
+```js
+const string = getStringFromMessageAndDefaults({
+  message: undefined,
+  key: 'key',
+  defaults: {
+    key: {
+      message: 'myKeyValue'
+    }
+  },
+  messageStyle: 'rich'
+});
+
+// Gives "myKeyValue"
+```
 
 #### `getMessageForKeyByStyle`
 
 Obtains a callback which can get localized string messages out of
 JSON/JavaScript objects based on a given message style (see
-"Message styles").
+"Message styles"). Used internally by `i18n`, `Formatter`,
+and `getStringFromMessageAndDefaults`.
+
+```js
+const func = getMessageForKeyByStyle({
+  messageStyle: 'rich'
+});
+const localeObj = {
+  body: {
+    key: {
+      message: 'myKeyValue'
+    }
+  }
+};
+
+console.log(func(localeObj, 'key').value);
+// Gives: "myKeyValue"
+
+console.log(func(localeObj, 'key').info);
+// Gives: {message: 'myKeyValue'}
+```
 
 #### `getDOMForLocaleString`
 
@@ -1633,6 +1670,8 @@ Takes a string, substitutions object, and regular expression to extract
 format place-holders and returns a string or document fragment based on
 the values supplied to it. May also return a text node if `forceNodeReturn`
 is set to `true`.
+
+// Todo: Add example code here and in methods following
 
 // Todo: Indicate function format, including `arg`
 
@@ -1688,6 +1727,10 @@ used internally for locale discovery but made available for reuse.)
 
 (This may be swapped out in the future for an equivalent third-party
 Promise utility.)
+
+#### `Formatter`, `LocalFormatter`, `RegularFormatter`, `SwitchFormatter`
+
+#### Collation methods (`sort`, `list`, `sortList`, `sortListSimple`)
 
 ### Server code
 
