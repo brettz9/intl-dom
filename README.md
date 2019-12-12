@@ -1776,5 +1776,5 @@ This project has been heavily inspired by
   a locale as argument.
 - Support `switches` that are available as sibling to `message`, i.e.,
   in a particular context
-- Support named capturing groups for `formattingRegex`
-- In rich formats, bless particular style for adding **comments** alongside `message`/`description` (comments for file, group, or item?)
+- In rich formats, bless particular style for adding **comments** alongside
+  `message`/`description` (comments for file, group, or item?)
