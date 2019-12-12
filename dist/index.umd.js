@@ -3716,6 +3716,7 @@
   exports.getStringFromMessageAndDefaults = getStringFromMessageAndDefaults;
   exports.i18n = i18n;
   exports.parseJSONExtra = parseJSONExtra;
+  exports.processRegex = processRegex;
   exports.promiseChainForValues = promiseChainForValues;
   exports.unescapeBackslashes = unescapeBackslashes;
 
