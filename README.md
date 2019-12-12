@@ -1206,6 +1206,10 @@ of a custom localization system.)
 
 ### API Usage
 
+As the main function, `i18n` is fairly well documented in the sections
+below, but other methods only offer a short explanation and example.
+See the tests for further examples.
+
 #### `i18n`
 
 This method ties together all of the elements for full, end-to-end
