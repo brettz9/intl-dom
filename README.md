@@ -1675,9 +1675,36 @@ format place-holders and returns a string or document fragment based on
 the values supplied to it. May also return a text node if `forceNodeReturn`
 is set to `true`.
 
-// Todo: Add example code here and in methods following
+```js
+const elem = document.createElement('a');
+elem.href = 'http://example.com';
+elem.textContent = 'message';
 
-// Todo: Indicate function format, including `arg`
+const frag = getDOMForLocaleString({
+  string: 'simple {msg}',
+  substitutions: {
+    msg: elem
+  }
+});
+// Gives a fragment with content equal to:
+//   'simple <a href="http://example.com">message</a>'
+```
+
+This method, as with `i18n`, may take functions as `substitutions`
+values, potentially:
+
+```js
+const string = getDOMForLocaleString({
+  string: 'simple {msg|UPPER} {msg}',
+  substitutions: {
+    msg ({arg, key}) { // `key` is "msg" here
+      return arg === 'UPPER' ? 'MESSAGE' : 'message';
+    }
+  }
+});
+console.log(string);
+// 'simple MESSAGE message';
+```
 
 #### `findLocaleStrings`
 
@@ -1685,15 +1712,43 @@ Dynamically obtains locale file data to return a JSON object with the data
 as `strings` and the successfully resolved locale as `locale`. Uses
 `defaultLocaleResolver` by default for path resolution.
 
-To use a different strategy than "lookup", you can supply a function for
-`localeMatcher` which accepts a locale string and should return a string
-or a Promise that resolves to another locale to try (or it can throw if
-none is found).
+To use a different strategy than "lookup" (which successively strips
+hyphenated subexpressions, e.g., "en" out of "en-US"), you can supply
+a function for `localeMatcher` which accepts a locale string and should
+return a string or a `Promise` that resolves to another locale to try
+(or it can throw if none is found).
+
+```js
+(async () => {
+  const {strings, locale} = await findLocaleStrings({
+    locales: ['zz', 'fr'],
+    defaultLocales: ['en-US']
+  });
+
+  // Assuming `zz` and `fr` locales are not found
+  console.log(locale);
+  // 'en-US'
+
+  console.log(strings);
+  // (The JSON object obtained out of the file at
+  //  `/_locales/en-US/messages.json`, the default
+  //  location per the default locale resolver,
+  //  `defaultLocaleResolver`)
+})();
+```
 
 #### `defaultLocaleResolver`
 
 Converts a base path and language code into a path, i.e.,
 `<basePath>/_locales/<locale>/messages.json`.
+
+```js
+const locale = 'en-US';
+const localesBasePath = '/base/path/';
+const path = defaultLocaleResolver(localesBasePath, locale);
+console.log(path);
+// '/base/path/_locales/en-US/messages.json'
+```
 
 ### `defaultAllSubstitutions`
 
@@ -1715,6 +1770,8 @@ In our own tests, the `intl-mocha` script uses the `full-icu`
 package. Passing `--with-intl=full-icu` seems to require Node having been
 prebuilt as such, so we use (and as per `full-icu` instructions),
 `--icu-data-dir` instead.
+
+// Todo: Add example code here and in methods following
 
 #### `defaultInsertNodes`
 
