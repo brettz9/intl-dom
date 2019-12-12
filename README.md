@@ -1554,10 +1554,24 @@ const _ = await i18n({
   //   set to change the *default* value in the callback; you can set these
   //   here if you know you wish to minimize the frequency of a need
   //   to manually specify/override
+
   dom: false,
+
+  // Set to `true` to always return a `Node` (instead of a string or fragment);
+  //   See "Return value of callback"
   forceNodeReturn: false,
 
+  // Throws an error if the substitutions object is missing a key found
+  //  within the formatting string; if `false`, will allow the string to
+  //  be passed without a substitution being made, e.g., the returned
+  //  string might be: "Here is a {missingSubstitutionKey}" if
+  //  `missingSubstitutionKey` is not on the substitution object
   throwOnMissingSuppliedFormatters: true,
+
+  // Throws an error if the calling code supplies a substitution object
+  //  with key(s) that don't end up needed in the specified key (including
+  //  cases where the key embeds local variables that use substitution
+  //  keys).
   throwOnExtraSuppliedFormatters: true
 });
 
