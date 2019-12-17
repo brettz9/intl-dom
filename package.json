@@ -45,6 +45,7 @@
     "@babel/core": "^7.7.5",
     "@babel/preset-env": "^7.7.6",
     "@mysticatea/eslint-plugin": "^13.0.0",
+    "@rollup/plugin-node-resolve": "^6.0.0",
     "babel-plugin-transform-async-to-promises": "^0.8.15",
     "browserify": "^16.5.0",
     "chai": "^4.2.0",
@@ -83,7 +84,6 @@
     "open-cli": "^5.0.0",
     "rollup": "^1.27.9",
     "rollup-plugin-babel": "^4.3.3",
-    "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-terser": "^5.1.2",
     "typescript": "^3.7.3"
   }
