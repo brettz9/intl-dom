@@ -1,3 +1,5 @@
+/* globals intlDomLocale */
+
 import {defaultLocaleResolver} from './defaultLocaleResolver.js';
 import {promiseChainForValues} from './promiseChainForValues.js';
 
@@ -89,13 +91,15 @@ export const findLocale = ({
  *  the locale rather than locale and contents
  */
 const _findLocale = async ({
-  locales = typeof navigator === 'undefined' ? [] : navigator.languages,
+  locales = typeof intlDomLocale !== 'undefined'
+    ? [intlDomLocale]
+    : typeof navigator === 'undefined' ? [] : navigator.languages,
   defaultLocales = ['en-US'],
   localeResolver = defaultLocaleResolver,
   localesBasePath = '.',
   localeMatcher = 'lookup',
   headOnly = false
-} = {}) => {
+}) => {
   /**
    * @callback getLocale
    * @throws {SyntaxError|TypeError|Error}

@@ -3478,7 +3478,7 @@
     return result;
   }
 
-  function defaultLocaleMatcher(locale) {
+  var defaultLocaleMatcher = function defaultLocaleMatcher(locale) {
     if (!locale.includes('-')) {
       throw new Error('Locale not available');
     } // Try without hyphen, i.e., the "lookup" algorithm:
@@ -3487,7 +3487,7 @@
 
 
     return locale.replace(/\x2D(?:[\0-,\.-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*$/, '');
-  }
+  };
   var findLocaleStrings = function findLocaleStrings() {
     var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
         locales = _ref.locales,
@@ -3543,7 +3543,7 @@
    *  the locale rather than locale and contents
    */
 
-  var _findLocale = _async$1(function () {
+  var _findLocale = _async$1(function (_ref3) {
     /**
      * @callback getLocale
      * @throws {SyntaxError|TypeError|Error}
@@ -3588,9 +3588,8 @@
       });
     });
 
-    var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-        _ref3$locales = _ref3.locales,
-        locales = _ref3$locales === void 0 ? typeof navigator === 'undefined' ? [] : navigator.languages : _ref3$locales,
+    var _ref3$locales = _ref3.locales,
+        locales = _ref3$locales === void 0 ? typeof intlDomLocale !== 'undefined' ? [intlDomLocale] : typeof navigator === 'undefined' ? [] : navigator.languages : _ref3$locales,
         _ref3$defaultLocales = _ref3.defaultLocales,
         defaultLocales = _ref3$defaultLocales === void 0 ? ['en-US'] : _ref3$defaultLocales,
         _ref3$localeResolver = _ref3.localeResolver,

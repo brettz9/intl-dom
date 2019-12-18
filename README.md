@@ -1720,6 +1720,10 @@ a function for `localeMatcher` which accepts a locale string and should
 return a string or a `Promise` that resolves to another locale to try
 (or it can throw if none is found).
 
+Note that you can avoid the need for `locales` by supplying a global
+`intlDomLocale`. See the "Server code" section on how this optimization
+may be preferable. Otherwise `defaultLocales` is `["en-US"]`.
+
 ```js
 (async () => {
   const {strings, locale} = await findLocaleStrings({
@@ -2005,6 +2009,10 @@ You could approach this in two ways:
     then returning the best matching locale (or locale contents), e.g.,
     with this info baked in as a global set within a server-generated
     `<script>` or within an always-included, dynamically-generated file.
+    This approach is taken in `/node/findMatchingLocaleServer.js` (see
+    also `/test/node.js` for its uage). (The `find-matching-locale`
+    npm script sets up a server to return the locale as a JSON string.)
+- Add node script with test showing use to return a global
 2. As above, but iterate through your locales directory, creating a map
     (possibly using a mapper function (e.g., `defaultLocaleMatcher`)) of
     user locales to existing locales, and caching this map for use as a

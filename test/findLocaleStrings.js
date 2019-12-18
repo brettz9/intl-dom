@@ -13,6 +13,27 @@ describe('findLocaleStrings', function () {
     setExpectedData.call(this);
   });
 
+  describe('intlDomLocale', function () {
+    beforeEach(() => {
+      setNavigatorLanguages(false);
+      global.intlDomLocale = 'zh-Hans';
+    });
+    afterEach(() => {
+      delete global.intlDomLocale;
+    });
+    it(
+      'should return locale object with no `locales`, no navigator, empty ' +
+      '`defaultLocales` but with `intlDomLocale`',
+      async function () {
+        const {strings, locale} = await findLocaleStrings({
+          defaultLocales: []
+        });
+        expect(strings).to.deep.equal(this.expectedZhHans);
+        expect(locale).to.equal('zh-Hans');
+      }
+    );
+  });
+
   it(
     'should return locale object and no arguments',
     async function () {
@@ -220,6 +241,10 @@ describe('defaultLocaleMatcher', function () {
 });
 
 describe('findLocale', () => {
+  it('should find an initial locale without arguments', async function () {
+    const locale = await findLocale();
+    expect(locale).to.equal('en-US');
+  });
   it('should find an initial locale', async function () {
     const locale = await findLocale({
       locales: ['fr']

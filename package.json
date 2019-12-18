@@ -7,6 +7,7 @@
   "scripts": {
     "eslint": "eslint --ext=js,md,html .",
     "rollup": "rollup -c",
+    "find-matching-locale": "node --require esm server.js",
     "intl-mocha": "node --icu-data-dir=node_modules/full-icu node_modules/mocha/bin/_mocha --exclude=test/*/** --delay --require esm --require chai/register-expect --require test/bootstrap/node.js",
     "mocha": "_mocha --exclude=test/*/** --delay --require esm --require chai/register-expect --require test/bootstrap/node.js --exit",
     "coverage": "echo 'Removing esm cache which seems to blank out istanbul coverage' && rm -Rf node_modules/.cache/esm && nyc --reporter=html --reporter=text _mocha --exclude=test/*/** --delay --require esm --require chai/register-expect --require test/bootstrap/node.js --exit",
@@ -48,6 +49,7 @@
     "@babel/preset-env": "^7.7.6",
     "@mysticatea/eslint-plugin": "^13.0.0",
     "@rollup/plugin-node-resolve": "^6.0.0",
+    "babel-eslint": "^10.0.3",
     "babel-plugin-transform-async-to-promises": "^0.8.15",
     "browserify": "^16.5.0",
     "chai": "^4.2.0",
@@ -80,6 +82,7 @@
     "json-6": "^1.0.4",
     "json5": "^2.1.1",
     "mocha": "^6.2.2",
+    "node-fetch": "^2.6.0",
     "node-static": "^0.7.11",
     "nyc": "^14.1.1",
     "open-cli": "^5.0.0",

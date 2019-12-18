@@ -1,6 +1,7 @@
 /* eslint-env node */
 module.exports = {
   extends: ['ash-nazg/sauron'],
+  parser: 'babel-eslint', // import.meta.url
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module'
