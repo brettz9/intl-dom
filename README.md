@@ -2063,6 +2063,11 @@ are essentially an out-of-line version of Fluent's inline "selectors").
 We did add `RELATIVE` and `LIST` type built-ins, however, and are using
 `PLURAL` instead of `NUMBER` for forced plural options.
 
+Fluent files do have some advantages over JSON, however, as far as
+avoiding the need for quoting, adding line breaks, etc. One could get
+some of these advantages by compiling to JSON from another format, such
+as [JSON6](https://github.com/d3x0r/JSON6).
+
 ## Credits
 
 This project has been heavily inspired by
