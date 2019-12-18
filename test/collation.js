@@ -1,4 +1,4 @@
-import {sort, sortList} from '../src/collation.js';
+import {sort, sortList, sortListSimple, list} from '../src/collation.js';
 
 describe('Collation', function () {
   describe('sort', function () {
@@ -13,6 +13,22 @@ describe('Collation', function () {
         expect(array).to.deep.equal(['a', 'ä', 'a', 'z']);
       }
     );
+  });
+  describe('list', function () {
+    it('should handle list formatting', function () {
+      const string = list('en-US', [
+        'a', 'z', 'ä', 'a'
+      ]);
+      expect(string).to.equal('a, z, ä, and a');
+    });
+  });
+  describe('sortListSimple', function () {
+    it('should handle list formatting', function () {
+      const string = sortListSimple('en-US', [
+        'a', 'z', 'ä', 'a'
+      ]);
+      expect(string).to.equal('a, a, ä, and z');
+    });
   });
   describe('sortList', function () {
     it(

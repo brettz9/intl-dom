@@ -1956,7 +1956,8 @@
    * @param {string|Node|number|Date|RelativeTimeInfo|ListInfo|NumberInfo|DateInfo} cfg.value Contains
    *   the value returned by the individual substitution
    * @param {string} cfg.arg See `cfg.arg` of {@link SubstitutionCallback}.
-   * @param {string} cfg.key The substitution key
+   * @param {string} cfg.key The substitution key Not currently in use
+   * @param {string} cfg.locale The locale
    * @returns {string|Element} The replacement text or element
   */
 

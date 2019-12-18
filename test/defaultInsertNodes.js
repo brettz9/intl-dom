@@ -14,4 +14,31 @@ describe('defaultInsertNodes', function () {
       }).to.throw(TypeError, '`maximumLocalNestingDepth` must be a number.');
     }
   );
+  it('should process a switch', function () {
+    const val = defaultInsertNodes({
+      string: 'You have {~bananas}',
+      locale: 'en-US',
+      substitutions: {
+        bananas: 3
+      },
+      usedKeys: [],
+      checkExtraSuppliedFormatters () {
+        //
+      },
+      missingSuppliedFormatters () {
+        //
+      },
+      switches: {
+        bananas: {
+          one: {
+            message: 'one banana'
+          },
+          '*other': {
+            message: '{bananas} bananas'
+          }
+        }
+      }
+    });
+    expect(val).to.equal('You have 3 bananas');
+  });
 });

@@ -13,8 +13,6 @@
 
 # intl-dom
 
-**Note that this README is currently under construction.**
-
 This library allows applications to discover locale files and safely
 utilize the strings while inserting DOM elements amidst them, returning
 a document fragment.
@@ -1752,12 +1750,48 @@ console.log(path);
 
 ### `defaultAllSubstitutions`
 
-Passed information for a substitution and returns the replacement,
-automatically applying [`Intl.NumberFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat) to numbers and [`Intl.DateTimeFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat)
+Passed information for a substitution and returns the replacement.
+
+Returns the value is if given a string or Node.
+
+```js
+defaultAllSubstitutions({value: 'str'});
+```
+
+> 'str'
+
+[`Intl.NumberFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat) will be automatically applied to numbers and [`Intl.DateTimeFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat)
 to `Date` objects.
+
+For example:
+
+```js
+defaultAllSubstitutions({
+  value: {
+    number: [123456.4567, {maximumSignificantDigits: 6}]
+  }
+});
+```
+
+> '123,456'
 
 Shortcuts also exist for utilizing [`Intl.RelativeTimeFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RelativeTimeFormat)
 and [`Intl.ListFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ListFormat).
+
+```js
+defaultAllSubstitutions({
+  value: {
+    relative: [
+      -3,
+      'month'
+    ]
+  }
+});
+```
+
+> '3 months ago'
+
+For more on the accepted types, see "Substitution types".
 
 For more on `Intl` in the browser, see <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl>.
 
@@ -1771,13 +1805,40 @@ package. Passing `--with-intl=full-icu` seems to require Node having been
 prebuilt as such, so we use (and as per `full-icu` instructions),
 `--icu-data-dir` instead.
 
-// Todo: Add example code here and in methods following
-
 #### `defaultInsertNodes`
 
 The default function for `insertNodes`. Processes the specific string
 format for substitutions, conditionals/plurals, local variables, and
 built-in functions/arguments, returning the resulting string or Node array.
+
+```js
+defaultInsertNodes({
+  string: 'You have {~bananas}',
+  locale: 'en-US',
+  substitutions: {
+    bananas: 3
+  },
+  usedKeys: [],
+  checkExtraSuppliedFormatters () {
+    //
+  },
+  missingSuppliedFormatters () {
+    //
+  },
+  switches: {
+    bananas: {
+      one: {
+        message: 'one banana'
+      },
+      '*other': {
+        message: '{bananas} bananas'
+      }
+    }
+  }
+});
+```
+
+> 'You have 3 bananas'
 
 #### `promiseChainForValues`
 
@@ -1789,9 +1850,104 @@ used internally for locale discovery but made available for reuse.)
 (This may be swapped out in the future for an equivalent third-party
 Promise utility.)
 
+Here is an example:
+
+```js
+(async () => {
+await promiseChainForValues(['a', 'b', 'c'], (v) => {
+  return new Promise(function (resolve, reject) {
+    setTimeout(() => {
+      resolve(v);
+    }, 100);
+  });
+});
+})();
+```
+
+Which resolves to:
+
+> 'a'
+
 #### `Formatter`, `LocalFormatter`, `RegularFormatter`, `SwitchFormatter`
 
+These classes are used by `defaultInsertNodes` (and indirectly by
+`getDOMForLocaleString` and `i18n`).
+
+`Formatter` is the base class and these classes should identify the formatting
+and performs substitutions. `LocalFormatter` does so for `locals`,
+`SwitchFormatter` for `switches` and `RegularFormatter` for
+regular keys.
+
+See the `Formatter.js` for the structure and `defaultInsertNodes.js` for usage.
+
 #### Collation methods (`sort`, `list`, `sortList`, `sortListSimple`)
+
+These methods facilitate collation.
+
+`sort` is used by `i18n` and `sortList` is used by `i18n` and
+`defaultAllSubstitutions` though these methods might be useful on their own.
+
+##### `sort`
+
+Simple wrapper for `Intl.Collator#compare` used on an array:
+
+```js
+sort('en-US', [
+  'a', 'z', 'ä', 'a'
+], {
+  sensitivity: 'base'
+});
+```
+
+> ['a', 'ä', 'a', 'z']
+
+##### `list`
+
+Bare wrapper for `Intl.ListFormat#format`:
+
+```js
+list('en-US', [
+  'a', 'z', 'ä', 'a'
+]);
+```
+
+> 'a, z, ä, and a'
+
+##### `sortListSimple`
+
+Combines `sort` and `list` to collate an array and format it as a list.
+Only produces strings. For generating HTML, use `sortList` instead.
+
+```js
+sortListSimple('en-US', [
+  'a', 'z', 'ä', 'a'
+]);
+```
+
+> 'a, a, ä, and z'
+
+##### `sortList`
+
+Behaves like `sortListSimple` but also accepts an optional third argument
+map function which can wrap each item in the list, even producing non-string
+DOM content.
+
+```js
+sortList('en-US', [
+  'a', 'z', 'ä', 'a'
+], (item, i) => {
+  const a = document.createElement('a');
+  a.id = `_${i}`;
+  a.textContent = item;
+  return a;
+}, {
+  type: 'disjunction'
+}, {
+  sensitivity: 'base'
+});
+```
+
+> (A fragment with `<a id="_0">a</a>, <a id="_1">ä</a>, <a id="_2">a</a>, or <a id="_3">z</a>`)
 
 ### Server code
 
