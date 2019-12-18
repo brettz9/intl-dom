@@ -2800,6 +2800,10 @@
       throw new TypeError('`defaultLocaleResolver` expects a string `locale`.');
     }
 
+    if (/[\.\/\\]/.test(locale)) {
+      throw new TypeError('Locales cannot use file-reserved characters, `.`, `/` or `\\`');
+    }
+
     return "".concat(localesBasePath.replace(/\/$/, ''), "/_locales/").concat(locale, "/messages.json");
   };
 

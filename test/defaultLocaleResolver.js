@@ -23,6 +23,24 @@ describe('defaultLocaleResolver', function () {
       '`defaultLocaleResolver` expects a string `localesBasePath`.'
     );
   });
+  it('should throw upon a `locale` with reserved characters', function () {
+    [
+      '.',
+      '/',
+      '\\',
+      'some.in.middle',
+      'path/inside',
+      'or\\backslashes'
+    ].forEach((localeWithBadCharacters) => {
+      expect(() => {
+        const okBasePath = '/base/path';
+        defaultLocaleResolver(okBasePath, localeWithBadCharacters);
+      }).to.throw(
+        TypeError,
+        'Locales cannot use file-reserved characters, `.`, `/` or `\\`'
+      );
+    });
+  });
   it('should resolve with no trailing slash base path', function () {
     const expected = '/base/path/_locales/en-US/messages.json';
     const locale = 'en-US';
