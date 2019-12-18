@@ -1988,8 +1988,8 @@ You could approach this in two ways:
 2. As above, but iterate through your locales directory, creating a map
     (possibly using a mapper function (e.g., `defaultLocaleMatcher`)) of
     user locales to existing locales, and caching this map for use as a
-    browser global (also set within a `<script>` or dynamically-generated file).
-    The client-side script can then look through `navigator.languages`
+    browser global (also set within a `<script>` or dynamically-generated
+    file). The client-side script can then look through `navigator.languages`
     to find the best match without an HTTP request.
 
 ## FAQ
