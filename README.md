@@ -202,6 +202,7 @@ const {
   getStringFromMessageAndDefaults,
   getDOMForLocaleString,
   findLocaleStrings,
+  findLocale,
   defaultLocaleMatcher,
 
   // INTEGRATED
@@ -1198,6 +1199,7 @@ of a custom localization system.)
 1. `getMessageForKeyByStyle`
 1. `getDOMForLocaleString`
 1. `findLocaleStrings`
+1. `findLocale`
 1. `defaultLocaleMatcher`
 1. `defaultLocaleResolver`
 1. `defaultAllSubstitutions`
@@ -1737,6 +1739,24 @@ return a string or a `Promise` that resolves to another locale to try
 })();
 ```
 
+#### `findLocale`
+
+As with `findLocaleStrings`, but only returns the `locale` (and as a string
+rather than on an object).
+
+```js
+(async () => {
+  const locale = await findLocale({
+    locales: ['zz', 'fr'],
+    defaultLocales: ['en-US']
+  });
+
+  // Assuming `zz` and `fr` locales are not found
+  console.log(locale);
+  // 'en-US'
+})();
+```
+
 #### `defaultLocaleMatcher`
 
 This follows the ["lookup" algorithm](https://tools.ietf.org/html/rfc4647#section-3.4)
@@ -1979,12 +1999,12 @@ and supplying that to the client.
 
 You could approach this in two ways:
 
-1. Run `findLocaleStrings` on demand after setting a global `fetch`,
-    e.g., by using [file-fetch](https://github.com/bergos/file-fetch)
+1. Run `findLocale` or `findLocaleStrings` on demand after setting a global
+    `fetch`, e.g., by using [file-fetch](https://github.com/bergos/file-fetch)
     and supplying the `Accept-Language` header for `locales` and
-    then returning the best matching locale, e.g., with this info
-    baked in as a global set within a server-generated `<script>`
-    or within an always-included, dynamically-generated file.
+    then returning the best matching locale (or locale contents), e.g.,
+    with this info baked in as a global set within a server-generated
+    `<script>` or within an always-included, dynamically-generated file.
 2. As above, but iterate through your locales directory, creating a map
     (possibly using a mapper function (e.g., `defaultLocaleMatcher`)) of
     user locales to existing locales, and caching this map for use as a

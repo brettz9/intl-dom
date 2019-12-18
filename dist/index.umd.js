@@ -3488,7 +3488,62 @@
 
     return locale.replace(/\x2D(?:[\0-,\.-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*$/, '');
   }
-  var findLocaleStrings = _async$1(function () {
+  var findLocaleStrings = function findLocaleStrings() {
+    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        locales = _ref.locales,
+        defaultLocales = _ref.defaultLocales,
+        localeResolver = _ref.localeResolver,
+        localesBasePath = _ref.localesBasePath,
+        localeMatcher = _ref.localeMatcher;
+
+    return _findLocale({
+      locales: locales,
+      defaultLocales: defaultLocales,
+      localeResolver: localeResolver,
+      localesBasePath: localesBasePath,
+      localeMatcher: localeMatcher
+    });
+  };
+  /**
+   * @callback LocaleFinder
+   * @param {PlainObject} [cfg={}]
+   * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
+   * @param {string[]} [cfg.defaultLocales=['en-US']]
+   * @param {string} [cfg.localesBasePath='.']
+   * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
+   * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher]
+   * @returns {Promise<string>} Resolves to the successfully resolved locale
+   */
+
+  /**
+   *
+   * @type {LocaleFinder}
+   */
+
+  var findLocale = function findLocale() {
+    var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        locales = _ref2.locales,
+        defaultLocales = _ref2.defaultLocales,
+        localeResolver = _ref2.localeResolver,
+        localesBasePath = _ref2.localesBasePath,
+        localeMatcher = _ref2.localeMatcher;
+
+    return _findLocale({
+      locales: locales,
+      defaultLocales: defaultLocales,
+      localeResolver: localeResolver,
+      localesBasePath: localesBasePath,
+      localeMatcher: localeMatcher,
+      headOnly: true
+    });
+  };
+  /**
+   * @type {LocaleStringFinder|LocaleFinder} Also has a `headOnly` boolean
+   *  property to determine whether to make a simple HEAD and resolve to
+   *  the locale rather than locale and contents
+   */
+
+  var _findLocale = _async$1(function () {
     /**
      * @callback getLocale
      * @throws {SyntaxError|TypeError|Error}
@@ -3507,7 +3562,9 @@
       }
 
       return _catch$1(function () {
-        return _await$1(fetch(url), function (resp) {
+        return _await$1(headOnly ? fetch(url, {
+          method: 'HEAD'
+        }) : fetch(url), function (resp) {
           if (resp.status === 404) {
             // Don't allow browser (tested in Firefox) to continue
             //  and give `SyntaxError` with missing file or we won't be
@@ -3515,7 +3572,7 @@
             throw new Error('Trying again');
           }
 
-          return _await$1(resp.json(), function (strings) {
+          return headOnly ? locale : _await$1(resp.json(), function (strings) {
             return {
               locale: locale,
               strings: strings
@@ -3531,17 +3588,19 @@
       });
     });
 
-    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-        _ref$locales = _ref.locales,
-        locales = _ref$locales === void 0 ? typeof navigator === 'undefined' ? [] : navigator.languages : _ref$locales,
-        _ref$defaultLocales = _ref.defaultLocales,
-        defaultLocales = _ref$defaultLocales === void 0 ? ['en-US'] : _ref$defaultLocales,
-        _ref$localeResolver = _ref.localeResolver,
-        localeResolver = _ref$localeResolver === void 0 ? defaultLocaleResolver : _ref$localeResolver,
-        _ref$localesBasePath = _ref.localesBasePath,
-        localesBasePath = _ref$localesBasePath === void 0 ? '.' : _ref$localesBasePath,
-        _ref$localeMatcher = _ref.localeMatcher,
-        localeMatcher = _ref$localeMatcher === void 0 ? 'lookup' : _ref$localeMatcher;
+    var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        _ref3$locales = _ref3.locales,
+        locales = _ref3$locales === void 0 ? typeof navigator === 'undefined' ? [] : navigator.languages : _ref3$locales,
+        _ref3$defaultLocales = _ref3.defaultLocales,
+        defaultLocales = _ref3$defaultLocales === void 0 ? ['en-US'] : _ref3$defaultLocales,
+        _ref3$localeResolver = _ref3.localeResolver,
+        localeResolver = _ref3$localeResolver === void 0 ? defaultLocaleResolver : _ref3$localeResolver,
+        _ref3$localesBasePath = _ref3.localesBasePath,
+        localesBasePath = _ref3$localesBasePath === void 0 ? '.' : _ref3$localesBasePath,
+        _ref3$localeMatcher = _ref3.localeMatcher,
+        localeMatcher = _ref3$localeMatcher === void 0 ? 'lookup' : _ref3$localeMatcher,
+        _ref3$headOnly = _ref3.headOnly,
+        headOnly = _ref3$headOnly === void 0 ? false : _ref3$headOnly;
 
     if (localeMatcher === 'lookup') {
       localeMatcher = defaultLocaleMatcher;
@@ -3720,6 +3779,7 @@
   exports.defaultInsertNodes = defaultInsertNodes;
   exports.defaultLocaleMatcher = defaultLocaleMatcher;
   exports.defaultLocaleResolver = defaultLocaleResolver;
+  exports.findLocale = findLocale;
   exports.findLocaleStrings = findLocaleStrings;
   exports.getDOMForLocaleString = getDOMForLocaleString;
   exports.getMessageForKeyByStyle = getMessageForKeyByStyle;

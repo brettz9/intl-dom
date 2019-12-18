@@ -1,6 +1,7 @@
 import {setExpectedData} from './utils/utils.js';
 import {
   findLocaleStrings,
+  findLocale,
   defaultLocaleMatcher
 // } from '../dist/index.esm.min.js';
 } from '../src/index.js';
@@ -215,5 +216,28 @@ describe('defaultLocaleMatcher', function () {
     expect(() => {
       defaultLocaleMatcher('en');
     }).to.throw(Error, 'Locale not available');
+  });
+});
+
+describe('findLocale', () => {
+  it('should find an initial locale', async function () {
+    const locale = await findLocale({
+      locales: ['fr']
+    });
+    expect(locale).to.equal('fr');
+  });
+  it('should find a secondary locale', async function () {
+    const locale = await findLocale({
+      locales: ['zz', 'fr'],
+      defaultLocales: ['en-US']
+    });
+    expect(locale).to.equal('fr');
+  });
+  it('should find the default locale', async function () {
+    const locale = await findLocale({
+      locales: ['zz'],
+      defaultLocales: ['en-US']
+    });
+    expect(locale).to.equal('en-US');
   });
 });

@@ -43,12 +43,58 @@ export function defaultLocaleMatcher (locale) {
  *
  * @type {LocaleStringFinder}
  */
-export const findLocaleStrings = async ({
+export const findLocaleStrings = ({
+  locales,
+  defaultLocales,
+  localeResolver,
+  localesBasePath,
+  localeMatcher
+} = {}) => {
+  return _findLocale({
+    locales, defaultLocales, localeResolver, localesBasePath, localeMatcher
+  });
+};
+
+/**
+ * @callback LocaleFinder
+ * @param {PlainObject} [cfg={}]
+ * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
+ * @param {string[]} [cfg.defaultLocales=['en-US']]
+ * @param {string} [cfg.localesBasePath='.']
+ * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
+ * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher]
+ * @returns {Promise<string>} Resolves to the successfully resolved locale
+ */
+
+/**
+ *
+ * @type {LocaleFinder}
+ */
+export const findLocale = ({
+  locales,
+  defaultLocales,
+  localeResolver,
+  localesBasePath,
+  localeMatcher
+} = {}) => {
+  return _findLocale({
+    locales, defaultLocales, localeResolver, localesBasePath, localeMatcher,
+    headOnly: true
+  });
+};
+
+/**
+ * @type {LocaleStringFinder|LocaleFinder} Also has a `headOnly` boolean
+ *  property to determine whether to make a simple HEAD and resolve to
+ *  the locale rather than locale and contents
+ */
+const _findLocale = async ({
   locales = typeof navigator === 'undefined' ? [] : navigator.languages,
   defaultLocales = ['en-US'],
   localeResolver = defaultLocaleResolver,
   localesBasePath = '.',
-  localeMatcher = 'lookup'
+  localeMatcher = 'lookup',
+  headOnly = false
 } = {}) => {
   /**
    * @callback getLocale
@@ -67,12 +113,21 @@ export const findLocaleStrings = async ({
       );
     }
     try {
-      const resp = await fetch(url);
+      const resp = await (headOnly
+        ? fetch(url, {
+          method: 'HEAD'
+        })
+        : fetch(url)
+      );
+
       if (resp.status === 404) {
         // Don't allow browser (tested in Firefox) to continue
         //  and give `SyntaxError` with missing file or we won't be
         //  able to try without the hyphen
         throw new Error('Trying again');
+      }
+      if (headOnly) {
+        return locale;
       }
       const strings = await (resp.json());
       return {
