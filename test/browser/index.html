@@ -39,8 +39,16 @@
         mocha.setup('bdd');
 
         window.setNavigatorLanguages = (languages) => {
+          if (languages === false) {
+            delete window.navigator;
+            return;
+          }
+          if (typeof navigator === 'undefined') {
+            // eslint-disable-next-line no-global-assign
+            window.navigator = {};
+          }
           Object.defineProperty(
-            navigator,
+            window.navigator,
             'languages',
             {value: languages, configurable: true}
           );

@@ -5,8 +5,22 @@ import {promiseChainForValues} from './promiseChainForValues.js';
  * Takes a locale and returns a new locale to check.
  * @callback LocaleMatcher
  * @param {string} locale The failed locale
+ * @throws If there are no further hyphens left to check
  * @returns {string|Promise<string>} The new locale to check
 */
+
+/**
+ * @type {LocaleMatcher}
+ */
+export function defaultLocaleMatcher (locale) {
+  if (!locale.includes('-')) {
+    throw new Error('Locale not available');
+  }
+  // Try without hyphen, i.e., the "lookup" algorithm:
+  // See https://tools.ietf.org/html/rfc4647#section-3.4 and
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl
+  return locale.replace(/-[^-]*$/u, '');
+}
 
 /**
 * @typedef {PlainObject} LocaleObjectInfo
@@ -30,7 +44,7 @@ import {promiseChainForValues} from './promiseChainForValues.js';
  * @type {LocaleStringFinder}
  */
 export const findLocaleStrings = async ({
-  locales = navigator.languages,
+  locales = typeof navigator === 'undefined' ? [] : navigator.languages,
   defaultLocales = ['en-US'],
   localeResolver = defaultLocaleResolver,
   localesBasePath = '.',
@@ -74,13 +88,7 @@ export const findLocaleStrings = async ({
     }
   }
   if (localeMatcher === 'lookup') {
-    localeMatcher = function (locale) {
-      if (!locale.includes('-')) {
-        throw new Error('Locale not available');
-      }
-      // Try without hyphen ("lookup" algorithm: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl )
-      return locale.replace(/-.*$/u, '');
-    };
+    localeMatcher = defaultLocaleMatcher;
   } else if (typeof localeMatcher !== 'function') {
     throw new TypeError('`localeMatcher` must be "lookup" or a function!');
   }

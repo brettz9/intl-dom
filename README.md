@@ -202,6 +202,7 @@ const {
   getStringFromMessageAndDefaults,
   getDOMForLocaleString,
   findLocaleStrings,
+  defaultLocaleMatcher,
 
   // INTEGRATED
   i18n
@@ -1197,6 +1198,7 @@ of a custom localization system.)
 1. `getMessageForKeyByStyle`
 1. `getDOMForLocaleString`
 1. `findLocaleStrings`
+1. `defaultLocaleMatcher`
 1. `defaultLocaleResolver`
 1. `defaultAllSubstitutions`
 1. `defaultInsertNodes`
@@ -1735,6 +1737,17 @@ return a string or a `Promise` that resolves to another locale to try
 })();
 ```
 
+#### `defaultLocaleMatcher`
+
+This follows the ["lookup" algorithm](https://tools.ietf.org/html/rfc4647#section-3.4)
+as used by [Intl](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_negotiation), successively stripping off
+the final hyphen portion until a match may be found. While this function
+throws when no hyphen is found, it is only used by `findLocaleStrings`
+after any given locale (with or without a hyphen) is checked, and
+`findLocaleStrings` will also use `defaultLocales` which should be
+a locale known to exist (defaults to `en-US`, but if that locale is not
+present, you should change the default).
+
 #### `defaultLocaleResolver`
 
 Converts a base path and language code into a path, i.e.,
@@ -1951,7 +1964,26 @@ sortList('en-US', [
 
 ### Server code
 
---TODO:  Example where server script produces global and is fed
+Since the locale algorithm uses the simple approach client-side of checking
+for the existence of the closest matching locale file, e.g., first checking for
+`en-US` then `en`, this can cause unnecessary HTTP requests which can be
+optimized out by determining which locale fits a matching file server-side
+and supplying that to the client.
+
+You could approach this in two ways:
+
+1. Run `findLocaleStrings` on demand after setting a global `fetch`,
+    e.g., by using [file-fetch](https://github.com/bergos/file-fetch)
+    and supplying the `Accept-Language` header for `locales` and
+    then returning the best matching locale, e.g., with this info
+    baked in as a global set within a server-generated `<script>`
+    or within an always-included, dynamically-generated file.
+2. As above, but iterate through your locales directory, creating a map
+    (possibly using a mapper function (e.g., `defaultLocaleMatcher`)) of
+    user locales to existing locales, and caching this map for use as a
+    browser global (also set within a `<script>` or dynamically-generated file).
+    The client-side script can then look through `navigator.languages`
+    to find the best match without an HTTP request.
 
 ## FAQ
 

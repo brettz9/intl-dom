@@ -21,6 +21,10 @@ chai.use(fragmentHtml);
 global.document = (new JSDOM()).window.document;
 global.fetch = fileFetch;
 global.setNavigatorLanguages = (languages) => {
+  if (languages === false) {
+    delete global.navigator;
+    return;
+  }
   global.navigator = {
     languages
   };

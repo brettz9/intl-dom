@@ -3402,9 +3402,25 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
  * Takes a locale and returns a new locale to check.
  * @callback LocaleMatcher
  * @param {string} locale The failed locale
+ * @throws If there are no further hyphens left to check
  * @returns {string|Promise<string>} The new locale to check
 */
 
+/**
+ * @type {LocaleMatcher}
+ */
+
+function _await$1(value, then, direct) {
+  if (direct) {
+    return then ? then(value) : value;
+  }
+
+  if (!value || !value.then) {
+    value = Promise.resolve(value);
+  }
+
+  return then ? value.then(then) : value;
+}
 /**
 * @typedef {PlainObject} LocaleObjectInfo
 * @property {LocaleObject} strings The successfully retrieved locale strings
@@ -3427,17 +3443,6 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
  * @type {LocaleStringFinder}
  */
 
-function _await$1(value, then, direct) {
-  if (direct) {
-    return then ? then(value) : value;
-  }
-
-  if (!value || !value.then) {
-    value = Promise.resolve(value);
-  }
-
-  return then ? value.then(then) : value;
-}
 
 function _async$1(f) {
   return function () {
@@ -3467,6 +3472,16 @@ function _catch$1(body, recover) {
   return result;
 }
 
+function defaultLocaleMatcher(locale) {
+  if (!locale.includes('-')) {
+    throw new Error('Locale not available');
+  } // Try without hyphen, i.e., the "lookup" algorithm:
+  // See https://tools.ietf.org/html/rfc4647#section-3.4 and
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl
+
+
+  return locale.replace(/\x2D(?:[\0-,\.-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*$/, '');
+}
 var findLocaleStrings = _async$1(function () {
   /**
    * @callback getLocale
@@ -3512,7 +3527,7 @@ var findLocaleStrings = _async$1(function () {
 
   var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
       _ref$locales = _ref.locales,
-      locales = _ref$locales === void 0 ? navigator.languages : _ref$locales,
+      locales = _ref$locales === void 0 ? typeof navigator === 'undefined' ? [] : navigator.languages : _ref$locales,
       _ref$defaultLocales = _ref.defaultLocales,
       defaultLocales = _ref$defaultLocales === void 0 ? ['en-US'] : _ref$defaultLocales,
       _ref$localeResolver = _ref.localeResolver,
@@ -3523,14 +3538,7 @@ var findLocaleStrings = _async$1(function () {
       localeMatcher = _ref$localeMatcher === void 0 ? 'lookup' : _ref$localeMatcher;
 
   if (localeMatcher === 'lookup') {
-    localeMatcher = function localeMatcher(locale) {
-      if (!locale.includes('-')) {
-        throw new Error('Locale not available');
-      } // Try without hyphen ("lookup" algorithm: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl )
-
-
-      return locale.replace(/\x2D(?:[\0-\t\x0B\f\x0E-\u2027\u202A-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*$/, '');
-    };
+    localeMatcher = defaultLocaleMatcher;
   } else if (typeof localeMatcher !== 'function') {
     throw new TypeError('`localeMatcher` must be "lookup" or a function!');
   } // eslint-disable-next-line no-return-await
@@ -3698,4 +3706,4 @@ var i18n = function i18n() {
   }
 };
 
-export { Formatter, LocalFormatter, RegularFormatter, SwitchFormatter, defaultAllSubstitutions, defaultInsertNodes, defaultLocaleResolver, findLocaleStrings, getDOMForLocaleString, getMessageForKeyByStyle, getStringFromMessageAndDefaults, i18n, parseJSONExtra, processRegex, promiseChainForValues, unescapeBackslashes };
+export { Formatter, LocalFormatter, RegularFormatter, SwitchFormatter, defaultAllSubstitutions, defaultInsertNodes, defaultLocaleMatcher, defaultLocaleResolver, findLocaleStrings, getDOMForLocaleString, getMessageForKeyByStyle, getStringFromMessageAndDefaults, i18n, parseJSONExtra, processRegex, promiseChainForValues, unescapeBackslashes };

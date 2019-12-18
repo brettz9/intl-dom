@@ -1,6 +1,7 @@
 import {setExpectedData} from './utils/utils.js';
 import {
-  findLocaleStrings
+  findLocaleStrings,
+  defaultLocaleMatcher
 // } from '../dist/index.esm.min.js';
 } from '../src/index.js';
 
@@ -74,6 +75,19 @@ describe('findLocaleStrings', function () {
       const {strings, locale} = await findLocaleStrings({
         locales: ['zz', 'en-US', 'zh-Hans'],
         defaultLocales: []
+      });
+      expect(strings).to.deep.equal(this.expectedEnUS);
+      expect(locale).to.equal('en-US');
+    }
+  );
+
+  it(
+    'should return locale object when needing to revert to `defaultLocales`' +
+    'and `navigator` is missing',
+    async function () {
+      setNavigatorLanguages(false);
+      const {strings, locale} = await findLocaleStrings({
+        defaultLocales: ['en-US']
       });
       expect(strings).to.deep.equal(this.expectedEnUS);
       expect(locale).to.equal('en-US');
@@ -179,5 +193,27 @@ describe('findLocaleStrings', function () {
       TypeError,
       '`localeMatcher` must be "lookup" or a function!'
     );
+  });
+});
+
+describe('defaultLocaleMatcher', function () {
+  it(
+    'should strip the final hyphen content when a hyphen is present',
+    () => {
+      const result = defaultLocaleMatcher('en-US');
+      expect(result).to.equal('en');
+    }
+  );
+  it(
+    'should strip only final hyphen content when multiple hyphens are present',
+    () => {
+      const result = defaultLocaleMatcher('zh-Hant-HK');
+      expect(result).to.equal('zh-Hant');
+    }
+  );
+  it('should throw when no hyphen is present', function () {
+    expect(() => {
+      defaultLocaleMatcher('en');
+    }).to.throw(Error, 'Locale not available');
   });
 });
