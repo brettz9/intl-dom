@@ -1115,7 +1115,7 @@ to be stringified within a message, this will not help when you need to
 build HTML, such as `<select>` `<option>` elements, out of localized messages,
 and *then* ensure the elements are sorted.
 
-`intl-dom` provides two methods, `sort` and `sortList` to assist in building
+`intl-dom` provides the methods, `sort` and `sortList` to assist in building
 such HTML. There are two versions of these methods. One version is in
 `intl-dom/utils.js`, and that version requires an initial argument of a locale.
 The other version comes with the locale baked in, and is available on the
@@ -1179,7 +1179,24 @@ See [Intl.ListFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Re
 complete list of secondary options, see
 [Intl.Collator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator)).
 
-See also `list` under "Substitution types".
+## `list`
+
+If you don't need the sorting present with `sortList`, you can use
+`list` (with optional options):
+
+```js
+const string = _.list([
+  'a', 'z', 'ä', 'a'
+], {
+  type: 'disjunction'
+});
+```
+
+> 'a, z, ä, or a'
+
+See [Intl.ListFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ListFormat) for the complete list of options.
+
+See also `list` under "Substitution types" and "Collation/listing methods".
 
 ## API
 
@@ -1928,12 +1945,14 @@ regular keys.
 
 See the `Formatter.js` for the structure and `defaultInsertNodes.js` for usage.
 
-#### Collation methods (`sort`, `list`, `sortList`, `sortListSimple`)
+#### Collation/listing methods (`sort`, `list`, `sortList`, `sortListSimple`)
 
 These methods facilitate collation.
 
 `sort` is used by `i18n` and `sortList` is used by `i18n` and
-`defaultAllSubstitutions` though these methods might be useful on their own.
+`defaultAllSubstitutions` (see the "Collation" section) though these
+methods here might be useful on their own, e.g., if you need to pass in
+a locale.
 
 ##### `sort`
 

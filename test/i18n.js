@@ -46,6 +46,21 @@ describe('i18n', function () {
   );
 
   it(
+    'should return a function with `list` method',
+    async function () {
+      const _ = await i18n();
+      expect(_.list).to.be.a('function');
+
+      const string = _.list([
+        'a', 'z', 'ä', 'a'
+      ], {
+        type: 'disjunction'
+      });
+      expect(string).to.equal('a, z, ä, or a');
+    }
+  );
+
+  it(
     'should return a function with `sortList` ' +
     'method to handle collation-based sorting and adding to HTML',
     async function () {
