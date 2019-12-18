@@ -2079,14 +2079,15 @@ This project has been heavily inspired by
 
 ## To-dos
 
-- Ensure coverage in browser is ok?
-- Option to parse Fluent files?
-- Expect `{default: true}` instead of `*` in switches or at least allow
-  asterisks through escaping
-- We might accept a `defaultPath` argument to `i18n` to obtain default values
+- Ensure **coverage** in browser is ok?
+- Option to **parse** Fluent files?
+- **Switches**
+  - Expect `{default: true}` instead of `*` in switches or at least allow
+    asterisks through escaping
+  - Support `switches` that are available as sibling to `message`, i.e.,
+    in a particular context
+- We might accept a **`defaultPath`** argument to `i18n` to obtain default values
   out of a file, potentially resolvable by a template function which can take
   a locale as argument.
-- Support `switches` that are available as sibling to `message`, i.e.,
-  in a particular context
-- In rich formats, bless particular style for adding **comments** alongside
+- In **rich formats**, bless particular style for adding **comments** alongside
   `message`/`description` (comments for file, group, or item?)
