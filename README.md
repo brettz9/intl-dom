@@ -1745,8 +1745,15 @@ the final hyphen portion until a match may be found. While this function
 throws when no hyphen is found, it is only used by `findLocaleStrings`
 after any given locale (with or without a hyphen) is checked, and
 `findLocaleStrings` will also use `defaultLocales` which should be
-a locale known to exist (defaults to `en-US`, but if that locale is not
-present, you should change the default).
+a locale known to exist (`defaultLocales` defaults to an array with only
+`en-US`, but if you do not have an `en-US` locale,, you must change the
+default).
+
+```js
+defaultLocaleMatcher('zh-Hant-HK');
+```
+
+> 'zh-Hant'
 
 #### `defaultLocaleResolver`
 
