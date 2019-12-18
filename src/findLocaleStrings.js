@@ -12,7 +12,7 @@ import {promiseChainForValues} from './promiseChainForValues.js';
 /**
  * @type {LocaleMatcher}
  */
-export function defaultLocaleMatcher (locale) {
+export const defaultLocaleMatcher = (locale) => {
   if (!locale.includes('-')) {
     throw new Error('Locale not available');
   }
@@ -20,7 +20,7 @@ export function defaultLocaleMatcher (locale) {
   // See https://tools.ietf.org/html/rfc4647#section-3.4 and
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl
   return locale.replace(/-[^-]*$/u, '');
-}
+};
 
 /**
 * @typedef {PlainObject} LocaleObjectInfo
