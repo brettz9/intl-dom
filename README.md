@@ -1721,8 +1721,12 @@ return a string or a `Promise` that resolves to another locale to try
 (or it can throw if none is found).
 
 Note that you can avoid the need for `locales` by supplying a global
-`intlDomLocale`. See the "Server code" section on how this optimization
-may be preferable. Otherwise `defaultLocales` is `["en-US"]`.
+`intlDomLocale`. See the "Server code" section on how it
+may be preferable for performance to supply this global based on
+server-side detection rather than relying on client-side defaulting.
+
+If all values fail, `defaultLocales` will be used, and this itself
+defaults to `["en-US"]`.
 
 ```js
 (async () => {
