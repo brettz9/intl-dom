@@ -6,6 +6,7 @@ import {processRegex} from './utils.js';
  */
 function generateUUID () { //  Adapted from original: public domain/MIT: http://stackoverflow.com/a/8809472/271577
   let d = new Date().getTime();
+  /* istanbul ignore next */
   if (typeof performance !== 'undefined' &&
       typeof performance.now === 'function'
   ) {

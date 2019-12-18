@@ -186,7 +186,7 @@ export class SwitchFormatter extends Formatter {
     return ks.reduce((obj, k, i) => {
       if (i < ks.length - 1) {
         if (!(k in obj)) {
-          throw new Error(`Switch key "${k}" not found (from ${ky})`);
+          throw new Error(`Switch key "${k}" not found (from "~${ky}")`);
         }
         return obj[k];
       }

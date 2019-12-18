@@ -291,6 +291,9 @@ export const setExpectedData = function () {
       },
       keyReferencingNonexistentSwitch: {
         message: "This switch doesn't exist: {~nonexistentSwitch}"
+      },
+      keyReferencingNonexistentNestedSwitch: {
+        message: "This switch doesn't exist: {~badnested.nonexistentSwitch}"
       }
     }
   };

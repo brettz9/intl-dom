@@ -1589,6 +1589,23 @@ describe('i18n', function () {
 
   it(
     'should return function that throws when accessing key referencing a ' +
+    'non-existent nested plural switch',
+    async function () {
+      const _ = await i18n();
+      expect(() => {
+        _('keyReferencingNonexistentNestedSwitch', {
+          bananas: 1,
+          nonexistentNestedSwitch: 'abc'
+        });
+      }).to.throw(
+        Error,
+        'Switch key "badnested" not found (from "~badnested.nonexistentSwitch")'
+      );
+    }
+  );
+
+  it(
+    'should return function that throws when accessing key referencing a ' +
     'non-existent plural switch (without presence of formatter)',
     async function () {
       const _ = await i18n();
