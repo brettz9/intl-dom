@@ -1,5 +1,9 @@
 # intl-dom CHANGES
 
+## ?
+
+- npm: Update `rollup`/`rolup-plugin-terser` devDeps.
+
 ## 0.2.1
 
 - Security fix: `defaultLocaleResolver` should not allow special characters
