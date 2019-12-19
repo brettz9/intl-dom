@@ -1857,6 +1857,7 @@
   function generateUUID() {
     //  Adapted from original: public domain/MIT: http://stackoverflow.com/a/8809472/271577
     var d = new Date().getTime();
+    /* istanbul ignore next */
 
     if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
       d += performance.now(); // use high-precision timer if available
@@ -2352,7 +2353,7 @@
         return ks.reduce(function (obj, k, i) {
           if (i < ks.length - 1) {
             if (!(k in obj)) {
-              throw new Error("Switch key \"".concat(k, "\" not found (from ").concat(ky, ")"));
+              throw new Error("Switch key \"".concat(k, "\" not found (from \"~").concat(ky, "\")"));
             }
 
             return obj[k];
@@ -3765,6 +3766,14 @@
           }
 
           return sortList.apply(void 0, [resolvedLocale].concat(args));
+        };
+
+        formatter.list = function () {
+          for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+            args[_key3] = arguments[_key3];
+          }
+
+          return list.apply(void 0, [resolvedLocale].concat(args));
         };
 
         return formatter;

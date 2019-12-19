@@ -1,7 +1,8 @@
 # intl-dom CHANGES
 
-## ?
+## 0.3.1
 
+- Build: Update build files (for `list` addition)
 - npm: Update devDeps
 
 ## 0.3.0
