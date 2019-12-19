@@ -1,5 +1,9 @@
 # intl-dom CHANGES
 
+## ?
+
+- npm: Update devDeps
+
 ## 0.3.0
 
 - Enhancement: Expose `list` on `i18n` return function (`_`).
