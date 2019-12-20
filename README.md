@@ -3,7 +3,10 @@
 [![devDependencies](https://img.shields.io/david/dev/brettz9/intl-dom.svg)](https://david-dm.org/brettz9/intl-dom?type=dev)
 
 [![Actions Status](https://github.com/brettz9/intl-dom/workflows/Node%20CI/badge.svg)](https://github.com/brettz9/intl-dom/actions)
+[![coverage badge](https://raw.githubusercontent.com/brettz9/coveradge/master/coverage-badge.svg?sanitize=true)](coverage-badge.svg)
+<!--
 [![Actions Status](https://github.com/brettz9/intl-dom/workflows/Coverage/badge.svg)](https://github.com/brettz9/intl-dom/actions)
+-->
 
 [![Known Vulnerabilities](https://snyk.io/test/github/brettz9/intl-dom/badge.svg)](https://snyk.io/test/github/brettz9/intl-dom)
 [![Total Alerts](https://img.shields.io/lgtm/alerts/g/brettz9/intl-dom.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/brettz9/intl-dom/alerts)

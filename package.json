@@ -9,10 +9,11 @@
     "rollup": "rollup -c",
     "find-matching-locale": "node --require esm server.js",
     "intl-mocha": "node --icu-data-dir=node_modules/full-icu node_modules/mocha/bin/_mocha --exclude=test/*/** --delay --require esm --require chai/register-expect --require test/bootstrap/node.js",
+    "coverage-badge": "coveradge",
     "mocha": "_mocha --exclude=test/*/** --delay --require esm --require chai/register-expect --require test/bootstrap/node.js --exit",
-    "coverage": "echo 'Removing esm cache which seems to blank out istanbul coverage' && rm -Rf node_modules/.cache/esm && nyc --reporter=html --reporter=text _mocha --exclude=test/*/** --delay --require esm --require chai/register-expect --require test/bootstrap/node.js --exit",
+    "coverage": "echo 'Removing esm cache which seems to blank out istanbul coverage' && rm -Rf node_modules/.cache/esm && nyc _mocha --exclude=test/*/** --delay --require esm --require chai/register-expect --require test/bootstrap/node.js --exit && npm run coverage-badge",
     "open-coverage": "npm run coverage && open-cli http://localhost:8010/coverage/ && npm start",
-    "nyc": "nyc _mocha --exclude=test/*/** --delay --require esm --require chai/register-expect --require test/bootstrap/node.js --exit",
+    "nyc": "nyc _mocha --exclude=test/*/** --delay --require esm --require chai/register-expect --require test/bootstrap/node.js --exit && npm run coverage-badge",
     "browserify-chai-as-promised": "browserify --entry node_modules/chai-as-promised/lib/chai-as-promised.js --standalone chaiAsPromised --outfile ./test/browser/vendor/chai-as-promised.js",
     "browser-test": "open-cli http://localhost:8010/test/browser/ && npm start",
     "start": "static -p 8010",
@@ -22,6 +23,13 @@
   "browserslist": [
     "cover 100%"
   ],
+  "nyc": {
+    "reporter": [
+      "html",
+      "text",
+      "json-summary"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/brettz9/intl-dom.git"
@@ -55,6 +63,7 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-dom": "^1.8.1",
+    "coveradge": "^0.1.0",
     "eslint": "^6.7.2",
     "eslint-config-ash-nazg": "^14.0.1",
     "eslint-config-standard": "^14.1.0",
