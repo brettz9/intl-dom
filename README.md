@@ -4,7 +4,7 @@
 
 [![Actions Status](https://github.com/brettz9/intl-dom/workflows/Node%20CI/badge.svg)](https://github.com/brettz9/intl-dom/actions)
 [![testing badge](https://raw.githubusercontent.com/brettz9/intl-dom/master/badges/tests-badge.svg?sanitize=true)](badges/tests-badge.svg)
-[![coverage badge](https://raw.githubusercontent.com/brettz9/intl-dom/master/badges/coverage-badge.svg?sanitize=true)](coverage-badge.svg)
+[![coverage badge](https://raw.githubusercontent.com/brettz9/intl-dom/master/badges/coverage-badge.svg?sanitize=true)](badges/coverage-badge.svg)
 <!--
 [![Actions Status](https://github.com/brettz9/intl-dom/workflows/Coverage/badge.svg)](https://github.com/brettz9/intl-dom/actions)
 -->
