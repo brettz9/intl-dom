@@ -1,7 +1,8 @@
 # intl-dom CHANGES
 
-## ?
+## 0.4.0
 
+- Fix: `json-6` should have been dep.
 - Docs: Locally built Mocha and coverage badges
 - Testing: Fix for ESM
 - npm: Update devDeps
