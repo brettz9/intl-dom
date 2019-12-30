@@ -1,5 +1,10 @@
 # intl-dom CHANGES
 
+## ?
+
+- Docs: Locally built Mocha and coverage badges
+- npm: Update devDeps
+
 ## 0.3.1
 
 - Build: Update build files (for `list` addition)
