@@ -20,6 +20,7 @@
     "test": "npm run eslint && npm run rollup && npm run mocha",
     "test-cov": "npm run eslint && npm run rollup && npm run nyc"
   },
+  "@std/esm": "cjs",
   "browserslist": [
     "cover 100%"
   ],

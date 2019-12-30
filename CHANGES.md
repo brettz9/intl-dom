@@ -3,6 +3,7 @@
 ## ?
 
 - Docs: Locally built Mocha and coverage badges
+- Testing: Fix for ESM
 - npm: Update devDeps
 
 ## 0.3.1
