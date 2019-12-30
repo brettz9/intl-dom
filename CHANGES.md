@@ -3,6 +3,8 @@
 ## 0.4.0
 
 - Fix: `json-6` should have been dep.
+- Build: Use plain module specifier despite it breaking browser test as
+    nyc + esm currently needs this to work in Node 12
 - Docs: Locally built Mocha and coverage badges
 - Testing: Fix for ESM
 - npm: Update devDeps
