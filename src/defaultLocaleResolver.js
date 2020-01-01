@@ -19,22 +19,22 @@
 
 /**
 * @typedef {PlainObject} RelativeTimeInfo
-* @param {ValueArray} relative
+* @property {ValueArray} relative
 */
 
 /**
 * @typedef {PlainObject} ListInfo
-* @param {ValueArray} list
+* @property {ValueArray} list
 */
 
 /**
 * @typedef {PlainObject} NumberInfo
-* @param {ValueArray} number
+* @property {ValueArray} number
 */
 
 /**
 * @typedef {PlainObject} DateInfo
-* @param {ValueArray} date
+* @property {ValueArray} date
 */
 
 /**
@@ -74,7 +74,7 @@
 */
 
 /**
- * Takes a base path and locale and gives a URL
+ * Takes a base path and locale and gives a URL.
  * @callback LocaleResolver
  * @param {string} localesBasePath (Trailing slash optional)
  * @param {string} locale BCP-47 language string

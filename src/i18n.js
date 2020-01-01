@@ -14,7 +14,7 @@ import {sort, sortList, list} from './collation.js';
  *  functions which return the same (being provided the text after the
  *  pipe within brackets as the single argument).) Optionally accepts a
  *  config object, with the optional key "dom" which if set to `true`
- *  optimizes when DOM elements are (known to be) present
+ *  optimizes when DOM elements are (known to be) present.
  * @callback I18NCallback
  * @param {string} key Key to check against object of strings
  * @param {false|SubstitutionObject} [substitutions=false]
