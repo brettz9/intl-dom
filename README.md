@@ -15,6 +15,8 @@
 
 [![License](https://img.shields.io/npm/l/intl-dom.svg)](LICENSE-MIT.txt)
 
+[![issuehunt-to-marktext](https://issuehunt.io/static/embed/issuehunt-button-v1.svg)](https://issuehunt.io/r/brettz9/intl-dom)
+
 # intl-dom
 
 This library allows applications to discover locale files and safely
