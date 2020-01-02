@@ -2722,22 +2722,22 @@
 
   /**
   * @typedef {PlainObject} RelativeTimeInfo
-  * @param {ValueArray} relative
+  * @property {ValueArray} relative
   */
 
   /**
   * @typedef {PlainObject} ListInfo
-  * @param {ValueArray} list
+  * @property {ValueArray} list
   */
 
   /**
   * @typedef {PlainObject} NumberInfo
-  * @param {ValueArray} number
+  * @property {ValueArray} number
   */
 
   /**
   * @typedef {PlainObject} DateInfo
-  * @param {ValueArray} date
+  * @property {ValueArray} date
   */
 
   /**
@@ -2777,7 +2777,7 @@
   */
 
   /**
-   * Takes a base path and locale and gives a URL
+   * Takes a base path and locale and gives a URL.
    * @callback LocaleResolver
    * @param {string} localesBasePath (Trailing slash optional)
    * @param {string} locale BCP-47 language string
@@ -3624,7 +3624,7 @@
    *  functions which return the same (being provided the text after the
    *  pipe within brackets as the single argument).) Optionally accepts a
    *  config object, with the optional key "dom" which if set to `true`
-   *  optimizes when DOM elements are (known to be) present
+   *  optimizes when DOM elements are (known to be) present.
    * @callback I18NCallback
    * @param {string} key Key to check against object of strings
    * @param {false|SubstitutionObject} [substitutions=false]

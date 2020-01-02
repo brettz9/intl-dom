@@ -1,5 +1,10 @@
 # intl-dom CHANGES
 
+## ?
+
+- Linting (ESLint): Per latest ash-nazg
+- npm: Update devDeps
+
 ## 0.4.0
 
 - Fix: `json-6` should have been dep.
