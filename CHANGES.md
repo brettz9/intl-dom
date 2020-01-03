@@ -3,6 +3,7 @@
 ## ?
 
 - Linting (ESLint): Per latest ash-nazg
+- npm: Use now HEAD-supporting stable `file-fetch`
 - npm: Update devDeps
 
 ## 0.4.0
