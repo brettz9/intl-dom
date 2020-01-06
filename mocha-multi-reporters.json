@@ -1,9 +1,6 @@
 {
-  "mochaReporterBadgeReporterOptions": {
-    "badge_ok_color": "brightgreen",
-    "badge_ko_color": "red",
-    "badge_style": "flat",
-    "badge_path": "../../badges/tests-badge.svg"
+  "mochaBadgeGeneratorReporterOptions": {
+    "badge_output": "../../badges/tests-badge.svg"
   },
-  "reporterEnabled": "mocha-reporter-badge, spec"
+  "reporterEnabled": "mocha-badge-generator, spec"
 }
