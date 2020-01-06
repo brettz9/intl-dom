@@ -3,7 +3,9 @@
 ## ?
 
 - Linting (ESLint): Per latest ash-nazg
-- npm: Use now HEAD-supporting stable `file-fetch`
+- Testing: Use mocha-multi-reporters to produce badge with test results
+- Docs: Add IssueHunt badge
+- npm: Bump dep. (file-fetch)
 - npm: Update devDeps
 
 ## 0.4.0

@@ -1,4 +1,5 @@
 module.exports = {
   delay: true,
-  exclude: 'test/*/**'
+  exclude: 'test/*/**',
+  reporter: 'mocha-multi-reporters'
 };
