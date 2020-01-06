@@ -4,6 +4,7 @@
 
 - Linting (ESLint): Per latest ash-nazg
 - Testing: Use mocha-multi-reporters to produce badge with test results
+- Docs: Switch to `mocha-badge-generator` for tests badge
 - Docs: Add IssueHunt badge
 - npm: Bump dep. (file-fetch)
 - npm: Update devDeps
