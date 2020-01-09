@@ -155,6 +155,14 @@ stylesheets, e.g.:
 npm install --save intl-dom
 ```
 
+If using on Node, you may also need to install and define a global `fetch`
+as from `file-fetch`, and install such as `jsdom` and define a global
+`document` object.
+
+```shell
+npm install --save intl-dom file-fetch jsdom
+```
+
 For older browser support, you may need `core-js-bundle` as well.
 
 And for both Node or the browser, depending on the versions you are
