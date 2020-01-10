@@ -160,7 +160,11 @@ as from `file-fetch`, and install such as `jsdom` and define a global
 `document` object (with at least the methods `createDocumentFragment`
 (returning at least an object with an `append` method to join passed in
 elements and text nodes) and, if using, `forceNodeReturn`,
-`createTextNode`). (Our tests additionally expect `createElement`.)
+`createTextNode`). (Our tests additionally expect `createElement`, whose
+elements use `id`, `href`, `textContent`, `innerHTML`, `append` and
+those additional used by the `text` method within `chai-dom` (`tagName`,
+`className`, `nodeType`, and `attributes` (with these having `name` and
+`value`)).)
 
 ```shell
 npm install --save intl-dom file-fetch jsdom
