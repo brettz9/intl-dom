@@ -157,7 +157,9 @@ npm install --save intl-dom
 
 If using on Node, you may also need to install and define a global `fetch`
 as from `file-fetch`, and install such as `jsdom` and define a global
-`document` object.
+`document` object (with at least the methods `createDocumentFragment`
+and, if using, `forceNodeReturn`, `createTextNode`). (Our tests additionally
+expect `createElement`.)
 
 ```shell
 npm install --save intl-dom file-fetch jsdom
