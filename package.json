@@ -45,7 +45,7 @@
   },
   "homepage": "https://github.com/brettz9/intl-dom#readme",
   "engines": {
-    "node": ">= 10.0.0"
+    "node": ">=10.0.0"
   },
   "peerDependencies": {},
   "dependencies": {
@@ -53,8 +53,8 @@
     "json-6": "^1.0.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.7.7",
-    "@babel/preset-env": "^7.7.7",
+    "@babel/core": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
     "@mysticatea/eslint-plugin": "^13.0.0",
     "@rollup/plugin-node-resolve": "^7.0.0",
     "babel-eslint": "^10.0.3",
@@ -65,7 +65,7 @@
     "chai-dom": "^1.8.1",
     "coveradge": "^0.2.0",
     "eslint": "^6.8.0",
-    "eslint-config-ash-nazg": "^16.4.0",
+    "eslint-config-ash-nazg": "^16.5.0",
     "eslint-config-standard": "^14.1.0",
     "eslint-plugin-array-func": "^3.1.3",
     "eslint-plugin-chai-expect": "^2.1.0",
@@ -73,8 +73,8 @@
     "eslint-plugin-compat": "^3.3.0",
     "eslint-plugin-eslint-comments": "^3.1.2",
     "eslint-plugin-html": "^6.0.0",
-    "eslint-plugin-import": "^2.19.1",
-    "eslint-plugin-jsdoc": "^20.0.5",
+    "eslint-plugin-import": "^2.20.0",
+    "eslint-plugin-jsdoc": "^20.3.0",
     "eslint-plugin-markdown": "^1.0.1",
     "eslint-plugin-no-unsanitized": "^3.0.2",
     "eslint-plugin-no-use-extend-native": "^0.4.1",
@@ -88,7 +88,7 @@
     "intl-list-format": "^1.0.3",
     "intl-pluralrules": "^1.1.1",
     "intl-relative-time-format": "^1.0.7",
-    "jsdom": "^15.2.1",
+    "jsdom": "^16.0.0",
     "json5": "^2.1.1",
     "mocha": "^7.0.0",
     "mocha-badge-generator": "https://github.com/brettz9/mocha-badge-generator#updated-badge-up",
@@ -99,7 +99,7 @@
     "open-cli": "^5.0.0",
     "rollup": "^1.29.0",
     "rollup-plugin-babel": "^4.3.3",
-    "rollup-plugin-terser": "^5.1.3",
+    "rollup-plugin-terser": "^5.2.0",
     "typescript": "^3.7.4"
   }
 }

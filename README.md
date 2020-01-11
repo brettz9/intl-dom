@@ -2100,6 +2100,10 @@ This project has been heavily inspired by
 
 ## To-dos
 
+- Use **dominum** with Jamilih and have tests use Jamilih (minimum's
+  deliberately minimal implementation won't allow, e.g., setting
+  `id`/`href` properties as we are now, and Jamilih is less verbose anyways.
+- Export on main intl-dom?
 - Ensure **coverage** in browser is ok?
 - Option to **parse** Fluent files?
 - **Switches**
