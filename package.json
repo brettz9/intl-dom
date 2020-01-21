@@ -92,7 +92,7 @@
     "json5": "^2.1.1",
     "mocha": "^7.0.0",
     "mocha-badge-generator": "^0.4.0",
-    "mocha-multi-reporters": "^1.1.7",
+    "mocha-multi-reporters": "git+https://github.com/brettz9/mocha-multi-reporters.git#missing-reporter",
     "node-fetch": "^2.6.0",
     "node-static": "^0.7.11",
     "nyc": "^15.0.0",
