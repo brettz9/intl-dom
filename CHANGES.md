@@ -7,6 +7,7 @@
 - Docs: Switch to `mocha-badge-generator` for tests badge
 - Docs: Add IssueHunt badge
 - npm: Bump dep. (file-fetch)
+- npm: Update `package-lock.json`
 - npm: Update devDeps
 
 ## 0.4.0
