@@ -4,3 +4,5 @@ lgtm.yml
 test
 .nyc_output
 coverage
+.mocharc.js
+mocha-multi-reporters.json
