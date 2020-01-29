@@ -1,12 +1,13 @@
 # intl-dom CHANGES
 
-## ?
+## 0.5.0
 
+- Enhancement: Extract out and export `i18nServer`
 - Linting (ESLint): Per latest ash-nazg
-- Testing: Use mocha-multi-reporters to produce badge with test results
+- Testing: Use `mocha-multi-reporters` to produce badge with test results
 - Docs: Switch to `mocha-badge-generator` for tests badge
-- Docs: Add IssueHunt badge
-- npm: Bump dep. (file-fetch)
+- Docs: Add `IssueHunt` badge
+- npm: Bump dep. (`file-fetch`)
 - npm: Update `package-lock.json`
 - npm: Update devDeps
 

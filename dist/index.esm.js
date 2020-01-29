@@ -3726,13 +3726,9 @@ var _findLocale = _async$1(function (_ref3) {
 /* eslint-disable max-len */
 
 /**
- * @param {PlainObject} [cfg={}]
- * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
- * @param {string[]} [cfg.defaultLocales=['en-US']]
- * @param {LocaleStringFinder} [cfg.localeStringFinder=findLocaleStrings]
- * @param {string} [cfg.localesBasePath='.']
- * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
- * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher='lookup']
+ * @param {PlainObject} cfg
+ * @param {LocaleObject} cfg.strings
+ * @param {string} cfg.resolvedLocale
  * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
  * @param {?AllSubstitutionCallback|AllSubstitutionCallback[]} [cfg.allSubstitutions]
  * @param {InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
@@ -3757,16 +3753,33 @@ function _await$2(value, then, direct) {
 
   return then ? value.then(then) : value;
 }
+/* eslint-disable max-len */
 
-var i18n = function i18n() {
-  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-      locales = _ref.locales,
-      defaultLocales = _ref.defaultLocales,
-      _ref$localeStringFind = _ref.localeStringFinder,
-      localeStringFinder = _ref$localeStringFind === void 0 ? findLocaleStrings : _ref$localeStringFind,
-      localesBasePath = _ref.localesBasePath,
-      localeResolver = _ref.localeResolver,
-      localeMatcher = _ref.localeMatcher,
+/**
+ * @param {PlainObject} [cfg={}]
+ * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
+ * @param {string[]} [cfg.defaultLocales=['en-US']]
+ * @param {LocaleStringFinder} [cfg.localeStringFinder=findLocaleStrings]
+ * @param {string} [cfg.localesBasePath='.']
+ * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
+ * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher='lookup']
+ * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
+ * @param {?AllSubstitutionCallback|AllSubstitutionCallback[]} [cfg.allSubstitutions]
+ * @param {InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
+ * @param {false|null|undefined|LocaleObject} [cfg.defaults]
+ * @param {false|SubstitutionObject} [cfg.substitutions={}]
+ * @param {Integer} [cfg.maximumLocalNestingDepth=3]
+ * @param {boolean} [cfg.dom=false]
+ * @param {boolean} [cfg.forceNodeReturn=false]
+ * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
+ * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
+ * @returns {Promise<I18NCallback>} Rejects if no suitable locale is found.
+ */
+
+
+var i18nServer = function i18nServer(_ref) {
+  var strings = _ref.strings,
+      resolvedLocale = _ref.resolvedLocale,
       messageStyle = _ref.messageStyle,
       defaultAllSubstitutionsValue = _ref.allSubstitutions,
       insertNodes = _ref.insertNodes,
@@ -3782,6 +3795,101 @@ var i18n = function i18n() {
       _ref$throwOnExtraSupp = _ref.throwOnExtraSuppliedFormatters,
       throwOnExtraSuppliedFormattersDefault = _ref$throwOnExtraSupp === void 0 ? true : _ref$throwOnExtraSupp;
 
+  if (!strings || _typeof(strings) !== 'object') {
+    throw new TypeError("Locale strings must be an object!");
+  }
+
+  var messageForKey = getMessageForKeyByStyle({
+    messageStyle: messageStyle
+  });
+
+  var formatter = function formatter(key, substitutions) {
+    var _ref2 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+        _ref2$allSubstitution = _ref2.allSubstitutions,
+        allSubstitutions = _ref2$allSubstitution === void 0 ? defaultAllSubstitutionsValue : _ref2$allSubstitution,
+        _ref2$defaults = _ref2.defaults,
+        defaults = _ref2$defaults === void 0 ? defaultDefaults : _ref2$defaults,
+        _ref2$dom = _ref2.dom,
+        dom = _ref2$dom === void 0 ? domDefaults : _ref2$dom,
+        _ref2$forceNodeReturn = _ref2.forceNodeReturn,
+        forceNodeReturn = _ref2$forceNodeReturn === void 0 ? forceNodeReturnDefault : _ref2$forceNodeReturn,
+        _ref2$throwOnMissingS = _ref2.throwOnMissingSuppliedFormatters,
+        throwOnMissingSuppliedFormatters = _ref2$throwOnMissingS === void 0 ? throwOnMissingSuppliedFormattersDefault : _ref2$throwOnMissingS,
+        _ref2$throwOnExtraSup = _ref2.throwOnExtraSuppliedFormatters,
+        throwOnExtraSuppliedFormatters = _ref2$throwOnExtraSup === void 0 ? throwOnExtraSuppliedFormattersDefault : _ref2$throwOnExtraSup;
+
+    var message = messageForKey(strings, key);
+    var string = getStringFromMessageAndDefaults({
+      message: message && message.value || false,
+      defaults: defaults,
+      messageForKey: messageForKey,
+      key: key
+    });
+    return getDOMForLocaleString({
+      string: string,
+      locals: strings.head && strings.head.locals,
+      switches: strings.head && strings.head.switches,
+      locale: resolvedLocale,
+      maximumLocalNestingDepth: maximumLocalNestingDepth,
+      allSubstitutions: allSubstitutions,
+      insertNodes: insertNodes,
+      substitutions: _objectSpread2({}, defaultSubstitutions, {}, substitutions),
+      dom: dom,
+      forceNodeReturn: forceNodeReturn,
+      throwOnMissingSuppliedFormatters: throwOnMissingSuppliedFormatters,
+      throwOnExtraSuppliedFormatters: throwOnExtraSuppliedFormatters
+    });
+  };
+
+  formatter.resolvedLocale = resolvedLocale;
+  formatter.strings = strings;
+
+  formatter.sort = function () {
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return sort.apply(void 0, [resolvedLocale].concat(args));
+  };
+
+  formatter.sortList = function () {
+    for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      args[_key2] = arguments[_key2];
+    }
+
+    return sortList.apply(void 0, [resolvedLocale].concat(args));
+  };
+
+  formatter.list = function () {
+    for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+      args[_key3] = arguments[_key3];
+    }
+
+    return list.apply(void 0, [resolvedLocale].concat(args));
+  };
+
+  return formatter;
+};
+var i18n = function i18n() {
+  var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      locales = _ref3.locales,
+      defaultLocales = _ref3.defaultLocales,
+      _ref3$localeStringFin = _ref3.localeStringFinder,
+      localeStringFinder = _ref3$localeStringFin === void 0 ? findLocaleStrings : _ref3$localeStringFin,
+      localesBasePath = _ref3.localesBasePath,
+      localeResolver = _ref3.localeResolver,
+      localeMatcher = _ref3.localeMatcher,
+      messageStyle = _ref3.messageStyle,
+      allSubstitutions = _ref3.allSubstitutions,
+      insertNodes = _ref3.insertNodes,
+      defaults = _ref3.defaults,
+      substitutions = _ref3.substitutions,
+      maximumLocalNestingDepth = _ref3.maximumLocalNestingDepth,
+      dom = _ref3.dom,
+      forceNodeReturn = _ref3.forceNodeReturn,
+      throwOnMissingSuppliedFormatters = _ref3.throwOnMissingSuppliedFormatters,
+      throwOnExtraSuppliedFormatters = _ref3.throwOnExtraSuppliedFormatters;
+
   try {
     return _await$2(localeStringFinder({
       locales: locales,
@@ -3789,88 +3897,27 @@ var i18n = function i18n() {
       localeResolver: localeResolver,
       localesBasePath: localesBasePath,
       localeMatcher: localeMatcher
-    }), function (_ref2) {
-      var strings = _ref2.strings,
-          resolvedLocale = _ref2.locale;
-
-      if (!strings || _typeof(strings) !== 'object') {
-        throw new TypeError("Locale strings must be an object!");
-      }
-
-      var messageForKey = getMessageForKeyByStyle({
-        messageStyle: messageStyle
+    }), function (_ref4) {
+      var strings = _ref4.strings,
+          resolvedLocale = _ref4.locale;
+      return i18nServer({
+        strings: strings,
+        resolvedLocale: resolvedLocale,
+        messageStyle: messageStyle,
+        allSubstitutions: allSubstitutions,
+        insertNodes: insertNodes,
+        defaults: defaults,
+        substitutions: substitutions,
+        maximumLocalNestingDepth: maximumLocalNestingDepth,
+        dom: dom,
+        forceNodeReturn: forceNodeReturn,
+        throwOnMissingSuppliedFormatters: throwOnMissingSuppliedFormatters,
+        throwOnExtraSuppliedFormatters: throwOnExtraSuppliedFormatters
       });
-
-      var formatter = function formatter(key, substitutions) {
-        var _ref3 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-            _ref3$allSubstitution = _ref3.allSubstitutions,
-            allSubstitutions = _ref3$allSubstitution === void 0 ? defaultAllSubstitutionsValue : _ref3$allSubstitution,
-            _ref3$defaults = _ref3.defaults,
-            defaults = _ref3$defaults === void 0 ? defaultDefaults : _ref3$defaults,
-            _ref3$dom = _ref3.dom,
-            dom = _ref3$dom === void 0 ? domDefaults : _ref3$dom,
-            _ref3$forceNodeReturn = _ref3.forceNodeReturn,
-            forceNodeReturn = _ref3$forceNodeReturn === void 0 ? forceNodeReturnDefault : _ref3$forceNodeReturn,
-            _ref3$throwOnMissingS = _ref3.throwOnMissingSuppliedFormatters,
-            throwOnMissingSuppliedFormatters = _ref3$throwOnMissingS === void 0 ? throwOnMissingSuppliedFormattersDefault : _ref3$throwOnMissingS,
-            _ref3$throwOnExtraSup = _ref3.throwOnExtraSuppliedFormatters,
-            throwOnExtraSuppliedFormatters = _ref3$throwOnExtraSup === void 0 ? throwOnExtraSuppliedFormattersDefault : _ref3$throwOnExtraSup;
-
-        var message = messageForKey(strings, key);
-        var string = getStringFromMessageAndDefaults({
-          message: message && message.value || false,
-          defaults: defaults,
-          messageForKey: messageForKey,
-          key: key
-        });
-        return getDOMForLocaleString({
-          string: string,
-          locals: strings.head && strings.head.locals,
-          switches: strings.head && strings.head.switches,
-          locale: resolvedLocale,
-          maximumLocalNestingDepth: maximumLocalNestingDepth,
-          allSubstitutions: allSubstitutions,
-          insertNodes: insertNodes,
-          substitutions: _objectSpread2({}, defaultSubstitutions, {}, substitutions),
-          dom: dom,
-          forceNodeReturn: forceNodeReturn,
-          throwOnMissingSuppliedFormatters: throwOnMissingSuppliedFormatters,
-          throwOnExtraSuppliedFormatters: throwOnExtraSuppliedFormatters
-        });
-      };
-
-      formatter.resolvedLocale = resolvedLocale;
-      formatter.strings = strings;
-
-      formatter.sort = function () {
-        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-          args[_key] = arguments[_key];
-        }
-
-        return sort.apply(void 0, [resolvedLocale].concat(args));
-      };
-
-      formatter.sortList = function () {
-        for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-          args[_key2] = arguments[_key2];
-        }
-
-        return sortList.apply(void 0, [resolvedLocale].concat(args));
-      };
-
-      formatter.list = function () {
-        for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-          args[_key3] = arguments[_key3];
-        }
-
-        return list.apply(void 0, [resolvedLocale].concat(args));
-      };
-
-      return formatter;
     });
   } catch (e) {
     return Promise.reject(e);
   }
 };
 
-export { Formatter, LocalFormatter, RegularFormatter, SwitchFormatter, defaultAllSubstitutions, defaultInsertNodes, defaultLocaleMatcher, defaultLocaleResolver, findLocale, findLocaleStrings, getDOMForLocaleString, getMessageForKeyByStyle, getStringFromMessageAndDefaults, i18n, parseJSONExtra, processRegex, promiseChainForValues, unescapeBackslashes };
+export { Formatter, LocalFormatter, RegularFormatter, SwitchFormatter, defaultAllSubstitutions, defaultInsertNodes, defaultLocaleMatcher, defaultLocaleResolver, findLocale, findLocaleStrings, getDOMForLocaleString, getMessageForKeyByStyle, getStringFromMessageAndDefaults, i18n, i18nServer, parseJSONExtra, processRegex, promiseChainForValues, unescapeBackslashes };

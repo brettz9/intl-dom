@@ -25,13 +25,9 @@ import {sort, sortList, list} from './collation.js';
 
 /* eslint-disable max-len */
 /**
- * @param {PlainObject} [cfg={}]
- * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
- * @param {string[]} [cfg.defaultLocales=['en-US']]
- * @param {LocaleStringFinder} [cfg.localeStringFinder=findLocaleStrings]
- * @param {string} [cfg.localesBasePath='.']
- * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
- * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher='lookup']
+ * @param {PlainObject} cfg
+ * @param {LocaleObject} cfg.strings
+ * @param {string} cfg.resolvedLocale
  * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
  * @param {?AllSubstitutionCallback|AllSubstitutionCallback[]} [cfg.allSubstitutions]
  * @param {InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
@@ -44,14 +40,10 @@ import {sort, sortList, list} from './collation.js';
  * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
  * @returns {Promise<I18NCallback>} Rejects if no suitable locale is found.
  */
-export const i18n = async function i18n ({
+export const i18nServer = function i18nServer ({
   /* eslint-enable max-len */
-  locales,
-  defaultLocales,
-  localeStringFinder = findLocaleStrings,
-  localesBasePath,
-  localeResolver,
-  localeMatcher,
+  strings,
+  resolvedLocale,
   messageStyle,
   allSubstitutions: defaultAllSubstitutionsValue,
   insertNodes,
@@ -64,11 +56,7 @@ export const i18n = async function i18n ({
     throwOnMissingSuppliedFormattersDefault = true,
   throwOnExtraSuppliedFormatters:
     throwOnExtraSuppliedFormattersDefault = true
-} = {}) {
-  const {strings, locale: resolvedLocale} = await localeStringFinder({
-    locales, defaultLocales, localeResolver, localesBasePath, localeMatcher
-  });
-
+}) {
   if (!strings || typeof strings !== 'object') {
     throw new TypeError(`Locale strings must be an object!`);
   }
@@ -125,4 +113,64 @@ export const i18n = async function i18n ({
   };
 
   return formatter;
+};
+
+/* eslint-disable max-len */
+/**
+ * @param {PlainObject} [cfg={}]
+ * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
+ * @param {string[]} [cfg.defaultLocales=['en-US']]
+ * @param {LocaleStringFinder} [cfg.localeStringFinder=findLocaleStrings]
+ * @param {string} [cfg.localesBasePath='.']
+ * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
+ * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher='lookup']
+ * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
+ * @param {?AllSubstitutionCallback|AllSubstitutionCallback[]} [cfg.allSubstitutions]
+ * @param {InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
+ * @param {false|null|undefined|LocaleObject} [cfg.defaults]
+ * @param {false|SubstitutionObject} [cfg.substitutions={}]
+ * @param {Integer} [cfg.maximumLocalNestingDepth=3]
+ * @param {boolean} [cfg.dom=false]
+ * @param {boolean} [cfg.forceNodeReturn=false]
+ * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
+ * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
+ * @returns {Promise<I18NCallback>} Rejects if no suitable locale is found.
+ */
+export const i18n = async function i18n ({
+  /* eslint-enable max-len */
+  locales,
+  defaultLocales,
+  localeStringFinder = findLocaleStrings,
+  localesBasePath,
+  localeResolver,
+  localeMatcher,
+  messageStyle,
+  allSubstitutions,
+  insertNodes,
+  defaults,
+  substitutions,
+  maximumLocalNestingDepth,
+  dom,
+  forceNodeReturn,
+  throwOnMissingSuppliedFormatters,
+  throwOnExtraSuppliedFormatters
+} = {}) {
+  const {strings, locale: resolvedLocale} = await localeStringFinder({
+    locales, defaultLocales, localeResolver, localesBasePath, localeMatcher
+  });
+
+  return i18nServer({
+    strings,
+    resolvedLocale,
+    messageStyle,
+    allSubstitutions,
+    insertNodes,
+    defaults,
+    substitutions,
+    maximumLocalNestingDepth,
+    dom,
+    forceNodeReturn,
+    throwOnMissingSuppliedFormatters,
+    throwOnExtraSuppliedFormatters
+  });
 };

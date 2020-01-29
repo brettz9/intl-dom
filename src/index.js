@@ -21,4 +21,4 @@ export {
 } from './findLocaleStrings.js';
 
 // INTEGRATED
-export {i18n} from './i18n.js';
+export {i18n, i18nServer} from './i18n.js';
