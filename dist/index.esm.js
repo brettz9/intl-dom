@@ -2073,9 +2073,21 @@ var defaultAllSubstitutions = function defaultAllSubstitutions(_ref2) {
   throw new TypeError('Unknown formatter');
 };
 
+/**
+ * Base class for formatting.
+ */
+
 var Formatter = function Formatter() {
   _classCallCheck(this, Formatter);
 };
+/**
+ * @param {PlainObject} cfg
+ * @param {string} cfg.key
+ * @param {LocaleBody} cfg.body
+ * @param {string} cfg.type
+ * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} cfg.messageStyle
+ * @returns {string|Element}
+ */
 
 var _getSubstitution = function getSubstitution(_ref) {
   var key = _ref.key,
@@ -2098,12 +2110,19 @@ var _getSubstitution = function getSubstitution(_ref) {
 
   return substitution.value;
 };
+/**
+ * Formatter for local variables.
+ */
+
 
 var LocalFormatter =
 /*#__PURE__*/
 function (_Formatter) {
   _inherits(LocalFormatter, _Formatter);
 
+  /**
+   * @param {LocalObject} locals
+   */
   function LocalFormatter(locals) {
     var _this;
 
@@ -2113,6 +2132,11 @@ function (_Formatter) {
     _this.locals = locals;
     return _this;
   }
+  /**
+   * @param {string} key
+   * @returns {string|Element}
+   */
+
 
   _createClass(LocalFormatter, [{
     key: "getSubstitution",
@@ -2123,6 +2147,11 @@ function (_Formatter) {
         type: 'local'
       });
     }
+    /**
+     * @param {string} key
+     * @returns {boolean}
+     */
+
   }, {
     key: "isMatch",
     value: function isMatch(key) {
@@ -2134,6 +2163,11 @@ function (_Formatter) {
         return result;
       });
     }
+    /**
+     * @param {string} key
+     * @returns {boolean}
+     */
+
   }], [{
     key: "isMatchingKey",
     value: function isMatchingKey(key) {
@@ -2143,11 +2177,18 @@ function (_Formatter) {
 
   return LocalFormatter;
 }(Formatter);
+/**
+ * Formatter for regular variables.
+ */
+
 var RegularFormatter =
 /*#__PURE__*/
 function (_Formatter2) {
   _inherits(RegularFormatter, _Formatter2);
 
+  /**
+   * @param {SubstitutionObject} substitutions
+   */
   function RegularFormatter(substitutions) {
     var _this2;
 
@@ -2157,12 +2198,22 @@ function (_Formatter2) {
     _this2.substitutions = substitutions;
     return _this2;
   }
+  /**
+   * @param {string} key
+   * @returns {boolean}
+   */
+
 
   _createClass(RegularFormatter, [{
     key: "isMatch",
     value: function isMatch(key) {
       return this.constructor.isMatchingKey(key) && key in this.substitutions;
     }
+    /**
+     * @param {string} key
+     * @returns {boolean}
+     */
+
   }], [{
     key: "isMatchingKey",
     value: function isMatchingKey(key) {
@@ -2172,11 +2223,19 @@ function (_Formatter2) {
 
   return RegularFormatter;
 }(Formatter);
+/**
+ * Formatter for switch variables.
+ */
+
 var SwitchFormatter =
 /*#__PURE__*/
 function (_Formatter3) {
   _inherits(SwitchFormatter, _Formatter3);
 
+  /**
+   * @param {Switches} switches
+   * @param {SubstitutionObject} substitutions
+   */
   function SwitchFormatter(switches, _ref2) {
     var _this3;
 
@@ -2189,6 +2248,16 @@ function (_Formatter3) {
     _this3.substitutions = substitutions;
     return _this3;
   }
+  /**
+   * @param {string} key
+   * @param {PlainObject} cfg
+   * @param {string} cfg.locale
+   * @param {string[]} cfg.usedKeys
+   * @param {string} cfg.arg
+   * @param {MissingSuppliedFormattersCallback} cfg.missingSuppliedFormatters
+   * @returns {string}
+   */
+
 
   _createClass(SwitchFormatter, [{
     key: "getSubstitution",
@@ -2333,11 +2402,28 @@ function (_Formatter3) {
         }
       }
     }
+    /**
+     * @param {string} key
+     * @returns {boolean}
+     */
+
   }, {
     key: "isMatch",
     value: function isMatch(key) {
-      return key && this.constructor.isMatchingKey(key) && this.getMatch(key.slice(1)).length;
+      return key && this.constructor.isMatchingKey(key) && Boolean(this.getMatch(key.slice(1)).length);
     }
+    /**
+    * @typedef {GenericArray} SwitchMatch
+    * @property {string} 0 objKey
+    * @property {LocaleBody} 1 body
+    * @property {string} 2 keySegment
+    */
+
+    /**
+     * @param {string} ky
+     * @returns {SwitchMatch}
+     */
+
   }, {
     key: "getMatch",
     value: function getMatch(ky) {
@@ -2364,11 +2450,21 @@ function (_Formatter3) {
         return ret ? ret.concat(k) : [];
       }, this.switches);
     }
+    /**
+     * @param {string} key
+     * @returns {boolean}
+     */
+
   }], [{
     key: "isMatchingKey",
     value: function isMatchingKey(key) {
       return key.startsWith('~');
     }
+    /**
+     * @param {string} key
+     * @returns {string}
+     */
+
   }, {
     key: "getKey",
     value: function getKey(key) {

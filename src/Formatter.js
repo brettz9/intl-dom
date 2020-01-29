@@ -2,9 +2,20 @@ import {getMessageForKeyByStyle} from './index.js';
 import {parseJSONExtra} from './utils.js';
 import {getFormatterInfo} from './defaultAllSubstitutions.js';
 
+/**
+ * Base class for formatting.
+ */
 export class Formatter {
 }
 
+/**
+ * @param {PlainObject} cfg
+ * @param {string} cfg.key
+ * @param {LocaleBody} cfg.body
+ * @param {string} cfg.type
+ * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} cfg.messageStyle
+ * @returns {string|Element}
+ */
 const getSubstitution = ({key, body, type, messageStyle = 'richNested'}) => {
   const messageForKey = getMessageForKeyByStyle({messageStyle});
   const substitution = messageForKey({body}, key);
@@ -16,16 +27,30 @@ const getSubstitution = ({key, body, type, messageStyle = 'richNested'}) => {
   return substitution.value;
 };
 
+/**
+ * Formatter for local variables.
+ */
 export class LocalFormatter extends Formatter {
+  /**
+   * @param {LocalObject} locals
+   */
   constructor (locals) {
     super();
     this.locals = locals;
   }
+  /**
+   * @param {string} key
+   * @returns {string|Element}
+   */
   getSubstitution (key) {
     return getSubstitution({
       key: key.slice(1), body: this.locals, type: 'local'
     });
   }
+  /**
+   * @param {string} key
+   * @returns {boolean}
+   */
   isMatch (key) {
     const components = key.slice(1).split('.');
     let parent = this.locals;
@@ -35,30 +60,65 @@ export class LocalFormatter extends Formatter {
       return result;
     });
   }
+  /**
+   * @param {string} key
+   * @returns {boolean}
+   */
   static isMatchingKey (key) {
     return key.startsWith('-');
   }
 }
 
+/**
+ * Formatter for regular variables.
+ */
 export class RegularFormatter extends Formatter {
+  /**
+   * @param {SubstitutionObject} substitutions
+   */
   constructor (substitutions) {
     super();
     this.substitutions = substitutions;
   }
+  /**
+   * @param {string} key
+   * @returns {boolean}
+   */
   isMatch (key) {
     return this.constructor.isMatchingKey(key) && key in this.substitutions;
   }
+  /**
+   * @param {string} key
+   * @returns {boolean}
+   */
   static isMatchingKey (key) {
     return (/^\w/u).test(key);
   }
 }
 
+/**
+ * Formatter for switch variables.
+ */
 export class SwitchFormatter extends Formatter {
+  /**
+   * @param {Switches} switches
+   * @param {SubstitutionObject} substitutions
+   */
   constructor (switches, {substitutions}) {
     super();
     this.switches = switches;
     this.substitutions = substitutions;
   }
+
+  /**
+   * @param {string} key
+   * @param {PlainObject} cfg
+   * @param {string} cfg.locale
+   * @param {string[]} cfg.usedKeys
+   * @param {string} cfg.arg
+   * @param {MissingSuppliedFormattersCallback} cfg.missingSuppliedFormatters
+   * @returns {string}
+   */
   getSubstitution (key, {locale, usedKeys, arg, missingSuppliedFormatters}) {
     const ky = this.constructor.getKey(key).slice(1);
     // Expression might not actually use formatter, e.g., for singular,
@@ -176,11 +236,27 @@ export class SwitchFormatter extends Formatter {
       }
     }
   }
+
+  /**
+   * @param {string} key
+   * @returns {boolean}
+   */
   isMatch (key) {
     return key && this.constructor.isMatchingKey(key) &&
-      this.getMatch(key.slice(1)).length;
+      Boolean(this.getMatch(key.slice(1)).length);
   }
 
+  /**
+  * @typedef {GenericArray} SwitchMatch
+  * @property {string} 0 objKey
+  * @property {LocaleBody} 1 body
+  * @property {string} 2 keySegment
+  */
+
+  /**
+   * @param {string} ky
+   * @returns {SwitchMatch}
+   */
   getMatch (ky) {
     const ks = ky.split('.');
     return ks.reduce((obj, k, i) => {
@@ -200,9 +276,17 @@ export class SwitchFormatter extends Formatter {
     }, this.switches);
   }
 
+  /**
+   * @param {string} key
+   * @returns {boolean}
+   */
   static isMatchingKey (key) {
     return key.startsWith('~');
   }
+  /**
+   * @param {string} key
+   * @returns {string}
+   */
   static getKey (key) {
     const match = key.match(/^[^|]*/u);
     return match && match[0];
