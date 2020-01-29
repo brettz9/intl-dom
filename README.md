@@ -227,6 +227,7 @@ const {
   defaultLocaleMatcher,
 
   // INTEGRATED
+  i18nServer,
   i18n
 } = require('intl-dom');
 
@@ -1228,11 +1229,12 @@ retrieve locale files at run time or just need to have locale messages (potentia
 with defaults) extracted from a locale object, and have any place-holders it
 contains replaced with strings or DOM Nodes obtained at runtime.
 
-(The first (and possibly the second) will probably be of most general
-interest; the others are used by the first two and can be used as part
+(The first (and possibly the second and third) will probably be of most general
+interest; the others are used by the first three and can be used as part
 of a custom localization system.)
 
 1. `i18n`
+1. `i18nServer`
 1. `getStringFromMessageAndDefaults`
 1. `getMessageForKeyByStyle`
 1. `getDOMForLocaleString`
@@ -1661,6 +1663,21 @@ _(
 );
 ```
 
+#### `i18nServer`
+
+Similar to `i18n` but you provide your own locale data, so there are none of
+these arguments:
+
+- `locales`
+- `defaultLocales`
+- `localeStringFinder`
+- `localesBasePath`
+- `localeResolver`
+- `localeMatcher`
+
+This runs synchronously unlike `i18n` since there is no need for a network
+request with the locale info supplied by you.
+
 #### `getStringFromMessageAndDefaults`
 
 Checks if a message is supplied and if not, checks for a default value out of
@@ -2056,7 +2073,8 @@ You could approach this in two ways:
     This approach is taken in `/node/findMatchingLocaleServer.js` (see
     also `/test/node.js` for its usage). (The `find-matching-locale`
     npm script sets up a server to return the locale as a JSON string.)
-- Add node script with test showing use to return a global
+    The `i18nServer` method can have its `resolvedLocale` and `strings`
+    arguments supplied from the result of `findLocaleStrings`.
 2. As above, but iterate through your locales directory, creating a map
     (possibly using a mapper function (e.g., `defaultLocaleMatcher`)) of
     user locales to existing locales, and caching this map for use as a
