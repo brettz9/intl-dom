@@ -2054,7 +2054,7 @@ You could approach this in two ways:
     with this info baked in as a global set within a server-generated
     `<script>` or within an always-included, dynamically-generated file.
     This approach is taken in `/node/findMatchingLocaleServer.js` (see
-    also `/test/node.js` for its uage). (The `find-matching-locale`
+    also `/test/node.js` for its usage). (The `find-matching-locale`
     npm script sets up a server to return the locale as a JSON string.)
 - Add node script with test showing use to return a global
 2. As above, but iterate through your locales directory, creating a map
