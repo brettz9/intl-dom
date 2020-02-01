@@ -1,5 +1,9 @@
 # intl-dom CHANGES
 
+## ?
+
+- npm: Update devDeps
+
 ## 0.5.0
 
 - Enhancement: Extract out and export `i18nServer`
