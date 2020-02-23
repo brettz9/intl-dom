@@ -31,6 +31,9 @@ module.exports = {
       'plugin:chai-expect/recommended',
       'plugin:chai-friendly/recommended'
     ],
+    plugins: [
+      '@fintechstudios/eslint-plugin-chai-as-promised'
+    ],
     files: ['test/**'],
     globals: {
       expect: true,
@@ -40,6 +43,7 @@ module.exports = {
       mocha: true
     },
     rules: {
+      '@fintechstudios/chai-as-promised/no-unhandled-promises': 2
     }
   }, {
     files: ['**/*.md'],

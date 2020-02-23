@@ -2,6 +2,8 @@
 
 ## ?
 
+- Linting (ESLint): Add `fintechstudios/eslint-plugin-chai-as-promised` and
+  fix accordingly
 - npm: Update devDeps
 
 ## 0.5.0

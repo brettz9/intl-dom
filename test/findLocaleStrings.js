@@ -206,7 +206,7 @@ describe('findLocaleStrings', function () {
     }
   );
   it('should throw when given bad `localeMatcher`', function () {
-    expect(
+    return expect(
       findLocaleStrings({
         locales: ['en-US'],
         localeMatcher: 'nonexistingCustomMatcherName'
