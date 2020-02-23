@@ -1,3 +1,5 @@
+'use strict';
+
 /* eslint-env node */
 module.exports = {
   extends: ['ash-nazg/sauron'],
@@ -32,6 +34,9 @@ module.exports = {
       'plugin:chai-friendly/recommended'
     ],
     plugins: [
+      // Requested addition of recommended config to avoid need: https://github.com/gavinaiken/eslint-plugin-chai-expect-keywords/issues/3
+      'chai-expect-keywords',
+      // Submitted PR to avoid need: https://github.com/fintechstudios/eslint-plugin-chai-as-promised/pull/5
       '@fintechstudios/eslint-plugin-chai-as-promised'
     ],
     files: ['test/**'],
@@ -43,7 +48,30 @@ module.exports = {
       mocha: true
     },
     rules: {
-      '@fintechstudios/chai-as-promised/no-unhandled-promises': 2
+      '@fintechstudios/chai-as-promised/no-unhandled-promises': 'error',
+      'chai-expect-keywords/no-unsupported-keywords': [
+        'error', {
+          allowKeywords: [
+            // Todo: Get `chai-expect-keywords` to recognize these
+            //  `chai-dom`: https://github.com/nathanboktae/chai-dom
+            // Filed:
+            // https://github.com/gavinaiken/eslint-plugin-chai-expect-keywords/issues/2
+            /*
+            'attr', 'attribute', 'class', 'id', 'html', 'text', 'value',
+            'empty', 'length', 'exist', 'match', 'contain', 'descendant',
+            'descendants', 'displayed', 'visible', 'tagName'
+            */
+            'text',
+            // Filed https://github.com/nathanboktae/chai-dom/issues/41
+            //  for this to be supported in `chai-dom` (and then would want as
+            //  part of proposed `eslint-plugin-chai-expect-keywords` option
+            //  mentioned above)
+            'fragmentHtml'
+          ],
+          // Not fully checking: https://github.com/gavinaiken/eslint-plugin-chai-expect-keywords/issues/1
+          allowChaiAsPromised: true
+        }
+      ]
     }
   }, {
     files: ['**/*.md'],
@@ -63,9 +91,16 @@ module.exports = {
       'prefer-named-capture-group': 0,
 
       // Disable until https://github.com/gajus/eslint-plugin-jsdoc/issues/211
-      'indent': 0
+      indent: 0
     }
   }, {
+    files: '.eslintrc.js',
+    extends: ['plugin:node/recommended-script'],
+    rules: {
+      'import/no-commonjs': 0
+    }
+  },
+  {
     files: ['test/browser/index.html'],
     rules: {
       'import/unambiguous': 0

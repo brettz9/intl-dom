@@ -4,6 +4,8 @@
 
 - Linting (ESLint): Add `fintechstudios/eslint-plugin-chai-as-promised` and
   fix accordingly
+- Linting (ESLint): Check `.eslintrc.js` file; add
+  `eslint-plugin-chai-expect-keywords`
 - npm: Update devDeps
 
 ## 0.5.0
