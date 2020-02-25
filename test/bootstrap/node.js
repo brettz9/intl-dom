@@ -1,4 +1,11 @@
-import 'intl-pluralrules';
+// We avoid the main file (polyfill) for pluralrules as it does not detect
+// full support for `minimumFractionDigits` and reverts on Node 10 to its
+// default incomplete support;
+// The imperfect Node implementation will wrongly gives "one"
+//  instead of "other" (as it should) for
+//  `new Intl.PluralRules('en-US', {minimumFractionDigits: 1}).select(1)`.
+// import 'intl-pluralrules';
+import PluralRules from 'intl-pluralrules/plural-rules.mjs';
 import 'intl-relative-time-format';
 import 'intl-relative-time-format/locale-data/en-US.js';
 import 'intl-list-format';
@@ -13,6 +20,9 @@ import fragmentHtml from '../browser/vendor/fragmentHtml.js';
 
 import {JSDOM} from 'jsdom';
 import fileFetch from 'file-fetch';
+
+// Override to ensure we're testing with polyfill
+Intl.PluralRules = PluralRules;
 
 chai.use(chaiDOM);
 chai.use(chaiAsPromised);
