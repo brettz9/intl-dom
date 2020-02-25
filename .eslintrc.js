@@ -30,12 +30,11 @@ module.exports = {
   },
   overrides: [{
     extends: [
+      'plugin:chai-expect-keywords/recommended',
       'plugin:chai-expect/recommended',
       'plugin:chai-friendly/recommended'
     ],
     plugins: [
-      // Requested addition of recommended config to avoid need: https://github.com/gavinaiken/eslint-plugin-chai-expect-keywords/issues/3
-      'chai-expect-keywords',
       // Submitted PR to avoid need: https://github.com/fintechstudios/eslint-plugin-chai-as-promised/pull/5
       '@fintechstudios/eslint-plugin-chai-as-promised'
     ],
@@ -51,25 +50,15 @@ module.exports = {
       '@fintechstudios/chai-as-promised/no-unhandled-promises': 'error',
       'chai-expect-keywords/no-unsupported-keywords': [
         'error', {
+          allowChaiDOM: true,
+          allowChaiAsPromised: true,
           allowKeywords: [
-            // Todo: Get `chai-expect-keywords` to recognize these
-            //  `chai-dom`: https://github.com/nathanboktae/chai-dom
-            // Filed:
-            // https://github.com/gavinaiken/eslint-plugin-chai-expect-keywords/issues/2
-            /*
-            'attr', 'attribute', 'class', 'id', 'html', 'text', 'value',
-            'empty', 'length', 'exist', 'match', 'contain', 'descendant',
-            'descendants', 'displayed', 'visible', 'tagName'
-            */
-            'text',
             // Filed https://github.com/nathanboktae/chai-dom/issues/41
             //  for this to be supported in `chai-dom` (and then would want as
             //  part of proposed `eslint-plugin-chai-expect-keywords` option
             //  mentioned above)
             'fragmentHtml'
-          ],
-          // Not fully checking: https://github.com/gavinaiken/eslint-plugin-chai-expect-keywords/issues/1
-          allowChaiAsPromised: true
+          ]
         }
       ]
     }
