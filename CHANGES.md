@@ -4,6 +4,7 @@
 
 - Linting (ESLint): Add `fintechstudios/eslint-plugin-chai-as-promised` and
   fix accordingly
+- Linting (ESLint): Add `eslint-plugin-mocha` and fix accordingly
 - Linting (ESLint): Check `.eslintrc.js` file; add
   `eslint-plugin-chai-expect-keywords`
 - Testing: Fix Node tests (run script `intl-mocha`) to ensure its bootstrapping

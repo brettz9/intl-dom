@@ -494,27 +494,30 @@ describe('getDOMForLocaleString', function () {
     expect(frag).to.have.fragmentHtml('simple <a href="http://example.com">message</a>');
   });
 
-  it('should return DOM with DOM substitution', function () {
-    const elem = document.createElement('a');
-    elem.href = 'http://example.com';
-    elem.textContent = 'message';
+  it(
+    'should return DOM with DOM substitution (multiple substitutions)',
+    function () {
+      const elem = document.createElement('a');
+      elem.href = 'http://example.com';
+      elem.textContent = 'message';
 
-    const simpElem = document.createElement('span');
-    simpElem.textContent = 'simple';
+      const simpElem = document.createElement('span');
+      simpElem.textContent = 'simple';
 
-    const frag = getDOMForLocaleString({
-      string: '{simp} {msg}',
-      substitutions: {
-        msg: elem,
-        simp: simpElem
-      }
-    });
-    expect(frag).to.have.text('simple message');
-    expect(frag).to.contain(elem);
-    expect(frag).to.contain(simpElem);
+      const frag = getDOMForLocaleString({
+        string: '{simp} {msg}',
+        substitutions: {
+          msg: elem,
+          simp: simpElem
+        }
+      });
+      expect(frag).to.have.text('simple message');
+      expect(frag).to.contain(elem);
+      expect(frag).to.contain(simpElem);
 
-    expect(frag).to.have.fragmentHtml('<span>simple</span> <a href="http://example.com">message</a>');
-  });
+      expect(frag).to.have.fragmentHtml('<span>simple</span> <a href="http://example.com">message</a>');
+    }
+  );
 
   it(
     'should throw with missing supplied formatters (but one DOM formatter)',

@@ -30,6 +30,7 @@ module.exports = {
   },
   overrides: [{
     extends: [
+      'plugin:mocha/recommended',
       'plugin:@fintechstudios/chai-as-promised/recommended',
       'plugin:chai-expect-keywords/recommended',
       'plugin:chai-expect/recommended',
@@ -44,6 +45,11 @@ module.exports = {
       mocha: true
     },
     rules: {
+      // Good to allow `this`, but not wholly necessary
+      'mocha/no-mocha-arrows': 0,
+
+      // Good for expansion
+      'mocha/no-hooks-for-single-case': 0,
       'chai-expect-keywords/no-unsupported-keywords': [
         'error', {
           allowChaiDOM: true,

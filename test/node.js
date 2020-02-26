@@ -4,11 +4,11 @@ import findMatchingLocaleServer from '../node/findMatchingLocaleServer.js';
 
 describe('Server', function () {
   describe('Default JSON matcher', function () {
-    findMatchingLocaleServer({
-      port: 3008,
-      basePath: dirname(import.meta.url) + '/browser'
-    });
     it('should give the locale if matching only', async function () {
+      findMatchingLocaleServer({
+        port: 3008,
+        basePath: dirname(import.meta.url) + '/browser'
+      });
       const result = await nodeFetch('http://localhost:3008', {
         headers: {
           'accept-language': 'en-US'
@@ -19,11 +19,13 @@ describe('Server', function () {
     });
   });
   describe('Custom matcher', function () {
-    findMatchingLocaleServer({
-      basePath: dirname(import.meta.url) + '/browser',
-      wrap (locale) {
-        return `window.intlDomLocale = ${JSON.stringify(locale)};`;
-      }
+    before(() => {
+      findMatchingLocaleServer({
+        basePath: dirname(import.meta.url) + '/browser',
+        wrap (locale) {
+          return `window.intlDomLocale = ${JSON.stringify(locale)};`;
+        }
+      });
     });
     it('should give an empty string if no matching locales', async function () {
       const lang = await (await nodeFetch('http://localhost:3005')).text();

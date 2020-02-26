@@ -21,14 +21,6 @@ describe('i18n', function () {
       expect(_.strings).to.be.an('object');
     }
   );
-  it(
-    'should return a function with `resolvedLocale` and `strings` properties',
-    async function () {
-      const _ = await i18n();
-      expect(_.resolvedLocale).to.equal('en-US');
-      expect(_.strings).to.be.an('object');
-    }
-  );
 
   it(
     'should return a function with `sort` method',
