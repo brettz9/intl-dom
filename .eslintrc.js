@@ -31,6 +31,7 @@ module.exports = {
   overrides: [{
     extends: [
       'plugin:mocha/recommended',
+      'plugin:mocha-cleanup/recommended-no-limits',
       'plugin:@fintechstudios/chai-as-promised/recommended',
       'plugin:chai-expect-keywords/recommended',
       'plugin:chai-expect/recommended',
