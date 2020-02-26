@@ -30,13 +30,10 @@ module.exports = {
   },
   overrides: [{
     extends: [
+      'plugin:@fintechstudios/chai-as-promised/recommended',
       'plugin:chai-expect-keywords/recommended',
       'plugin:chai-expect/recommended',
       'plugin:chai-friendly/recommended'
-    ],
-    plugins: [
-      // Submitted PR to avoid need: https://github.com/fintechstudios/eslint-plugin-chai-as-promised/pull/5
-      '@fintechstudios/eslint-plugin-chai-as-promised'
     ],
     files: ['test/**'],
     globals: {
@@ -47,7 +44,6 @@ module.exports = {
       mocha: true
     },
     rules: {
-      '@fintechstudios/chai-as-promised/no-unhandled-promises': 'error',
       'chai-expect-keywords/no-unsupported-keywords': [
         'error', {
           allowChaiDOM: true,

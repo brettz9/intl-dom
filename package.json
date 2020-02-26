@@ -55,10 +55,10 @@
   "devDependencies": {
     "@babel/core": "^7.8.4",
     "@babel/preset-env": "^7.8.4",
-    "@fintechstudios/eslint-plugin-chai-as-promised": "^1.0.0",
+    "@fintechstudios/eslint-plugin-chai-as-promised": "^2.0.0",
     "@mysticatea/eslint-plugin": "^13.0.0",
     "@rollup/plugin-node-resolve": "^7.1.1",
-    "babel-eslint": "^10.0.3",
+    "babel-eslint": "^10.1.0",
     "babel-plugin-transform-async-to-promises": "^0.8.15",
     "browserify": "^16.5.0",
     "chai": "^4.2.0",
