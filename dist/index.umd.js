@@ -2123,9 +2123,7 @@
    */
 
 
-  var LocalFormatter =
-  /*#__PURE__*/
-  function (_Formatter) {
+  var LocalFormatter = /*#__PURE__*/function (_Formatter) {
     _inherits(LocalFormatter, _Formatter);
 
     /**
@@ -2189,9 +2187,7 @@
    * Formatter for regular variables.
    */
 
-  var RegularFormatter =
-  /*#__PURE__*/
-  function (_Formatter2) {
+  var RegularFormatter = /*#__PURE__*/function (_Formatter2) {
     _inherits(RegularFormatter, _Formatter2);
 
     /**
@@ -2235,9 +2231,7 @@
    * Formatter for switch variables.
    */
 
-  var SwitchFormatter =
-  /*#__PURE__*/
-  function (_Formatter3) {
+  var SwitchFormatter = /*#__PURE__*/function (_Formatter3) {
     _inherits(SwitchFormatter, _Formatter3);
 
     /**
@@ -2574,9 +2568,7 @@
     }
   }
 
-  var _Pact =
-  /*#__PURE__*/
-  function () {
+  var _Pact = /*#__PURE__*/function () {
     function _Pact() {}
 
     _Pact.prototype.then = function (onFulfilled, onRejected) {
@@ -2958,8 +2950,10 @@
     var regularFormatter = new RegularFormatter(substitutions);
     var switchFormatter = new SwitchFormatter(switches, {
       substitutions: substitutions
-    }); // eslint-disable-next-line max-len
-    // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
+    }); // Extra escapes for https://github.com/jviereck/regjsparser/issues/101
+    //  (parser used by Rollup babel plugin)
+    // eslint-disable-next-line max-len
+    // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex, no-useless-escape
 
     var formattingRegex = /(\\*)\{((?:(?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])|\\\})*?)(?:(\|)((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g;
 
