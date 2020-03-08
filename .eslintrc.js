@@ -86,7 +86,7 @@ module.exports = {
       indent: 0
     }
   }, {
-    files: '.eslintrc.js',
+    files: ['.eslintrc.js', '.mocharc.js'],
     extends: ['plugin:node/recommended-script'],
     rules: {
       'import/no-commonjs': 0

@@ -8,11 +8,13 @@
 - Linting (ESLint): Add `eslint-plugin-mocha-cleanup`
 - Linting (ESLint): Check `.eslintrc.js` file; add
   `eslint-plugin-chai-expect-keywords`
+- Linting: Include `.mocharc.js` file
 - Testing: Fix Node tests (run script `intl-mocha`) to ensure its bootstrapping
   environment directly loads the `PluralRules` shim rather than going through
   the polyfill detection code (which does not do full detection of
   `maximumFractionDigits` support and instead will avoid polyfilling when
   finding the incomplete `PluralRules` implementation).
+- npm: Clarify message in script
 - npm: Update devDeps
 
 ## 0.5.0

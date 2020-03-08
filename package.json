@@ -12,7 +12,7 @@
     "coverage-badge": "coveradge --color brightgreen badges/coverage-badge.svg",
     "mocha": "_mocha --require esm --require chai/register-expect --require test/bootstrap/node.js --reporter-options configFile=mocha-multi-reporters.json --exit",
     "open-coverage": "npm run nyc && open-cli http://localhost:8010/coverage/ && npm start",
-    "nyc": "echo 'Removing esm cache which seems to blank out istanbul coverage' && rm -Rf node_modules/.cache/esm && nyc npm run mocha && npm run coverage-badge",
+    "nyc": "echo 'Removing esm cache which seems to blank out istanbul coverage when breaking out early' && rm -Rf node_modules/.cache/esm && nyc npm run mocha && npm run coverage-badge",
     "browserify-chai-as-promised": "browserify --entry node_modules/chai-as-promised/lib/chai-as-promised.js --standalone chaiAsPromised --outfile ./test/browser/vendor/chai-as-promised.js",
     "browser-test": "open-cli http://localhost:8010/test/browser/ && npm start",
     "start": "static -p 8010",

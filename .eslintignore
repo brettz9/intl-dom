@@ -1,6 +1,6 @@
 node_modules
 dist
 coverage
+!*.js
 test/browser/vendor/*.js
 !test/browser/vendor/fragmentHtml.js
-!.eslintrc.js
