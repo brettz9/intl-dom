@@ -15,7 +15,7 @@
   `maximumFractionDigits` support and instead will avoid polyfilling when
   finding the incomplete `PluralRules` implementation).
 - npm: Clarify message in script
-- npm: Update devDeps
+- npm: Update devDeps and `package-lock.json`
 
 ## 0.5.0
 
