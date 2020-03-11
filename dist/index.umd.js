@@ -2950,10 +2950,8 @@
     var regularFormatter = new RegularFormatter(substitutions);
     var switchFormatter = new SwitchFormatter(switches, {
       substitutions: substitutions
-    }); // Extra escapes for https://github.com/jviereck/regjsparser/issues/101
-    //  (parser used by Rollup babel plugin)
-    // eslint-disable-next-line max-len
-    // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex, no-useless-escape
+    }); // eslint-disable-next-line max-len
+    // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
 
     var formattingRegex = /(\\*)\{((?:(?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])|\\\})*?)(?:(\|)((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g;
 

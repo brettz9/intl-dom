@@ -47,11 +47,9 @@ export const defaultInsertNodes = ({
   const regularFormatter = new RegularFormatter(substitutions);
   const switchFormatter = new SwitchFormatter(switches, {substitutions});
 
-  // Extra escapes for https://github.com/jviereck/regjsparser/issues/101
-  //  (parser used by Rollup babel plugin)
   // eslint-disable-next-line max-len
-  // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex, no-useless-escape
-  const formattingRegex = /(\\*)\{((?:[^\}]|\\\})*?)(?:(\|)([^\}]*))?\}/gu;
+  // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
+  const formattingRegex = /(\\*)\{((?:[^}]|\\\})*?)(?:(\|)([^}]*))?\}/gu;
   if (allSubstitutions) {
     allSubstitutions = Array.isArray(allSubstitutions)
       ? allSubstitutions
