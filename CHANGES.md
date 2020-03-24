@@ -8,6 +8,7 @@
 - Linting (ESLint): Add `eslint-plugin-mocha-cleanup`
 - Linting (ESLint): Check `.eslintrc.js` file; add
   `eslint-plugin-chai-expect-keywords`
+- Linting: As per latest ash-nazg (remove now extraneous disable directve)
 - Linting: Include `.mocharc.js` file
 - Testing: Fix Node tests (run script `intl-mocha`) to ensure its bootstrapping
   environment directly loads the `PluralRules` shim rather than going through

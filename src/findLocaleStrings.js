@@ -151,7 +151,6 @@ const _findLocale = async ({
   } else if (typeof localeMatcher !== 'function') {
     throw new TypeError('`localeMatcher` must be "lookup" or a function!');
   }
-  // eslint-disable-next-line no-return-await
   return await promiseChainForValues(
     [...locales, ...defaultLocales],
     getLocale,
