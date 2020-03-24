@@ -1,7 +1,9 @@
 # intl-dom CHANGES
 
-## ?
+## 0.6.0
 
+- Enhancement: Give synchronous `getMatchingLocale` utility for, e.g., stripping
+  hyphens recursively to find a match
 - Linting (ESLint): Add `fintechstudios/eslint-plugin-chai-as-promised` and
   fix accordingly
 - Linting (ESLint): Add `eslint-plugin-mocha` and fix accordingly

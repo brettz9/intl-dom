@@ -17,7 +17,7 @@ export {
 } from './getStringFromMessageAndDefaults.js';
 export {getDOMForLocaleString} from './getDOMForLocaleString.js';
 export {
-  findLocaleStrings, defaultLocaleMatcher, findLocale
+  findLocaleStrings, defaultLocaleMatcher, findLocale, getMatchingLocale
 } from './findLocaleStrings.js';
 
 // INTEGRATED

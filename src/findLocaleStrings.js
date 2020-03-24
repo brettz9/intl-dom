@@ -25,6 +25,27 @@ export const defaultLocaleMatcher = (locale) => {
 };
 
 /**
+ * @param {PlainObject} cfg
+ * @param {string} cfg.locale
+ * @param {string[]} cfg.locales
+ * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleMatcher}]
+ * @returns {string|false}
+ */
+export const getMatchingLocale = ({
+  locale, locales, localeResolver = defaultLocaleMatcher
+}) => {
+  try {
+    while (!locales.includes(locale)) {
+      // Catch as `defaultLocaleMatcher` will throw if no hyphen found
+      locale = localeResolver(locale);
+    }
+  } catch (err) {
+    return false;
+  }
+  return locale;
+};
+
+/**
 * @typedef {PlainObject} LocaleObjectInfo
 * @property {LocaleObject} strings The successfully retrieved locale strings
 * @property {string} locale The successfully resolved locale

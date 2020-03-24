@@ -211,7 +211,7 @@ const {
   // UTILITIES
   Formatter, LocalFormatter, RegularFormatter,
   unescapeBackslashes, parseJSONExtra,
-  promiseChainForValues,
+  promiseChainForValues, getMatchingLocale,
 
   // DEFAULTS
   defaultLocaleResolver,
@@ -1245,6 +1245,7 @@ of a custom localization system.)
 1. `defaultAllSubstitutions`
 1. `defaultInsertNodes`
 1. `promiseChainForValues`
+1. `getMatchingLocale`
 
 ### API Usage
 
@@ -1970,6 +1971,22 @@ await promiseChainForValues(['a', 'b', 'c'], (v) => {
 Which resolves to:
 
 > 'a'
+
+#### `getMatchingLocale`
+
+This is a utility for synchronously using a locale resolver (the hyphen-stripping
+`defaultLocaleMatcher` by default) to find a match within an array of locales
+(if there is a match).
+
+```js
+getMatchingLocale({locale: 'en-US', locales: ['en']});
+```
+
+Which results in:
+
+> 'en'
+
+If no match is found, `false` will be returned.
 
 #### `Formatter`, `LocalFormatter`, `RegularFormatter`, `SwitchFormatter`
 

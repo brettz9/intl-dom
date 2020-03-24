@@ -2,7 +2,8 @@ import {setExpectedData} from './utils/utils.js';
 import {
   findLocaleStrings,
   findLocale,
-  defaultLocaleMatcher
+  defaultLocaleMatcher,
+  getMatchingLocale
 // } from '../dist/index.esm.min.js';
 } from '../src/index.js';
 
@@ -265,4 +266,30 @@ describe('findLocale', () => {
     });
     expect(locale).to.equal('en-US');
   });
+});
+
+describe('getMatchingLocale', function () {
+  it('should return with exact match', function () {
+    const result = getMatchingLocale({locale: 'en-US', locales: ['en-US']});
+    expect(result).to.equal('en-US');
+  });
+  it('should return false with no matches', function () {
+    const result = getMatchingLocale({locale: 'fr', locales: ['en-US']});
+    expect(result).to.be.false;
+  });
+  it('should return with "lookup" default hyphen-stripping match', function () {
+    const result = getMatchingLocale({locale: 'en-US', locales: ['en']});
+    expect(result).to.equal('en');
+  });
+  it(
+    'should return with "lookup" explicit hyphen-stripping match',
+    function () {
+      const result = getMatchingLocale({
+        locale: 'en-US',
+        locales: ['en'],
+        localeResolver: defaultLocaleMatcher
+      });
+      expect(result).to.equal('en');
+    }
+  );
 });

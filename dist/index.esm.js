@@ -3563,25 +3563,11 @@ function _await$1(value, then, direct) {
   return then ? value.then(then) : value;
 }
 /**
-* @typedef {PlainObject} LocaleObjectInfo
-* @property {LocaleObject} strings The successfully retrieved locale strings
-* @property {string} locale The successfully resolved locale
-*/
-
-/**
- * @callback LocaleStringFinder
- * @param {PlainObject} [cfg={}]
- * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
- * @param {string[]} [cfg.defaultLocales=['en-US']]
- * @param {string} [cfg.localesBasePath='.']
- * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
- * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher]
- * @returns {Promise<LocaleObjectInfo>}
- */
-
-/**
- *
- * @type {LocaleStringFinder}
+ * @param {PlainObject} cfg
+ * @param {string} cfg.locale
+ * @param {string[]} cfg.locales
+ * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleMatcher}]
+ * @returns {string|false}
  */
 
 
@@ -3623,13 +3609,52 @@ var defaultLocaleMatcher = function defaultLocaleMatcher(locale) {
 
   return locale.replace(/\x2D(?:[\0-,\.-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*$/, '');
 };
-var findLocaleStrings = function findLocaleStrings() {
-  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+var getMatchingLocale = function getMatchingLocale(_ref) {
+  var locale = _ref.locale,
       locales = _ref.locales,
-      defaultLocales = _ref.defaultLocales,
-      localeResolver = _ref.localeResolver,
-      localesBasePath = _ref.localesBasePath,
-      localeMatcher = _ref.localeMatcher;
+      _ref$localeResolver = _ref.localeResolver,
+      localeResolver = _ref$localeResolver === void 0 ? defaultLocaleMatcher : _ref$localeResolver;
+
+  try {
+    while (!locales.includes(locale)) {
+      // Catch as `defaultLocaleMatcher` will throw if no hyphen found
+      locale = localeResolver(locale);
+    }
+  } catch (err) {
+    return false;
+  }
+
+  return locale;
+};
+/**
+* @typedef {PlainObject} LocaleObjectInfo
+* @property {LocaleObject} strings The successfully retrieved locale strings
+* @property {string} locale The successfully resolved locale
+*/
+
+/**
+ * @callback LocaleStringFinder
+ * @param {PlainObject} [cfg={}]
+ * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
+ * @param {string[]} [cfg.defaultLocales=['en-US']]
+ * @param {string} [cfg.localesBasePath='.']
+ * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
+ * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher]
+ * @returns {Promise<LocaleObjectInfo>}
+ */
+
+/**
+ *
+ * @type {LocaleStringFinder}
+ */
+
+var findLocaleStrings = function findLocaleStrings() {
+  var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      locales = _ref2.locales,
+      defaultLocales = _ref2.defaultLocales,
+      localeResolver = _ref2.localeResolver,
+      localesBasePath = _ref2.localesBasePath,
+      localeMatcher = _ref2.localeMatcher;
 
   return _findLocale({
     locales: locales,
@@ -3656,12 +3681,12 @@ var findLocaleStrings = function findLocaleStrings() {
  */
 
 var findLocale = function findLocale() {
-  var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-      locales = _ref2.locales,
-      defaultLocales = _ref2.defaultLocales,
-      localeResolver = _ref2.localeResolver,
-      localesBasePath = _ref2.localesBasePath,
-      localeMatcher = _ref2.localeMatcher;
+  var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      locales = _ref3.locales,
+      defaultLocales = _ref3.defaultLocales,
+      localeResolver = _ref3.localeResolver,
+      localesBasePath = _ref3.localesBasePath,
+      localeMatcher = _ref3.localeMatcher;
 
   return _findLocale({
     locales: locales,
@@ -3678,7 +3703,7 @@ var findLocale = function findLocale() {
  *  the locale rather than locale and contents
  */
 
-var _findLocale = _async$1(function (_ref3) {
+var _findLocale = _async$1(function (_ref4) {
   /**
    * @callback getLocale
    * @throws {SyntaxError|TypeError|Error}
@@ -3723,18 +3748,18 @@ var _findLocale = _async$1(function (_ref3) {
     });
   });
 
-  var _ref3$locales = _ref3.locales,
-      locales = _ref3$locales === void 0 ? typeof intlDomLocale !== 'undefined' ? [intlDomLocale] : typeof navigator === 'undefined' ? [] : navigator.languages : _ref3$locales,
-      _ref3$defaultLocales = _ref3.defaultLocales,
-      defaultLocales = _ref3$defaultLocales === void 0 ? ['en-US'] : _ref3$defaultLocales,
-      _ref3$localeResolver = _ref3.localeResolver,
-      localeResolver = _ref3$localeResolver === void 0 ? defaultLocaleResolver : _ref3$localeResolver,
-      _ref3$localesBasePath = _ref3.localesBasePath,
-      localesBasePath = _ref3$localesBasePath === void 0 ? '.' : _ref3$localesBasePath,
-      _ref3$localeMatcher = _ref3.localeMatcher,
-      localeMatcher = _ref3$localeMatcher === void 0 ? 'lookup' : _ref3$localeMatcher,
-      _ref3$headOnly = _ref3.headOnly,
-      headOnly = _ref3$headOnly === void 0 ? false : _ref3$headOnly;
+  var _ref4$locales = _ref4.locales,
+      locales = _ref4$locales === void 0 ? typeof intlDomLocale !== 'undefined' ? [intlDomLocale] : typeof navigator === 'undefined' ? [] : navigator.languages : _ref4$locales,
+      _ref4$defaultLocales = _ref4.defaultLocales,
+      defaultLocales = _ref4$defaultLocales === void 0 ? ['en-US'] : _ref4$defaultLocales,
+      _ref4$localeResolver = _ref4.localeResolver,
+      localeResolver = _ref4$localeResolver === void 0 ? defaultLocaleResolver : _ref4$localeResolver,
+      _ref4$localesBasePath = _ref4.localesBasePath,
+      localesBasePath = _ref4$localesBasePath === void 0 ? '.' : _ref4$localesBasePath,
+      _ref4$localeMatcher = _ref4.localeMatcher,
+      localeMatcher = _ref4$localeMatcher === void 0 ? 'lookup' : _ref4$localeMatcher,
+      _ref4$headOnly = _ref4.headOnly,
+      headOnly = _ref4$headOnly === void 0 ? false : _ref4$headOnly;
 
   if (localeMatcher === 'lookup') {
     localeMatcher = defaultLocaleMatcher;
@@ -3959,4 +3984,4 @@ var i18n = function i18n() {
   }
 };
 
-export { Formatter, LocalFormatter, RegularFormatter, SwitchFormatter, defaultAllSubstitutions, defaultInsertNodes, defaultLocaleMatcher, defaultLocaleResolver, findLocale, findLocaleStrings, getDOMForLocaleString, getMessageForKeyByStyle, getStringFromMessageAndDefaults, i18n, i18nServer, parseJSONExtra, processRegex, promiseChainForValues, unescapeBackslashes };
+export { Formatter, LocalFormatter, RegularFormatter, SwitchFormatter, defaultAllSubstitutions, defaultInsertNodes, defaultLocaleMatcher, defaultLocaleResolver, findLocale, findLocaleStrings, getDOMForLocaleString, getMatchingLocale, getMessageForKeyByStyle, getStringFromMessageAndDefaults, i18n, i18nServer, parseJSONExtra, processRegex, promiseChainForValues, unescapeBackslashes };
