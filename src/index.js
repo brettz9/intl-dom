@@ -20,5 +20,7 @@ export {
   findLocaleStrings, defaultLocaleMatcher, findLocale, getMatchingLocale
 } from './findLocaleStrings.js';
 
+export {setFetch, getFetch, setDocument, getDocument} from './shared.js';
+
 // INTEGRATED
 export {i18n, i18nServer} from './i18n.js';

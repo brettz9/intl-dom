@@ -1,5 +1,8 @@
 import {defaultAllSubstitutions} from './defaultAllSubstitutions.js';
 import {defaultInsertNodes} from './defaultInsertNodes.js';
+import {getDocument} from './shared.js';
+
+export {setDocument, getDocument} from './shared.js';
 
 /* eslint-disable max-len */
 /**
@@ -44,7 +47,8 @@ export const getDOMForLocaleString = ({
     );
   }
   const stringOrTextNode = (str) => {
-    return forceNodeReturn ? document.createTextNode(str) : str;
+    const _doc = getDocument();
+    return forceNodeReturn ? _doc.createTextNode(str) : str;
   };
 
   const usedKeys = [];
@@ -114,7 +118,8 @@ export const getDOMForLocaleString = ({
     return stringOrTextNode(nodes);
   }
 
-  const container = document.createDocumentFragment();
+  const _doc = getDocument();
+  const container = _doc.createDocumentFragment();
   container.append(...nodes);
 
   return container;

@@ -1,4 +1,8 @@
+/* globals performance */
 import {processRegex} from './utils.js';
+import {getDocument} from './shared.js';
+
+export {setDocument, getDocument} from './shared.js';
 
 /**
  *
@@ -70,7 +74,8 @@ export const sortList = (
       }
     }
   );
-  const container = document.createDocumentFragment();
+  const _doc = getDocument();
+  const container = _doc.createDocumentFragment();
   container.append(...nodes);
   return container;
 };

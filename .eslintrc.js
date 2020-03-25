@@ -9,7 +9,7 @@ module.exports = {
     sourceType: 'module'
   },
   env: {
-    browser: true,
+    browser: false,
     es6: true
   },
   settings: {

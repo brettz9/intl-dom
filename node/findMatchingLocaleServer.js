@@ -1,8 +1,11 @@
 import http from 'http';
 import fileFetch from 'file-fetch';
 import {findLocale} from '../src/findLocaleStrings.js';
+import {setFetch} from '../src/shared.js';
 
-global.fetch = fileFetch;
+export {setFetch, getFetch} from '../src/shared.js';
+
+setFetch(fileFetch);
 
 /**
  * @param {PlainObject} cfg

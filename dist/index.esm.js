@@ -1885,6 +1885,45 @@ var processRegex = function processRegex(regex, str, _ref) {
   }
 };
 
+/* globals fetch, document */
+var _fetch = typeof fetch !== 'undefined' // istanbul ignore next
+? fetch : null;
+/**
+ * @param {fetch} f
+ * @returns {void}
+ */
+
+
+var setFetch = function setFetch(f) {
+  _fetch = f;
+};
+/**
+ * @returns {fetch}
+ */
+
+var getFetch = function getFetch() {
+  return _fetch;
+};
+
+var _doc = typeof document !== 'undefined' // istanbul ignore next
+? document : null;
+/**
+ * @param {document} doc
+ * @returns {void}
+ */
+
+
+var setDocument = function setDocument(doc) {
+  _doc = doc;
+};
+/**
+ * @returns {document}
+ */
+
+var getDocument = function getDocument() {
+  return _doc;
+};
+
 /**
  *
  * @returns {string}
@@ -1944,7 +1983,11 @@ var sortList = function sortList(locale, arrayOfItems, map, listOptions, collati
       push(map(arrayOfItems[idx], idx));
     }
   });
-  var container = document.createDocumentFragment();
+
+  var _doc = getDocument();
+
+  var container = _doc.createDocumentFragment();
+
   container.append.apply(container, nodes);
   return container;
 };
@@ -3454,7 +3497,9 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
   }
 
   var stringOrTextNode = function stringOrTextNode(str) {
-    return forceNodeReturn ? document.createTextNode(str) : str;
+    var _doc = getDocument();
+
+    return forceNodeReturn ? _doc.createTextNode(str) : str;
   };
 
   var usedKeys = [];
@@ -3534,22 +3579,13 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
     return stringOrTextNode(nodes);
   }
 
-  var container = document.createDocumentFragment();
+  var _doc = getDocument();
+
+  var container = _doc.createDocumentFragment();
+
   container.append.apply(container, _toConsumableArray(nodes));
   return container;
 };
-
-/**
- * Takes a locale and returns a new locale to check.
- * @callback LocaleMatcher
- * @param {string} locale The failed locale
- * @throws If there are no further hyphens left to check
- * @returns {string|Promise<string>} The new locale to check
-*/
-
-/**
- * @type {LocaleMatcher}
- */
 
 function _await$1(value, then, direct) {
   if (direct) {
@@ -3563,11 +3599,15 @@ function _await$1(value, then, direct) {
   return then ? value.then(then) : value;
 }
 /**
- * @param {PlainObject} cfg
- * @param {string} cfg.locale
- * @param {string[]} cfg.locales
- * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleMatcher}]
- * @returns {string|false}
+ * Takes a locale and returns a new locale to check.
+ * @callback LocaleMatcher
+ * @param {string} locale The failed locale
+ * @throws If there are no further hyphens left to check
+ * @returns {string|Promise<string>} The new locale to check
+*/
+
+/**
+ * @type {LocaleMatcher}
  */
 
 
@@ -3598,7 +3638,6 @@ function _catch$1(body, recover) {
 
   return result;
 }
-
 var defaultLocaleMatcher = function defaultLocaleMatcher(locale) {
   if (!locale.includes('-')) {
     throw new Error('Locale not available');
@@ -3609,6 +3648,14 @@ var defaultLocaleMatcher = function defaultLocaleMatcher(locale) {
 
   return locale.replace(/\x2D(?:[\0-,\.-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*$/, '');
 };
+/**
+ * @param {PlainObject} cfg
+ * @param {string} cfg.locale
+ * @param {string[]} cfg.locales
+ * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleMatcher}]
+ * @returns {string|false}
+ */
+
 var getMatchingLocale = function getMatchingLocale(_ref) {
   var locale = _ref.locale,
       locales = _ref.locales,
@@ -3722,9 +3769,11 @@ var _findLocale = _async$1(function (_ref4) {
     }
 
     return _catch$1(function () {
-      return _await$1(headOnly ? fetch(url, {
+      var _fetch = getFetch();
+
+      return _await$1(headOnly ? _fetch(url, {
         method: 'HEAD'
-      }) : fetch(url), function (resp) {
+      }) : _fetch(url), function (resp) {
         if (resp.status === 404) {
           // Don't allow browser (tested in Firefox) to continue
           //  and give `SyntaxError` with missing file or we won't be
@@ -3984,4 +4033,4 @@ var i18n = function i18n() {
   }
 };
 
-export { Formatter, LocalFormatter, RegularFormatter, SwitchFormatter, defaultAllSubstitutions, defaultInsertNodes, defaultLocaleMatcher, defaultLocaleResolver, findLocale, findLocaleStrings, getDOMForLocaleString, getMatchingLocale, getMessageForKeyByStyle, getStringFromMessageAndDefaults, i18n, i18nServer, parseJSONExtra, processRegex, promiseChainForValues, unescapeBackslashes };
+export { Formatter, LocalFormatter, RegularFormatter, SwitchFormatter, defaultAllSubstitutions, defaultInsertNodes, defaultLocaleMatcher, defaultLocaleResolver, findLocale, findLocaleStrings, getDOMForLocaleString, getDocument, getFetch, getMatchingLocale, getMessageForKeyByStyle, getStringFromMessageAndDefaults, i18n, i18nServer, parseJSONExtra, processRegex, promiseChainForValues, setDocument, setFetch, unescapeBackslashes };

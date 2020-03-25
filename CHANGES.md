@@ -1,5 +1,12 @@
 # intl-dom CHANGES
 
+## 0.7.0
+
+- Enhancement: Add `setFetch`/`getFetch` to avoid need for a global `fetch`
+  in Node
+- Enhancement: Add `setDocument`/`getDocument` to avoid need for a global
+  `document` in Node
+
 ## 0.6.0
 
 - Enhancement: Give synchronous `getMatchingLocale` utility for, e.g., stripping

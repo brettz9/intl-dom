@@ -2,6 +2,9 @@
 
 import {defaultLocaleResolver} from './defaultLocaleResolver.js';
 import {promiseChainForValues} from './promiseChainForValues.js';
+import {getFetch} from './shared.js';
+
+export {setFetch, getFetch} from './shared.js';
 
 /**
  * Takes a locale and returns a new locale to check.
@@ -138,11 +141,12 @@ const _findLocale = async ({
       );
     }
     try {
+      const _fetch = getFetch();
       const resp = await (headOnly
-        ? fetch(url, {
+        ? _fetch(url, {
           method: 'HEAD'
         })
-        : fetch(url)
+        : _fetch(url)
       );
 
       if (resp.status === 404) {

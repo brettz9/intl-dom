@@ -21,6 +21,8 @@ import fragmentHtml from '../browser/vendor/fragmentHtml.js';
 import {JSDOM} from 'jsdom';
 import fileFetch from 'file-fetch';
 
+import {setFetch, setDocument} from '../../src/shared.js';
+
 // Override to ensure we're testing with polyfill
 Intl.PluralRules = PluralRules;
 
@@ -28,8 +30,15 @@ chai.use(chaiDOM);
 chai.use(chaiAsPromised);
 chai.use(fragmentHtml);
 
-global.document = (new JSDOM()).window.document;
-global.fetch = fileFetch;
+const {document: doc} = (new JSDOM()).window;
+// We don't technically need to call `setDocument` as we are setting
+//   a global `document` below for tests that need to use `document`, but
+//   adding it here to suggest normal Node usage
+setDocument(doc);
+setFetch(fileFetch);
+
+global.document = doc;
+
 global.setNavigatorLanguages = (languages) => {
   if (languages === false) {
     delete global.navigator;

@@ -155,16 +155,18 @@ stylesheets, e.g.:
 npm install --save intl-dom
 ```
 
-If using on Node, you may also need to install and define a global `fetch`
-as from `file-fetch`, and install such as `jsdom` and define a global
-`document` object (with at least the methods `createDocumentFragment`
-(returning at least an object with an `append` method to join passed in
-elements and text nodes) and, if using, `forceNodeReturn`,
-`createTextNode`). (Our tests additionally expect `createElement`, whose
-elements use `id`, `href`, `textContent`, `innerHTML`, `append` and
-those additional used by the `text` method within `chai-dom` (`tagName`,
-`className`, `nodeType`, and `attributes` (with these having `name` and
-`value`)).)
+If using on Node, you may also need to install a `fetch` implementation,
+such as from [file-fetch](https://github.com/bergos/file-fetch), and
+either set a global `fetch` or supply it to `setFetch`. You may also need
+to install such as `jsdom` and define a global `document` object or
+supply it to `setDocument` (with at least the methods
+`createDocumentFragment` (returning at least an object with an `append`
+method to join passed in elements and text nodes) and, if using,
+`forceNodeReturn`, `createTextNode`). (Our tests additionally expect
+`createElement`, whose elements use `id`, `href`, `textContent`,
+`innerHTML`, `append` and those additional used by the `text` method
+within `chai-dom` (`tagName`, `className`, `nodeType`, and `attributes`
+(with these having `name` and `value`)).)
 
 ```shell
 npm install --save intl-dom file-fetch jsdom
@@ -212,6 +214,8 @@ const {
   Formatter, LocalFormatter, RegularFormatter,
   unescapeBackslashes, parseJSONExtra,
   promiseChainForValues, getMatchingLocale,
+  setFetch, setDocument,
+  getFetch, getDocument,
 
   // DEFAULTS
   defaultLocaleResolver,
@@ -231,8 +235,8 @@ const {
   i18n
 } = require('intl-dom');
 
-global.document = (new JSDOM()).window.document;
-global.fetch = fileFetch;
+setDocument((new JSDOM()).window.document);
+setFetch(fileFetch);
 // Now you can use the `intl-dom` methods
 ```
 
@@ -1246,6 +1250,10 @@ of a custom localization system.)
 1. `defaultInsertNodes`
 1. `promiseChainForValues`
 1. `getMatchingLocale`
+1. `setFetch`
+1. `getFetch`
+1. `setDocument`
+1. `getDocument`
 
 ### API Usage
 
@@ -1994,6 +2002,73 @@ Which results in:
 
 If no match is found, `false` will be returned.
 
+#### `setFetch`
+
+Sets the `fetch` method used to retrieve locale files, e.g., with
+[file-fetch](https://github.com/bergos/file-fetch). Only needed in Node
+as the global `fetch` will be checked.
+
+```js
+const {setFetch, i18n} = require('intl-dom');
+const fileFetch = require('file-fetch');
+
+setFetch(fileFetch);
+
+// Now use `i18n`:
+i18n();
+```
+
+#### `getFetch`
+
+Retrieves the function set by `setFetch` (or the global `fetch` if none
+had been set).
+
+```js
+const {setFetch, getFetch, i18n} = require('intl-dom');
+const fileFetch = require('file-fetch');
+
+setFetch(fileFetch);
+
+getFetch();
+```
+
+Gives:
+
+> (fileFetch)
+
+#### `setDocument`
+
+Sets `document` used for creating fragments, etc.. Only needed in Node
+as the global `document` will be checked.
+
+```js
+const {setDocument, i18n} = require('intl-dom');
+const {JSDOM} = require('jsdom');
+
+setDocument((new JSDOM()).window.document);
+
+// Now use `i18n`:
+i18n();
+```
+
+#### `getDocument`
+
+Retrieves the object set by `setDocument` (or the global `document` if none
+had been set).
+
+```js
+const {setDocument, getDocument, i18n} = require('intl-dom');
+const {JSDOM} = require('jsdom');
+
+setDocument((new JSDOM()).window.document);
+
+getDocument();
+```
+
+Gives:
+
+> ((new JSDOM()).window.document)
+
 #### `Formatter`, `LocalFormatter`, `RegularFormatter`, `SwitchFormatter`
 
 These classes are used by `defaultInsertNodes` (and indirectly by
@@ -2087,8 +2162,9 @@ and supplying that to the client.
 
 You could approach this in two ways:
 
-1. Run `findLocale` or `findLocaleStrings` on demand after setting a global
-    `fetch`, e.g., by using [file-fetch](https://github.com/bergos/file-fetch)
+1. Run `findLocale` or `findLocaleStrings` on demand after supplying a
+    `fetch` implementation to `setFetch`, e.g., by using
+    [file-fetch](https://github.com/bergos/file-fetch),
     and supplying the `Accept-Language` header for `locales` and
     then returning the best matching locale (or locale contents), e.g.,
     with this info baked in as a global set within a server-generated
