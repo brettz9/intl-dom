@@ -1679,6 +1679,12 @@ these arguments:
 This runs synchronously unlike `i18n` since there is no need for a network
 request with the locale info supplied by you.
 
+May be of particular use on the server, where it is practical to cache some
+locale strings and serve them, rather than fetching them anew each time.
+(And the strings and locale could be passed down to the client as a global
+so the client wouldn't need to make the new fetches inherent with `i18n`
+either.)
+
 #### `getStringFromMessageAndDefaults`
 
 Checks if a message is supplied and if not, checks for a default value out of
