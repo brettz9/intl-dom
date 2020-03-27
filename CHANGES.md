@@ -1,5 +1,10 @@
 # intl-dom CHANGES
 
+## ?
+
+- Docs: Update coverage badge
+- npm: Update devDeps
+
 ## 0.7.0
 
 - Enhancement: Add `setFetch`/`getFetch` to avoid need for a global `fetch`
