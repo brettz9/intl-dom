@@ -2,8 +2,10 @@
 
 ## ?
 
+- Build: Update as per latest rollup (no changes from browserify)
 - Docs: Update coverage badge
-- npm: Update devDeps
+- npm: Update json6 dep.
+- npm: Update devDeps.
 
 ## 0.7.0
 

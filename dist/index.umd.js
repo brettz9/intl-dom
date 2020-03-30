@@ -1045,6 +1045,8 @@
               } else {
                 if (cInt == 32
                 /*' '*/
+                || cInt == 160
+                /* &nbsp */
                 || cInt == 13 || cInt == 10 || cInt == 9 || cInt == 0xFEFF || cInt == 44
                 /*','*/
                 || cInt == 125
@@ -1409,6 +1411,8 @@
 
                       case 32: //' ':
 
+                      case 160: //&nbsp:
+
                       case 9: //'\t':
 
                       case 0xFEFF:
@@ -1472,6 +1476,8 @@
                       pos.col = 1;
 
                     case 32: //' ':
+
+                    case 160: // &nbsp 
 
                     case 9: //'\t':
 

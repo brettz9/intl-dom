@@ -1039,6 +1039,8 @@ var json6 = createCommonjsModule(function (module, exports) {
             } else {
               if (cInt == 32
               /*' '*/
+              || cInt == 160
+              /* &nbsp */
               || cInt == 13 || cInt == 10 || cInt == 9 || cInt == 0xFEFF || cInt == 44
               /*','*/
               || cInt == 125
@@ -1403,6 +1405,8 @@ var json6 = createCommonjsModule(function (module, exports) {
 
                     case 32: //' ':
 
+                    case 160: //&nbsp:
+
                     case 9: //'\t':
 
                     case 0xFEFF:
@@ -1466,6 +1470,8 @@ var json6 = createCommonjsModule(function (module, exports) {
                     pos.col = 1;
 
                   case 32: //' ':
+
+                  case 160: // &nbsp 
 
                   case 9: //'\t':
 
