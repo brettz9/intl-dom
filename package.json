@@ -1,6 +1,6 @@
 {
   "name": "intl-dom",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Internationalization allowing interspersing of DOM elements among the localized strings",
   "main": "dist/index.umd.js",
   "module": "dist/index.esm.js",

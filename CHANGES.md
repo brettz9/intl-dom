@@ -1,6 +1,6 @@
 # intl-dom CHANGES
 
-## ?
+## 0.8.0
 
 - Build: Update as per latest rollup (no changes from browserify)
 - Docs: Update coverage badge
