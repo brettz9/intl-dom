@@ -3,7 +3,7 @@
 ## 0.8.0
 
 - Build: Update as per latest rollup (no changes from browserify)
-- Docs: Update coverage badge
+- Docs: Update coverage and tests badges
 - npm: Update json6 dep.
 - npm: Update devDeps.
 
