@@ -5,6 +5,9 @@
   "main": "dist/index.umd.js",
   "module": "dist/index.esm.js",
   "scripts": {
+    "license-badge": "license-badger --corrections --uncategorizedLicenseTemplate \"\\${license} (\\${name} (\\${version}))\" --filteredTypes=nonempty --textTemplate \"License types\n(project, deps, and bundled devDeps)\" --packageJson --production badges/licenses-badge.svg",
+    "license-badge-dev": "license-badger --corrections --filteredTypes=nonempty --textTemplate \"License types\n(all devDeps)\" --allDevelopment badges/licenses-badge-dev.svg",
+    "license-badges": "npm run license-badge && npm run license-badge-dev",
     "eslint": "eslint --ext=js,md,html .",
     "rollup": "rollup -c",
     "find-matching-locale": "node --require esm server.js",
@@ -94,6 +97,7 @@
     "intl-relative-time-format": "^1.0.7",
     "jsdom": "^16.2.2",
     "json5": "^2.1.2",
+    "license-badger": "^0.12.7",
     "mocha": "^7.1.1",
     "mocha-badge-generator": "^0.5.2",
     "mocha-multi-reporters": "git+https://github.com/brettz9/mocha-multi-reporters.git#missing-reporter",
