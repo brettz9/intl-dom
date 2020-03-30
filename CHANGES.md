@@ -4,6 +4,7 @@
 
 - Build: Update as per latest rollup (no changes from browserify)
 - Docs: Update coverage and tests badges
+- Docs: Add license badges
 - npm: Update json6 dep.
 - npm: Update devDeps.
 
