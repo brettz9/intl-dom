@@ -66,7 +66,7 @@
     "browserify": "^16.5.1",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "chai-dom": "^1.8.1",
+    "chai-dom": "^1.8.2",
     "coveradge": "^0.5.0",
     "eslint": "^6.8.0",
     "eslint-config-ash-nazg": "^18.0.0",
@@ -105,7 +105,7 @@
     "node-static": "^0.7.11",
     "nyc": "^15.0.0",
     "open-cli": "^6.0.1",
-    "rollup": "^2.3.0",
+    "rollup": "^2.3.1",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-terser": "^5.3.0",
     "typescript": "^3.8.3"
