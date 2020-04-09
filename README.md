@@ -2,7 +2,7 @@
 [![Dependencies](https://img.shields.io/david/brettz9/intl-dom.svg)](https://david-dm.org/brettz9/intl-dom)
 [![devDependencies](https://img.shields.io/david/dev/brettz9/intl-dom.svg)](https://david-dm.org/brettz9/intl-dom?type=dev)
 
-[![Actions Status](https://github.com/brettz9/intl-dom/workflows/Node%20CI/badge.svg)](https://github.com/brettz9/intl-dom/actions)
+<!--[![Actions Status](https://github.com/brettz9/intl-dom/workflows/Node%20CI/badge.svg)](https://github.com/brettz9/intl-dom/actions)-->
 [![testing badge](https://raw.githubusercontent.com/brettz9/intl-dom/master/badges/tests-badge.svg?sanitize=true)](badges/tests-badge.svg)
 [![coverage badge](https://raw.githubusercontent.com/brettz9/intl-dom/master/badges/coverage-badge.svg?sanitize=true)](badges/coverage-badge.svg)
 <!--
