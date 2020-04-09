@@ -5,7 +5,7 @@
 //  instead of "other" (as it should) for
 //  `new Intl.PluralRules('en-US', {minimumFractionDigits: 1}).select(1)`.
 // import 'intl-pluralrules';
-import PluralRules from 'intl-pluralrules/plural-rules.mjs';
+import PluralRules from 'intl-pluralrules/plural-rules.js';
 import 'intl-relative-time-format';
 import 'intl-relative-time-format/locale-data/en-US.js';
 import 'intl-list-format';

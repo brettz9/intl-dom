@@ -2,6 +2,7 @@
 
 ## ?
 
+- Update: API as per latest `intl-pluralrules`
 - Docs: Update license badge dev per latest updates (`chai-dom` now
   has proper MIT license meta-data)
 - Docs: Add filesize badge
