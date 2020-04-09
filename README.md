@@ -13,6 +13,7 @@
 [![Total Alerts](https://img.shields.io/lgtm/alerts/g/brettz9/intl-dom.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/brettz9/intl-dom/alerts)
 [![Code Quality: Javascript](https://img.shields.io/lgtm/grade/javascript/g/brettz9/intl-dom.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/brettz9/intl-dom/context:javascript)
 
+[![Filesize badge](https://raw.githubusercontent.com/brettz9/intl-dom/master/badges/filesize-badge.svg?sanitize=true)](badges/filesize-badge.svg)
 <!--[![License](https://img.shields.io/npm/l/intl-dom.svg)](LICENSE-MIT.txt)-->
 [![Licenses badge](https://raw.githubusercontent.com/brettz9/intl-dom/master/badges/licenses-badge.svg?sanitize=true)](badges/licenses-badge.svg)
 

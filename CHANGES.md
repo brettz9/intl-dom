@@ -1,5 +1,12 @@
 # intl-dom CHANGES
 
+## ?
+
+- Docs: Update license badge dev per latest updates (`chai-dom` now
+  has proper MIT license meta-data)
+- Docs: Add filesize badge
+- npm: Update devDeps
+
 ## 0.8.0
 
 - Build: Update as per latest rollup (no changes from browserify)
