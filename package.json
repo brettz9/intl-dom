@@ -101,7 +101,7 @@
     "json5": "^2.1.3",
     "license-badger": "^0.13.0",
     "mocha": "^7.1.1",
-    "mocha-badge-generator": "git+https://github.com/brettz9/mocha-badge-generator.git#durations",
+    "mocha-badge-generator": "git+https://github.com/brettz9/mocha-badge-generator.git#thresholds",
     "mocha-multi-reporters": "git+https://github.com/brettz9/mocha-multi-reporters.git#promise-waiting",
     "node-fetch": "^2.6.0",
     "node-static": "^0.7.11",
