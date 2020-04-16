@@ -52,7 +52,7 @@ global.setNavigatorLanguages = (languages) => {
 setTimeout(() => {
   // Make path resolutions consistent in Node with HTML
   if (typeof process !== 'undefined') {
-    // eslint-disable-next-line global-require
+    // eslint-disable-next-line node/global-require
     process.chdir(require('path').resolve(__dirname, '../browser'));
   }
   // Delayed mocha beginning for sake of `process.chdir` which cannot

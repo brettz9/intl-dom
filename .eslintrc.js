@@ -29,6 +29,17 @@ module.exports = {
     ]
   },
   overrides: [{
+    files: ['test/bootstrap/node.js'],
+    extends: ['ash-nazg/sauron-node', 'plugin:node/recommended-script'],
+    parserOptions: {
+      sourceType: 'module'
+    },
+    rules: {
+      'node/no-unsupported-features/es-syntax': ['error', {
+        ignores: ['modules']
+      }]
+    }
+  }, {
     extends: [
       'plugin:mocha/recommended',
       'plugin:mocha-cleanup/recommended-no-limits',
