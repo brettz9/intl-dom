@@ -2221,6 +2221,9 @@ This project has been heavily inspired by
 
 ## To-dos
 
+- Add [`Intl.DisplayNames`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DisplayNames)
+  (though use shortcuts of `REGION`|`LANGUAGE`|`SCRIPT`|`CURRENCY` over
+  `DISPLAYNAMES|type:'region'`, etc.)
 - Use **dominum** with Jamilih and have tests use Jamilih (minimum's
   deliberately minimal implementation won't allow, e.g., setting
   `id`/`href` properties as we are now, and Jamilih is less verbose anyways.
