@@ -7,6 +7,7 @@
 - Docs: Update license badge dev per latest updates (`chai-dom` now
   has proper MIT license meta-data)
 - Docs: Add filesize badge
+- npm: Point to now merged `mocha-badge-generator`
 - npm: Update devDeps
 
 ## 0.8.0
