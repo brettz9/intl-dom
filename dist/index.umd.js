@@ -152,11 +152,13 @@
   }
 
   function _createSuper(Derived) {
+    var hasNativeReflectConstruct = _isNativeReflectConstruct();
+
     return function () {
       var Super = _getPrototypeOf(Derived),
           result;
 
-      if (_isNativeReflectConstruct()) {
+      if (hasNativeReflectConstruct) {
         var NewTarget = _getPrototypeOf(this).constructor;
 
         result = Reflect.construct(Super, arguments, NewTarget);
@@ -220,7 +222,7 @@
     if (typeof o === "string") return _arrayLikeToArray(o, minLen);
     var n = Object.prototype.toString.call(o).slice(8, -1);
     if (n === "Object" && o.constructor) n = o.constructor.name;
-    if (n === "Map" || n === "Set") return Array.from(n);
+    if (n === "Map" || n === "Set") return Array.from(o);
     if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
   }
 
@@ -2096,7 +2098,7 @@
             options = {};
           } else if (!checkArgOptions || argOptions) {
             // Todo: Allow escaping and restoring of pipe symbol
-            options = _objectSpread2({}, options, {}, parseJSONExtra(checkArgOptions && argOptions ? argOptions : extraArgs));
+            options = _objectSpread2(_objectSpread2({}, options), parseJSONExtra(checkArgOptions && argOptions ? argOptions : extraArgs));
           }
         }
       }
@@ -2400,12 +2402,12 @@
 
         var getNumberFormat = function getNumberFormat(value, defaultOptions) {
           var numberOpts = parseJSONExtra(opts);
-          return new Intl.NumberFormat(locale, _objectSpread2({}, defaultOptions, {}, numberOpts)).format(value);
+          return new Intl.NumberFormat(locale, _objectSpread2(_objectSpread2({}, defaultOptions), numberOpts)).format(value);
         };
 
         var getPluralFormat = function getPluralFormat(value, defaultOptions) {
           var pluralOpts = parseJSONExtra(opts);
-          return new Intl.PluralRules(locale, _objectSpread2({}, defaultOptions, {}, pluralOpts)).select(value);
+          return new Intl.PluralRules(locale, _objectSpread2(_objectSpread2({}, defaultOptions), pluralOpts)).select(value);
         };
 
         var formatterValue = this.substitutions[keySegment];
@@ -3125,7 +3127,7 @@
 
           if (arg) {
             localFormatters = parseJSONExtra(arg);
-            extraSubsts = _objectSpread2({}, substitutions, {}, localFormatters);
+            extraSubsts = _objectSpread2(_objectSpread2({}, substitutions), localFormatters);
           }
 
           substitution = processSubsts({
@@ -3958,7 +3960,7 @@
         maximumLocalNestingDepth: maximumLocalNestingDepth,
         allSubstitutions: allSubstitutions,
         insertNodes: insertNodes,
-        substitutions: _objectSpread2({}, defaultSubstitutions, {}, substitutions),
+        substitutions: _objectSpread2(_objectSpread2({}, defaultSubstitutions), substitutions),
         dom: dom,
         forceNodeReturn: forceNodeReturn,
         throwOnMissingSuppliedFormatters: throwOnMissingSuppliedFormatters,
