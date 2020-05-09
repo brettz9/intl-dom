@@ -16,7 +16,7 @@ setFetch(fileFetch);
  */
 function findMatchingLocaleServer ({basePath, wrap, port = 3005}) {
   const wrapResult = wrap || JSON.stringify;
-  http.createServer(async (req, res) => {
+  return http.createServer(async (req, res) => {
     const acceptLanguage = req.headers['accept-language'];
     if (!acceptLanguage) {
       res.end(wrapResult(''));

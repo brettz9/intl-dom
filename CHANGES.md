@@ -1,12 +1,14 @@
 # intl-dom CHANGES
 
-## ?
+## 0.9.0
 
+- Enhancement: Return server from `findMatchingLocaleServer`
 - Update: API as per latest `intl-pluralrules`
 - Linting: As per latest ash-nazg
 - Docs: Update license badge dev per latest updates (`chai-dom` now
   has proper MIT license meta-data)
 - Docs: Add filesize badge
+- Testing: Ensure properly closing server (so tests will exit without need for `process.exit()` as added to mocha-multi-reporters fork)
 - npm: Point to now merged `mocha-badge-generator`
 - npm: Update devDeps
 
