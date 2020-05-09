@@ -101,7 +101,7 @@
     "json5": "^2.1.3",
     "license-badger": "^0.15.0",
     "mocha": "^7.1.2",
-    "mocha-badge-generator": "git+https://github.com/brettz9/mocha-badge-generator.git#done-method",
+    "mocha-badge-generator": "^0.7.0",
     "cypress-multi-reporters": "git+https://github.com/brettz9/cypress-multi-reporters.git#eslint",
     "node-fetch": "^2.6.0",
     "node-static": "^0.7.11",

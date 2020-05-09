@@ -1,5 +1,11 @@
 # intl-dom CHANGES
 
+## ?
+
+- npm: Update devDeps (mocha-badge-generator)
+- npm: Use fork of cypress-multi-reporters (over fork of MMR) in
+  preparation for using maintained fork
+
 ## 0.9.0
 
 - Enhancement: Return server from `findMatchingLocaleServer`
