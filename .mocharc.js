@@ -3,7 +3,7 @@
 module.exports = {
   delay: true,
   exclude: 'test/*/**',
-  reporter: 'mocha-multi-reporters',
+  reporter: 'cypress-multi-reporters',
   'reporter-option': [
     'configFile=mocha-multi-reporters.json'
   ],
