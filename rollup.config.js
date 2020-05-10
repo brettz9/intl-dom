@@ -1,4 +1,4 @@
-import babel from 'rollup-plugin-babel';
+import babel from '@rollup/plugin-babel';
 import {terser} from 'rollup-plugin-terser';
 
 // We don't need this so long as we are hard-coding the
@@ -28,7 +28,9 @@ function getRollupObject ({minifying, format = 'umd'} = {}) {
       name: 'IntlDom'
     },
     plugins: [
-      babel(),
+      babel({
+        babelHelpers: 'bundled'
+      }),
       nodeResolve()
     ]
   };
