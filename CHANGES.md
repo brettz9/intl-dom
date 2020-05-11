@@ -5,8 +5,7 @@
 - Docs: Update badges per latest updates
 - npm: Update from deprecated `rollup-plugin-babel` to `@rollup/plugin-babel`
     (and make `babelHelpers` explicit)
-- npm: Use fork of `cypress-multi-reporters` (over fork of MMR) in
-  preparation for using maintained fork
+- npm: Use maintained `cypress-multi-reporters` (over fork of MMR)
 - npm: Update devDeps
 
 ## 0.9.0
