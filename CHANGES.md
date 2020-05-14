@@ -3,6 +3,7 @@
 ## ?
 
 - Docs: Update badges per latest updates
+- npm: Add `prepublishOnly` script
 - npm: Update from deprecated `rollup-plugin-babel` to `@rollup/plugin-babel`
     (and make `babelHelpers` explicit)
 - npm: Use maintained `cypress-multi-reporters` (over fork of MMR)
