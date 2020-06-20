@@ -115,6 +115,9 @@ module.exports = {
   },
   rules: {
     // https://github.com/sindresorhus/eslint-plugin-unicorn/issues/446
-    'unicorn/regex-shorthand': 0
+    'unicorn/regex-shorthand': 0,
+
+    // Disable for now
+    'eslint-comments/require-description': 0
   }
 };

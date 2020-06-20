@@ -5,6 +5,8 @@
 //  instead of "other" (as it should) for
 //  `new Intl.PluralRules('en-US', {minimumFractionDigits: 1}).select(1)`.
 // import 'intl-pluralrules';
+import {resolve as pathResolve} from 'path';
+
 import PluralRules from 'intl-pluralrules/plural-rules.js';
 import 'intl-relative-time-format';
 import 'intl-relative-time-format/locale-data/en-US.js';
@@ -15,7 +17,7 @@ import 'intl-list-format/locale-data/en-US.js';
 import chai from 'chai';
 import chaiDOM from 'chai-dom';
 import chaiAsPromised from 'chai-as-promised';
-// eslint-disable-next-line import/order
+// eslint-disable-next-line import/order -- Group chai plugins together
 import fragmentHtml from '../browser/vendor/fragmentHtml.js';
 
 import {JSDOM} from 'jsdom';
@@ -52,8 +54,7 @@ global.setNavigatorLanguages = (languages) => {
 setTimeout(() => {
   // Make path resolutions consistent in Node with HTML
   if (typeof process !== 'undefined') {
-    // eslint-disable-next-line node/global-require
-    process.chdir(require('path').resolve(__dirname, '../browser'));
+    process.chdir(pathResolve(__dirname, '../browser'));
   }
   // Delayed mocha beginning for sake of `process.chdir` which cannot
   //  be added earlier or it will hide tests themselves

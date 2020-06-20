@@ -148,7 +148,7 @@ function _possibleConstructorReturn(self, call) {
 function _createSuper(Derived) {
   var hasNativeReflectConstruct = _isNativeReflectConstruct();
 
-  return function () {
+  return function _createSuperInternal() {
     var Super = _getPrototypeOf(Derived),
         result;
 
@@ -255,7 +255,8 @@ var json6 = createCommonjsModule(function (module, exports) {
   const VALUE_NEG_NAN = 8;
   const VALUE_NAN = 9;
   const VALUE_NEG_INFINITY = 10;
-  const VALUE_INFINITY = 11;
+  const VALUE_INFINITY = 11; // const VALUE_DATE = 12  // unused yet
+
   const VALUE_EMPTY = 13; // [,] makes an array with 'empty item'
 
   const WORD_POS_RESET = 0;
@@ -290,19 +291,18 @@ var json6 = createCommonjsModule(function (module, exports) {
   const WORD_POS_AFTER_FIELD = 30;
   const WORD_POS_END = 31;
   const CONTEXT_UNKNOWN = 0;
-  const CONTEXT_IN_ARRAY = 1;
+  const CONTEXT_IN_ARRAY = 1; // const CONTEXT_IN_OBJECT = 2
+
   const CONTEXT_OBJECT_FIELD = 3;
   const CONTEXT_OBJECT_FIELD_VALUE = 4;
   const contexts = [];
 
   function getContext() {
-    var ctx = contexts.pop();
-    if (!ctx) ctx = {
+    return contexts.pop() || {
       context: CONTEXT_UNKNOWN,
       elements: null,
       element_array: null
     };
-    return ctx;
   }
 
   function dropContext(ctx) {
@@ -312,7 +312,7 @@ var json6 = createCommonjsModule(function (module, exports) {
   const buffers = [];
 
   function getBuffer() {
-    var buf = buffers.pop();
+    let buf = buffers.pop();
     if (!buf) buf = {
       buf: null,
       n: 0
@@ -324,14 +324,32 @@ var json6 = createCommonjsModule(function (module, exports) {
     buffers.push(buf);
   }
 
-  var JSON6 = exports;
+  const JSON6 = exports // istanbul ignore next
+  ;
+  /*
+  let _DEBUG_LL = true;
+  let _DEBUG_PARSING = true;
+  let _DEBUG_PARSING_STACK = true;
+  
+  const log = function(type) {
+  	if (type === '_DEBUG_PARSING' && !_DEBUG_PARSING) {
+  		return;
+  	}
+  	if (type === '_DEBUG_PARSING_STACK' && !_DEBUG_PARSING_STACK) {
+  		return;
+  	}
+  	if (type === '_DEBUG_LL' && !_DEBUG_LL) {
+  		return;
+  	}
+  	console.log.apply(console, [].slice.call(arguments, 1));
+  };
+  */
 
   JSON6.escape = function (string) {
-    var n;
-    var output = '';
+    let output = '';
     if (!string) return string;
 
-    for (n = 0; n < string.length; n++) {
+    for (let n = 0; n < string.length; n++) {
       if (string[n] == '"' || string[n] == '\\' || string[n] == '`' || string[n] == '\'') {
         output += '\\';
       }
@@ -357,20 +375,37 @@ var json6 = createCommonjsModule(function (module, exports) {
       col: 1
     };
     let n = 0;
-    let str;
-    var word = WORD_POS_RESET,
+    let word = WORD_POS_RESET,
         status = true,
         negative = false,
         result = null,
         elements = undefined,
         element_array = [],
-        context_stack = {
+        parse_context = CONTEXT_UNKNOWN,
+        comment = 0,
+        fromHex = false,
+        decimal = false,
+        exponent = false,
+        exponent_sign = false,
+        exponent_digit = false,
+        gatheringStringFirstChar = null,
+        gatheringString = false,
+        gatheringNumber = false,
+        stringEscape = false,
+        cr_escaped = false,
+        unicodeWide = false,
+        stringUnicode = false,
+        stringHex = false,
+        hex_char = 0,
+        hex_char_len = 0,
+        completed = false;
+    const context_stack = {
       first: null,
       last: null,
       saved: null,
 
       push(node) {
-        var recover = this.saved;
+        let recover = this.saved;
 
         if (recover) {
           this.saved = recover.next;
@@ -390,29 +425,21 @@ var json6 = createCommonjsModule(function (module, exports) {
       },
 
       pop() {
-        var result = this.last;
-        if (!result) return null;
+        const result = this.last;
         if (!(this.last = result.prior)) this.first = null;
         result.next = this.saved;
         this.saved = result;
         return result.node;
       }
 
-    },
-        parse_context = CONTEXT_UNKNOWN,
-        comment = 0,
-        fromHex = false,
-        decimal = false,
-        exponent = false,
-        exponent_sign = false,
-        exponent_digit = false,
-        inQueue = {
+    };
+    const inQueue = {
       first: null,
       last: null,
       saved: null,
 
       push(node) {
-        var recover = this.saved;
+        let recover = this.saved;
 
         if (recover) {
           this.saved = recover.next;
@@ -427,55 +454,68 @@ var json6 = createCommonjsModule(function (module, exports) {
           };
         }
 
-        if (!this.last) this.first = recover;
+        if (!this.last) this.first = recover;else this.last.next = recover;
         this.last = recover;
       },
 
       shift() {
-        var result = this.first;
+        const result = this.first;
         if (!result) return null;
-        if (!(this.first = result.next)) this.last = null;
+        this.first = result.next;
+        if (!this.first) this.last = null;
         result.next = this.saved;
-        this.saved = result;
+        this.saved = result; // node is in saved...
+
         return result.node;
       },
 
       unshift(node) {
-        var recover = this.saved;
+        // usage in this module, recover will ALWAYS have a saved to use.
+        const recover = this.saved; //if( recover ) {
 
-        if (recover) {
-          this.saved = recover.next;
-          recover.node = node;
-          recover.next = this.first;
-          recover.prior = null;
-        } else {
-          recover = {
-            node: node,
-            next: this.first,
-            prior: null
-          };
-        }
+        this.saved = recover.next;
+        recover.node = node;
+        recover.next = this.first;
+        recover.prior = null; //} else { recover = { node : node, next : this.first, prior : null }; }
 
         if (!this.first) this.last = recover;
         this.first = recover;
       }
 
-    },
-        gatheringStringFirstChar = null,
-        gatheringString = false,
-        gatheringNumber = false,
-        stringEscape = false,
-        cr_escaped = false,
-        unicodeWide = false,
-        stringUnicode = false,
-        stringHex = false,
-        hex_char = 0,
-        hex_char_len = 0,
-        stringOct = false,
-        completed = false;
+    };
+
+    function throwEndError(leader
+    /* , c */
+    ) {
+      throw new Error(`${leader} at ${n} [${pos.line}:${pos.col}]`);
+    }
+
     return {
+      finalError() {
+        if (comment !== 0) {
+          // most of the time everything's good.
+          switch (comment) {
+            case 1:
+              return throwEndError("Comment began at end of document");
+
+            case 2:
+              console.log("Warning: '//' comment without end of line ended document");
+              break;
+
+            case 3:
+              return throwEndError("Open comment '/*' is missing close at end of document");
+
+            case 4:
+              return throwEndError("Incomplete '/* *' close at end of document");
+          }
+        }
+
+        if (gatheringString) throwEndError("Incomplete string");
+      },
+
       value() {
-        var r = result;
+        this.finalError();
+        const r = result;
         result = undefined;
         return r;
       },
@@ -508,51 +548,47 @@ var json6 = createCommonjsModule(function (module, exports) {
         //stringUnicode = false;  // reading \u
         //unicodeWide = false;  // reading \u{} in string
         //stringHex = false;  // reading \x in string
-        //stringOct = false;  // reading \[0-3]xx in string
       },
 
       write(msg) {
-        var retcode;
-        if (typeof msg !== "string") msg = String(msg);
+        let retcode;
+        if (msg !== undefined && typeof msg !== "string") msg = String(msg);
 
         for (retcode = this._write(msg, false); retcode > 0; retcode = this._write()) {
-          if (result) {
-            if (typeof reviver === 'function') (function walk(holder, key) {
-              var k,
-                  v,
-                  value = holder[key];
+          this.finalError();
+          if (typeof reviver === 'function') (function walk(holder, key) {
+            const value = holder[key];
 
-              if (value && typeof value === 'object') {
-                for (k in value) {
-                  if (Object.prototype.hasOwnProperty.call(value, k)) {
-                    v = walk(value, k);
+            if (value && typeof value === 'object') {
+              for (const k in value) {
+                if (Object.prototype.hasOwnProperty.call(value, k)) {
+                  const v = walk(value, k);
 
-                    if (v !== undefined) {
-                      value[k] = v;
-                    } else {
-                      delete value[k];
-                    }
+                  if (v !== undefined) {
+                    value[k] = v;
+                  } else {
+                    delete value[k];
                   }
                 }
               }
+            }
 
-              return reviver.call(holder, key, value);
-            })({
-              '': result
-            }, '');
-            cb(result);
-            result = undefined;
-          }
-
+            return reviver.call(holder, key, value);
+          })({
+            '': result
+          }, '');
+          cb(result);
+          result = undefined;
           if (retcode < 2) break;
         }
+
+        if (retcode) this.finalError();
       },
 
       _write(msg, complete_at_end) {
-        var cInt;
-        var input;
-        var buf;
-        var retval = 0;
+        let input;
+        let buf;
+        let retval = 0;
 
         function throwError(leader, c) {
           throw new Error(`${leader} '${String.fromCodePoint(c)}' unexpected at ${n} (near '${buf.substr(n > 4 ? n - 4 : 0, n > 4 ? 3 : n - 1)}[${String.fromCodePoint(c)}]${buf.substr(n, 10)}') [${pos.line}:${pos.col}]`);
@@ -563,23 +599,10 @@ var json6 = createCommonjsModule(function (module, exports) {
           val.string = '';
         }
 
-        function numberConvert(string) {
-          if (string.length > 1) {
-            if (!fromHex && !decimal && !exponent) {
-              if (string.charCodeAt(0) === 48
-              /*'0'*/
-              ) return (negative ? -1 : 1) * Number("0o" + string);
-            }
-          }
-
-          return (negative ? -1 : 1) * Number(string);
-        }
-
         function arrayPush() {
           switch (val.value_type) {
             case VALUE_NUMBER:
-              element_array.push(numberConvert(val.string)); //(negative?-1:1) * Number( val.string ) );
-
+              element_array.push((negative ? -1 : 1) * Number(val.string));
               break;
 
             case VALUE_STRING:
@@ -630,18 +653,13 @@ var json6 = createCommonjsModule(function (module, exports) {
             case VALUE_ARRAY:
               element_array.push(val.contains);
               break;
-
-            default:
-              console.log("Unhandled array push.");
-              break;
           }
         }
 
         function objectPush() {
           switch (val.value_type) {
             case VALUE_NUMBER:
-              elements[val.name] = numberConvert(val.string); //(negative?-1:1) * Number( val.string );
-
+              elements[val.name] = (negative ? -1 : 1) * Number(val.string);
               break;
 
             case VALUE_STRING:
@@ -694,8 +712,8 @@ var json6 = createCommonjsModule(function (module, exports) {
           let retval = 0;
 
           while (retval == 0 && n < buf.length) {
-            str = buf.charAt(n);
-            let cInt = buf.codePointAt(n++);
+            let str = buf.charAt(n);
+            const cInt = buf.codePointAt(n++);
 
             if (cInt >= 0x10000) {
               str += buf.charAt(n);
@@ -705,48 +723,25 @@ var json6 = createCommonjsModule(function (module, exports) {
 
             pos.col++;
 
-            if (cInt == start_c) //( cInt == 34/*'"'*/ ) || ( cInt == 39/*'\''*/ ) || ( cInt == 96/*'`'*/ ) )
-              {
-                if (stringEscape) {
-                  val.string += str;
-                  stringEscape = false;
-                } else {
-                  retval = -1;
-                  if (stringOct) throwError("Incomplete Octal sequence", cInt);else if (stringHex) throwError("Incomplete hexidecimal sequence", cInt);else if (stringUnicode) throwError("Incomplete unicode sequence", cInt);else if (unicodeWide) throwError("Incomplete long unicode sequence", cInt);
-                  retval = 1;
-                }
-              } else if (stringEscape) {
-              if (stringOct) {
-                if (hex_char_len < 3 && cInt >= 48
-                /*'0'*/
-                && cInt <= 57
-                /*'9'*/
-                ) {
-                    hex_char *= 8;
-                    hex_char += cInt - 0x30;
-                    hex_char_len++;
+            if (cInt == start_c) {
+              //( cInt == 34/*'"'*/ ) || ( cInt == 39/*'\''*/ ) || ( cInt == 96/*'`'*/ ) )
+              if (stringEscape) {
+                if (stringHex) throwError("Incomplete hexidecimal sequence", cInt);else if (unicodeWide) throwError("Incomplete long unicode sequence", cInt);else if (stringUnicode) throwError("Incomplete unicode sequence", cInt);
 
-                    if (hex_char_len === 3) {
-                      val.string += String.fromCodePoint(hex_char);
-                      stringOct = false;
-                      stringEscape = false;
-                      continue;
-                    }
+                if (cr_escaped) {
+                  cr_escaped = false; // \\ \r  '  :end string, the backslash was used for \r
 
-                    continue;
-                  } else {
-                  if (hex_char > 255) {
-                    throwError("(escaped character, parsing octal escape val=%d) fault while parsing", cInt);
-                    retval = -1;
-                    break;
-                  }
+                  retval = 1; // complete string.
+                } else val.string += str; // escaped start quote
 
-                  val.string += String.fromCodePoint(hex_char);
-                  stringOct = false;
-                  stringEscape = false;
-                  continue;
-                }
-              } else if (unicodeWide) {
+
+                stringEscape = false;
+              } else {
+                // quote matches, not escaped, and not processing escape...
+                retval = 1;
+              }
+            } else if (stringEscape) {
+              if (unicodeWide) {
                 if (cInt == 125
                 /*'}'*/
                 ) {
@@ -772,10 +767,6 @@ var json6 = createCommonjsModule(function (module, exports) {
                 /*'f'*/
                 ) hex_char += cInt - 97 + 10;else {
                   throwError("(escaped character, parsing hex of \\u)", cInt);
-                  retval = -1;
-                  unicodeWide = false;
-                  stringEscape = false;
-                  continue;
                 }
                 continue;
               } else if (stringHex || stringUnicode) {
@@ -786,43 +777,37 @@ var json6 = createCommonjsModule(function (module, exports) {
                     continue;
                   }
 
-                if (hex_char_len < 2 || stringUnicode && hex_char_len < 4) {
-                  hex_char *= 16;
-                  if (cInt >= 48
-                  /*'0'*/
-                  && cInt <= 57
-                  /*'9'*/
-                  ) hex_char += cInt - 0x30;else if (cInt >= 65
-                  /*'A'*/
-                  && cInt <= 70
-                  /*'F'*/
-                  ) hex_char += cInt - 65 + 10;else if (cInt >= 97
-                  /*'a'*/
-                  && cInt <= 102
-                  /*'f'*/
-                  ) hex_char += cInt - 97 + 10;else {
-                    throwError(stringUnicode ? "(escaped character, parsing hex of \\u)" : "(escaped character, parsing hex of \\x)", cInt);
-                    retval = -1;
-                    stringHex = false;
-                    stringEscape = false;
-                    continue;
-                  }
-                  hex_char_len++;
-
-                  if (stringUnicode) {
-                    if (hex_char_len == 4) {
-                      val.string += String.fromCodePoint(hex_char);
-                      stringUnicode = false;
-                      stringEscape = false;
-                    }
-                  } else if (hex_char_len == 2) {
-                    val.string += String.fromCodePoint(hex_char);
-                    stringHex = false;
-                    stringEscape = false;
-                  }
-
-                  continue;
+                hex_char *= 16;
+                if (cInt >= 48
+                /*'0'*/
+                && cInt <= 57
+                /*'9'*/
+                ) hex_char += cInt - 0x30;else if (cInt >= 65
+                /*'A'*/
+                && cInt <= 70
+                /*'F'*/
+                ) hex_char += cInt - 65 + 10;else if (cInt >= 97
+                /*'a'*/
+                && cInt <= 102
+                /*'f'*/
+                ) hex_char += cInt - 97 + 10;else {
+                  throwError(stringUnicode ? "(escaped character, parsing hex of \\u)" : "(escaped character, parsing hex of \\x)", cInt);
                 }
+                hex_char_len++;
+
+                if (stringUnicode) {
+                  if (hex_char_len == 4) {
+                    val.string += String.fromCodePoint(hex_char);
+                    stringUnicode = false;
+                    stringEscape = false;
+                  }
+                } else if (hex_char_len == 2) {
+                  val.string += String.fromCodePoint(hex_char);
+                  stringHex = false;
+                  stringEscape = false;
+                }
+
+                continue;
               }
 
               switch (cInt) {
@@ -833,13 +818,25 @@ var json6 = createCommonjsModule(function (module, exports) {
                   pos.col = 1;
                   continue;
 
+                case 0x2028: // LS (Line separator)
+
+                case 0x2029:
+                  // PS (paragraph separator)
+                  pos.col = 1;
+                // no return to get newline reset, so reset line pos.
+                // Fallthrough
+
                 case 10
                 /*'\n'*/
                 :
-                case 2028: // LS (Line separator)
+                  if (cr_escaped) {
+                    // \\ \r \n
+                    cr_escaped = false;
+                  } else {
+                    // \\ \n
+                    pos.col = 1;
+                  }
 
-                case 2029:
-                  // PS (paragraph separate)
                   pos.line++;
                   break;
 
@@ -853,6 +850,12 @@ var json6 = createCommonjsModule(function (module, exports) {
                 /*'b'*/
                 :
                   val.string += '\b';
+                  break;
+
+                case 48
+                /*'0'*/
+                :
+                  val.string += '\0';
                   break;
 
                 case 110
@@ -873,23 +876,6 @@ var json6 = createCommonjsModule(function (module, exports) {
                   val.string += '\f';
                   break;
 
-                case 48
-                /*'0'*/
-                :
-                case 49
-                /*'1'*/
-                :
-                case 50
-                /*'2'*/
-                :
-                case 51
-                /*'3'*/
-                :
-                  stringOct = true;
-                  hex_char = cInt - 48;
-                  hex_char_len = 1;
-                  continue;
-
                 case 120
                 /*'x'*/
                 :
@@ -905,11 +891,6 @@ var json6 = createCommonjsModule(function (module, exports) {
                   hex_char_len = 0;
                   hex_char = 0;
                   continue;
-                //case 47/*'/'*/:
-                //case 92/*'\\'*/:
-                //case 34/*'"'*/:
-                //case 39/*"'"*/:
-                //case 96/*'`'*/:
 
                 default:
                   val.string += str;
@@ -921,27 +902,13 @@ var json6 = createCommonjsModule(function (module, exports) {
             } else if (cInt === 92
             /*'\\'*/
             ) {
-                if (stringEscape) {
-                  val.string += '\\';
-                  stringEscape = false;
-                } else stringEscape = true;
+                stringEscape = true;
               } else {
               if (cr_escaped) {
-                cr_escaped = false;
+                cr_escaped = false; // \\ \r <any other character>
 
-                if (cInt == 10
-                /*'\n'*/
-                ) {
-                    pos.line++;
-                    pos.col = 1;
-                    stringEscape = false;
-                    continue;
-                  } else {
-                  pos.line++;
-                  pos.col = 1;
-                }
-
-                continue;
+                pos.line++;
+                pos.col = 2; // newline, plus one character.
               }
 
               val.string += str;
@@ -955,14 +922,13 @@ var json6 = createCommonjsModule(function (module, exports) {
           let _n;
 
           while ((_n = n) < buf.length) {
-            str = buf.charAt(_n);
-            let cInt = buf.codePointAt(n++);
+            const str = buf.charAt(_n);
+            const cInt = buf.codePointAt(n++);
 
             if (cInt >= 0x10000) {
               throwError("fault while parsing number;", cInt);
-              str += buf.charAt(n);
-              n++;
-            }
+            } //log('_DEBUG_PARSING', "in getting number:", n, cInt, String.fromCodePoint(cInt) );
+
 
             if (cInt == 95
             /*_*/
@@ -989,8 +955,7 @@ var json6 = createCommonjsModule(function (module, exports) {
                   exponent_sign = true;
                 } else {
                   status = false;
-                  throwError("fault while parsing number;", cInt);
-                  break;
+                  throwError("fault while parsing number;", cInt); // break;
                 }
               } else if (cInt == 46
             /*'.'*/
@@ -1000,8 +965,7 @@ var json6 = createCommonjsModule(function (module, exports) {
                   decimal = true;
                 } else {
                   status = false;
-                  throwError("fault while parsing number;", cInt);
-                  break;
+                  throwError("fault while parsing number;", cInt); // break;
                 }
               } else if (cInt == 120
             /*'x'*/
@@ -1022,23 +986,21 @@ var json6 = createCommonjsModule(function (module, exports) {
                   val.string += str;
                 } else {
                   status = false;
-                  throwError("fault while parsing number;", cInt);
-                  break;
+                  throwError("fault while parsing number;", cInt); // break;
                 }
               } else if (cInt == 101
             /*'e'*/
             || cInt == 69
             /*'E'*/
             ) {
-              if (!exponent) {
-                val.string += str;
-                exponent = true;
+                if (!exponent) {
+                  val.string += str;
+                  exponent = true;
+                } else {
+                  status = false;
+                  throwError("fault while parsing number;", cInt); // break;
+                }
               } else {
-                status = false;
-                throwError("fault while parsing number;", cInt);
-                break;
-              }
-            } else {
               if (cInt == 32
               /*' '*/
               || cInt == 160
@@ -1092,6 +1054,8 @@ var json6 = createCommonjsModule(function (module, exports) {
 
             if (parse_context == CONTEXT_UNKNOWN) {
               completed = true;
+            } else {
+              throw new Error("context stack is not empty at flush");
             }
 
             retval = 1; // if returning buffers, then obviously there's more in this one.
@@ -1103,10 +1067,11 @@ var json6 = createCommonjsModule(function (module, exports) {
           buf = input.buf;
 
           if (gatheringString) {
-            let string_status = gatherString(gatheringStringFirstChar);
-            if (string_status < 0) status = false;else if (string_status > 0) {
+            const string_status = gatherString(gatheringStringFirstChar);
+
+            if (string_status > 0) {
               gatheringString = false;
-              if (status) val.value_type = VALUE_STRING;
+              val.value_type = VALUE_STRING;
             }
           }
 
@@ -1115,96 +1080,82 @@ var json6 = createCommonjsModule(function (module, exports) {
           }
 
           while (!completed && status && n < buf.length) {
-            str = buf.charAt(n);
-            cInt = buf.codePointAt(n++);
+            let str = buf.charAt(n);
+            const cInt = buf.codePointAt(n++);
 
             if (cInt >= 0x10000) {
               str += buf.charAt(n);
               n++;
-            }
+            } //// log('_DEBUG_PARSING', "parsing at ", cInt, str );
+            //log('_DEBUG_LL', "processing: ", cInt, str, pos, comment, parse_context, word, val );
+
 
             pos.col++;
 
             if (comment) {
+              // '/'
               if (comment == 1) {
+                // '/'
                 if (cInt == 42
                 /*'*'*/
                 ) {
                     comment = 3;
-                    continue;
-                  }
+                  } // '/*'
+                else if (cInt != 47
+                  /*'/'*/
+                  ) {
+                      // '//'(NOT)
+                      throwError("fault while parsing;", cInt);
+                    } else comment = 2; // '//' (valid)
 
-                if (cInt != 47
-                /*'/'*/
-                ) {
-                    throwError("fault while parsing;", cInt);
-                    status = false;
-                  } else comment = 2;
-
-                continue;
-              }
-
-              if (comment == 2) {
+              } else if (comment == 2) {
+                // '// ...'
                 if (cInt == 10
                 /*'\n'*/
-                ) {
-                    comment = 0;
-                    continue;
-                  } else continue;
-              }
-
-              if (comment == 3) {
+                || cInt == 13
+                /*'\r'*/
+                ) comment = 0;
+              } else if (comment == 3) {
+                // '/*... '
                 if (cInt == 42
                 /*'*'*/
-                ) {
-                    comment = 4;
-                    continue;
-                  } else continue;
-              }
-
-              if (comment == 4) {
+                ) comment = 4;
+              } else {
+                // if( comment == 4 ) { // '/* ... *'
                 if (cInt == 47
                 /*'/'*/
-                ) {
-                    comment = 0;
-                    continue;
-                  } else {
-                  if (cInt != 42
-                  /*'*'*/
-                  ) comment = 3;
-                  continue;
-                }
+                ) comment = 0;else comment = 3; // any other char, goto expect * to close */
               }
+
+              continue;
             }
 
             switch (cInt) {
               case 47
               /*'/'*/
               :
-                if (!comment) comment = 1;
+                comment = 1;
                 break;
 
               case 123
               /*'{'*/
               :
                 if (word == WORD_POS_FIELD || word == WORD_POS_AFTER_FIELD || parse_context == CONTEXT_OBJECT_FIELD && word == WORD_POS_RESET) {
-                  throwError("fault while parsing; getting field name unexpected ", cInt);
-                  status = false;
-                  break;
+                  throwError("fault while parsing; getting field name unexpected ", cInt); // break;
                 }
 
                 {
-                  let old_context = getContext();
+                  const old_context = getContext(); //log('_DEBUG_PARSING', "Begin a new object; previously pushed into elements; but wait until trailing comma or close previously:%d", val.value_type );
+
                   val.value_type = VALUE_OBJECT;
-                  let tmpobj = {};
-                  if (parse_context == CONTEXT_UNKNOWN) result = elements = tmpobj; //else if( parse_context == CONTEXT_IN_ARRAY )
-                  //	element_array.push( tmpobj );
-                  else if (parse_context == CONTEXT_OBJECT_FIELD_VALUE) elements[val.name] = tmpobj;
+                  const tmpobj = {};
+                  if (parse_context == CONTEXT_UNKNOWN) result = elements = tmpobj;
                   old_context.context = parse_context;
                   old_context.elements = elements;
                   old_context.element_array = element_array;
                   old_context.name = val.name;
-                  elements = tmpobj;
+                  elements = tmpobj; //log('_DEBUG_PARSING_STACK',"push context (open object): ", context_stack.length );
+
                   context_stack.push(old_context);
                   RESET_VAL();
                   parse_context = CONTEXT_OBJECT_FIELD;
@@ -1215,41 +1166,37 @@ var json6 = createCommonjsModule(function (module, exports) {
               /*'['*/
               :
                 if (parse_context == CONTEXT_OBJECT_FIELD || word == WORD_POS_FIELD || word == WORD_POS_AFTER_FIELD) {
-                  throwError("Fault while parsing; while getting field name unexpected", cInt);
-                  status = false;
-                  break;
+                  throwError("Fault while parsing; while getting field name unexpected", cInt); // break;
                 }
 
-                {
-                  let old_context = getContext();
+                if (val.value_type == VALUE_UNSET || val.value_type == VALUE_UNDEFINED) {
+                  const old_context = getContext(); //log('_DEBUG_PARSING', "Begin a new array; previously pushed into elements; but wait until trailing comma or close previously:%d", val.value_type );
+
                   val.value_type = VALUE_ARRAY;
-                  let tmparr = [];
+                  const tmparr = [];
                   if (parse_context == CONTEXT_UNKNOWN) result = element_array = tmparr; //else if( parse_context == CONTEXT_IN_ARRAY )
-                  //	element_array.push( tmparr );
+                  //    element_array.push( tmparr );
                   else if (parse_context == CONTEXT_OBJECT_FIELD_VALUE) elements[val.name] = tmparr;
                   old_context.context = parse_context;
                   old_context.elements = elements;
                   old_context.element_array = element_array;
                   old_context.name = val.name;
-                  element_array = tmparr;
+                  element_array = tmparr; //log('_DEBUG_PARSING_STACK', "push context (open array): ", context_stack.length );
+
                   context_stack.push(old_context);
                   RESET_VAL();
                   parse_context = CONTEXT_IN_ARRAY;
+                } else {
+                  throwError("Unexpected array open after previous value", cInt);
                 }
+
                 break;
 
               case 58
               /*':'*/
               :
-                //if(_DEBUG_PARSING) console.log( "colon context:", parse_context );
+                ////log('_DEBUG_PARSING', "colon context:", parse_context );
                 if (parse_context == CONTEXT_OBJECT_FIELD) {
-                  if (word != WORD_POS_RESET && word != WORD_POS_FIELD && word != WORD_POS_AFTER_FIELD) {
-                    // allow starting a new word
-                    status = FALSE;
-                    thorwError(`fault while parsing; unquoted keyword used as object field name (state:${word})`, cInt);
-                    break;
-                  }
-
                   word = WORD_POS_RESET;
                   val.name = val.string;
                   val.string = '';
@@ -1257,7 +1204,6 @@ var json6 = createCommonjsModule(function (module, exports) {
                   val.value_type = VALUE_UNSET;
                 } else {
                   if (parse_context == CONTEXT_IN_ARRAY) throwError("(in array, got colon out of string):parsing fault;", cInt);else throwError("(outside any object, got colon out of string):parsing fault;", cInt);
-                  status = false;
                 }
 
                 break;
@@ -1265,16 +1211,21 @@ var json6 = createCommonjsModule(function (module, exports) {
               case 125
               /*'}'*/
               :
-                //if(_DEBUG_PARSING) console.log( "close bracket context:", word, parse_context );
+                ////log('_DEBUG_PARSING', "close bracket context:", word, parse_context );
                 if (word == WORD_POS_END) {
                   // allow starting a new word
                   word = WORD_POS_RESET;
-                } // coming back after pushing an array or sub-object will reset the contxt to FIELD, so an end with a field should still push value.
+                } // coming back after pushing an array or sub-object will reset the context to FIELD, so an end with a field should still push value.
 
 
                 if (parse_context == CONTEXT_OBJECT_FIELD) {
-                  RESET_VAL();
-                  let old_context = context_stack.pop();
+                  //log('_DEBUG_PARSING', "close object; empty object %d", val.value_type );
+                  //RESET_VAL();
+                  val.value_type = VALUE_OBJECT;
+                  val.contains = elements;
+                  const old_context = context_stack.pop(); //log('_DEBUG_PARSING_STACK',"object pop stack (close obj)", context_stack.length, old_context );
+
+                  val.name = old_context.name;
                   parse_context = old_context.context; // this will restore as IN_ARRAY or OBJECT_FIELD
 
                   elements = old_context.elements;
@@ -1285,14 +1236,18 @@ var json6 = createCommonjsModule(function (module, exports) {
                     completed = true;
                   }
                 } else if (parse_context == CONTEXT_OBJECT_FIELD_VALUE) {
+                  // first, add the last value
+                  //log('_DEBUG_PARSING', "close object; push item '%s' %d", val.name, val.value_type );
                   if (val.value_type != VALUE_UNSET) {
                     objectPush();
+                  } else {
+                    throwError("Fault while parsing field value, close with no value", cInt);
                   }
 
                   val.value_type = VALUE_OBJECT;
-                  val.contains = elements; //let old_context = context_stack.pop();
+                  val.contains = elements;
+                  const old_context = context_stack.pop(); //log('_DEBUG_PARSING_STACK',"object pop stack (close object)", context_stack.length, old_context );
 
-                  var old_context = context_stack.pop();
                   val.name = old_context.name;
                   parse_context = old_context.context; // this will restore as IN_ARRAY or OBJECT_FIELD
 
@@ -1305,7 +1260,6 @@ var json6 = createCommonjsModule(function (module, exports) {
                   }
                 } else {
                   throwError("Fault while parsing; unexpected", cInt);
-                  status = false;
                 }
 
                 negative = false;
@@ -1317,15 +1271,16 @@ var json6 = createCommonjsModule(function (module, exports) {
                 if (word == WORD_POS_END) word = WORD_POS_RESET;
 
                 if (parse_context == CONTEXT_IN_ARRAY) {
+                  //log('_DEBUG_PARSING', "close array, push last element: %d", val.value_type );
                   if (val.value_type != VALUE_UNSET) {
                     arrayPush();
-                  } //RESET_VAL();
-
+                  }
 
                   val.value_type = VALUE_ARRAY;
                   val.contains = element_array;
                   {
-                    var old_context = context_stack.pop();
+                    const old_context = context_stack.pop(); //log('_DEBUG_PARSING_STACK',"object pop stack (close array)", context_stack.length );
+
                     val.name = old_context.name;
                     parse_context = old_context.context;
                     elements = old_context.elements;
@@ -1338,8 +1293,6 @@ var json6 = createCommonjsModule(function (module, exports) {
                   }
                 } else {
                   throwError(`bad context ${parse_context}; fault while parsing`, cInt); // fault
-
-                  status = false;
                 }
 
                 negative = false;
@@ -1349,22 +1302,23 @@ var json6 = createCommonjsModule(function (module, exports) {
               /*','*/
               :
                 if (word == WORD_POS_END) word = WORD_POS_RESET; // allow collect new keyword
+                //log('_DEBUG_PARSING', "comma context:", parse_context, val );
 
                 if (parse_context == CONTEXT_IN_ARRAY) {
                   if (val.value_type == VALUE_UNSET) val.value_type = VALUE_EMPTY; // in an array, elements after a comma should init as undefined...
+                  //log('_DEBUG_PARSING', "back in array; push item %d", val.value_type );
 
-                  if (val.value_type != VALUE_UNSET) {
-                    arrayPush();
-                    RESET_VAL();
-                  } // undefined allows [,,,] to be 4 values and [1,2,3,] to be 4 values with an undefined at end.
-
+                  arrayPush();
+                  RESET_VAL(); // undefined allows [,,,] to be 4 values and [1,2,3,] to be 4 values with an undefined at end.
                 } else if (parse_context == CONTEXT_OBJECT_FIELD_VALUE) {
+                  // after an array value, it will have returned to OBJECT_FIELD anyway
+                  //log('_DEBUG_PARSING', "comma after field value, push field to object: %s", val.name );
                   parse_context = CONTEXT_OBJECT_FIELD;
 
                   if (val.value_type != VALUE_UNSET) {
                     objectPush();
                     RESET_VAL();
-                  }
+                  } else throwError("Unexpected comma after object field name", cInt);
                 } else {
                   status = false;
                   throwError("bad context; excessive commas while parsing;", cInt); // fault
@@ -1383,7 +1337,8 @@ var json6 = createCommonjsModule(function (module, exports) {
                     case 39:
                       //'\'':
                       if (word == WORD_POS_RESET) {
-                        let string_status = gatherString(cInt);
+                        if (val.value_type != VALUE_UNSET) throwError("String begin after previous value", cInt);
+                        const string_status = gatherString(cInt); //log('_DEBUG_PARSING', "string gather for object field name :", val.string, string_status );
 
                         if (string_status) {
                           val.value_type = VALUE_STRING;
@@ -1416,21 +1371,10 @@ var json6 = createCommonjsModule(function (module, exports) {
                       if (word == WORD_POS_END) {
                         // allow collect new keyword
                         word = WORD_POS_RESET;
-
-                        if (parse_context == CONTEXT_UNKNOWN) {
-                          completed = true;
-                        }
-
-                        break;
-                      }
-
-                      if (word == WORD_POS_RESET || word == WORD_POS_AFTER_FIELD) // ignore leading and trailing whitepsace
-                        break;else if (word == WORD_POS_FIELD) {
+                      } else if (word == WORD_POS_FIELD) {
                         word = WORD_POS_AFTER_FIELD;
-                      } else {
-                        status = false;
-                        throwError("fault while parsing; whitepsace unexpected", cInt);
                       } // skip whitespace
+
 
                       break;
 
@@ -1451,17 +1395,19 @@ var json6 = createCommonjsModule(function (module, exports) {
                   case 34: //'"':
 
                   case 39:
-                    //'\'':
                     {
-                      let string_status = gatherString(cInt);
+                      //'\'':
+                      if (val.value_type === VALUE_UNSET) {
+                        const string_status = gatherString(cInt); //log('_DEBUG_PARSING', "string gather for object field value :", val.string, string_status, completed, input.n, buf.length );
 
-                      if (string_status) {
-                        val.value_type = VALUE_STRING;
-                        word = WORD_POS_END;
-                      } else {
-                        gatheringStringFirstChar = cInt;
-                        gatheringString = true;
-                      }
+                        if (string_status) {
+                          val.value_type = VALUE_STRING;
+                          word = WORD_POS_END;
+                        } else {
+                          gatheringStringFirstChar = cInt;
+                          gatheringString = true;
+                        }
+                      } else throwError("String unexpected", cInt);
 
                       break;
                     }
@@ -1470,10 +1416,11 @@ var json6 = createCommonjsModule(function (module, exports) {
                     //'\n':
                     pos.line++;
                     pos.col = 1;
+                  // Fallthrough
 
                   case 32: //' ':
 
-                  case 160: // &nbsp 
+                  case 160: // &nbsp
 
                   case 9: //'\t':
 
@@ -1491,12 +1438,12 @@ var json6 = createCommonjsModule(function (module, exports) {
                       break;
                     }
 
-                    if (word == WORD_POS_RESET) break;else if (word == WORD_POS_FIELD) {
-                      word = WORD_POS_AFTER_FIELD;
-                    } else {
+                    if (word !== WORD_POS_RESET) {
+                      // breaking in the middle of gathering a keyword.
                       status = false;
                       throwError("fault parsing whitespace", cInt);
                     }
+
                     break;
                   //----------------------------------------------------------
                   //  catch characters for true/false/null/undefined which are values outside of quotes
@@ -1672,15 +1619,15 @@ var json6 = createCommonjsModule(function (module, exports) {
                     || cInt == 45
                     /*'-'*/
                     ) {
-                      fromHex = false;
-                      exponent = false;
-                      exponent_sign = false;
-                      exponent_digit = false;
-                      decimal = false;
-                      val.string = str;
-                      input.n = n;
-                      collectNumber();
-                    } else {
+                        fromHex = false;
+                        exponent = false;
+                        exponent_sign = false;
+                        exponent_digit = false;
+                        decimal = false;
+                        val.string = str;
+                        input.n = n;
+                        collectNumber();
+                      } else {
                       status = false;
                       throwError("fault parsing", cInt);
                     }
@@ -1723,12 +1670,10 @@ var json6 = createCommonjsModule(function (module, exports) {
           if (completed) break;
         }
 
-        if (!status) return -1;
-
         if (completed && val.value_type != VALUE_UNSET) {
           switch (val.value_type) {
             case VALUE_NUMBER:
-              result = numberConvert(val.string);
+              result = (negative ? -1 : 1) * Number(val.string);
               break;
 
             case VALUE_STRING:
@@ -1791,28 +1736,25 @@ var json6 = createCommonjsModule(function (module, exports) {
   };
 
   const _parser = [Object.freeze(JSON6.begin())];
-  var _parse_level = 0;
+  let _parse_level = 0;
 
   JSON6.parse = function (msg, reviver) {
     //var parser = JSON6.begin();
-    var parse_level = _parse_level++;
-    var parser;
+    const parse_level = _parse_level++;
     if (_parser.length <= parse_level) _parser.push(Object.freeze(JSON6.begin()));
-    parser = _parser[parse_level];
+    const parser = _parser[parse_level];
     if (typeof msg !== "string") msg = String(msg);
     parser.reset();
 
     if (parser._write(msg, true) > 0) {
-      var result = parser.value();
-      var reuslt = typeof reviver === 'function' ? function walk(holder, key) {
-        var k,
-            v,
-            value = holder[key];
+      const result = parser.value();
+      if (typeof reviver === 'function') (function walk(holder, key) {
+        const value = holder[key];
 
         if (value && typeof value === 'object') {
-          for (k in value) {
+          for (const k in value) {
             if (Object.prototype.hasOwnProperty.call(value, k)) {
-              v = walk(value, k);
+              const v = walk(value, k);
 
               if (v !== undefined) {
                 value[k] = v;
@@ -1824,12 +1766,12 @@ var json6 = createCommonjsModule(function (module, exports) {
         }
 
         return reviver.call(holder, key, value);
-      }({
+      })({
         '': result
-      }, '') : result;
+      }, '');
       _parse_level--;
       return result;
-    }
+    } else parser.finalError();
 
     return undefined;
   };

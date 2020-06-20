@@ -219,6 +219,7 @@ describe('findLocaleStrings', function () {
   });
 });
 
+// eslint-disable-next-line mocha/max-top-level-suites
 describe('defaultLocaleMatcher', function () {
   it(
     'should strip the final hyphen content when a hyphen is present',

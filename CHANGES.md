@@ -3,11 +3,12 @@
 ## ?
 
 - Docs: Update badges per latest updates
+- Linting: As per latest ash-nazg
 - npm: Add `prepublishOnly` script
 - npm: Update from deprecated `rollup-plugin-babel` to `@rollup/plugin-babel`
     (and make `babelHelpers` explicit)
 - npm: Use maintained `cypress-multi-reporters` (over fork of MMR)
-- npm: Update devDeps
+- npm: Update json-6 and devDeps.
 
 ## 0.9.0
 
