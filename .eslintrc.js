@@ -20,6 +20,7 @@ module.exports = {
       'fetch',
       'Intl',
       'JSON',
+      'navigator',
       'Object.defineProperty',
       'Object.entries',
       'Object.keys',
