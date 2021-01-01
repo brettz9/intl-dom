@@ -41,7 +41,7 @@ import {unescapeBackslashes, processRegex} from './utils.js';
 /* eslint-disable max-len */
 /**
  * @param {PlainObject} [cfg]
- * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
+ * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle="richNested"]
  * @returns {MessageStyleCallback}
  */
 export const getMessageForKeyByStyle = ({

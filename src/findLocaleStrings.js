@@ -10,7 +10,7 @@ export {setFetch, getFetch} from './shared.js';
  * Takes a locale and returns a new locale to check.
  * @callback LocaleMatcher
  * @param {string} locale The failed locale
- * @throws If there are no further hyphens left to check
+ * @throws {Error} If there are no further hyphens left to check
  * @returns {string|Promise<string>} The new locale to check
 */
 
@@ -31,7 +31,7 @@ export const defaultLocaleMatcher = (locale) => {
  * @param {PlainObject} cfg
  * @param {string} cfg.locale
  * @param {string[]} cfg.locales
- * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleMatcher}]
+ * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleMatcher]
  * @returns {string|false}
  */
 export const getMatchingLocale = ({
@@ -58,8 +58,8 @@ export const getMatchingLocale = ({
  * @callback LocaleStringFinder
  * @param {PlainObject} [cfg={}]
  * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
- * @param {string[]} [cfg.defaultLocales=['en-US']]
- * @param {string} [cfg.localesBasePath='.']
+ * @param {string[]} [cfg.defaultLocales=["en-US"]]
+ * @param {string} [cfg.localesBasePath="."]
  * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
  * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher]
  * @returns {Promise<LocaleObjectInfo>}
@@ -85,8 +85,8 @@ export const findLocaleStrings = ({
  * @callback LocaleFinder
  * @param {PlainObject} [cfg={}]
  * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
- * @param {string[]} [cfg.defaultLocales=['en-US']]
- * @param {string} [cfg.localesBasePath='.']
+ * @param {string[]} [cfg.defaultLocales=["en-US"]]
+ * @param {string} [cfg.localesBasePath="."]
  * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
  * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher]
  * @returns {Promise<string>} Resolves to the successfully resolved locale

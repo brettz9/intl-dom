@@ -5,7 +5,7 @@ import {getMessageForKeyByStyle} from './getMessageForKeyByStyle.js';
  * @param {PlainObject} cfg
  * @param {string} [cfg.message] If present, this string will be the return value.
  * @param {false|null|undefined|LocaleObject} [cfg.defaults]
- * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
+ * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle="richNested"]
  * @param {MessageStyleCallback} [cfg.messageForKey] Defaults to getting `MessageStyleCallback` based on `messageStyle`
  * @param {string} cfg.key Key to check against object of strings; used to find a default if no string `message` is provided.
  * @returns {string}

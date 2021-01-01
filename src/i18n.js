@@ -28,7 +28,7 @@ import {sort, sortList, list} from './collation.js';
  * @param {PlainObject} cfg
  * @param {LocaleObject} cfg.strings
  * @param {string} cfg.resolvedLocale
- * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
+ * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle="richNested"]
  * @param {?AllSubstitutionCallback|AllSubstitutionCallback[]} [cfg.allSubstitutions]
  * @param {InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
  * @param {false|null|undefined|LocaleObject} [cfg.defaults]
@@ -119,12 +119,12 @@ export const i18nServer = function i18nServer ({
 /**
  * @param {PlainObject} [cfg={}]
  * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
- * @param {string[]} [cfg.defaultLocales=['en-US']]
+ * @param {string[]} [cfg.defaultLocales=["en-US"]]
  * @param {LocaleStringFinder} [cfg.localeStringFinder=findLocaleStrings]
- * @param {string} [cfg.localesBasePath='.']
+ * @param {string} [cfg.localesBasePath="."]
  * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
- * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher='lookup']
- * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
+ * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher="lookup"]
+ * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle="richNested"]
  * @param {?AllSubstitutionCallback|AllSubstitutionCallback[]} [cfg.allSubstitutions]
  * @param {InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
  * @param {false|null|undefined|LocaleObject} [cfg.defaults]

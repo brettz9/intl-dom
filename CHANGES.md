@@ -7,7 +7,7 @@
 - npm: Add `prepublishOnly` script
 - npm: Update from deprecated `rollup-plugin-babel` to `@rollup/plugin-babel`
     (and make `babelHelpers` explicit)
-- npm: Use maintained `cypress-multi-reporters` (over fork of MMR)
+- npm: Use stable `mocha-multi-reporters`
 - npm: Update json-6 and devDeps.
 
 ## 0.9.0

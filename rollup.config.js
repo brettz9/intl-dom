@@ -13,9 +13,9 @@ import nodeResolve from '@rollup/plugin-node-resolve';
  */
 
 /**
- * @param {PlainObject} [config= {}]
+ * @param {PlainObject} [config={}]
  * @param {boolean} [config.minifying=false]
- * @param {string} [config.format='umd']
+ * @param {string} [config.format="umd"]
  * @returns {external:RollupConfig}
  */
 function getRollupObject ({minifying, format = 'umd'} = {}) {

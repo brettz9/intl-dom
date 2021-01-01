@@ -9,7 +9,7 @@ export {setDocument, getDocument} from './shared.js';
  * @returns {string}
  */
 function generateUUID () { //  Adapted from original: public domain/MIT: http://stackoverflow.com/a/8809472/271577
-  let d = new Date().getTime();
+  let d = Date.now();
   /* istanbul ignore next */
   if (typeof performance !== 'undefined' &&
       typeof performance.now === 'function'
@@ -18,7 +18,7 @@ function generateUUID () { //  Adapted from original: public domain/MIT: http://
   }
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/gu, function (c) {
     /* eslint-disable no-bitwise */
-    const r = (d + Math.random() * 16) % 16 | 0;
+    const r = Math.trunc((d + Math.random() * 16) % 16);
     d = Math.floor(d / 16);
     return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
     /* eslint-enable no-bitwise */

@@ -236,10 +236,18 @@ function _nonIterableRest() {
   throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
 
-function createCommonjsModule(fn, module) {
+function createCommonjsModule(fn, basedir, module) {
   return module = {
-    exports: {}
+    path: basedir,
+    exports: {},
+    require: function (path, base) {
+      return commonjsRequire(path, base === undefined || base === null ? module.path : base);
+    }
   }, fn(module, module.exports), module.exports;
+}
+
+function commonjsRequire() {
+  throw new Error('Dynamic requires are not currently supported by @rollup/plugin-commonjs');
 }
 
 var json6 = createCommonjsModule(function (module, exports) {
@@ -553,6 +561,7 @@ var json6 = createCommonjsModule(function (module, exports) {
       write(msg) {
         let retcode;
         if (msg !== undefined && typeof msg !== "string") msg = String(msg);
+        if (!status) throw new Error("Parser is in an error state, please reset.");
 
         for (retcode = this._write(msg, false); retcode > 0; retcode = this._write()) {
           this.finalError();
@@ -1881,7 +1890,7 @@ var getDocument = function getDocument() {
 
 function generateUUID() {
   //  Adapted from original: public domain/MIT: http://stackoverflow.com/a/8809472/271577
-  var d = new Date().getTime();
+  var d = Date.now();
   /* istanbul ignore next */
 
   if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
@@ -1890,7 +1899,7 @@ function generateUUID() {
 
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     /* eslint-disable no-bitwise */
-    var r = (d + Math.random() * 16) % 16 | 0;
+    var r = Math.trunc((d + Math.random() * 16) % 16);
     d = Math.floor(d / 16);
     return (c === 'x' ? r : r & 0x3 | 0x8).toString(16);
     /* eslint-enable no-bitwise */
@@ -2503,7 +2512,7 @@ var SwitchFormatter = /*#__PURE__*/function (_Formatter3) {
   }, {
     key: "getKey",
     value: function getKey(key) {
-      var match = key.match(/^(?:[\0-\{\}-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*/);
+      var match = key.match(/^(?:(?!\|)[\s\S])*/);
       return match && match[0];
     }
   }]);
@@ -2986,7 +2995,7 @@ var defaultInsertNodes = function defaultInsertNodes(_ref) {
   }); // eslint-disable-next-line max-len
   // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
 
-  var formattingRegex = /(\\*)\{((?:(?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])|\\\})*?)(?:(\|)((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g;
+  var formattingRegex = /(\\*)\{((?:(?:(?!\})[\s\S])|\\\})*?)(?:(\|)((?:(?!\})[\s\S])*))?\}/g;
 
   if (allSubstitutions) {
     allSubstitutions = Array.isArray(allSubstitutions) ? allSubstitutions : [allSubstitutions];
@@ -3260,7 +3269,7 @@ var defaultInsertNodes = function defaultInsertNodes(_ref) {
 
 /**
  * @param {PlainObject} [cfg]
- * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
+ * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle="richNested"]
  * @returns {MessageStyleCallback}
  */
 
@@ -3352,7 +3361,7 @@ var getMessageForKeyByStyle = function getMessageForKeyByStyle() {
  * @param {PlainObject} cfg
  * @param {string} [cfg.message] If present, this string will be the return value.
  * @param {false|null|undefined|LocaleObject} [cfg.defaults]
- * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
+ * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle="richNested"]
  * @param {MessageStyleCallback} [cfg.messageForKey] Defaults to getting `MessageStyleCallback` based on `messageStyle`
  * @param {string} cfg.key Key to check against object of strings; used to find a default if no string `message` is provided.
  * @returns {string}
@@ -3552,7 +3561,7 @@ function _await$1(value, then, direct) {
  * Takes a locale and returns a new locale to check.
  * @callback LocaleMatcher
  * @param {string} locale The failed locale
- * @throws If there are no further hyphens left to check
+ * @throws {Error} If there are no further hyphens left to check
  * @returns {string|Promise<string>} The new locale to check
 */
 
@@ -3596,13 +3605,13 @@ var defaultLocaleMatcher = function defaultLocaleMatcher(locale) {
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl
 
 
-  return locale.replace(/\x2D(?:[\0-,\.-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*$/, '');
+  return locale.replace(/\x2D(?:(?!\x2D)[\s\S])*$/, '');
 };
 /**
  * @param {PlainObject} cfg
  * @param {string} cfg.locale
  * @param {string[]} cfg.locales
- * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleMatcher}]
+ * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleMatcher]
  * @returns {string|false}
  */
 
@@ -3633,8 +3642,8 @@ var getMatchingLocale = function getMatchingLocale(_ref) {
  * @callback LocaleStringFinder
  * @param {PlainObject} [cfg={}]
  * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
- * @param {string[]} [cfg.defaultLocales=['en-US']]
- * @param {string} [cfg.localesBasePath='.']
+ * @param {string[]} [cfg.defaultLocales=["en-US"]]
+ * @param {string} [cfg.localesBasePath="."]
  * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
  * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher]
  * @returns {Promise<LocaleObjectInfo>}
@@ -3665,8 +3674,8 @@ var findLocaleStrings = function findLocaleStrings() {
  * @callback LocaleFinder
  * @param {PlainObject} [cfg={}]
  * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
- * @param {string[]} [cfg.defaultLocales=['en-US']]
- * @param {string} [cfg.localesBasePath='.']
+ * @param {string[]} [cfg.defaultLocales=["en-US"]]
+ * @param {string} [cfg.localesBasePath="."]
  * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
  * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher]
  * @returns {Promise<string>} Resolves to the successfully resolved locale
@@ -3792,7 +3801,7 @@ var _findLocale = _async$1(function (_ref4) {
  * @param {PlainObject} cfg
  * @param {LocaleObject} cfg.strings
  * @param {string} cfg.resolvedLocale
- * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
+ * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle="richNested"]
  * @param {?AllSubstitutionCallback|AllSubstitutionCallback[]} [cfg.allSubstitutions]
  * @param {InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
  * @param {false|null|undefined|LocaleObject} [cfg.defaults]
@@ -3821,12 +3830,12 @@ function _await$2(value, then, direct) {
 /**
  * @param {PlainObject} [cfg={}]
  * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
- * @param {string[]} [cfg.defaultLocales=['en-US']]
+ * @param {string[]} [cfg.defaultLocales=["en-US"]]
  * @param {LocaleStringFinder} [cfg.localeStringFinder=findLocaleStrings]
- * @param {string} [cfg.localesBasePath='.']
+ * @param {string} [cfg.localesBasePath="."]
  * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
- * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher='lookup']
- * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle='richNested']
+ * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher="lookup"]
+ * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle="richNested"]
  * @param {?AllSubstitutionCallback|AllSubstitutionCallback[]} [cfg.allSubstitutions]
  * @param {InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
  * @param {false|null|undefined|LocaleObject} [cfg.defaults]
