@@ -5,4 +5,5 @@ test
 .nyc_output
 coverage
 .mocharc.js
+.travis.yml
 mocha-multi-reporters.json
