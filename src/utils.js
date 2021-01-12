@@ -1,11 +1,8 @@
+/* globals jsonExtra */
+
 // We want it to work in the browser, so commenting out
 // import jsonExtra from 'json5';
 // import jsonExtra from 'json-6';
-
-// We need this for the browser version to work, but this breaks nyc;
-//  see https://github.com/standard-things/esm/issues/839
-// import jsonExtra from '../node_modules/json-6/dist/index.mjs';
-import jsonExtra from 'json-6';
 
 export const unescapeBackslashes = (str) => {
   return str.replace(/\\+/gu, (esc) => {

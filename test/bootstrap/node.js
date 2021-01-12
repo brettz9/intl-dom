@@ -8,6 +8,10 @@
 import {resolve as pathResolve} from 'path';
 
 import PluralRules from 'intl-pluralrules/plural-rules.js';
+
+import '@formatjs/intl-displaynames/polyfill.js';
+import '@formatjs/intl-displaynames/locale-data/en.js';
+
 import 'intl-relative-time-format';
 import 'intl-relative-time-format/locale-data/en-US.js';
 import 'intl-list-format';
@@ -22,8 +26,11 @@ import fragmentHtml from '../browser/vendor/fragmentHtml.js';
 
 import {JSDOM} from 'jsdom';
 import fileFetch from 'file-fetch';
+import jsonExtra from 'json-6';
 
 import {setFetch, setDocument} from '../../src/shared.js';
+
+global.jsonExtra = jsonExtra;
 
 // Override to ensure we're testing with polyfill
 Intl.PluralRules = PluralRules;

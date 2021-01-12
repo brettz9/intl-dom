@@ -1,9 +1,13 @@
 # intl-dom CHANGES
 
-## ?
+## 0.10.0
 
+- Enhancement: Support `Intl.DisplayNames` types (region, language, script,
+    currency)
+- Enhancement: Support `dateRange`
 - Docs: Update badges per latest updates
-- Linting: As per latest ash-nazg
+- Linting (ESLint): As per latest ash-nazg
+- Testing: Fix browser tests
 - npm: Add `prepublishOnly` script
 - npm: Update from deprecated `rollup-plugin-babel` to `@rollup/plugin-babel`
     (and make `babelHelpers` explicit)

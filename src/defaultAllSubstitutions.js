@@ -65,10 +65,12 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
     return options;
   };
 
-  if (value && typeof value === 'object') {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
     const singleKey = Object.keys(value)[0];
     if ([
-      'number', 'date', 'datetime', 'relative', 'list', 'plural'
+      'number', 'date', 'datetime', 'dateRange', 'datetimeRange', 'relative',
+      'region', 'language', 'script', 'currency',
+      'list', 'plural'
     ].includes(singleKey)) {
       let extraOpts, callback;
       ({
@@ -76,6 +78,18 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
       } = getFormatterInfo({object: value[singleKey]}));
 
       switch (singleKey) {
+      case 'dateRange': case 'datetimeRange':
+        return new Intl.DateTimeFormat(
+          locale,
+          applyArgs({type: 'DATERANGE', options: extraOpts})
+        ).formatRange(value, opts);
+      case 'region': case 'language': case 'script': case 'currency':
+        return new Intl.DisplayNames(
+          locale, {
+            ...applyArgs({type: singleKey.toUpperCase()}),
+            type: singleKey
+          }
+        ).of(value);
       case 'relative':
         // The second argument actually contains the primary options, so swap
         [extraOpts, opts] = [opts, extraOpts];
@@ -123,6 +137,15 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
       locale,
       applyArgs({type: 'DATETIME'})
     ).format(value);
+  }
+
+  // Date range
+  if (Array.isArray(value)) {
+    const extraOpts = value[2];
+    return new Intl.DateTimeFormat(
+      locale,
+      applyArgs({type: 'DATERANGE', options: extraOpts})
+    ).formatRange(...value.slice(0, 2));
   }
 
   // console.log('value', value);

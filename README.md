@@ -182,6 +182,8 @@ For older browser support, you may need `core-js-bundle` as well.
 And for both Node or the browser, depending on the versions you are
 supporting, you may need any of the following:
 
+- [`@formatjs/intl-datetimeformat`](https://www.npmjs.com/package/@formatjs/intl-datetimeformat)
+- [`@formatjs/intl-displaynames`](https://www.npmjs.com/package/@formatjs/intl-displaynames)
 - [`intl-pluralrules`](https://www.npmjs.com/package/intl-pluralrules)
 - [`intl-relative-time-format`](https://www.npmjs.com/package/intl-list-format) (including, e.g., `intl-relative-time-format/locale-data/en-US.js`)
 - [`intl-list-format`](https://www.npmjs.com/package/intl-list-format) (including, e.g., `intl-list-format/locale-data/en-US.js`)
@@ -1008,6 +1010,62 @@ const s = _('dateAliasWithArgAndOptionsKey', {
 
 See [Intl.DateTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat) for the complete list of options.
 
+#### `DATERANGE`
+
+One may call `DATERANGE` with no additional arguments to ensure that
+basic date range formatting is given, supplying two dates (and optionally, an
+options object).
+
+```json
+"dateRangeWithArgKey": {
+  "message": "It is between {dates|DATERANGE}."
+},
+```
+
+...which for the following code:
+
+```js
+const string = _('dateRangeWithArgKey', {
+  // The month is 0-based, so "11" is for December
+  dates: [
+    new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+    new Date(Date.UTC(2001, 11, 28, 7, 8, 9))
+    // Can pass options here
+  ]
+});
+```
+
+...would give:
+
+> It is between 12/27/2000, 7 PM – 12/27/2001, 11 PM.
+
+One may also pass additional `Intl.DateTimeFormat` options to control the
+exact date-time formatting:
+
+```json
+"dateRangeWithArgAndOptionsKey": {
+  "message": "It is between {dates|DATERANGE|year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', timeZone: 'America/Los_Angeles'}."
+},
+```
+
+...which, for the following code:
+
+```js
+const s = _('dateRangeWithArgAndOptionsKey', {
+  // The month is 0-based, so "11" is for December
+  dates: [
+    new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+    new Date(Date.UTC(2001, 11, 28, 7, 8, 9))
+  ]
+});
+```
+
+...would give:
+
+> It is between 12/27/2000, 7 PM – 12/27/2001, 11 PM.
+
+See [Intl.DateTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat) (used with [Intl.DateTimeFormat.formatRange](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/formatRange)) for the complete list of options.
+
 #### `RELATIVE`
 
 Unlike `NUMBER` or `DATETIME` which can be passed literals or native objects
@@ -1055,6 +1113,202 @@ for `Intl.RelativeTimeFormat` will be used:
 > It was 3 months ago.
 
 See [Intl.RelativeTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RelativeTimeFormat) for the complete list of options.
+
+#### `REGION`
+
+One may call `REGION` with no additional arguments to ensure that
+basic formatting of a region name is given.
+
+```json
+"regionWithArgKey": {
+  "message": "Country {person} went to: {area|REGION}."
+},
+```
+
+...which for the following code:
+
+```js
+const string = _('regionKey', {
+  person: 'Joe',
+  area: 'US'
+});
+```
+
+...would give:
+
+> Country Joe went to: United States.
+
+One may also pass additional `Intl.DisplayNames` (`type: 'region'`) options to
+control the exact formatting of the region name:
+
+```json
+"regionWithArgAndOptionsKey": {
+  "message": "Country {person} went to: {area|REGION|style: 'short'}."
+},
+```
+
+...which, for the following code:
+
+```js
+const s = _('dateAliasWithArgAndOptionsKey', {
+  person: 'Joe',
+  area: 'US'
+});
+```
+
+...would give:
+
+> Country Joe went to: US.
+
+See [Intl.DisplayNames](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DisplayNames) for the complete list of options (with `type`
+set to `region`).
+
+#### `LANGUAGE`
+
+One may call `LANGUAGE` with no additional arguments to ensure that
+basic formatting of a language name is given.
+
+```json
+"languageKey": {
+  "message": "Can {person} speak {lang|LANGUAGE}?"
+},
+```
+
+...which for the following code:
+
+```js
+const string = _('languageKey', {
+  person: 'Joe',
+  lang: 'en-US'
+});
+```
+
+...would give:
+
+> Can Joe speak American English?
+
+One may also pass additional `Intl.DisplayNames` (`type: 'language'`) options
+to control the exact formatting of the language name:
+
+```json
+"languageWithArgAndOptionsKey": {
+  "message": "Can {person} speak {lang|LANGUAGE|style: 'short'}?"
+},
+```
+
+...which, for the following code:
+
+```js
+const s = _('languageWithArgAndOptionsKey', {
+  person: 'Joe',
+  lang: 'en-US'
+});
+```
+
+...would give:
+
+> Can Joe speak US English?
+
+See [Intl.DisplayNames](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DisplayNames) for the complete list of options (with `type`
+set to `language`).
+
+#### `SCRIPT`
+
+One may call `SCRIPT` with no additional arguments to ensure that
+basic formatting of a script name is given.
+
+```json
+"scriptKey": {
+  "message": "Can {person} write {scrpt|SCRIPT}?"
+},
+```
+
+...which for the following code:
+
+```js
+const string = _('scriptKey', {
+  person: 'Joe',
+  scrpt: 'Cans'
+});
+```
+
+...would give:
+
+> Can Joe write Unified Canadian Aboriginal Syllabics?
+
+One may also pass additional `Intl.DisplayNames` (`type: 'script'`) options
+to control the exact formatting of the script name:
+
+```json
+"scriptKeyWithArgAndOptionsKey": {
+  "message": "Can {person} write {scrpt|SCRIPT|style: 'short'}?"
+},
+```
+
+...which, for the following code:
+
+```js
+const s = _('scriptKeyWithArgAndOptionsKey', {
+  person: 'Joe',
+  scrpt: 'Cans'
+});
+```
+
+...would give:
+
+> Can Joe write UCAS?
+
+See [Intl.DisplayNames](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DisplayNames) for the complete list of options (with `type`
+set to `script`).
+
+#### `CURRENCY`
+
+One may call `CURRENCY` with no additional arguments to ensure that
+basic formatting of a currency name is given.
+
+```json
+"currencyKey": {
+  "message": "Currency unit: {money|CURRENCY} for your donation to {organization}."
+},
+```
+
+...which for the following code:
+
+```js
+const string = _('currencyKey', {
+  organization: 'the Red Cross',
+  money: 'USD'
+});
+```
+
+...would give:
+
+> Currency unit: US Dollar for your donation to the Red Cross.
+
+One may also pass additional `Intl.DisplayNames` (`type: 'currency'`) options
+to control the exact formatting of the currency name:
+
+```json
+"currencyKeyWithArgAndOptionsKey": {
+  "message": "Currency unit: {money|CURRENCY|style: 'short'} for your donation to {organization}."
+},
+```
+
+...which, for the following code:
+
+```js
+const s = _('currencyKeyWithArgAndOptionsKey', {
+  organization: 'the Red Cross',
+  money: 'USD'
+});
+```
+
+...would give:
+
+> Currency unit: US Dollar for your donation to the Red Cross.
+
+See [Intl.DisplayNames](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DisplayNames) for the complete list of options (with `type`
+set to `currency`).
 
 #### `LIST`
 
@@ -1341,7 +1595,12 @@ only one) of the following keys:
 
 1. `number`
 1. `date` (or `datetime`)
+1. `dateRange` (or `datetimeRange`) (accepts a two-item array as its object)
 1. `relative`
+1. `region`
+1. `language`
+1. `script`
+1. `currency`
 1. `list`
 1. `plural`
 
@@ -1350,6 +1609,8 @@ value (in the case of `relative`, both the first and second items represent
 the value), and the subsequent item is an options object (`list` accepts a
 second options object as well, and also has a signature with a function that
 appears before the options objects).
+
+For `dateRange`, this is instead a two-item array followed by any options.
 
 The following subsections state the precise signature(s) and offer an
 expressive example.
@@ -1408,6 +1669,38 @@ _('dateKey', {
 
 > "It is now 12/27/2000, 7 PM"
 
+###### `dateRange` (or `datetimeRange`) - `[Date, Date, <Intl.DateTimeFormat Options>]`
+
+**JSON:**
+
+```json
+"dateRangeKey": {
+  "message": "It is between {dates}."
+},
+```
+
+**JavaScript:**
+
+```js
+_('dateRangeKey', {
+  dates: {
+    dateRange: [
+      new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+      new Date(Date.UTC(2001, 11, 28, 7, 8, 9)),
+      // Optional options object
+      {
+        year: 'numeric', month: 'numeric', day: 'numeric',
+        hour: 'numeric', timeZone: 'America/Los_Angeles'
+      }
+    ]
+  }
+});
+```
+
+**Returns:**
+
+> "It is between 12/27/2000, 7 PM – 12/27/2001, 11 PM."
+
 ###### `relative` - `[number, unit: string, <Intl.RelativeTimeFormat Options>]`
 
 **JSON:**
@@ -1433,6 +1726,126 @@ _('relativeKey', {
 **Returns:**
 
 > "It was 3 mo. ago"
+
+###### `region` - `[string, <Intl.DisplayNames Options>]`
+
+**JSON:**
+
+```json
+"regionWithArgKey": {
+  "message": "Country {person} went to: {area}."
+},
+```
+
+**JavaScript:**
+
+```js
+_('regionWithArgKey', {
+  person: 'Joe',
+  area: {
+    region: [
+      'US',
+      {
+        style: 'long'
+      }
+    ]
+  }
+});
+```
+
+**Returns:**
+
+> "Country Joe went to: United States."
+
+###### `language` - `[string, <Intl.DisplayNames Options>]`
+
+**JSON:**
+
+```json
+"languageWithArgKey": {
+  "message": "Can {person} speak {lang|LANGUAGE}?"
+},
+```
+
+**JavaScript:**
+
+```js
+_('languageWithArgKey', {
+  person: 'Joe',
+  lang: {
+    language: [
+      'en-US',
+      {
+        style: 'long'
+      }
+    ]
+  }
+});
+```
+
+**Returns:**
+
+> "Can Joe speak American English?"
+
+###### `script` - `[string, <Intl.DisplayNames Options>]`
+
+**JSON:**
+
+```json
+"scriptKeyWithArgKey": {
+  "message": "Can {person} write {scrpt|SCRIPT}?"
+},
+```
+
+**JavaScript:**
+
+```js
+_('scriptKeyWithArgKey', {
+  person: 'Joe',
+  scrpt: {
+    script: [
+      'Cans',
+      {
+        style: 'long'
+      }
+    ]
+  }
+});
+```
+
+**Returns:**
+
+> "Can Joe write Unified Canadian Aboriginal Syllabics?"
+
+###### `currency` - `[string, <Intl.DisplayNames Options>]`
+
+**JSON:**
+
+```json
+"currencyKeyWithArgKey": {
+  "message": "Currency unit: {money|CURRENCY} for your donation to {organization}."
+},
+```
+
+**JavaScript:**
+
+```js
+_('currencyKeyWithArgKey', {
+  organization: 'the Red Cross',
+  money: {
+    currency: [
+      'USD',
+      {
+        style: 'long'
+      }
+    ]
+  }
+});
+```
+
+**Returns:**
+
+> "Currency unit: US Dollar for your donation to the Red Cross."
 
 ###### `list` - `[string[], <Intl.ListFormat Options>, <Intl.Collator Options>]` or `[string[], (string, number) => string|Node, <Intl.ListFormat Options>, <Intl.Collator Options>]`
 
@@ -2222,12 +2635,6 @@ This project has been heavily inspired by
 
 ## To-dos
 
-- Add [`Intl.DisplayNames`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DisplayNames)
-  (though use shortcuts of `REGION`|`LANGUAGE`|`SCRIPT`|`CURRENCY` over
-  `DISPLAYNAMES|type:'region'`, etc.)
-  - Info: <https://v8.dev/features/intl-displaynames>.
-  - Apply [polyfill](https://www.npmjs.com/package/@formatjs/intl-displaynames)
-  - For example where "narrow" is apparently distinct, see <https://github.com/formatjs/formatjs/blob/9a02dcb1027f594a033301b043d1233bd6c381e1/packages/formatjs-extract-cldr-data/tests/__snapshots__/extract-currencies.test.ts.snap#L205-L211>.
 - Use **dominum** with Jamilih and have tests use Jamilih (minimum's
   deliberately minimal implementation won't allow, e.g., setting
   `id`/`href` properties as we are now, and Jamilih is less verbose anyways.

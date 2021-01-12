@@ -28,15 +28,34 @@
         /* globals chai, chaiAsPromised */
 
         // Needed for Firefox (not Chrome)
+        // import '../../node_modules/@formatjs/intl-displaynames/polyfill.js';
+        import './vendor/formatjs-intl-displaynames-polyfill.js';
+        import '../../node_modules/@formatjs/intl-displaynames/locale-data/en.js';
+
+        import './vendor/formatjs-intl-datetimeformat-polyfill.js';
+        import '../../node_modules/@formatjs/intl-datetimeformat/locale-data/en.js';
+        import '../../node_modules/@formatjs/intl-datetimeformat/add-all-tz.js';
+
         import '../../node_modules/intl-list-format/dist/index.js';
         import '../../node_modules/intl-list-format/locale-data/en-US.js';
         // https://github.com/nathanboktae/chai-dom/issues/41
         import fragmentHtml from './vendor/fragmentHtml.js';
 
+        // We need this for the browser version to work, but this breaks nyc;
+        //  see https://github.com/standard-things/esm/issues/839
+        import jsonExtra from '../../node_modules/json-6/dist/index.mjs';
+
+        window.jsonExtra = jsonExtra;
+
         window.expect = chai.expect;
         chai.use(chaiAsPromised);
         chai.use(fragmentHtml);
         mocha.setup('bdd');
+
+        // Setting of `intlDomLocale`
+        if (typeof window !== 'undefined') {
+          window.global = window;
+        }
 
         window.setNavigatorLanguages = (languages) => {
           if (languages === false) {

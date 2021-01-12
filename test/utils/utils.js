@@ -169,6 +169,15 @@ export const setExpectedData = function () {
       pineapples: {
         message: '{fruitCount|SOME-ARG|another arg} pineapples'
       },
+      dateRangeKey: {
+        message: 'It is between {dates}.'
+      },
+      dateRangeWithArgKey: {
+        message: 'It is between {dates|DATERANGE}.'
+      },
+      dateRangeWithArgAndOptionsKey: {
+        message: "It is between {dates|DATERANGE|year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', timeZone: 'America/Los_Angeles'}."
+      },
       dateKey: {
         message: 'It is {now} {todayDate}'
       },
@@ -180,6 +189,42 @@ export const setExpectedData = function () {
       },
       dateAliasWithArgAndOptionsKey: {
         message: "It is {now} {todayDate|DATETIME|year: 'numeric', month: 'long', day: 'numeric'}"
+      },
+      regionKey: {
+        message: 'Country {person} went to: {area}.'
+      },
+      regionWithArgKey: {
+        message: 'Country {person} went to: {area|REGION}.'
+      },
+      regionWithArgAndOptionsKey: {
+        message: "Country {person} went to: {area|REGION|style: 'short'}."
+      },
+      languageKey: {
+        message: 'Can {person} speak {lang}?'
+      },
+      languageWithArgKey: {
+        message: 'Can {person} speak {lang|LANGUAGE}?'
+      },
+      languageWithArgAndOptionsKey: {
+        message: "Can {person} speak {lang|LANGUAGE|style: 'short'}?"
+      },
+      scriptKey: {
+        message: 'Can {person} write {scrpt}?'
+      },
+      scriptKeyWithArgKey: {
+        message: 'Can {person} write {scrpt|SCRIPT}?'
+      },
+      scriptKeyWithArgAndOptionsKey: {
+        message: "Can {person} write {scrpt|SCRIPT|style: 'short'}?"
+      },
+      currencyKey: {
+        message: 'Currency unit: {money} for your donation to {organization}.'
+      },
+      currencyKeyWithArgKey: {
+        message: 'Currency unit: {money|CURRENCY} for your donation to {organization}.'
+      },
+      currencyKeyWithArgAndOptionsKey: {
+        message: "Currency unit: {money|CURRENCY|style: 'short'} for your donation to {organization}."
       },
       relativeKey: {
         message: 'It was {relativeTime}'

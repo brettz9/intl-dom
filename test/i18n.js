@@ -580,6 +580,206 @@ describe('i18n', function () {
     }
   );
 
+  describe('DateTimeFormat range', function () {
+    it(
+      'should return a function whose default `allSubstitutions` will ' +
+      'perform `DateTimeFormat` range processing',
+      async function () {
+        const _ = await i18n({
+          locales: ['en-US']
+        });
+        const string = _('dateRangeKey', {
+          dates: [
+            new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+            new Date(Date.UTC(2001, 11, 28, 7, 8, 9))
+          ]
+        });
+        expect(string).to.equal('It is between 12/28/2000 – 12/28/2001.');
+      }
+    );
+
+    it(
+      'should return a function whose default `allSubstitutions` will ' +
+      'perform `DateTimeFormat` range processing and options',
+      async function () {
+        const _ = await i18n({
+          locales: ['en-US']
+        });
+        const string = _('dateRangeKey', {
+          dates: [
+            new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+            new Date(Date.UTC(2001, 11, 28, 7, 8, 9)),
+            {
+              year: '2-digit'
+            }
+          ]
+        });
+        expect(string).to.equal('It is between 00 – 01.');
+      }
+    );
+
+    it(
+      'should return a function whose default `allSubstitutions` will ' +
+      'perform `DateTimeFormat` range processing (inheriting formatter ' +
+      'options)',
+      async function () {
+        const _ = await i18n({
+          locales: ['en-US']
+        });
+        const string = _('dateRangeKey', {
+          dates: {
+            dateRange: [
+              new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+              new Date(Date.UTC(2001, 11, 28, 7, 8, 9)),
+              {
+                year: '2-digit'
+              }
+            ]
+          }
+        });
+        expect(string).to.equal('It is between 00 – 01.');
+      }
+    );
+
+    it(
+      'should return a function which despite `null` `allSubstitutions` ' +
+      'will perform `DateTimeFormat` range processing with options ' +
+      'overridden by locale argument (with options)',
+      async function () {
+        const _ = await i18n({
+          allSubstitutions: null,
+          locales: ['en-US']
+        });
+        const string = _('dateRangeWithArgAndOptionsKey', {
+          dates: {
+            datetimeRange: [
+              new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+              new Date(Date.UTC(2001, 11, 28, 7, 8, 9)),
+              {
+                year: '2-digit'
+              }
+            ]
+          }
+        });
+
+        try {
+          expect(string).to.equal(
+            'It is between December 27, 2000, 7 PM – December 27, 2001, 11 PM.'
+          );
+        } catch (err) {
+          // Firefox using polyfill
+          expect(string).to.equal(
+            'It is between December 27, 2000 at 7 PM – December 27, 2001 at ' +
+            '11 PM.'
+          );
+        }
+      }
+    );
+
+    it(
+      'should return a function whose default `allSubstitutions` will ' +
+      'perform `DateTimeFormat` range processing being overridden by ' +
+      'options in the locale argument',
+      async function () {
+        const _ = await i18n({
+          locales: ['en-US']
+        });
+        const string = _('dateRangeWithArgAndOptionsKey', {
+          dates: {
+            dateRange: [
+              new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+              new Date(Date.UTC(2001, 11, 28, 7, 8, 9)),
+              {
+                year: '2-digit'
+              }
+            ]
+          }
+        });
+        try {
+          expect(string).to.equal(
+            'It is between December 27, 2000, 7 PM – December 27, 2001, 11 PM.'
+          );
+        } catch (err) {
+          // Firefox using polyfill
+          expect(string).to.equal(
+            'It is between December 27, 2000 at 7 PM – December 27, 2001 at ' +
+            '11 PM.'
+          );
+        }
+      }
+    );
+
+    it(
+      'should return a function which despite `null` `allSubstitutions` ' +
+      'will perform `DateTimeFormat` range processing with options ' +
+      'overridden by locale argument',
+      async function () {
+        const _ = await i18n({
+          allSubstitutions: null,
+          locales: ['en-US']
+        });
+        const string = _('dateRangeWithArgKey', {
+          dates: {
+            dateRange: [
+              new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+              new Date(Date.UTC(2001, 11, 28, 7, 8, 9)),
+              {
+                year: '2-digit'
+              }
+            ]
+          }
+        });
+        expect(string).to.equal('It is between 12/28/2000 – 12/28/2001.');
+      }
+    );
+
+    it(
+      'should return a function whose default `allSubstitutions` will ' +
+      'perform `DateTimeFormat` range processing being overridden by ' +
+      'options in the locale argument',
+      async function () {
+        const _ = await i18n({
+          locales: ['en-US']
+        });
+        const string = _('dateRangeWithArgKey', {
+          dates: {
+            dateRange: [
+              new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+              new Date(Date.UTC(2001, 11, 28, 7, 8, 9)),
+              {
+                year: '2-digit'
+              }
+            ]
+          }
+        });
+        expect(string).to.equal('It is between 12/28/2000 – 12/28/2001.');
+      }
+    );
+
+    it(
+      'should return a function whose default `allSubstitutions` will ' +
+      'perform `DateTimeFormat` range processing being overridden by ' +
+      'options in the locale argument',
+      async function () {
+        const _ = await i18n({
+          locales: ['en-US']
+        });
+        const string = _('dateRangeWithArgKey', {
+          dates: {
+            dateRange: [
+              new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+              new Date(Date.UTC(2001, 11, 28, 7, 8, 9)),
+              {
+                year: '2-digit'
+              }
+            ]
+          }
+        });
+        expect(string).to.equal('It is between 12/28/2000 – 12/28/2001.');
+      }
+    );
+  });
+
   it(
     'should return a function whose default `allSubstitutions` will ' +
     'perform `NumberFormat` processing (inheriting formatter options)',
@@ -796,6 +996,217 @@ describe('i18n', function () {
         }
       });
       expect(string).to.equal('It is now 12/27/2000, 7 PM');
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `DateTimeFormat` range processing (inheriting formatter options)',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      let string = _('dateRangeKey', {
+        dates: {
+          dateRange: [
+            new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+            new Date(Date.UTC(2001, 11, 28, 7, 8, 9)),
+            {
+              year: 'numeric', month: 'numeric', day: 'numeric',
+              hour: 'numeric', timeZone: 'America/Los_Angeles'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal(
+        'It is between 12/27/2000, 7 PM – 12/27/2001, 11 PM.'
+      );
+
+      string = _('dateRangeKey', {
+        dates: {
+          datetimeRange: [
+            new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+            new Date(Date.UTC(2001, 11, 28, 7, 8, 9)),
+            {
+              year: 'numeric', month: 'numeric', day: 'numeric',
+              hour: 'numeric', timeZone: 'America/Los_Angeles'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal(
+        'It is between 12/27/2000, 7 PM – 12/27/2001, 11 PM.'
+      );
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `DisplayNames` "region" processing (inheriting formatter ' +
+    'options)',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      let string = _('regionKey', {
+        person: 'Joe',
+        area: {
+          region: [
+            'US',
+            {
+              style: 'short'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal('Country Joe went to: US.');
+
+      string = _('regionKey', {
+        person: 'Joe',
+        area: {
+          region: [
+            'US',
+            {
+              style: 'long'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal('Country Joe went to: United States.');
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `DisplayNames` "language" processing (inheriting formatter ' +
+    'options)',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      let string = _('languageKey', {
+        person: 'Joe',
+        lang: {
+          language: [
+            'en-US',
+            {
+              style: 'short'
+            }
+          ]
+        }
+      });
+
+      // Can't check `navigator.userAgent` anymore
+
+      try {
+        expect(string).to.equal(
+          'Can Joe speak English (US)?' // Node Polyfill or Firefox
+        );
+      } catch (err) {
+        expect(string).to.equal(
+          'Can Joe speak US English?' // Chrome
+        );
+      }
+
+      string = _('languageKey', {
+        person: 'Joe',
+        lang: {
+          language: [
+            'en-US',
+            {
+              style: 'long'
+            }
+          ]
+        }
+      });
+
+      try {
+        expect(string).to.equal(
+          'Can Joe speak English (United States)?' // Node Polyfill
+        );
+      } catch (err) {
+        expect(string).to.equal(
+          'Can Joe speak American English?' // Chrome
+        );
+      }
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `DisplayNames` "script" processing (inheriting formatter ' +
+    'options)',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      let string = _('scriptKey', {
+        person: 'Joe',
+        scrpt: {
+          script: [
+            'Cans',
+            {
+              style: 'short'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal('Can Joe write UCAS?');
+
+      string = _('scriptKey', {
+        person: 'Joe',
+        scrpt: {
+          script: [
+            'Cans',
+            {
+              style: 'long'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal(
+        'Can Joe write Unified Canadian Aboriginal Syllabics?'
+      );
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `DisplayNames` "currency" processing (inheriting formatter ' +
+    'options)',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      let string = _('currencyKey', {
+        organization: 'the Red Cross',
+        money: {
+          currency: [
+            'USD',
+            {
+              style: 'short'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal(
+        'Currency unit: US Dollar for your donation to the Red Cross.'
+      );
+
+      string = _('currencyKey', {
+        organization: 'the Red Cross',
+        money: {
+          currency: [
+            'USD',
+            {
+              style: 'long'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal(
+        'Currency unit: US Dollar for your donation to the Red Cross.'
+      );
     }
   );
 
