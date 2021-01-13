@@ -182,11 +182,11 @@ For older browser support, you may need `core-js-bundle` as well.
 And for both Node or the browser, depending on the versions you are
 supporting, you may need any of the following:
 
-- [`@formatjs/intl-datetimeformat`](https://www.npmjs.com/package/@formatjs/intl-datetimeformat)
-- [`@formatjs/intl-displaynames`](https://www.npmjs.com/package/@formatjs/intl-displaynames)
+- [`@formatjs/intl-datetimeformat`](https://www.npmjs.com/package/@formatjs/intl-datetimeformat) (including locale, e.g., `@formatjs/intl-datetimeformat/locale-data/en.js` and timezone info, `@formatjs/intl-datetimeformat/add-all-tz.js` or `@formatjs/intl-datetimeformat/add-golden-tz.js`)
+- [`@formatjs/intl-displaynames`](https://www.npmjs.com/package/@formatjs/intl-displaynames) (including locale, e.g., `@formatjs/intl-displaynames/locale-data/en.js`)
 - [`intl-pluralrules`](https://www.npmjs.com/package/intl-pluralrules)
-- [`intl-relative-time-format`](https://www.npmjs.com/package/intl-list-format) (including, e.g., `intl-relative-time-format/locale-data/en-US.js`)
-- [`intl-list-format`](https://www.npmjs.com/package/intl-list-format) (including, e.g., `intl-list-format/locale-data/en-US.js`)
+- [`intl-relative-time-format`](https://www.npmjs.com/package/intl-list-format) (including locale, e.g., `intl-relative-time-format/locale-data/en-US.js`)
+- [`intl-list-format`](https://www.npmjs.com/package/intl-list-format) (including locale, e.g., `intl-list-format/locale-data/en-US.js`)
 
 ### Browser
 
