@@ -1595,7 +1595,7 @@ Basic types:
 1. DOM elements/fragments: Inserted as is (as DOM); forces return of fragment
 1. Number literals: Auto-applies [`Intl.NumberFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat)
 1. `Date` objects: Auto-applies [`Intl.DateTimeFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat)
-1. Array of two `Date` objects and an optional options object: Auto-applies [Intl.DateTimeFormat.formatRange](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/formatRange).
+1. Array of two `Date` objects and an optional options object: Auto-applies [`Intl.DateTimeFormat.formatRange`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/formatRange).
 
 In addition to supplying such literal or special native object values, one may
 also provide a plain object with one (and only one) of the following reserved
