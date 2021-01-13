@@ -1589,9 +1589,18 @@ options object, though see "Arguments and defaults" for a fuller discussion.
 
 ##### Substitution types
 
-In addition to supplying literal values such as strings, numbers, and
-DOM elements/fragments, one may also provide an object with a one (and
-only one) of the following keys:
+Basic types:
+
+1. String literals: Inserted as is (as a string).
+1. DOM elements/fragments: Inserted as is (as DOM); forces return of fragment
+1. Number literals: Auto-applies [`Intl.NumberFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat)
+1. `Date` objects: Auto-applies [`Intl.DateTimeFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat)
+1. Array of two `Date` objects and an optional options object: Auto-applies [Intl.DateTimeFormat.formatRange](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/formatRange).
+
+In addition to supplying such literal or special native object values, one may
+also provide a plain object with one (and only one) of the following reserved
+keys. These types either do not have a literal/basic object option, or they are
+a long-hand version of them (i.e., `number`, `date`, and `dateRange`).
 
 1. `number`
 1. `date` (or `datetime`)
@@ -2296,10 +2305,23 @@ defaultAllSubstitutions({value: 'str'});
 
 > 'str'
 
-[`Intl.NumberFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat) will be automatically applied to numbers and [`Intl.DateTimeFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat)
-to `Date` objects.
+If supplying certain types of literals such as numbers or special
+native objects, such as `Date` objects, `Intl` formatting may be automatically
+applied.
 
 For example:
+
+```js
+defaultAllSubstitutions({
+  value: 123456.789
+});
+```
+
+> '123,456.789'
+
+Plain objects using a single special reserved key may also provide `Intl`
+control (or more precise control than for the literals), e.g., as with this
+auto-application of [`Intl.NumberFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat):
 
 ```js
 defaultAllSubstitutions({
@@ -2311,8 +2333,9 @@ defaultAllSubstitutions({
 
 > '123,456'
 
-Shortcuts also exist for utilizing [`Intl.RelativeTimeFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RelativeTimeFormat)
-and [`Intl.ListFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ListFormat).
+Other `Intl` types can be specified through such objects as well, including for [`Intl.DateTimeFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat),
+[`Intl.RelativeTimeFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RelativeTimeFormat)
+and [`Intl.ListFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ListFormat):
 
 ```js
 defaultAllSubstitutions({
