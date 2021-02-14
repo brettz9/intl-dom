@@ -198,6 +198,11 @@ supporting, you may need any of the following:
 
 ```js
 import {i18n} from './node_modules/intl-dom/dist/index.esm.js';
+
+// Currently not bundling json-6
+import jsonExtra from '../../node_modules/json-6/dist/index.mjs';
+
+window.jsonExtra = jsonExtra;
 ```
 
 ### Browser/Node (Bundle)

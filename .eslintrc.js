@@ -1,10 +1,10 @@
 'use strict';
 
-/* eslint-env node */
 module.exports = {
-  extends: ['ash-nazg/sauron'],
-  parser: 'babel-eslint', // import.meta.url
+  extends: ['ash-nazg/sauron-overrides'],
+  parser: '@babel/eslint-parser', // import.meta.url
   parserOptions: {
+    requireConfigFile: false,
     ecmaVersion: 2018,
     sourceType: 'module'
   },
@@ -31,15 +31,12 @@ module.exports = {
   },
   overrides: [{
     files: ['test/bootstrap/node.js'],
-    extends: ['ash-nazg/sauron-node', 'plugin:node/recommended-script'],
-    parserOptions: {
-      sourceType: 'module'
+    globals: {
+      // Replace with proper `import.meta.url`
+      __dirname: true
     },
-    rules: {
-      'node/no-unsupported-features/es-syntax': ['error', {
-        ignores: ['modules']
-      }]
-    }
+    extends: ['ash-nazg/sauron-node-overrides']
+
   }, {
     extends: [
       'plugin:mocha/recommended',
@@ -49,7 +46,7 @@ module.exports = {
       'plugin:chai-expect/recommended',
       'plugin:chai-friendly/recommended'
     ],
-    files: ['test/**'],
+    files: ['test/*.js'],
     globals: {
       expect: true,
       setNavigatorLanguages: true
@@ -78,7 +75,7 @@ module.exports = {
       ]
     }
   }, {
-    files: ['**/*.md'],
+    files: ['**/*.md/*.js'],
     rules: {
       'eol-last': ['off'],
       'no-console': ['off'],
@@ -99,7 +96,7 @@ module.exports = {
     }
   }, {
     files: ['.eslintrc.js', '.mocharc.js'],
-    extends: ['plugin:node/recommended-script'],
+    extends: ['ash-nazg/sauron-script-overrides'],
     rules: {
       'import/no-commonjs': 0
     }

@@ -12,8 +12,8 @@ import {unescapeBackslashes, processRegex} from './utils.js';
 */
 
 /**
-* @typedef {LocaleStringBodyObject|PlainLocaleStringBodyObject|PlainObject}
-* LocaleBody
+* @typedef {LocaleStringBodyObject|
+* PlainLocaleStringBodyObject|PlainObject} LocaleBody
 */
 
 /**

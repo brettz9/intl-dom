@@ -1,3 +1,41 @@
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+
+    if (enumerableOnly) {
+      symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    }
+
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
+
 function _typeof(obj) {
   "@babel/helpers - typeof";
 
@@ -51,40 +89,6 @@ function _defineProperty(obj, key, value) {
   return obj;
 }
 
-function ownKeys(object, enumerableOnly) {
-  var keys = Object.keys(object);
-
-  if (Object.getOwnPropertySymbols) {
-    var symbols = Object.getOwnPropertySymbols(object);
-    if (enumerableOnly) symbols = symbols.filter(function (sym) {
-      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-    });
-    keys.push.apply(keys, symbols);
-  }
-
-  return keys;
-}
-
-function _objectSpread2(target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i] != null ? arguments[i] : {};
-
-    if (i % 2) {
-      ownKeys(Object(source), true).forEach(function (key) {
-        _defineProperty(target, key, source[key]);
-      });
-    } else if (Object.getOwnPropertyDescriptors) {
-      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-    } else {
-      ownKeys(Object(source)).forEach(function (key) {
-        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-      });
-    }
-  }
-
-  return target;
-}
-
 function _inherits(subClass, superClass) {
   if (typeof superClass !== "function" && superClass !== null) {
     throw new TypeError("Super expression must either be null or a function");
@@ -122,7 +126,7 @@ function _isNativeReflectConstruct() {
   if (typeof Proxy === "function") return true;
 
   try {
-    Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+    Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
     return true;
   } catch (e) {
     return false;
@@ -181,18 +185,21 @@ function _arrayWithHoles(arr) {
 }
 
 function _iterableToArray(iter) {
-  if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
+  if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
 }
 
 function _iterableToArrayLimit(arr, i) {
-  if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return;
+  var _i = arr && (typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]);
+
+  if (_i == null) return;
   var _arr = [];
   var _n = true;
   var _d = false;
-  var _e = undefined;
+
+  var _s, _e;
 
   try {
-    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+    for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
       _arr.push(_s.value);
 
       if (i && _arr.length === i) break;
@@ -236,1566 +243,17 @@ function _nonIterableRest() {
   throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
 
-function createCommonjsModule(fn, basedir, module) {
-  return module = {
-    path: basedir,
-    exports: {},
-    require: function (path, base) {
-      return commonjsRequire(path, base === undefined || base === null ? module.path : base);
-    }
-  }, fn(module, module.exports), module.exports;
-}
-
-function commonjsRequire() {
-  throw new Error('Dynamic requires are not currently supported by @rollup/plugin-commonjs');
-}
-
-var json6 = createCommonjsModule(function (module, exports) {
-  const VALUE_UNDEFINED = -1;
-  const VALUE_UNSET = 0;
-  const VALUE_NULL = 1;
-  const VALUE_TRUE = 2;
-  const VALUE_FALSE = 3;
-  const VALUE_STRING = 4;
-  const VALUE_NUMBER = 5;
-  const VALUE_OBJECT = 6;
-  const VALUE_ARRAY = 7;
-  const VALUE_NEG_NAN = 8;
-  const VALUE_NAN = 9;
-  const VALUE_NEG_INFINITY = 10;
-  const VALUE_INFINITY = 11; // const VALUE_DATE = 12  // unused yet
-
-  const VALUE_EMPTY = 13; // [,] makes an array with 'empty item'
-
-  const WORD_POS_RESET = 0;
-  const WORD_POS_TRUE_1 = 1;
-  const WORD_POS_TRUE_2 = 2;
-  const WORD_POS_TRUE_3 = 3;
-  const WORD_POS_FALSE_1 = 5;
-  const WORD_POS_FALSE_2 = 6;
-  const WORD_POS_FALSE_3 = 7;
-  const WORD_POS_FALSE_4 = 8;
-  const WORD_POS_NULL_1 = 9;
-  const WORD_POS_NULL_2 = 10;
-  const WORD_POS_NULL_3 = 11;
-  const WORD_POS_UNDEFINED_1 = 12;
-  const WORD_POS_UNDEFINED_2 = 13;
-  const WORD_POS_UNDEFINED_3 = 14;
-  const WORD_POS_UNDEFINED_4 = 15;
-  const WORD_POS_UNDEFINED_5 = 16;
-  const WORD_POS_UNDEFINED_6 = 17;
-  const WORD_POS_UNDEFINED_7 = 18;
-  const WORD_POS_UNDEFINED_8 = 19;
-  const WORD_POS_NAN_1 = 20;
-  const WORD_POS_NAN_2 = 21;
-  const WORD_POS_INFINITY_1 = 22;
-  const WORD_POS_INFINITY_2 = 23;
-  const WORD_POS_INFINITY_3 = 24;
-  const WORD_POS_INFINITY_4 = 25;
-  const WORD_POS_INFINITY_5 = 26;
-  const WORD_POS_INFINITY_6 = 27;
-  const WORD_POS_INFINITY_7 = 28;
-  const WORD_POS_FIELD = 29;
-  const WORD_POS_AFTER_FIELD = 30;
-  const WORD_POS_END = 31;
-  const CONTEXT_UNKNOWN = 0;
-  const CONTEXT_IN_ARRAY = 1; // const CONTEXT_IN_OBJECT = 2
-
-  const CONTEXT_OBJECT_FIELD = 3;
-  const CONTEXT_OBJECT_FIELD_VALUE = 4;
-  const contexts = [];
-
-  function getContext() {
-    return contexts.pop() || {
-      context: CONTEXT_UNKNOWN,
-      elements: null,
-      element_array: null
-    };
-  }
-
-  function dropContext(ctx) {
-    contexts.push(ctx);
-  }
-
-  const buffers = [];
-
-  function getBuffer() {
-    let buf = buffers.pop();
-    if (!buf) buf = {
-      buf: null,
-      n: 0
-    };else buf.n = 0;
-    return buf;
-  }
-
-  function dropBuffer(buf) {
-    buffers.push(buf);
-  }
-
-  const JSON6 = exports // istanbul ignore next
-  ;
-  /*
-  let _DEBUG_LL = true;
-  let _DEBUG_PARSING = true;
-  let _DEBUG_PARSING_STACK = true;
-  
-  const log = function(type) {
-  	if (type === '_DEBUG_PARSING' && !_DEBUG_PARSING) {
-  		return;
-  	}
-  	if (type === '_DEBUG_PARSING_STACK' && !_DEBUG_PARSING_STACK) {
-  		return;
-  	}
-  	if (type === '_DEBUG_LL' && !_DEBUG_LL) {
-  		return;
-  	}
-  	console.log.apply(console, [].slice.call(arguments, 1));
-  };
-  */
-
-  JSON6.escape = function (string) {
-    let output = '';
-    if (!string) return string;
-
-    for (let n = 0; n < string.length; n++) {
-      if (string[n] == '"' || string[n] == '\\' || string[n] == '`' || string[n] == '\'') {
-        output += '\\';
-      }
-
-      output += string[n];
-    }
-
-    return output;
-  };
-
-  JSON6.begin = function (cb, reviver) {
-    const val = {
-      name: null,
-      // name of this value (if it's contained in an object)
-      value_type: VALUE_UNSET,
-      // value from above indiciating the type of this value
-      string: '',
-      // the string value of this value (strings and number types only)
-      contains: null
-    };
-    const pos = {
-      line: 1,
-      col: 1
-    };
-    let n = 0;
-    let word = WORD_POS_RESET,
-        status = true,
-        negative = false,
-        result = null,
-        elements = undefined,
-        element_array = [],
-        parse_context = CONTEXT_UNKNOWN,
-        comment = 0,
-        fromHex = false,
-        decimal = false,
-        exponent = false,
-        exponent_sign = false,
-        exponent_digit = false,
-        gatheringStringFirstChar = null,
-        gatheringString = false,
-        gatheringNumber = false,
-        stringEscape = false,
-        cr_escaped = false,
-        unicodeWide = false,
-        stringUnicode = false,
-        stringHex = false,
-        hex_char = 0,
-        hex_char_len = 0,
-        completed = false;
-    const context_stack = {
-      first: null,
-      last: null,
-      saved: null,
-
-      push(node) {
-        let recover = this.saved;
-
-        if (recover) {
-          this.saved = recover.next;
-          recover.node = node;
-          recover.next = null;
-          recover.prior = this.last;
-        } else {
-          recover = {
-            node: node,
-            next: null,
-            prior: this.last
-          };
-        }
-
-        if (!this.last) this.first = recover;
-        this.last = recover;
-      },
-
-      pop() {
-        const result = this.last;
-        if (!(this.last = result.prior)) this.first = null;
-        result.next = this.saved;
-        this.saved = result;
-        return result.node;
-      }
-
-    };
-    const inQueue = {
-      first: null,
-      last: null,
-      saved: null,
-
-      push(node) {
-        let recover = this.saved;
-
-        if (recover) {
-          this.saved = recover.next;
-          recover.node = node;
-          recover.next = null;
-          recover.prior = this.last;
-        } else {
-          recover = {
-            node: node,
-            next: null,
-            prior: this.last
-          };
-        }
-
-        if (!this.last) this.first = recover;else this.last.next = recover;
-        this.last = recover;
-      },
-
-      shift() {
-        const result = this.first;
-        if (!result) return null;
-        this.first = result.next;
-        if (!this.first) this.last = null;
-        result.next = this.saved;
-        this.saved = result; // node is in saved...
-
-        return result.node;
-      },
-
-      unshift(node) {
-        // usage in this module, recover will ALWAYS have a saved to use.
-        const recover = this.saved; //if( recover ) {
-
-        this.saved = recover.next;
-        recover.node = node;
-        recover.next = this.first;
-        recover.prior = null; //} else { recover = { node : node, next : this.first, prior : null }; }
-
-        if (!this.first) this.last = recover;
-        this.first = recover;
-      }
-
-    };
-
-    function throwEndError(leader
-    /* , c */
-    ) {
-      throw new Error(`${leader} at ${n} [${pos.line}:${pos.col}]`);
-    }
-
-    return {
-      finalError() {
-        if (comment !== 0) {
-          // most of the time everything's good.
-          switch (comment) {
-            case 1:
-              return throwEndError("Comment began at end of document");
-
-            case 2:
-              console.log("Warning: '//' comment without end of line ended document");
-              break;
-
-            case 3:
-              return throwEndError("Open comment '/*' is missing close at end of document");
-
-            case 4:
-              return throwEndError("Incomplete '/* *' close at end of document");
-          }
-        }
-
-        if (gatheringString) throwEndError("Incomplete string");
-      },
-
-      value() {
-        this.finalError();
-        const r = result;
-        result = undefined;
-        return r;
-      },
-
-      reset() {
-        word = WORD_POS_RESET;
-        status = true;
-        if (inQueue.last) inQueue.last.next = inQueue.save;
-        inQueue.save = inQueue.first;
-        inQueue.first = inQueue.last = null;
-        if (context_stack.last) context_stack.last.next = context_stack.save;
-        context_stack.save = inQueue.first;
-        context_stack.first = context_stack.last = null; //= [];
-
-        element_array = null;
-        elements = undefined;
-        parse_context = CONTEXT_UNKNOWN;
-        val.value_type = VALUE_UNSET;
-        val.name = null;
-        val.string = '';
-        pos.line = 1;
-        pos.col = 1;
-        negative = false;
-        comment = 0;
-        completed = false;
-        gatheringString = false;
-        stringEscape = false; // string stringEscape intro
-
-        cr_escaped = false; // carraige return escaped
-        //stringUnicode = false;  // reading \u
-        //unicodeWide = false;  // reading \u{} in string
-        //stringHex = false;  // reading \x in string
-      },
-
-      write(msg) {
-        let retcode;
-        if (msg !== undefined && typeof msg !== "string") msg = String(msg);
-        if (!status) throw new Error("Parser is in an error state, please reset.");
-
-        for (retcode = this._write(msg, false); retcode > 0; retcode = this._write()) {
-          this.finalError();
-          if (typeof reviver === 'function') (function walk(holder, key) {
-            const value = holder[key];
-
-            if (value && typeof value === 'object') {
-              for (const k in value) {
-                if (Object.prototype.hasOwnProperty.call(value, k)) {
-                  const v = walk(value, k);
-
-                  if (v !== undefined) {
-                    value[k] = v;
-                  } else {
-                    delete value[k];
-                  }
-                }
-              }
-            }
-
-            return reviver.call(holder, key, value);
-          })({
-            '': result
-          }, '');
-          cb(result);
-          result = undefined;
-          if (retcode < 2) break;
-        }
-
-        if (retcode) this.finalError();
-      },
-
-      _write(msg, complete_at_end) {
-        let input;
-        let buf;
-        let retval = 0;
-
-        function throwError(leader, c) {
-          throw new Error(`${leader} '${String.fromCodePoint(c)}' unexpected at ${n} (near '${buf.substr(n > 4 ? n - 4 : 0, n > 4 ? 3 : n - 1)}[${String.fromCodePoint(c)}]${buf.substr(n, 10)}') [${pos.line}:${pos.col}]`);
-        }
-
-        function RESET_VAL() {
-          val.value_type = VALUE_UNSET;
-          val.string = '';
-        }
-
-        function arrayPush() {
-          switch (val.value_type) {
-            case VALUE_NUMBER:
-              element_array.push((negative ? -1 : 1) * Number(val.string));
-              break;
-
-            case VALUE_STRING:
-              element_array.push(val.string);
-              break;
-
-            case VALUE_TRUE:
-              element_array.push(true);
-              break;
-
-            case VALUE_FALSE:
-              element_array.push(false);
-              break;
-
-            case VALUE_NEG_NAN:
-              element_array.push(-NaN);
-              break;
-
-            case VALUE_NAN:
-              element_array.push(NaN);
-              break;
-
-            case VALUE_NEG_INFINITY:
-              element_array.push(-Infinity);
-              break;
-
-            case VALUE_INFINITY:
-              element_array.push(Infinity);
-              break;
-
-            case VALUE_NULL:
-              element_array.push(null);
-              break;
-
-            case VALUE_UNDEFINED:
-              element_array.push(undefined);
-              break;
-
-            case VALUE_EMPTY:
-              element_array.push(undefined);
-              delete element_array[element_array.length - 1];
-              break;
-
-            case VALUE_OBJECT:
-              element_array.push(val.contains);
-              break;
-
-            case VALUE_ARRAY:
-              element_array.push(val.contains);
-              break;
-          }
-        }
-
-        function objectPush() {
-          switch (val.value_type) {
-            case VALUE_NUMBER:
-              elements[val.name] = (negative ? -1 : 1) * Number(val.string);
-              break;
-
-            case VALUE_STRING:
-              elements[val.name] = val.string;
-              break;
-
-            case VALUE_TRUE:
-              elements[val.name] = true;
-              break;
-
-            case VALUE_FALSE:
-              elements[val.name] = false;
-              break;
-
-            case VALUE_NEG_NAN:
-              elements[val.name] = -NaN;
-              break;
-
-            case VALUE_NAN:
-              elements[val.name] = NaN;
-              break;
-
-            case VALUE_NEG_INFINITY:
-              elements[val.name] = -Infinity;
-              break;
-
-            case VALUE_INFINITY:
-              elements[val.name] = Infinity;
-              break;
-
-            case VALUE_NULL:
-              elements[val.name] = null;
-              break;
-
-            case VALUE_UNDEFINED:
-              elements[val.name] = undefined;
-              break;
-
-            case VALUE_OBJECT:
-              elements[val.name] = val.contains;
-              break;
-
-            case VALUE_ARRAY:
-              elements[val.name] = val.contains;
-              break;
-          }
-        }
-
-        function gatherString(start_c) {
-          let retval = 0;
-
-          while (retval == 0 && n < buf.length) {
-            let str = buf.charAt(n);
-            const cInt = buf.codePointAt(n++);
-
-            if (cInt >= 0x10000) {
-              str += buf.charAt(n);
-              n++;
-            } //console.log( "gathering....", stringEscape, str, cInt, unicodeWide, stringHex, stringUnicode, hex_char_len );
-
-
-            pos.col++;
-
-            if (cInt == start_c) {
-              //( cInt == 34/*'"'*/ ) || ( cInt == 39/*'\''*/ ) || ( cInt == 96/*'`'*/ ) )
-              if (stringEscape) {
-                if (stringHex) throwError("Incomplete hexidecimal sequence", cInt);else if (unicodeWide) throwError("Incomplete long unicode sequence", cInt);else if (stringUnicode) throwError("Incomplete unicode sequence", cInt);
-
-                if (cr_escaped) {
-                  cr_escaped = false; // \\ \r  '  :end string, the backslash was used for \r
-
-                  retval = 1; // complete string.
-                } else val.string += str; // escaped start quote
-
-
-                stringEscape = false;
-              } else {
-                // quote matches, not escaped, and not processing escape...
-                retval = 1;
-              }
-            } else if (stringEscape) {
-              if (unicodeWide) {
-                if (cInt == 125
-                /*'}'*/
-                ) {
-                    val.string += String.fromCodePoint(hex_char);
-                    unicodeWide = false;
-                    stringUnicode = false;
-                    stringEscape = false;
-                    continue;
-                  }
-
-                hex_char *= 16;
-                if (cInt >= 48
-                /*'0'*/
-                && cInt <= 57
-                /*'9'*/
-                ) hex_char += cInt - 0x30;else if (cInt >= 65
-                /*'A'*/
-                && cInt <= 70
-                /*'F'*/
-                ) hex_char += cInt - 65 + 10;else if (cInt >= 97
-                /*'a'*/
-                && cInt <= 102
-                /*'f'*/
-                ) hex_char += cInt - 97 + 10;else {
-                  throwError("(escaped character, parsing hex of \\u)", cInt);
-                }
-                continue;
-              } else if (stringHex || stringUnicode) {
-                if (hex_char_len === 0 && cInt === 123
-                /*'{'*/
-                ) {
-                    unicodeWide = true;
-                    continue;
-                  }
-
-                hex_char *= 16;
-                if (cInt >= 48
-                /*'0'*/
-                && cInt <= 57
-                /*'9'*/
-                ) hex_char += cInt - 0x30;else if (cInt >= 65
-                /*'A'*/
-                && cInt <= 70
-                /*'F'*/
-                ) hex_char += cInt - 65 + 10;else if (cInt >= 97
-                /*'a'*/
-                && cInt <= 102
-                /*'f'*/
-                ) hex_char += cInt - 97 + 10;else {
-                  throwError(stringUnicode ? "(escaped character, parsing hex of \\u)" : "(escaped character, parsing hex of \\x)", cInt);
-                }
-                hex_char_len++;
-
-                if (stringUnicode) {
-                  if (hex_char_len == 4) {
-                    val.string += String.fromCodePoint(hex_char);
-                    stringUnicode = false;
-                    stringEscape = false;
-                  }
-                } else if (hex_char_len == 2) {
-                  val.string += String.fromCodePoint(hex_char);
-                  stringHex = false;
-                  stringEscape = false;
-                }
-
-                continue;
-              }
-
-              switch (cInt) {
-                case 13
-                /*'\r'*/
-                :
-                  cr_escaped = true;
-                  pos.col = 1;
-                  continue;
-
-                case 0x2028: // LS (Line separator)
-
-                case 0x2029:
-                  // PS (paragraph separator)
-                  pos.col = 1;
-                // no return to get newline reset, so reset line pos.
-                // Fallthrough
-
-                case 10
-                /*'\n'*/
-                :
-                  if (cr_escaped) {
-                    // \\ \r \n
-                    cr_escaped = false;
-                  } else {
-                    // \\ \n
-                    pos.col = 1;
-                  }
-
-                  pos.line++;
-                  break;
-
-                case 116
-                /*'t'*/
-                :
-                  val.string += '\t';
-                  break;
-
-                case 98
-                /*'b'*/
-                :
-                  val.string += '\b';
-                  break;
-
-                case 48
-                /*'0'*/
-                :
-                  val.string += '\0';
-                  break;
-
-                case 110
-                /*'n'*/
-                :
-                  val.string += '\n';
-                  break;
-
-                case 114
-                /*'r'*/
-                :
-                  val.string += '\r';
-                  break;
-
-                case 102
-                /*'f'*/
-                :
-                  val.string += '\f';
-                  break;
-
-                case 120
-                /*'x'*/
-                :
-                  stringHex = true;
-                  hex_char_len = 0;
-                  hex_char = 0;
-                  continue;
-
-                case 117
-                /*'u'*/
-                :
-                  stringUnicode = true;
-                  hex_char_len = 0;
-                  hex_char = 0;
-                  continue;
-
-                default:
-                  val.string += str;
-                  break;
-              } //console.log( "other..." );
-
-
-              stringEscape = false;
-            } else if (cInt === 92
-            /*'\\'*/
-            ) {
-                stringEscape = true;
-              } else {
-              if (cr_escaped) {
-                cr_escaped = false; // \\ \r <any other character>
-
-                pos.line++;
-                pos.col = 2; // newline, plus one character.
-              }
-
-              val.string += str;
-            }
-          }
-
-          return retval;
-        }
-
-        function collectNumber() {
-          let _n;
-
-          while ((_n = n) < buf.length) {
-            const str = buf.charAt(_n);
-            const cInt = buf.codePointAt(n++);
-
-            if (cInt >= 0x10000) {
-              throwError("fault while parsing number;", cInt);
-            } //log('_DEBUG_PARSING', "in getting number:", n, cInt, String.fromCodePoint(cInt) );
-
-
-            if (cInt == 95
-            /*_*/
-            ) continue;
-            pos.col++; // leading zeros should be forbidden.
-
-            if (cInt >= 48
-            /*'0'*/
-            && cInt <= 57
-            /*'9'*/
-            ) {
-                if (exponent) {
-                  exponent_digit = true;
-                }
-
-                val.string += str;
-              } else if (cInt == 45
-            /*'-'*/
-            || cInt == 43
-            /*'+'*/
-            ) {
-                if (val.string.length == 0 || exponent && !exponent_sign && !exponent_digit) {
-                  val.string += str;
-                  exponent_sign = true;
-                } else {
-                  status = false;
-                  throwError("fault while parsing number;", cInt); // break;
-                }
-              } else if (cInt == 46
-            /*'.'*/
-            ) {
-                if (!decimal && !fromHex && !exponent) {
-                  val.string += str;
-                  decimal = true;
-                } else {
-                  status = false;
-                  throwError("fault while parsing number;", cInt); // break;
-                }
-              } else if (cInt == 120
-            /*'x'*/
-            || cInt == 98
-            /*'b'*/
-            || cInt == 111
-            /*'o'*/
-            || cInt == 88
-            /*'X'*/
-            || cInt == 66
-            /*'B'*/
-            || cInt == 79
-            /*'O'*/
-            ) {
-                // hex conversion.
-                if (!fromHex && val.string == '0') {
-                  fromHex = true;
-                  val.string += str;
-                } else {
-                  status = false;
-                  throwError("fault while parsing number;", cInt); // break;
-                }
-              } else if (cInt == 101
-            /*'e'*/
-            || cInt == 69
-            /*'E'*/
-            ) {
-                if (!exponent) {
-                  val.string += str;
-                  exponent = true;
-                } else {
-                  status = false;
-                  throwError("fault while parsing number;", cInt); // break;
-                }
-              } else {
-              if (cInt == 32
-              /*' '*/
-              || cInt == 160
-              /* &nbsp */
-              || cInt == 13 || cInt == 10 || cInt == 9 || cInt == 0xFEFF || cInt == 44
-              /*','*/
-              || cInt == 125
-              /*'}'*/
-              || cInt == 93
-              /*']'*/
-              || cInt == 58
-              /*':'*/
-              ) {
-                  break;
-                } else {
-                if (complete_at_end) {
-                  status = false;
-                  throwError("fault while parsing number;", cInt);
-                }
-
-                break;
-              }
-            }
-          }
-
-          n = _n;
-
-          if (!complete_at_end && n == buf.length) {
-            gatheringNumber = true;
-          } else {
-            gatheringNumber = false;
-            val.value_type = VALUE_NUMBER;
-
-            if (parse_context == CONTEXT_UNKNOWN) {
-              completed = true;
-            }
-          }
-        }
-
-        if (!status) return -1;
-
-        if (msg && msg.length) {
-          input = getBuffer();
-          input.buf = msg;
-          inQueue.push(input);
-        } else {
-          if (gatheringNumber) {
-            //console.log( "Force completed.")
-            gatheringNumber = false;
-            val.value_type = VALUE_NUMBER;
-
-            if (parse_context == CONTEXT_UNKNOWN) {
-              completed = true;
-            } else {
-              throw new Error("context stack is not empty at flush");
-            }
-
-            retval = 1; // if returning buffers, then obviously there's more in this one.
-          }
-        }
-
-        while (status && (input = inQueue.shift())) {
-          n = input.n;
-          buf = input.buf;
-
-          if (gatheringString) {
-            const string_status = gatherString(gatheringStringFirstChar);
-
-            if (string_status > 0) {
-              gatheringString = false;
-              val.value_type = VALUE_STRING;
-            }
-          }
-
-          if (gatheringNumber) {
-            collectNumber();
-          }
-
-          while (!completed && status && n < buf.length) {
-            let str = buf.charAt(n);
-            const cInt = buf.codePointAt(n++);
-
-            if (cInt >= 0x10000) {
-              str += buf.charAt(n);
-              n++;
-            } //// log('_DEBUG_PARSING', "parsing at ", cInt, str );
-            //log('_DEBUG_LL', "processing: ", cInt, str, pos, comment, parse_context, word, val );
-
-
-            pos.col++;
-
-            if (comment) {
-              // '/'
-              if (comment == 1) {
-                // '/'
-                if (cInt == 42
-                /*'*'*/
-                ) {
-                    comment = 3;
-                  } // '/*'
-                else if (cInt != 47
-                  /*'/'*/
-                  ) {
-                      // '//'(NOT)
-                      throwError("fault while parsing;", cInt);
-                    } else comment = 2; // '//' (valid)
-
-              } else if (comment == 2) {
-                // '// ...'
-                if (cInt == 10
-                /*'\n'*/
-                || cInt == 13
-                /*'\r'*/
-                ) comment = 0;
-              } else if (comment == 3) {
-                // '/*... '
-                if (cInt == 42
-                /*'*'*/
-                ) comment = 4;
-              } else {
-                // if( comment == 4 ) { // '/* ... *'
-                if (cInt == 47
-                /*'/'*/
-                ) comment = 0;else comment = 3; // any other char, goto expect * to close */
-              }
-
-              continue;
-            }
-
-            switch (cInt) {
-              case 47
-              /*'/'*/
-              :
-                comment = 1;
-                break;
-
-              case 123
-              /*'{'*/
-              :
-                if (word == WORD_POS_FIELD || word == WORD_POS_AFTER_FIELD || parse_context == CONTEXT_OBJECT_FIELD && word == WORD_POS_RESET) {
-                  throwError("fault while parsing; getting field name unexpected ", cInt); // break;
-                }
-
-                {
-                  const old_context = getContext(); //log('_DEBUG_PARSING', "Begin a new object; previously pushed into elements; but wait until trailing comma or close previously:%d", val.value_type );
-
-                  val.value_type = VALUE_OBJECT;
-                  const tmpobj = {};
-                  if (parse_context == CONTEXT_UNKNOWN) result = elements = tmpobj;
-                  old_context.context = parse_context;
-                  old_context.elements = elements;
-                  old_context.element_array = element_array;
-                  old_context.name = val.name;
-                  elements = tmpobj; //log('_DEBUG_PARSING_STACK',"push context (open object): ", context_stack.length );
-
-                  context_stack.push(old_context);
-                  RESET_VAL();
-                  parse_context = CONTEXT_OBJECT_FIELD;
-                }
-                break;
-
-              case 91
-              /*'['*/
-              :
-                if (parse_context == CONTEXT_OBJECT_FIELD || word == WORD_POS_FIELD || word == WORD_POS_AFTER_FIELD) {
-                  throwError("Fault while parsing; while getting field name unexpected", cInt); // break;
-                }
-
-                if (val.value_type == VALUE_UNSET || val.value_type == VALUE_UNDEFINED) {
-                  const old_context = getContext(); //log('_DEBUG_PARSING', "Begin a new array; previously pushed into elements; but wait until trailing comma or close previously:%d", val.value_type );
-
-                  val.value_type = VALUE_ARRAY;
-                  const tmparr = [];
-                  if (parse_context == CONTEXT_UNKNOWN) result = element_array = tmparr; //else if( parse_context == CONTEXT_IN_ARRAY )
-                  //    element_array.push( tmparr );
-                  else if (parse_context == CONTEXT_OBJECT_FIELD_VALUE) elements[val.name] = tmparr;
-                  old_context.context = parse_context;
-                  old_context.elements = elements;
-                  old_context.element_array = element_array;
-                  old_context.name = val.name;
-                  element_array = tmparr; //log('_DEBUG_PARSING_STACK', "push context (open array): ", context_stack.length );
-
-                  context_stack.push(old_context);
-                  RESET_VAL();
-                  parse_context = CONTEXT_IN_ARRAY;
-                } else {
-                  throwError("Unexpected array open after previous value", cInt);
-                }
-
-                break;
-
-              case 58
-              /*':'*/
-              :
-                ////log('_DEBUG_PARSING', "colon context:", parse_context );
-                if (parse_context == CONTEXT_OBJECT_FIELD) {
-                  word = WORD_POS_RESET;
-                  val.name = val.string;
-                  val.string = '';
-                  parse_context = CONTEXT_OBJECT_FIELD_VALUE;
-                  val.value_type = VALUE_UNSET;
-                } else {
-                  if (parse_context == CONTEXT_IN_ARRAY) throwError("(in array, got colon out of string):parsing fault;", cInt);else throwError("(outside any object, got colon out of string):parsing fault;", cInt);
-                }
-
-                break;
-
-              case 125
-              /*'}'*/
-              :
-                ////log('_DEBUG_PARSING', "close bracket context:", word, parse_context );
-                if (word == WORD_POS_END) {
-                  // allow starting a new word
-                  word = WORD_POS_RESET;
-                } // coming back after pushing an array or sub-object will reset the context to FIELD, so an end with a field should still push value.
-
-
-                if (parse_context == CONTEXT_OBJECT_FIELD) {
-                  //log('_DEBUG_PARSING', "close object; empty object %d", val.value_type );
-                  //RESET_VAL();
-                  val.value_type = VALUE_OBJECT;
-                  val.contains = elements;
-                  const old_context = context_stack.pop(); //log('_DEBUG_PARSING_STACK',"object pop stack (close obj)", context_stack.length, old_context );
-
-                  val.name = old_context.name;
-                  parse_context = old_context.context; // this will restore as IN_ARRAY or OBJECT_FIELD
-
-                  elements = old_context.elements;
-                  element_array = old_context.element_array;
-                  dropContext(old_context);
-
-                  if (parse_context == CONTEXT_UNKNOWN) {
-                    completed = true;
-                  }
-                } else if (parse_context == CONTEXT_OBJECT_FIELD_VALUE) {
-                  // first, add the last value
-                  //log('_DEBUG_PARSING', "close object; push item '%s' %d", val.name, val.value_type );
-                  if (val.value_type != VALUE_UNSET) {
-                    objectPush();
-                  } else {
-                    throwError("Fault while parsing field value, close with no value", cInt);
-                  }
-
-                  val.value_type = VALUE_OBJECT;
-                  val.contains = elements;
-                  const old_context = context_stack.pop(); //log('_DEBUG_PARSING_STACK',"object pop stack (close object)", context_stack.length, old_context );
-
-                  val.name = old_context.name;
-                  parse_context = old_context.context; // this will restore as IN_ARRAY or OBJECT_FIELD
-
-                  elements = old_context.elements;
-                  element_array = old_context.element_array;
-                  dropContext(old_context);
-
-                  if (parse_context == CONTEXT_UNKNOWN) {
-                    completed = true;
-                  }
-                } else {
-                  throwError("Fault while parsing; unexpected", cInt);
-                }
-
-                negative = false;
-                break;
-
-              case 93
-              /*']'*/
-              :
-                if (word == WORD_POS_END) word = WORD_POS_RESET;
-
-                if (parse_context == CONTEXT_IN_ARRAY) {
-                  //log('_DEBUG_PARSING', "close array, push last element: %d", val.value_type );
-                  if (val.value_type != VALUE_UNSET) {
-                    arrayPush();
-                  }
-
-                  val.value_type = VALUE_ARRAY;
-                  val.contains = element_array;
-                  {
-                    const old_context = context_stack.pop(); //log('_DEBUG_PARSING_STACK',"object pop stack (close array)", context_stack.length );
-
-                    val.name = old_context.name;
-                    parse_context = old_context.context;
-                    elements = old_context.elements;
-                    element_array = old_context.element_array;
-                    dropContext(old_context);
-                  }
-
-                  if (parse_context == CONTEXT_UNKNOWN) {
-                    completed = true;
-                  }
-                } else {
-                  throwError(`bad context ${parse_context}; fault while parsing`, cInt); // fault
-                }
-
-                negative = false;
-                break;
-
-              case 44
-              /*','*/
-              :
-                if (word == WORD_POS_END) word = WORD_POS_RESET; // allow collect new keyword
-                //log('_DEBUG_PARSING', "comma context:", parse_context, val );
-
-                if (parse_context == CONTEXT_IN_ARRAY) {
-                  if (val.value_type == VALUE_UNSET) val.value_type = VALUE_EMPTY; // in an array, elements after a comma should init as undefined...
-                  //log('_DEBUG_PARSING', "back in array; push item %d", val.value_type );
-
-                  arrayPush();
-                  RESET_VAL(); // undefined allows [,,,] to be 4 values and [1,2,3,] to be 4 values with an undefined at end.
-                } else if (parse_context == CONTEXT_OBJECT_FIELD_VALUE) {
-                  // after an array value, it will have returned to OBJECT_FIELD anyway
-                  //log('_DEBUG_PARSING', "comma after field value, push field to object: %s", val.name );
-                  parse_context = CONTEXT_OBJECT_FIELD;
-
-                  if (val.value_type != VALUE_UNSET) {
-                    objectPush();
-                    RESET_VAL();
-                  } else throwError("Unexpected comma after object field name", cInt);
-                } else {
-                  status = false;
-                  throwError("bad context; excessive commas while parsing;", cInt); // fault
-                }
-
-                negative = false;
-                break;
-
-              default:
-                if (parse_context == CONTEXT_OBJECT_FIELD) {
-                  switch (cInt) {
-                    case 96: //'`':
-
-                    case 34: //'"':
-
-                    case 39:
-                      //'\'':
-                      if (word == WORD_POS_RESET) {
-                        if (val.value_type != VALUE_UNSET) throwError("String begin after previous value", cInt);
-                        const string_status = gatherString(cInt); //log('_DEBUG_PARSING', "string gather for object field name :", val.string, string_status );
-
-                        if (string_status) {
-                          val.value_type = VALUE_STRING;
-                        } else {
-                          gatheringStringFirstChar = cInt;
-                          gatheringString = true;
-                        }
-                      } else {
-                        throwError("fault while parsing; quote not at start of field name", cInt);
-                      }
-
-                      break;
-
-                    case 10:
-                      //'\n':
-                      pos.line++;
-                      pos.col = 1;
-                    // fall through to normal space handling - just updated line/col position
-
-                    case 13: //'\r':
-
-                    case 32: //' ':
-
-                    case 160: //&nbsp:
-
-                    case 9: //'\t':
-
-                    case 0xFEFF:
-                      // ZWNBS is WS though
-                      if (word == WORD_POS_END) {
-                        // allow collect new keyword
-                        word = WORD_POS_RESET;
-                      } else if (word == WORD_POS_FIELD) {
-                        word = WORD_POS_AFTER_FIELD;
-                      } // skip whitespace
-
-
-                      break;
-
-                    default:
-                      if (word == WORD_POS_AFTER_FIELD) {
-                        status = false;
-                        throwError("fault while parsing; character unexpected", cInt);
-                      }
-
-                      if (word == WORD_POS_RESET) word = WORD_POS_FIELD;
-                      val.string += str;
-                      break;
-                    // default
-                  }
-                } else switch (cInt) {
-                  case 96: //'`':
-
-                  case 34: //'"':
-
-                  case 39:
-                    {
-                      //'\'':
-                      if (val.value_type === VALUE_UNSET) {
-                        const string_status = gatherString(cInt); //log('_DEBUG_PARSING', "string gather for object field value :", val.string, string_status, completed, input.n, buf.length );
-
-                        if (string_status) {
-                          val.value_type = VALUE_STRING;
-                          word = WORD_POS_END;
-                        } else {
-                          gatheringStringFirstChar = cInt;
-                          gatheringString = true;
-                        }
-                      } else throwError("String unexpected", cInt);
-
-                      break;
-                    }
-
-                  case 10:
-                    //'\n':
-                    pos.line++;
-                    pos.col = 1;
-                  // Fallthrough
-
-                  case 32: //' ':
-
-                  case 160: // &nbsp
-
-                  case 9: //'\t':
-
-                  case 13: //'\r':
-
-                  case 0xFEFF:
-                    //'\uFEFF':
-                    if (word == WORD_POS_END) {
-                      word = WORD_POS_RESET;
-
-                      if (parse_context == CONTEXT_UNKNOWN) {
-                        completed = true;
-                      }
-
-                      break;
-                    }
-
-                    if (word !== WORD_POS_RESET) {
-                      // breaking in the middle of gathering a keyword.
-                      status = false;
-                      throwError("fault parsing whitespace", cInt);
-                    }
-
-                    break;
-                  //----------------------------------------------------------
-                  //  catch characters for true/false/null/undefined which are values outside of quotes
-
-                  case 116:
-                    //'t':
-                    if (word == WORD_POS_RESET) word = WORD_POS_TRUE_1;else if (word == WORD_POS_INFINITY_6) word = WORD_POS_INFINITY_7;else {
-                      status = false;
-                      throwError("fault parsing", cInt);
-                    } // fault
-
-                    break;
-
-                  case 114:
-                    //'r':
-                    if (word == WORD_POS_TRUE_1) word = WORD_POS_TRUE_2;else {
-                      status = false;
-                      throwError("fault parsing", cInt);
-                    } // fault
-
-                    break;
-
-                  case 117:
-                    //'u':
-                    if (word == WORD_POS_TRUE_2) word = WORD_POS_TRUE_3;else if (word == WORD_POS_NULL_1) word = WORD_POS_NULL_2;else if (word == WORD_POS_RESET) word = WORD_POS_UNDEFINED_1;else {
-                      status = false;
-                      throwError("fault parsing", cInt);
-                    } // fault
-
-                    break;
-
-                  case 101:
-                    //'e':
-                    if (word == WORD_POS_TRUE_3) {
-                      val.value_type = VALUE_TRUE;
-                      word = WORD_POS_END;
-                    } else if (word == WORD_POS_FALSE_4) {
-                      val.value_type = VALUE_FALSE;
-                      word = WORD_POS_END;
-                    } else if (word == WORD_POS_UNDEFINED_3) word = WORD_POS_UNDEFINED_4;else if (word == WORD_POS_UNDEFINED_7) word = WORD_POS_UNDEFINED_8;else {
-                      status = false;
-                      throwError("fault parsing", cInt);
-                    } // fault
-
-
-                    break;
-
-                  case 110:
-                    //'n':
-                    if (word == WORD_POS_RESET) word = WORD_POS_NULL_1;else if (word == WORD_POS_UNDEFINED_1) word = WORD_POS_UNDEFINED_2;else if (word == WORD_POS_UNDEFINED_6) word = WORD_POS_UNDEFINED_7;else if (word == WORD_POS_INFINITY_1) word = WORD_POS_INFINITY_2;else if (word == WORD_POS_INFINITY_4) word = WORD_POS_INFINITY_5;else {
-                      status = false;
-                      throwError("fault parsing", cInt);
-                    } // fault
-
-                    break;
-
-                  case 100:
-                    //'d':
-                    if (word == WORD_POS_UNDEFINED_2) word = WORD_POS_UNDEFINED_3;else if (word == WORD_POS_UNDEFINED_8) {
-                      val.value_type = VALUE_UNDEFINED;
-                      word = WORD_POS_END;
-                    } else {
-                      status = false;
-                      throwError("fault parsing", cInt);
-                    } // fault
-
-                    break;
-
-                  case 105:
-                    //'i':
-                    if (word == WORD_POS_UNDEFINED_5) word = WORD_POS_UNDEFINED_6;else if (word == WORD_POS_INFINITY_3) word = WORD_POS_INFINITY_4;else if (word == WORD_POS_INFINITY_5) word = WORD_POS_INFINITY_6;else {
-                      status = false;
-                      throwError("fault parsing", cInt);
-                    } // fault
-
-                    break;
-
-                  case 108:
-                    //'l':
-                    if (word == WORD_POS_NULL_2) word = WORD_POS_NULL_3;else if (word == WORD_POS_NULL_3) {
-                      val.value_type = VALUE_NULL;
-                      word = WORD_POS_END;
-                    } else if (word == WORD_POS_FALSE_2) word = WORD_POS_FALSE_3;else {
-                      status = false;
-                      throwError("fault parsing", cInt);
-                    } // fault
-
-                    break;
-
-                  case 102:
-                    //'f':
-                    if (word == WORD_POS_RESET) word = WORD_POS_FALSE_1;else if (word == WORD_POS_UNDEFINED_4) word = WORD_POS_UNDEFINED_5;else if (word == WORD_POS_INFINITY_2) word = WORD_POS_INFINITY_3;else {
-                      status = false;
-                      throwError("fault parsing", cInt);
-                    } // fault
-
-                    break;
-
-                  case 97:
-                    //'a':
-                    if (word == WORD_POS_FALSE_1) word = WORD_POS_FALSE_2;else if (word == WORD_POS_NAN_1) word = WORD_POS_NAN_2;else {
-                      status = false;
-                      throwError("fault parsing", cInt);
-                    } // fault
-
-                    break;
-
-                  case 115:
-                    //'s':
-                    if (word == WORD_POS_FALSE_3) word = WORD_POS_FALSE_4;else {
-                      status = false;
-                      throwError("fault parsing", cInt);
-                    } // fault
-
-                    break;
-
-                  case 73:
-                    //'I':
-                    if (word == WORD_POS_RESET) word = WORD_POS_INFINITY_1;else {
-                      status = false;
-                      throwError("fault parsing", cInt);
-                    } // fault
-
-                    break;
-
-                  case 78:
-                    //'N':
-                    if (word == WORD_POS_RESET) word = WORD_POS_NAN_1;else if (word == WORD_POS_NAN_2) {
-                      val.value_type = negative ? VALUE_NEG_NAN : VALUE_NAN;
-                      negative = false;
-                      word = WORD_POS_END;
-                    } else {
-                      status = false;
-                      throwError("fault parsing", cInt);
-                    } // fault
-
-                    break;
-
-                  case 121:
-                    //'y':
-                    if (word == WORD_POS_INFINITY_7) {
-                      val.value_type = negative ? VALUE_NEG_INFINITY : VALUE_INFINITY;
-                      negative = false;
-                      word = WORD_POS_END;
-                    } else {
-                      status = false;
-                      throwError("fault parsing", cInt);
-                    } // fault
-
-
-                    break;
-
-                  case 45:
-                    //'-':
-                    if (word == WORD_POS_RESET) negative = !negative;else {
-                      status = false;
-                      throwError("fault parsing", cInt);
-                    } // fault
-
-                    break;
-                  //
-                  //----------------------------------------------------------
-
-                  default:
-                    if (cInt >= 48
-                    /*'0'*/
-                    && cInt <= 57
-                    /*'9'*/
-                    || cInt == 43
-                    /*'+'*/
-                    || cInt == 46
-                    /*'.'*/
-                    || cInt == 45
-                    /*'-'*/
-                    ) {
-                        fromHex = false;
-                        exponent = false;
-                        exponent_sign = false;
-                        exponent_digit = false;
-                        decimal = false;
-                        val.string = str;
-                        input.n = n;
-                        collectNumber();
-                      } else {
-                      status = false;
-                      throwError("fault parsing", cInt);
-                    }
-
-                    break;
-                  // default
-                }
-
-                break;
-              // default of high level switch
-            }
-
-            if (completed) {
-              if (word == WORD_POS_END) {
-                word = WORD_POS_RESET;
-              }
-
-              break;
-            }
-          }
-
-          if (n == buf.length) {
-            dropBuffer(input);
-
-            if (gatheringString || gatheringNumber || parse_context == CONTEXT_OBJECT_FIELD) {
-              retval = 0;
-            } else {
-              if (parse_context == CONTEXT_UNKNOWN && (val.value_type != VALUE_UNSET || result)) {
-                completed = true;
-                retval = 1;
-              }
-            }
-          } else {
-            // put these back into the stack.
-            input.n = n;
-            inQueue.unshift(input);
-            retval = 2; // if returning buffers, then obviously there's more in this one.
-          }
-
-          if (completed) break;
-        }
-
-        if (completed && val.value_type != VALUE_UNSET) {
-          switch (val.value_type) {
-            case VALUE_NUMBER:
-              result = (negative ? -1 : 1) * Number(val.string);
-              break;
-
-            case VALUE_STRING:
-              result = val.string;
-              break;
-
-            case VALUE_TRUE:
-              result = true;
-              break;
-
-            case VALUE_FALSE:
-              result = false;
-              break;
-
-            case VALUE_NULL:
-              result = null;
-              break;
-
-            case VALUE_UNDEFINED:
-              result = undefined;
-              break;
-
-            case VALUE_NAN:
-              result = NaN;
-              break;
-
-            case VALUE_NEG_NAN:
-              result = -NaN;
-              break;
-
-            case VALUE_INFINITY:
-              result = Infinity;
-              break;
-
-            case VALUE_NEG_INFINITY:
-              result = -Infinity;
-              break;
-
-            case VALUE_OBJECT:
-              // never happens
-              result = val.contains;
-              break;
-
-            case VALUE_ARRAY:
-              // never happens
-              result = val.contains;
-              break;
-          }
-
-          negative = false;
-          val.string = '';
-          val.value_type = VALUE_UNSET;
-        }
-
-        completed = false;
-        return retval;
-      }
-
-    };
-  };
-
-  const _parser = [Object.freeze(JSON6.begin())];
-  let _parse_level = 0;
-
-  JSON6.parse = function (msg, reviver) {
-    //var parser = JSON6.begin();
-    const parse_level = _parse_level++;
-    if (_parser.length <= parse_level) _parser.push(Object.freeze(JSON6.begin()));
-    const parser = _parser[parse_level];
-    if (typeof msg !== "string") msg = String(msg);
-    parser.reset();
-
-    if (parser._write(msg, true) > 0) {
-      const result = parser.value();
-      if (typeof reviver === 'function') (function walk(holder, key) {
-        const value = holder[key];
-
-        if (value && typeof value === 'object') {
-          for (const k in value) {
-            if (Object.prototype.hasOwnProperty.call(value, k)) {
-              const v = walk(value, k);
-
-              if (v !== undefined) {
-                value[k] = v;
-              } else {
-                delete value[k];
-              }
-            }
-          }
-        }
-
-        return reviver.call(holder, key, value);
-      })({
-        '': result
-      }, '');
-      _parse_level--;
-      return result;
-    } else parser.finalError();
-
-    return undefined;
-  };
-
-  JSON6.stringify = JSON.stringify;
-});
-var lib = json6;
-
+/* globals jsonExtra */
+// We want it to work in the browser, so commenting out
+// import jsonExtra from 'json5';
+// import jsonExtra from 'json-6';
 var unescapeBackslashes = function unescapeBackslashes(str) {
   return str.replace(/\\+/g, function (esc) {
     return esc.slice(0, esc.length / 2);
   });
 };
 var parseJSONExtra = function parseJSONExtra(args) {
-  return lib.parse( // Doesn't actually currently allow explicit brackets,
+  return jsonExtra.parse( // Doesn't actually currently allow explicit brackets,
   //  but in case we change our regex to allow inner brackets
   '{' + (args || '').replace(/^\{/, '').replace(/\}$/, '') + '}');
 }; // Todo: Extract to own library (RegExtras?)
@@ -2008,9 +466,9 @@ var getFormatterInfo = function getFormatterInfo(_ref) {
 
 var defaultAllSubstitutions = function defaultAllSubstitutions(_ref2) {
   var value = _ref2.value,
-      arg = _ref2.arg,
-      key = _ref2.key,
-      locale = _ref2.locale;
+      arg = _ref2.arg;
+      _ref2.key;
+      var locale = _ref2.locale;
 
   // Strings or DOM Nodes
   if (typeof value === 'string' || value && _typeof(value) === 'object' && 'nodeType' in value) {
@@ -2051,10 +509,10 @@ var defaultAllSubstitutions = function defaultAllSubstitutions(_ref2) {
     return options;
   };
 
-  if (value && _typeof(value) === 'object') {
+  if (value && _typeof(value) === 'object' && !Array.isArray(value)) {
     var singleKey = Object.keys(value)[0];
 
-    if (['number', 'date', 'datetime', 'relative', 'list', 'plural'].includes(singleKey)) {
+    if (['number', 'date', 'datetime', 'dateRange', 'datetimeRange', 'relative', 'region', 'language', 'script', 'currency', 'list', 'plural'].includes(singleKey)) {
       var extraOpts, callback;
 
       var _getFormatterInfo = getFormatterInfo({
@@ -2067,6 +525,23 @@ var defaultAllSubstitutions = function defaultAllSubstitutions(_ref2) {
       callback = _getFormatterInfo.callback;
 
       switch (singleKey) {
+        case 'dateRange':
+        case 'datetimeRange':
+          return new Intl.DateTimeFormat(locale, applyArgs({
+            type: 'DATERANGE',
+            options: extraOpts
+          })).formatRange(value, opts);
+
+        case 'region':
+        case 'language':
+        case 'script':
+        case 'currency':
+          return new Intl.DisplayNames(locale, _objectSpread2(_objectSpread2({}, applyArgs({
+            type: singleKey.toUpperCase()
+          })), {}, {
+            type: singleKey
+          })).of(value);
+
         case 'relative':
           // The second argument actually contains the primary options, so swap
           var _ref4 = [opts, extraOpts];
@@ -2111,6 +586,17 @@ var defaultAllSubstitutions = function defaultAllSubstitutions(_ref2) {
     return new Intl.DateTimeFormat(locale, applyArgs({
       type: 'DATETIME'
     })).format(value);
+  } // Date range
+
+
+  if (Array.isArray(value)) {
+    var _Intl$DateTimeFormat;
+
+    var _extraOpts2 = value[2];
+    return (_Intl$DateTimeFormat = new Intl.DateTimeFormat(locale, applyArgs({
+      type: 'DATERANGE',
+      options: _extraOpts2
+    }))).formatRange.apply(_Intl$DateTimeFormat, _toConsumableArray(value.slice(0, 2)));
   } // console.log('value', value);
 
 
@@ -2491,7 +977,7 @@ var SwitchFormatter = /*#__PURE__*/function (_Formatter3) {
 
           return k === _this4.constructor.getKey(switchKey);
         });
-        return ret ? ret.concat(k) : [];
+        return ret ? [].concat(_toConsumableArray(ret), [k]) : [];
       }, this.switches);
     }
     /**
@@ -2543,18 +1029,18 @@ var SwitchFormatter = /*#__PURE__*/function (_Formatter3) {
  * @returns {Promise<any>} Either resolves to a value derived from an item in
  *  the array or rejects if all items reject
  * @example
- promiseChainForValues(['a', 'b', 'c'], (val) => {
-   return new Promise(function (resolve, reject) {
-     if (val === 'a') {
-       reject(new Error('missing'));
-     }
-     setTimeout(() => {
-       resolve(val);
-     }, 100);
-   });
- });
+promiseChainForValues(['a', 'b', 'c'], (val) => {
+  return new Promise(function (resolve, reject) {
+    if (val === 'a') {
+      reject(new Error('missing'));
+    }
+    setTimeout(() => {
+      resolve(val);
+    }, 100);
+  });
+});
  */
-function _await(value, then, direct) {
+function _await$2(value, then, direct) {
   if (direct) {
     return then ? then(value) : value;
   }
@@ -2566,7 +1052,7 @@ function _await(value, then, direct) {
   return then ? value.then(then) : value;
 }
 
-function _catch(body, recover) {
+function _catch$1(body, recover) {
   try {
     var result = body();
   } catch (e) {
@@ -2773,7 +1259,7 @@ function _continue(value, then) {
   return value && value.then ? value.then(then) : then(value);
 }
 
-function _async(f) {
+function _async$1(f) {
   return function () {
     for (var args = [], i = 0; i < arguments.length; i++) {
       args[i] = arguments[i];
@@ -2798,7 +1284,7 @@ var promiseChainForValues = function promiseChainForValues(values, errBack) {
     throw new TypeError('The `errBack` argument to `promiseChainForValues` must be a function.');
   }
 
-  return _async(function () {
+  return _async$1(function () {
     var _exit = false,
         _interrupt = false;
     var ret;
@@ -2808,9 +1294,9 @@ var promiseChainForValues = function promiseChainForValues(values, errBack) {
       return !(_interrupt || _exit);
     }, void 0, function () {
       var value = values.shift();
-      return _catch(function () {
+      return _catch$1(function () {
         // eslint-disable-next-line no-await-in-loop
-        return _await(p, function (_p) {
+        return _await$2(p, function (_p) {
           ret = _p;
           _interrupt = true;
         });
@@ -2828,7 +1314,7 @@ var promiseChainForValues = function promiseChainForValues(values, errBack) {
         p = errBack(value);
       });
     }), function (_result2) {
-      return  ret;
+      return ret;
     });
   })();
 };
@@ -2917,8 +1403,8 @@ var promiseChainForValues = function promiseChainForValues(values, errBack) {
 */
 
 /**
-* @typedef {PlainObject<string, string|Element|SubstitutionCallback>}
-*   SubstitutionObject
+* @typedef {PlainObject<string, string|Element|
+* SubstitutionCallback>} SubstitutionObject
 */
 
 /**
@@ -3041,7 +1527,7 @@ var defaultInsertNodes = function defaultInsertNodes(_ref) {
           locale: locale
         });
       }, substitution);
-    } else if (arg && arg.match(/^(?:NUMBER|DATE(?:TIME)?|RELATIVE|LIST)(?:\||$)/)) {
+    } else if (arg && /^(?:NUMBER|DATE(?:TIME|RANGE|TIMERANGE)?|REGION|LANGUAGE|SCRIPT|CURRENCY|RELATIVE|LIST)(?:\||$)/.test(arg)) {
       substitution = defaultAllSubstitutions({
         value: substitution,
         arg: arg,
@@ -3239,8 +1725,8 @@ var defaultInsertNodes = function defaultInsertNodes(_ref) {
 */
 
 /**
-* @typedef {LocaleStringBodyObject|PlainLocaleStringBodyObject|PlainObject}
-* LocaleBody
+* @typedef {LocaleStringBodyObject|
+* PlainLocaleStringBodyObject|PlainObject} LocaleBody
 */
 
 /**
@@ -3434,9 +1920,9 @@ var getDOMForLocaleString = function getDOMForLocaleString() {
       string = _ref.string,
       locale = _ref.locale,
       locals = _ref.locals,
-      switches = _ref.switches,
-      maximumLocalNestingDepth = _ref.maximumLocalNestingDepth,
-      _ref$allSubstitutions = _ref.allSubstitutions,
+      switches = _ref.switches;
+      _ref.maximumLocalNestingDepth;
+      var _ref$allSubstitutions = _ref.allSubstitutions,
       allSubstitutions = _ref$allSubstitutions === void 0 ? [defaultAllSubstitutions] : _ref$allSubstitutions,
       _ref$insertNodes = _ref.insertNodes,
       insertNodes = _ref$insertNodes === void 0 ? defaultInsertNodes : _ref$insertNodes,
@@ -3570,7 +2056,7 @@ function _await$1(value, then, direct) {
  */
 
 
-function _async$1(f) {
+function _async(f) {
   return function () {
     for (var args = [], i = 0; i < arguments.length; i++) {
       args[i] = arguments[i];
@@ -3584,7 +2070,7 @@ function _async$1(f) {
   };
 }
 
-function _catch$1(body, recover) {
+function _catch(body, recover) {
   try {
     var result = body();
   } catch (e) {
@@ -3709,14 +2195,14 @@ var findLocale = function findLocale() {
  *  the locale rather than locale and contents
  */
 
-var _findLocale = _async$1(function (_ref4) {
+var _findLocale = _async(function (_ref4) {
   /**
    * @callback getLocale
    * @throws {SyntaxError|TypeError|Error}
    * @param {string} locale
    * @returns {Promise<LocaleObjectInfo>}
    */
-  var getLocale = _async$1(function (locale) {
+  var getLocale = _async(function (locale) {
     if (typeof locale !== 'string') {
       throw new TypeError('Non-string locale type');
     }
@@ -3727,7 +2213,7 @@ var _findLocale = _async$1(function (_ref4) {
       throw new TypeError('`localeResolver` expected to resolve to (URL) string.');
     }
 
-    return _catch$1(function () {
+    return _catch(function () {
       var _fetch = getFetch();
 
       return _await$1(headOnly ? _fetch(url, {
@@ -3814,7 +2300,7 @@ var _findLocale = _async$1(function (_ref4) {
  * @returns {Promise<I18NCallback>} Rejects if no suitable locale is found.
  */
 
-function _await$2(value, then, direct) {
+function _await(value, then, direct) {
   if (direct) {
     return then ? then(value) : value;
   }
@@ -3963,7 +2449,7 @@ var i18n = function i18n() {
       throwOnExtraSuppliedFormatters = _ref3.throwOnExtraSuppliedFormatters;
 
   try {
-    return _await$2(localeStringFinder({
+    return _await(localeStringFinder({
       locales: locales,
       defaultLocales: defaultLocales,
       localeResolver: localeResolver,

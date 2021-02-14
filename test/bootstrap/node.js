@@ -18,6 +18,7 @@ import 'intl-list-format';
 import 'intl-list-format/locale-data/en-US.js';
 
 // Testing
+// eslint-disable-next-line no-shadow -- Not a test file here
 import chai from 'chai';
 import chaiDOM from 'chai-dom';
 import chaiAsPromised from 'chai-as-promised';

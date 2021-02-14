@@ -82,8 +82,8 @@
 */
 
 /**
-* @typedef {PlainObject<string, string|Element|SubstitutionCallback>}
-*   SubstitutionObject
+* @typedef {PlainObject<string, string|Element|
+* SubstitutionCallback>} SubstitutionObject
 */
 
 /**

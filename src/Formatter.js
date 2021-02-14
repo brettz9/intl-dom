@@ -272,7 +272,7 @@ export class SwitchFormatter extends Formatter {
         return k === this.constructor.getKey(switchKey);
       });
 
-      return ret ? ret.concat(k) : [];
+      return ret ? [...ret, k] : [];
     }, this.switches);
   }
 

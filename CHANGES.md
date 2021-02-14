@@ -1,5 +1,17 @@
 # intl-dom CHANGES
 
+## 0.11.0
+
+- npm: Update file-fetch (minor), json-6 (minor)
+- Docs: Update info on JSON-6 in the browser
+
+**Dev-facing**:
+
+- Linting: As per latest ash-nazg
+- npm: Update devDeps.
+- npm: Update from deprecated `babel-eslint` and use `@brettz9/node-static`
+  fork without reported vulnerabilities
+
 ## 0.10.0
 
 - Enhancement: Support `Intl.DisplayNames` types (region, language, script,

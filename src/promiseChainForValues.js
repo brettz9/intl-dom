@@ -21,16 +21,16 @@
  * @returns {Promise<any>} Either resolves to a value derived from an item in
  *  the array or rejects if all items reject
  * @example
- promiseChainForValues(['a', 'b', 'c'], (val) => {
-   return new Promise(function (resolve, reject) {
-     if (val === 'a') {
-       reject(new Error('missing'));
-     }
-     setTimeout(() => {
-       resolve(val);
-     }, 100);
-   });
- });
+promiseChainForValues(['a', 'b', 'c'], (val) => {
+  return new Promise(function (resolve, reject) {
+    if (val === 'a') {
+      reject(new Error('missing'));
+    }
+    setTimeout(() => {
+      resolve(val);
+    }, 100);
+  });
+});
  */
 export const promiseChainForValues = (
   values, errBack, errorMessage = 'Reached end of values array.'
