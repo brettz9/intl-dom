@@ -2658,6 +2658,8 @@ This project has been heavily inspired by
 
 ## To-dos
 
+- Support [Intl.DurationFormat](https://github.com/tc39/proposal-intl-duration-format)
+with [this polyfill](https://www.npmjs.com/package/intl-unofficial-duration-unit-format?activeTab=readme)?
 - Use **dominum** with Jamilih and have tests use Jamilih (minimum's
   deliberately minimal implementation won't allow, e.g., setting
   `id`/`href` properties as we are now, and Jamilih is less verbose anyways.
