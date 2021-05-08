@@ -13,19 +13,18 @@ export const getFormatterInfo = ({object}) => {
   return {value: object};
 };
 
-/* eslint-disable max-len */
 /**
  * Callback to give replacement text based on a substitution value.
  * @callback AllSubstitutionCallback
  * @param {PlainObject} cfg
- * @param {string|Node|number|Date|RelativeTimeInfo|ListInfo|NumberInfo|DateInfo} cfg.value Contains
+ * @param {string|Node|number|Date|RelativeTimeInfo|DurationInfo|
+ *   ListInfo|NumberInfo|DateInfo} cfg.value Contains
  *   the value returned by the individual substitution
  * @param {string} cfg.arg See `cfg.arg` of {@link SubstitutionCallback}.
  * @param {string} cfg.key The substitution key Not currently in use
  * @param {string} cfg.locale The locale
  * @returns {string|Element} The replacement text or element
 */
-/* eslint-enable max-len */
 
 /**
  * @type {AllSubstitutionCallback}
@@ -70,6 +69,7 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
     const singleKey = Object.keys(value)[0];
     if ([
       'number', 'date', 'datetime', 'dateRange', 'datetimeRange', 'relative',
+      'duration',
       'region', 'language', 'script', 'currency',
       'list', 'plural'
     ].includes(singleKey)) {
@@ -96,6 +96,10 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
             type: singleKey
           }
         ).of(value);
+      case 'duration':
+        return new Intl.DurationFormat(
+          locale, applyArgs({type: 'DURATION'})
+        ).format(value);
       case 'relative':
         // The second argument actually contains the primary options, so swap
         [extraOpts, opts] = [opts, extraOpts];

@@ -92,7 +92,7 @@ export const defaultInsertNodes = ({
           value: subst, arg, key, locale
         });
       }, substitution);
-    } else if (arg && (/^(?:NUMBER|DATE(?:TIME|RANGE|TIMERANGE)?|REGION|LANGUAGE|SCRIPT|CURRENCY|RELATIVE|LIST)(?:\||$)/u).test(arg)) {
+    } else if (arg && (/^(?:NUMBER|DATE(?:TIME|RANGE|TIMERANGE)?|REGION|LANGUAGE|SCRIPT|CURRENCY|RELATIVE|DURATION|LIST)(?:\||$)/u).test(arg)) {
       substitution = defaultAllSubstitutions({
         value: substitution, arg, key, locale
       });

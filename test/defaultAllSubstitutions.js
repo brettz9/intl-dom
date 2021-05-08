@@ -50,4 +50,21 @@ describe('defaultAllSubstitutions', function () {
     });
     expect(val).to.equal('3 months ago');
   });
+  it('should perform duration processing', function () {
+    const val = defaultAllSubstitutions({
+      value: {
+        duration: [
+          {
+            hours: 1,
+            minutes: 46,
+            seconds: 40
+          },
+          {
+            style: 'long'
+          }
+        ]
+      }
+    });
+    expect(val).to.equal('1 hour, 46 minutes and 40 seconds');
+  });
 });
