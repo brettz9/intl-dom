@@ -2660,6 +2660,10 @@ This project has been heavily inspired by
 ## See also
 
 - [i18nizeElement](https://github.com/brettz9/i18nizeElement)
+- [Intl.supportedValuesOf](https://github.com/tc39/proposal-intl-enumeration)
+  (not adaptable meaningfully into `intl-dom`, but may be useful to build
+  UI like menus which can pass on the internationalized values and config
+  passed in to `intl-dom`)
 
 ## To-dos
 
