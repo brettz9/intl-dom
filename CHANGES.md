@@ -4,6 +4,12 @@
 
 - Enhancement: Add `setJSONExtra` export to avoid global usage
 - Docs: Consistent `node_modules` path
+- Docs: Update license badge per latest
+- npm: Update `file-fetch` (minor)
+
+**Dev-facing**:
+- npm: Add `lint` script
+- npm: Update devDeps.
 
 ## 0.11.0
 
