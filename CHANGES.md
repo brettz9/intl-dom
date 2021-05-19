@@ -1,5 +1,9 @@
 # intl-dom CHANGES
 
+## 0.12.1
+
+- Fix: Ensure all function-type `substitutions` are trusted
+
 ## 0.12.0
 
 - Enhancement: Add `setJSONExtra` export to avoid global usage
