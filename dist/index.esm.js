@@ -1477,6 +1477,15 @@ var defaultInsertNodes = function defaultInsertNodes(_ref) {
     throw new TypeError('`maximumLocalNestingDepth` must be a number.');
   }
 
+  Object.entries(substitutions).forEach(function (_ref2) {
+    var _ref3 = _slicedToArray(_ref2, 2);
+        _ref3[0];
+        var value = _ref3[1];
+
+    if (typeof value === 'function') {
+      usedKeys.push();
+    }
+  });
   var localFormatter = new LocalFormatter(locals);
   var regularFormatter = new RegularFormatter(substitutions);
   var switchFormatter = new SwitchFormatter(switches, {
@@ -1490,10 +1499,10 @@ var defaultInsertNodes = function defaultInsertNodes(_ref) {
     allSubstitutions = Array.isArray(allSubstitutions) ? allSubstitutions : [allSubstitutions];
   }
 
-  var getSubstitution = function getSubstitution(_ref2) {
-    var key = _ref2.key,
-        arg = _ref2.arg,
-        substs = _ref2.substs;
+  var getSubstitution = function getSubstitution(_ref4) {
+    var key = _ref4.key,
+        arg = _ref4.arg,
+        substs = _ref4.substs;
     var substitution;
     var isLocalKey = localFormatter.constructor.isMatchingKey(key);
 
@@ -1544,11 +1553,11 @@ var defaultInsertNodes = function defaultInsertNodes(_ref) {
 
   var recursiveLocalCount = 1;
 
-  var checkLocalVars = function checkLocalVars(_ref3) {
-    var substitution = _ref3.substitution,
-        ky = _ref3.ky,
-        arg = _ref3.arg,
-        processSubsts = _ref3.processSubsts;
+  var checkLocalVars = function checkLocalVars(_ref5) {
+    var substitution = _ref5.substitution,
+        ky = _ref5.ky,
+        arg = _ref5.arg,
+        processSubsts = _ref5.processSubsts;
 
     if (typeof substitution === 'string' && substitution.includes('{')) {
       if (recursiveLocalCount++ > maximumLocalNestingDepth) {
@@ -1590,12 +1599,12 @@ var defaultInsertNodes = function defaultInsertNodes(_ref) {
     // Run this block to optimize non-DOM substitutions
     var returnsDOM = false;
 
-    var replace = function replace(_ref4) {
-      var str = _ref4.str,
-          _ref4$substs = _ref4.substs,
-          substs = _ref4$substs === void 0 ? substitutions : _ref4$substs,
-          _ref4$formatter = _ref4.formatter,
-          formatter = _ref4$formatter === void 0 ? regularFormatter : _ref4$formatter;
+    var replace = function replace(_ref6) {
+      var str = _ref6.str,
+          _ref6$substs = _ref6.substs,
+          substs = _ref6$substs === void 0 ? substitutions : _ref6$substs,
+          _ref6$formatter = _ref6.formatter,
+          formatter = _ref6$formatter === void 0 ? regularFormatter : _ref6$formatter;
       return str.replace(formattingRegex, function (_, esc, ky, pipe, arg) {
         if (esc.length % 2) {
           return _;
@@ -1642,12 +1651,12 @@ var defaultInsertNodes = function defaultInsertNodes(_ref) {
 
   recursiveLocalCount = 1;
 
-  var processSubstitutions = function processSubstitutions(_ref5) {
-    var str = _ref5.str,
-        _ref5$substs = _ref5.substs,
-        substs = _ref5$substs === void 0 ? substitutions : _ref5$substs,
-        _ref5$formatter = _ref5.formatter,
-        formatter = _ref5$formatter === void 0 ? regularFormatter : _ref5$formatter;
+  var processSubstitutions = function processSubstitutions(_ref7) {
+    var str = _ref7.str,
+        _ref7$substs = _ref7.substs,
+        substs = _ref7$substs === void 0 ? substitutions : _ref7$substs,
+        _ref7$formatter = _ref7.formatter,
+        formatter = _ref7$formatter === void 0 ? regularFormatter : _ref7$formatter;
     var nodes = []; // Copy to ensure we are resetting index on each instance (manually
     // resetting on `formattingRegex` is problematic with recursion that
     // uses the same regex copy)

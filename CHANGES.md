@@ -1,5 +1,9 @@
 # intl-dom CHANGES
 
+## 0.12.2
+
+- Fix: Include 0.12.1 improvements in `dist`
+
 ## 0.12.1
 
 - Fix: Ensure all function-type `substitutions` are trusted
