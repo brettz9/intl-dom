@@ -71,7 +71,9 @@ export const i18nServer = function i18nServer ({
   } = {}) => {
     const message = messageForKey(strings, key);
     const string = getStringFromMessageAndDefaults({
-      message: (message && message.value) || false,
+      message: message && typeof message.value === 'string'
+        ? message.value
+        : false,
       defaults,
       messageForKey,
       key

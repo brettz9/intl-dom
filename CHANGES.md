@@ -1,5 +1,10 @@
 # intl-dom CHANGES
 
+## 0.12.5
+
+- Fix: Ensure that `i18n`, as with `getStringFromMessageAndDefaults`, allows
+  for empty string value keys
+
 ## 0.12.4
 
 - Fix: Ensure Git tag reflects package

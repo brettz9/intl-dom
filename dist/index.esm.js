@@ -2396,7 +2396,7 @@ var i18nServer = function i18nServer(_ref) {
 
     var message = messageForKey(strings, key);
     var string = getStringFromMessageAndDefaults({
-      message: message && message.value || false,
+      message: message && typeof message.value === 'string' ? message.value : false,
       defaults: defaults,
       messageForKey: messageForKey,
       key: key
