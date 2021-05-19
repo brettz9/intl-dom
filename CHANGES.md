@@ -1,5 +1,10 @@
 # intl-dom CHANGES
 
+## 0.12.4
+
+- Fix: Ensure Git tag reflects package
+- npm: Update lock
+
 ## 0.12.3
 
 - Fix: Properly push `key` for 0.12.1 fix
