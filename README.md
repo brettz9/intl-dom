@@ -2670,6 +2670,8 @@ This project has been heavily inspired by
 - Support [Intl.DurationFormat](https://github.com/tc39/proposal-intl-duration-format)
 with [this polyfill](https://www.npmjs.com/package/intl-unofficial-duration-unit-format?activeTab=readme)?
 - Support [Intl.NumberFormat.formatRange](https://github.com/tc39/proposal-intl-numberformat-v3) as it may advance
+- Change to **named capturing group for formatters**, not only for internal best
+  practices but for ease on users
 - Use **dominum** with Jamilih and have tests use Jamilih (minimum's
   deliberately minimal implementation won't allow, e.g., setting
   `id`/`href` properties as we are now, and Jamilih is less verbose anyways.
