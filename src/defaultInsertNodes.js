@@ -43,11 +43,16 @@ export const defaultInsertNodes = ({
   if (typeof maximumLocalNestingDepth !== 'number') {
     throw new TypeError('`maximumLocalNestingDepth` must be a number.');
   }
-  Object.entries(substitutions).forEach(([key, value]) => {
-    if (typeof value === 'function') {
-      usedKeys.push();
-    }
-  });
+
+  const addFunctionKeys = () => {
+    Object.entries(substitutions).forEach(([key, value]) => {
+      if (typeof value === 'function') {
+        usedKeys.push(key);
+      }
+    });
+  };
+  addFunctionKeys();
+
   const localFormatter = new LocalFormatter(locals);
   const regularFormatter = new RegularFormatter(substitutions);
   const switchFormatter = new SwitchFormatter(switches, {substitutions});
@@ -166,9 +171,11 @@ export const defaultInsertNodes = ({
     if (!returnsDOM) {
       checkExtraSuppliedFormatters({substitutions});
       usedKeys.length = 0;
+      addFunctionKeys();
       return unescapeBackslashes(ret);
     }
     usedKeys.length = 0;
+    addFunctionKeys();
   }
 
   recursiveLocalCount = 1;

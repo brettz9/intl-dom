@@ -1477,15 +1477,19 @@ var defaultInsertNodes = function defaultInsertNodes(_ref) {
     throw new TypeError('`maximumLocalNestingDepth` must be a number.');
   }
 
-  Object.entries(substitutions).forEach(function (_ref2) {
-    var _ref3 = _slicedToArray(_ref2, 2);
-        _ref3[0];
-        var value = _ref3[1];
+  var addFunctionKeys = function addFunctionKeys() {
+    Object.entries(substitutions).forEach(function (_ref2) {
+      var _ref3 = _slicedToArray(_ref2, 2),
+          key = _ref3[0],
+          value = _ref3[1];
 
-    if (typeof value === 'function') {
-      usedKeys.push();
-    }
-  });
+      if (typeof value === 'function') {
+        usedKeys.push(key);
+      }
+    });
+  };
+
+  addFunctionKeys();
   var localFormatter = new LocalFormatter(locals);
   var regularFormatter = new RegularFormatter(substitutions);
   var switchFormatter = new SwitchFormatter(switches, {
@@ -1643,10 +1647,12 @@ var defaultInsertNodes = function defaultInsertNodes(_ref) {
         substitutions: substitutions
       });
       usedKeys.length = 0;
+      addFunctionKeys();
       return unescapeBackslashes(ret);
     }
 
     usedKeys.length = 0;
+    addFunctionKeys();
   }
 
   recursiveLocalCount = 1;
