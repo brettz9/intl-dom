@@ -197,12 +197,12 @@ supporting, you may need any of the following:
 ### Browser (ESM)
 
 ```js
-import {i18n} from './node_modules/intl-dom/dist/index.esm.js';
+import {i18n, setJSONExtra} from './node_modules/intl-dom/dist/index.esm.js';
 
 // Currently not bundling json-6
-import jsonExtra from '../../node_modules/json-6/dist/index.mjs';
+import jsonExtra from './node_modules/json-6/dist/index.mjs';
 
-window.jsonExtra = jsonExtra;
+setJSONExtra(jsonExtra);
 ```
 
 ### Browser/Node (Bundle)
@@ -2669,6 +2669,7 @@ This project has been heavily inspired by
 
 - Support [Intl.DurationFormat](https://github.com/tc39/proposal-intl-duration-format)
 with [this polyfill](https://www.npmjs.com/package/intl-unofficial-duration-unit-format?activeTab=readme)?
+- Support [Intl.NumberFormat.formatRange](https://github.com/tc39/proposal-intl-numberformat-v3) as it may advance
 - Use **dominum** with Jamilih and have tests use Jamilih (minimum's
   deliberately minimal implementation won't allow, e.g., setting
   `id`/`href` properties as we are now, and Jamilih is less verbose anyways.

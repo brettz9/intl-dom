@@ -2,7 +2,9 @@
 export {
   Formatter, LocalFormatter, RegularFormatter, SwitchFormatter
 } from './Formatter.js';
-export {unescapeBackslashes, parseJSONExtra, processRegex} from './utils.js';
+export {
+  unescapeBackslashes, parseJSONExtra, processRegex, setJSONExtra
+} from './utils.js';
 export {promiseChainForValues} from './promiseChainForValues.js';
 
 // DEFAULTS

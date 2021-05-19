@@ -1,8 +1,11 @@
-/* globals jsonExtra */
-
 // We want it to work in the browser, so commenting out
 // import jsonExtra from 'json5';
 // import jsonExtra from 'json-6';
+
+let _jsonExtra = globalThis.jsonExtra;
+export const setJSONExtra = (__jsonExtra) => {
+  _jsonExtra = __jsonExtra;
+};
 
 export const unescapeBackslashes = (str) => {
   return str.replace(/\\+/gu, (esc) => {
@@ -11,7 +14,7 @@ export const unescapeBackslashes = (str) => {
 };
 
 export const parseJSONExtra = (args) => {
-  return jsonExtra.parse(
+  return _jsonExtra.parse(
     // Doesn't actually currently allow explicit brackets,
     //  but in case we change our regex to allow inner brackets
     '{' + (args || '').replace(/^\{/u, '').replace(/\}$/u, '') + '}'

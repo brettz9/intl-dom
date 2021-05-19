@@ -1,8 +1,13 @@
 # intl-dom CHANGES
 
+## 0.12.0
+
+- Enhancement: Add `setJSONExtra` export to avoid global usage
+- Docs: Consistent `node_modules` path
+
 ## 0.11.0
 
-- npm: Update file-fetch (minor), json-6 (minor)
+- npm: Update `file-fetch` (minor), `json-6` (minor)
 - Docs: Update info on JSON-6 in the browser
 
 **Dev-facing**:

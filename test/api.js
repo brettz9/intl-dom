@@ -1,6 +1,6 @@
 import {
   Formatter, LocalFormatter, RegularFormatter, SwitchFormatter,
-  unescapeBackslashes, parseJSONExtra, processRegex,
+  unescapeBackslashes, parseJSONExtra, setJSONExtra, processRegex,
   promiseChainForValues,
   defaultLocaleResolver,
   defaultAllSubstitutions,
@@ -15,6 +15,8 @@ import {
 
 describe('API', function () {
   it('should export utility classes', function () {
+    setJSONExtra(globalThis.jsonExtra);
+
     expect(Formatter).to.be.a('function');
     expect(LocalFormatter).to.be.a('function');
     expect(RegularFormatter).to.be.a('function');

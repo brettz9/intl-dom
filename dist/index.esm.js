@@ -243,17 +243,20 @@ function _nonIterableRest() {
   throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
 
-/* globals jsonExtra */
 // We want it to work in the browser, so commenting out
 // import jsonExtra from 'json5';
 // import jsonExtra from 'json-6';
+var _jsonExtra = globalThis.jsonExtra;
+var setJSONExtra = function setJSONExtra(__jsonExtra) {
+  _jsonExtra = __jsonExtra;
+};
 var unescapeBackslashes = function unescapeBackslashes(str) {
   return str.replace(/\\+/g, function (esc) {
     return esc.slice(0, esc.length / 2);
   });
 };
 var parseJSONExtra = function parseJSONExtra(args) {
-  return jsonExtra.parse( // Doesn't actually currently allow explicit brackets,
+  return _jsonExtra.parse( // Doesn't actually currently allow explicit brackets,
   //  but in case we change our regex to allow inner brackets
   '{' + (args || '').replace(/^\{/, '').replace(/\}$/, '') + '}');
 }; // Todo: Extract to own library (RegExtras?)
@@ -2478,4 +2481,4 @@ var i18n = function i18n() {
   }
 };
 
-export { Formatter, LocalFormatter, RegularFormatter, SwitchFormatter, defaultAllSubstitutions, defaultInsertNodes, defaultLocaleMatcher, defaultLocaleResolver, findLocale, findLocaleStrings, getDOMForLocaleString, getDocument, getFetch, getMatchingLocale, getMessageForKeyByStyle, getStringFromMessageAndDefaults, i18n, i18nServer, parseJSONExtra, processRegex, promiseChainForValues, setDocument, setFetch, unescapeBackslashes };
+export { Formatter, LocalFormatter, RegularFormatter, SwitchFormatter, defaultAllSubstitutions, defaultInsertNodes, defaultLocaleMatcher, defaultLocaleResolver, findLocale, findLocaleStrings, getDOMForLocaleString, getDocument, getFetch, getMatchingLocale, getMessageForKeyByStyle, getStringFromMessageAndDefaults, i18n, i18nServer, parseJSONExtra, processRegex, promiseChainForValues, setDocument, setFetch, setJSONExtra, unescapeBackslashes };
