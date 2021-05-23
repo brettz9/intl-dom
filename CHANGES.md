@@ -1,5 +1,9 @@
 # intl-dom CHANGES
 
+## 0.13.0
+
+- Enhancement: Support number (timestamps) for date ranges.
+
 ## 0.12.5
 
 - Fix: Ensure that `i18n`, as with `getStringFromMessageAndDefaults`, allows

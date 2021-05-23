@@ -1699,6 +1699,10 @@ _('dateKey', {
 _('dateRangeKey', {
   dates: {
     dateRange: [
+      // One may alternatively just use timestamps:
+      // Date.UTC(2000, 11, 28, 3, 4, 5),
+      // Date.UTC(2001, 11, 28, 7, 8, 9),
+
       new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
       new Date(Date.UTC(2001, 11, 28, 7, 8, 9)),
       // Optional options object

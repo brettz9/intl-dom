@@ -503,6 +503,26 @@ describe('i18n', function () {
   );
 
   it(
+    'should return a function whose default `allSubstitutions` will ' +
+    'perform `DateTimeFormat` processing being overridden by options ' +
+    'in the locale argument (using timestamp)',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('dateAliasWithArgAndOptionsKey', {
+        now: 'now',
+        todayDate: {
+          date: [Date.UTC(2000, 11, 28, 3, 4, 5), {
+            year: '2-digit'
+          }]
+        }
+      });
+      expect(string).to.equal('It is now December 28, 2000');
+    }
+  );
+
+  it(
     'should return a function which despite `null` `allSubstitutions` will ' +
     'perform `DateTimeFormat` processing with options overridden by ' +
     'locale argument',
@@ -600,6 +620,23 @@ describe('i18n', function () {
 
     it(
       'should return a function whose default `allSubstitutions` will ' +
+      'perform `DateTimeFormat` range processing (as timestamps)',
+      async function () {
+        const _ = await i18n({
+          locales: ['en-US']
+        });
+        const string = _('dateRangeKey', {
+          dates: [
+            Date.UTC(2000, 11, 28, 3, 4, 5),
+            Date.UTC(2001, 11, 28, 7, 8, 9)
+          ]
+        });
+        expect(string).to.equal('It is between 12/28/2000 – 12/28/2001.');
+      }
+    );
+
+    it(
+      'should return a function whose default `allSubstitutions` will ' +
       'perform `DateTimeFormat` range processing and options',
       async function () {
         const _ = await i18n({
@@ -655,6 +692,41 @@ describe('i18n', function () {
             datetimeRange: [
               new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
               new Date(Date.UTC(2001, 11, 28, 7, 8, 9)),
+              {
+                year: '2-digit'
+              }
+            ]
+          }
+        });
+
+        try {
+          expect(string).to.equal(
+            'It is between December 27, 2000, 7 PM – December 27, 2001, 11 PM.'
+          );
+        } catch (err) {
+          // Firefox using polyfill
+          expect(string).to.equal(
+            'It is between December 27, 2000 at 7 PM – December 27, 2001 at ' +
+            '11 PM.'
+          );
+        }
+      }
+    );
+
+    it(
+      'should return a function which despite `null` `allSubstitutions` ' +
+      'will perform `DateTimeFormat` range processing with options ' +
+      'overridden by locale argument (with options and using timestamps)',
+      async function () {
+        const _ = await i18n({
+          allSubstitutions: null,
+          locales: ['en-US']
+        });
+        const string = _('dateRangeWithArgAndOptionsKey', {
+          dates: {
+            datetimeRange: [
+              Date.UTC(2000, 11, 28, 3, 4, 5),
+              Date.UTC(2001, 11, 28, 7, 8, 9),
               {
                 year: '2-digit'
               }

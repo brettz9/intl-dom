@@ -82,7 +82,9 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
         return new Intl.DateTimeFormat(
           locale,
           applyArgs({type: 'DATERANGE', options: extraOpts})
-        ).formatRange(value, opts);
+        ).formatRange(...[value, opts].map((val) => {
+          return typeof val === 'number' ? new Date(val) : val;
+        }));
       case 'region': case 'language': case 'script': case 'currency':
         return new Intl.DisplayNames(
           locale, {
@@ -120,23 +122,19 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
     }
   }
 
-  // Numbers
-  if (typeof value === 'number') {
-    return new Intl.NumberFormat(
-      locale,
-      applyArgs({type: 'NUMBER'})
-    ).format(value);
-  }
-
   // Dates
   if (
-    value && typeof value === 'object' &&
-    typeof value.getTime === 'function'
+    value
   ) {
-    return new Intl.DateTimeFormat(
-      locale,
-      applyArgs({type: 'DATETIME'})
-    ).format(value);
+    if (typeof value === 'number' && (/^DATE(?:TIME)(?:\||$)/u).test(arg)) {
+      value = new Date(value);
+    }
+    if (typeof value === 'object' && typeof value.getTime === 'function') {
+      return new Intl.DateTimeFormat(
+        locale,
+        applyArgs({type: 'DATETIME'})
+      ).format(value);
+    }
   }
 
   // Date range
@@ -145,7 +143,17 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
     return new Intl.DateTimeFormat(
       locale,
       applyArgs({type: 'DATERANGE', options: extraOpts})
-    ).formatRange(...value.slice(0, 2));
+    ).formatRange(...value.slice(0, 2).map((val) => {
+      return typeof val === 'number' ? new Date(val) : val;
+    }));
+  }
+
+  // Numbers
+  if (typeof value === 'number') {
+    return new Intl.NumberFormat(
+      locale,
+      applyArgs({type: 'NUMBER'})
+    ).format(value);
   }
 
   // console.log('value', value);
