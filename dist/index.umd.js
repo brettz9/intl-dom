@@ -520,6 +520,8 @@
       return options;
     };
 
+    var expectsDatetime = false;
+
     if (value && _typeof(value) === 'object' && !Array.isArray(value)) {
       var singleKey = Object.keys(value)[0];
 
@@ -536,6 +538,11 @@
         callback = _getFormatterInfo.callback;
 
         switch (singleKey) {
+          case 'date':
+          case 'datetime':
+            expectsDatetime = true;
+            break;
+
           case 'dateRange':
           case 'datetimeRange':
             return (_Intl$DateTimeFormat = new Intl.DateTimeFormat(locale, applyArgs({
@@ -589,7 +596,7 @@
 
 
     if (value) {
-      if (typeof value === 'number' && /^DATE(?:TIME)(?:\||$)/.test(arg)) {
+      if (typeof value === 'number' && (expectsDatetime || /^DATE(?:TIME)(?:\||$)/.test(arg))) {
         value = new Date(value);
       }
 

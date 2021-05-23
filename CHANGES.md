@@ -1,5 +1,9 @@
 # intl-dom CHANGES
 
+## 0.13.2
+
+- Fix: Ensure build files updated
+
 ## 0.13.1
 
 - Fix: Allow timestamp for `date:` without `arg`.
