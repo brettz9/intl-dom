@@ -65,6 +65,7 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
     return options;
   };
 
+  let expectsDatetime = false;
   if (value && typeof value === 'object' && !Array.isArray(value)) {
     const singleKey = Object.keys(value)[0];
     if ([
@@ -78,6 +79,9 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
       } = getFormatterInfo({object: value[singleKey]}));
 
       switch (singleKey) {
+      case 'date': case 'datetime':
+        expectsDatetime = true;
+        break;
       case 'dateRange': case 'datetimeRange':
         return new Intl.DateTimeFormat(
           locale,
@@ -126,7 +130,10 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
   if (
     value
   ) {
-    if (typeof value === 'number' && (/^DATE(?:TIME)(?:\||$)/u).test(arg)) {
+    if (
+      typeof value === 'number' &&
+      (expectsDatetime || (/^DATE(?:TIME)(?:\||$)/u).test(arg))
+    ) {
       value = new Date(value);
     }
     if (typeof value === 'object' && typeof value.getTime === 'function') {

@@ -1,5 +1,9 @@
 # intl-dom CHANGES
 
+## 0.13.1
+
+- Fix: Allow timestamp for `date:` without `arg`.
+
 ## 0.13.0
 
 - Enhancement: Support number (timestamps) for date ranges.
