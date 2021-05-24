@@ -1,5 +1,9 @@
 # intl-dom CHANGES
 
+## 0.13.3
+
+- npm: Bump devDeps. (which formerly had problem with peerDeps.)
+
 ## 0.13.2
 
 - Fix: Ensure build files updated
