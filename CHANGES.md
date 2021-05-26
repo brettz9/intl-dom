@@ -1,5 +1,9 @@
 # intl-dom CHANGES
 
+## 0.13.4
+
+- npm: Update devDeps. (dropping vulnerabilties)
+
 ## 0.13.3
 
 - npm: Bump devDeps. (which formerly had problem with peerDeps.)
