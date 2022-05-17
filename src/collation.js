@@ -10,7 +10,7 @@ export {setDocument, getDocument} from './shared.js';
  */
 function generateUUID () { //  Adapted from original: public domain/MIT: http://stackoverflow.com/a/8809472/271577
   let d = Date.now();
-  /* istanbul ignore next */
+  /* c8 ignore next 5 */
   if (typeof performance !== 'undefined' &&
       typeof performance.now === 'function'
   ) {

@@ -13,6 +13,9 @@ module.exports = {
     es6: true
   },
   settings: {
+    jsdoc: {
+      mode: 'typescript'
+    },
     polyfills: [
       'Array.isArray',
       'console',
@@ -31,10 +34,6 @@ module.exports = {
   },
   overrides: [{
     files: ['test/bootstrap/node.js'],
-    globals: {
-      // Replace with proper `import.meta.url`
-      __dirname: true
-    },
     extends: ['ash-nazg/sauron-node-overrides']
 
   }, {

@@ -1,10 +1,10 @@
-import babel from '@rollup/plugin-babel';
+import {babel} from '@rollup/plugin-babel';
 import {terser} from 'rollup-plugin-terser';
 
 // We don't need this so long as we are hard-coding the
 //  `node_modules` path for the sake of the browser, but keeping
 //  in event we can use import paths later
-import nodeResolve from '@rollup/plugin-node-resolve';
+import {nodeResolve} from '@rollup/plugin-node-resolve';
 
 /**
  * @external RollupConfig
@@ -16,7 +16,7 @@ import nodeResolve from '@rollup/plugin-node-resolve';
  * @param {PlainObject} [config={}]
  * @param {boolean} [config.minifying=false]
  * @param {string} [config.format="umd"]
- * @returns {external:RollupConfig}
+ * @returns {RollupConfig}
  */
 function getRollupObject ({minifying, format = 'umd'} = {}) {
   const nonMinified = {

@@ -1,6 +1,6 @@
 /* globals fetch, document */
 let _fetch = typeof fetch !== 'undefined'
-  // istanbul ignore next
+  /* c8 ignore next */
   ? fetch
   : null;
 
@@ -20,7 +20,7 @@ export const getFetch = () => {
 };
 
 let _doc = typeof document !== 'undefined'
-  // istanbul ignore next
+  /* c8 ignore next */
   ? document
   : null;
 

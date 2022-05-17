@@ -1,5 +1,11 @@
 # intl-dom CHANGES
 
+## 0.14.0
+
+- BREAKING feat: Native ESM with `exports`
+- chore: update `file-fetch` (minor) and `json-6` (patch)
+- chore: update devDeps.
+
 ## 0.13.4
 
 - npm: Update devDeps. (dropping vulnerabilties)

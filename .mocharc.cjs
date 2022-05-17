@@ -8,6 +8,6 @@ module.exports = {
     'configFile=mocha-multi-reporters.json'
   ],
   require: [
-    'esm', 'chai/register-expect', 'test/bootstrap/node.js'
+    'chai/register-expect.js', 'test/bootstrap/node.js'
   ]
 };

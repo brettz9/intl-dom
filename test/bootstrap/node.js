@@ -5,9 +5,10 @@
 //  instead of "other" (as it should) for
 //  `new Intl.PluralRules('en-US', {minimumFractionDigits: 1}).select(1)`.
 // import 'intl-pluralrules';
-import {resolve as pathResolve} from 'path';
+import {resolve as pathResolve, dirname} from 'path';
+import {fileURLToPath} from 'url';
 
-import PluralRules from 'intl-pluralrules/plural-rules.js';
+import PluralRules from 'intl-pluralrules/plural-rules';
 
 import '@formatjs/intl-displaynames/polyfill.js';
 import '@formatjs/intl-displaynames/locale-data/en.js';
@@ -30,6 +31,8 @@ import fileFetch from 'file-fetch';
 import jsonExtra from 'json-6';
 
 import {setFetch, setDocument} from '../../src/shared.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 global.jsonExtra = jsonExtra;
 
@@ -67,4 +70,4 @@ setTimeout(() => {
   // Delayed mocha beginning for sake of `process.chdir` which cannot
   //  be added earlier or it will hide tests themselves
   run();
-});
+}, 1000);

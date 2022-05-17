@@ -1,6 +1,6 @@
 /**
 * @callback PromiseChainErrback
-* @param {any} errBack
+* @param {(value: any) => Promise<any>} errBack
 * @returns {Promise<any>|any}
 */
 
