@@ -2302,7 +2302,7 @@ console.log(path);
 // '/base/path/_locales/en-US/messages.json'
 ```
 
-### `defaultAllSubstitutions`
+#### `defaultAllSubstitutions`
 
 Passed information for a substitution and returns the replacement.
 
