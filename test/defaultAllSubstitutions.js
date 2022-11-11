@@ -35,7 +35,7 @@ describe('defaultAllSubstitutions', function () {
   });
   it('should perform date processing', function () {
     const val = defaultAllSubstitutions({
-      value: new Date(Date.UTC(2000, 11, 28, 3, 4, 5))
+      value: new Date(Date.UTC(2000, 11, 28, 13, 4, 5))
     });
     expect(val).to.equal('12/28/2000');
   });

@@ -1,5 +1,5 @@
 import {babel} from '@rollup/plugin-babel';
-import {terser} from 'rollup-plugin-terser';
+import terser from '@rollup/plugin-terser';
 
 // We don't need this so long as we are hard-coding the
 //  `node_modules` path for the sake of the browser, but keeping

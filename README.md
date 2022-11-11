@@ -546,13 +546,11 @@ switches can, unlike `locals`, accept run-time substitution arguments
 which will be used in place of the default.
 
 ```js
-(async () => {
-  const _ = await i18n();
-  const string = _('switchUsingKey', {
-    'executive-pronoun': 'accusative'
-  });
-  // `string` will be "I gave it to him"
-})();
+const _ = await i18n();
+const string = _('switchUsingKey', {
+  'executive-pronoun': 'accusative'
+});
+// `string` will be "I gave it to him"
 ```
 
 However, run-time substitutions will be overridden if the switch is
@@ -724,19 +722,17 @@ For example, with the following:
 ```
 
 ```js
-(async () => {
-  const _ = await i18n();
+const _ = await i18n();
 
-  const string1 = _('keyUsingSwitch', {
-    bananas: 20
-  });
-  // `string1` will be "You have 20 bananas."
+const string1 = _('keyUsingSwitch', {
+  bananas: 20
+});
+// `string1` will be "You have 20 bananas."
 
-  const string2 = _('keyUsingSwitch', {
-    bananas: 1
-  });
-  // `string2` will be "You have one banana."
-})();
+const string2 = _('keyUsingSwitch', {
+  bananas: 1
+});
+// `string2` will be "You have one banana."
 ```
 
 Note that English only has the "one" and "other" forms for cardinal numbers
@@ -752,18 +748,16 @@ can indicate config along with the provided number by using a `plural`
 (or `number`) type:
 
 ```js
-(async () => {
-  const _ = await i18n();
+const _ = await i18n();
 
-  const string1 = _('keyUsingSwitch', {
-    bananas: {
-      plural: [1, {
-        minimumFractionDigits: 1
-      }]
-    }
-  });
-  // `string1` will be "You have 1 bananas."
-})();
+const string1 = _('keyUsingSwitch', {
+  bananas: {
+    plural: [1, {
+      minimumFractionDigits: 1
+    }]
+  }
+});
+// `string1` will be "You have 1 bananas."
 ```
 
 Note, however, that while this properly selects our "other" form, it hasn't
@@ -1033,7 +1027,7 @@ options object).
 const string = _('dateRangeWithArgKey', {
   // The month is 0-based, so "11" is for December
   dates: [
-    new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+    new Date(Date.UTC(2000, 11, 28, 13, 4, 5)),
     new Date(Date.UTC(2001, 11, 28, 7, 8, 9))
     // Can pass options here
   ]
@@ -1059,7 +1053,7 @@ exact date-time formatting:
 const s = _('dateRangeWithArgAndOptionsKey', {
   // The month is 0-based, so "11" is for December
   dates: [
-    new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+    new Date(Date.UTC(2000, 11, 28, 13, 4, 5)),
     new Date(Date.UTC(2001, 11, 28, 7, 8, 9))
   ]
 });
@@ -1412,24 +1406,22 @@ The other version comes with the locale baked in, and is available on the
 function instance returned by `i18n`.
 
 ```js
-(async () => {
-  const _ = await i18n();
+const _ = await i18n();
 
-  const sortedArray = _.sort([
-    'a', 'z', 'ä', 'a'
-  ], {
-    sensitivity: 'base'
-  });
+const sortedArray = _.sort([
+  'a', 'z', 'ä', 'a'
+], {
+  sensitivity: 'base'
+});
 
-  // `sortedArray` is now: ['a', 'ä', 'a', 'z']
+// `sortedArray` is now: ['a', 'ä', 'a', 'z']
 
-  // Now supply the sorted array to an HTML templating
-  //  utility which builds HTMl from an array, e.g.,
+// Now supply the sorted array to an HTML templating
+//  utility which builds HTMl from an array, e.g.,
 
-  $('body').append('<select>' + sortedArray.map((item) => {
-    return '<option>' + item + '</option>';
-  }).join('') + '</select>');
-})();
+$('body').append('<select>' + sortedArray.map((item) => {
+  return '<option>' + item + '</option>';
+}).join('') + '</select>');
 ```
 
 The other method `sortList` allows you to take advantage of
@@ -1437,10 +1429,10 @@ The other method `sortList` allows you to take advantage of
 while being able to wrap the individual list items into HTML.
 
 ```js
-(async () => {
-  const _ = await i18n();
+const _ = await i18n();
 
-  const fragment = _.sortList([
+const fragment = _.sortList(
+  [
     'a', 'z', 'ä', 'a'
   ],
   // You can replace this mapper with one suitable to your needs and
@@ -1458,11 +1450,11 @@ while being able to wrap the individual list items into HTML.
   // Collation options
   {
     sensitivity: 'base'
-  });
+  }
+);
 
-  // Gives the following fragment:
-  // '<a id="_0">a</a>, <a id="_1">ä</a>, <a id="_2">a</a>, or <a id="_3">z</a>
-})();
+// Gives the following fragment:
+// '<a id="_0">a</a>, <a id="_1">ä</a>, <a id="_2">a</a>, or <a id="_3">z</a>
 ```
 
 See [Intl.ListFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ListFormat) for the complete list of options (and for the
@@ -1537,11 +1529,7 @@ not been translated yet).
 In its simplest signature, you can call `i18n` without params:
 
 ```js
-(async () => {
-
 const _ = await i18n();
-
-})();
 ```
 
 This will use the default configuration (described below) to find
@@ -1669,7 +1657,7 @@ _('apples', {
 _('dateKey', {
   todayDate: {
     date: [
-      new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+      new Date(Date.UTC(2000, 11, 28, 13, 4, 5)),
       {
         year: 'numeric', month: 'numeric', day: 'numeric',
         hour: 'numeric', timeZone: 'America/Los_Angeles'
@@ -1700,10 +1688,10 @@ _('dateRangeKey', {
   dates: {
     dateRange: [
       // One may alternatively just use timestamps:
-      // Date.UTC(2000, 11, 28, 3, 4, 5),
+      // Date.UTC(2000, 11, 28, 13, 4, 5),
       // Date.UTC(2001, 11, 28, 7, 8, 9),
 
-      new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+      new Date(Date.UTC(2000, 11, 28, 13, 4, 5)),
       new Date(Date.UTC(2001, 11, 28, 7, 8, 9)),
       // Optional options object
       {
@@ -1956,11 +1944,7 @@ polymorphism, you can supply `forceNodeReturn` to the `i18n` constructor
 and this will wrap what would otherwise be strings into a text node:
 
 ```js
-(async () => {
-
 const _ = await i18n({forceNodeReturn: true});
-
-})();
 ```
 
 You can also supply `forceNodeReturn` on the third argument of the callback
@@ -1985,8 +1969,6 @@ Note that we first list the values supplied to the `i18n` constructor
 and then the values for the callback which is returned by `i18n`.
 
 ```js
-(async () => {
-
 const _ = await i18n({
   // Array of BCP-47 language strings (the locales primarily
   //   desired by the user)
@@ -2065,8 +2047,6 @@ const _ = await i18n({
   //  keys).
   throwOnExtraSuppliedFormatters: true
 });
-
-})();
 ```
 
 These are the values for the callback returned by `i18n`. Note that
@@ -2235,22 +2215,20 @@ If all values fail, `defaultLocales` will be used, and this itself
 defaults to `["en-US"]`.
 
 ```js
-(async () => {
-  const {strings, locale} = await findLocaleStrings({
-    locales: ['zz', 'fr'],
-    defaultLocales: ['en-US']
-  });
+const {strings, locale} = await findLocaleStrings({
+  locales: ['zz', 'fr'],
+  defaultLocales: ['en-US']
+});
 
-  // Assuming `zz` and `fr` locales are not found
-  console.log(locale);
-  // 'en-US'
+// Assuming `zz` and `fr` locales are not found
+console.log(locale);
+// 'en-US'
 
-  console.log(strings);
-  // (The JSON object obtained out of the file at
-  //  `/_locales/en-US/messages.json`, the default
-  //  location per the default locale resolver,
-  //  `defaultLocaleResolver`)
-})();
+console.log(strings);
+// (The JSON object obtained out of the file at
+//  `/_locales/en-US/messages.json`, the default
+//  location per the default locale resolver,
+//  `defaultLocaleResolver`)
 ```
 
 #### `findLocale`
@@ -2259,16 +2237,14 @@ As with `findLocaleStrings`, but only returns the `locale` (and as a string
 rather than on an object).
 
 ```js
-(async () => {
-  const locale = await findLocale({
-    locales: ['zz', 'fr'],
-    defaultLocales: ['en-US']
-  });
+const locale = await findLocale({
+  locales: ['zz', 'fr'],
+  defaultLocales: ['en-US']
+});
 
-  // Assuming `zz` and `fr` locales are not found
-  console.log(locale);
-  // 'en-US'
-})();
+// Assuming `zz` and `fr` locales are not found
+console.log(locale);
+// 'en-US'
 ```
 
 #### `defaultLocaleMatcher`
@@ -2421,7 +2397,6 @@ Promise utility.)
 Here is an example:
 
 ```js
-(async () => {
 await promiseChainForValues(['a', 'b', 'c'], (v) => {
   return new Promise(function (resolve, reject) {
     setTimeout(() => {
@@ -2429,7 +2404,6 @@ await promiseChainForValues(['a', 'b', 'c'], (v) => {
     }, 100);
   });
 });
-})();
 ```
 
 Which resolves to:

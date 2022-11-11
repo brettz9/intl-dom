@@ -455,7 +455,7 @@ describe('i18n', function () {
       });
       const string = _('dateKey', {
         now: 'now',
-        todayDate: new Date(Date.UTC(2000, 11, 28, 3, 4, 5))
+        todayDate: new Date(Date.UTC(2000, 11, 28, 13, 4, 5))
       });
       expect(string).to.equal('It is now 12/28/2000');
     }
@@ -473,7 +473,7 @@ describe('i18n', function () {
       const string = _('dateAliasWithArgAndOptionsKey', {
         now: 'now',
         todayDate: {
-          datetime: [new Date(Date.UTC(2000, 11, 28, 3, 4, 5)), {
+          datetime: [new Date(Date.UTC(2000, 11, 28, 13, 4, 5)), {
             year: '2-digit'
           }]
         }
@@ -493,7 +493,7 @@ describe('i18n', function () {
       const string = _('dateAliasWithArgAndOptionsKey', {
         now: 'now',
         todayDate: {
-          date: [new Date(Date.UTC(2000, 11, 28, 3, 4, 5)), {
+          date: [new Date(Date.UTC(2000, 11, 28, 13, 4, 5)), {
             year: '2-digit'
           }]
         }
@@ -513,7 +513,7 @@ describe('i18n', function () {
       const string = _('dateAliasWithArgAndOptionsKey', {
         now: 'now',
         todayDate: {
-          date: [Date.UTC(2000, 11, 28, 3, 4, 5), {
+          date: [Date.UTC(2000, 11, 28, 13, 4, 5), {
             year: '2-digit'
           }]
         }
@@ -534,7 +534,7 @@ describe('i18n', function () {
       const string = _('dateWithArgKey', {
         now: 'now',
         todayDate: {
-          date: [new Date(Date.UTC(2000, 11, 28, 3, 4, 5)), {
+          date: [new Date(Date.UTC(2000, 11, 28, 13, 4, 5)), {
             year: '2-digit'
           }]
         }
@@ -554,7 +554,7 @@ describe('i18n', function () {
       const string = _('dateWithArgKey', {
         now: 'now',
         todayDate: {
-          date: [new Date(Date.UTC(2000, 11, 28, 3, 4, 5)), {
+          date: [new Date(Date.UTC(2000, 11, 28, 13, 4, 5)), {
             year: '2-digit'
           }]
         }
@@ -574,7 +574,7 @@ describe('i18n', function () {
       const string = _('dateAliasWithArgKey', {
         now: 'now',
         todayDate: {
-          date: [new Date(Date.UTC(2000, 11, 28, 3, 4, 5)), {
+          date: [new Date(Date.UTC(2000, 11, 28, 13, 4, 5)), {
             year: '2-digit'
           }]
         }
@@ -594,7 +594,7 @@ describe('i18n', function () {
       b.textContent = 'now';
       const frag = _('dateKey', {
         now: b,
-        todayDate: new Date(Date.UTC(2000, 11, 28, 3, 4, 5))
+        todayDate: new Date(Date.UTC(2000, 11, 28, 13, 4, 5))
       });
       expect(frag).to.have.fragmentHtml('It is <b>now</b> 12/28/2000');
     }
@@ -610,7 +610,7 @@ describe('i18n', function () {
         });
         const string = _('dateRangeKey', {
           dates: [
-            new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+            new Date(Date.UTC(2000, 11, 28, 13, 4, 5)),
             new Date(Date.UTC(2001, 11, 28, 7, 8, 9))
           ]
         });
@@ -627,7 +627,7 @@ describe('i18n', function () {
         });
         const string = _('dateRangeKey', {
           dates: [
-            Date.UTC(2000, 11, 28, 3, 4, 5),
+            Date.UTC(2000, 11, 28, 13, 4, 5),
             Date.UTC(2001, 11, 28, 7, 8, 9)
           ]
         });
@@ -644,7 +644,7 @@ describe('i18n', function () {
         });
         const string = _('dateRangeKey', {
           dates: [
-            new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+            new Date(Date.UTC(2000, 11, 28, 13, 4, 5)),
             new Date(Date.UTC(2001, 11, 28, 7, 8, 9)),
             {
               year: '2-digit'
@@ -666,7 +666,7 @@ describe('i18n', function () {
         const string = _('dateRangeKey', {
           dates: {
             dateRange: [
-              new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+              new Date(Date.UTC(2000, 11, 28, 13, 4, 5)),
               new Date(Date.UTC(2001, 11, 28, 7, 8, 9)),
               {
                 year: '2-digit'
@@ -793,7 +793,7 @@ describe('i18n', function () {
         const string = _('dateRangeWithArgKey', {
           dates: {
             dateRange: [
-              new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+              new Date(Date.UTC(2000, 11, 28, 13, 4, 5)),
               new Date(Date.UTC(2001, 11, 28, 7, 8, 9)),
               {
                 year: '2-digit'
@@ -816,7 +816,7 @@ describe('i18n', function () {
         const string = _('dateRangeWithArgKey', {
           dates: {
             dateRange: [
-              new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+              new Date(Date.UTC(2000, 11, 28, 13, 4, 5)),
               new Date(Date.UTC(2001, 11, 28, 7, 8, 9)),
               {
                 year: '2-digit'
@@ -839,7 +839,7 @@ describe('i18n', function () {
         const string = _('dateRangeWithArgKey', {
           dates: {
             dateRange: [
-              new Date(Date.UTC(2000, 11, 28, 3, 4, 5)),
+              new Date(Date.UTC(2000, 11, 28, 13, 4, 5)),
               new Date(Date.UTC(2001, 11, 28, 7, 8, 9)),
               {
                 year: '2-digit'

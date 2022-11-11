@@ -1,5 +1,12 @@
 # intl-dom CHANGES
 
+## ?
+
+- chore: update devDeps.
+- chore: update per latest ESLint
+- test: update ignore comment for Node and global fetch
+- test: update tests per timezone
+
 ## 0.14.0
 
 - BREAKING feat: Native ESM with `exports`

@@ -1,7 +1,7 @@
 /* globals fetch, document */
 let _fetch = typeof fetch !== 'undefined'
-  /* c8 ignore next */
   ? fetch
+  /* c8 ignore next */
   : null;
 
 /**
