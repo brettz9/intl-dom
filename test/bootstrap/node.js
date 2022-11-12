@@ -10,6 +10,8 @@ import {fileURLToPath} from 'url';
 
 import PluralRules from 'intl-pluralrules/plural-rules';
 
+// import DurationFormat from 'intl-durationformat';
+
 import '@formatjs/intl-displaynames/polyfill.js';
 import '@formatjs/intl-displaynames/locale-data/en.js';
 
@@ -38,6 +40,7 @@ global.jsonExtra = jsonExtra;
 
 // Override to ensure we're testing with polyfill
 Intl.PluralRules = PluralRules;
+// Intl.DurationFormat = DurationFormat;
 
 chai.use(chaiDOM);
 chai.use(chaiAsPromised);

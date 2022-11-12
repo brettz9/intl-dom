@@ -235,6 +235,15 @@ export const setExpectedData = function () {
       relativeWithArgAndOptionsKey: {
         message: 'It was {relativeTime|RELATIVE|style: "long"}'
       },
+      durationKey: {
+        message: 'It took {durationTime}'
+      },
+      durationWithArgKey: {
+        message: 'It took {durationTime|DURATION}'
+      },
+      durationWithArgAndOptionsKey: {
+        message: 'It took {durationTime|DURATION|style: "long"}'
+      },
       listKey: {
         message: 'The list is: {listItems}'
       },

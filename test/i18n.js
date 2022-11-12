@@ -1490,6 +1490,137 @@ describe('i18n', function () {
 
   it(
     'should return a function whose default `allSubstitutions` will ' +
+    'perform `DurationTimeFormat` processing (inheriting formatter options)',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('durationKey', {
+        durationTime: {
+          duration: [
+            {
+              hours: 1,
+              minutes: 46,
+              seconds: 40
+            },
+            {
+              style: 'short'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal('It took 1 hour, 46 minutes and 40 seconds');
+    }
+  );
+
+  it(
+    'should return a function which despite `null` `allSubstitutions` will ' +
+    'perform `DurationTimeFormat` processing with options overridden by ' +
+    'locale argument',
+    async function () {
+      const _ = await i18n({
+        allSubstitutions: null,
+        locales: ['en-US']
+      });
+      const string = _('durationWithArgKey', {
+        durationTime: {
+          duration: [
+            {
+              hours: 1,
+              minutes: 46,
+              seconds: 40
+            },
+            {
+              style: 'short'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal('It took 1 hour, 46 minutes and 40 seconds');
+    }
+  );
+
+  it(
+    'should return a function with default `allSubstitutions` will ' +
+    'perform `DurationTimeFormat` processing with options overridden by ' +
+    'locale argument',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('durationWithArgKey', {
+        durationTime: {
+          duration: [
+            {
+              hours: 1,
+              minutes: 46,
+              seconds: 40
+            },
+            {
+              style: 'short'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal('It took 1 hour, 46 minutes and 40 seconds');
+    }
+  );
+
+  it(
+    'should return a function which despite `null` `allSubstitutions` will ' +
+    'perform `DurationTimeFormat` processing with options overridden by ' +
+    'locale argument (with options)',
+    async function () {
+      const _ = await i18n({
+        allSubstitutions: null,
+        locales: ['en-US']
+      });
+      const string = _('durationWithArgAndOptionsKey', {
+        durationTime: {
+          duration: [
+            {
+              hours: 1,
+              minutes: 46,
+              seconds: 40
+            },
+            {
+              style: 'short'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal('It took 1 hour, 46 minutes and 40 seconds');
+    }
+  );
+
+  it(
+    'should return a function with default `allSubstitutions` will ' +
+    'perform `DurationTimeFormat` processing with options overridden by ' +
+    'locale argument (with options)',
+    async function () {
+      const _ = await i18n({
+        locales: ['en-US']
+      });
+      const string = _('durationWithArgAndOptionsKey', {
+        durationTime: {
+          duration: [
+            {
+              hours: 1,
+              minutes: 46,
+              seconds: 40
+            },
+            {
+              style: 'short'
+            }
+          ]
+        }
+      });
+      expect(string).to.equal('It took 1 hour, 46 minutes and 40 seconds');
+    }
+  );
+
+  it(
+    'should return a function whose default `allSubstitutions` will ' +
     'perform `ListFormat` processing',
     async function () {
       const _ = await i18n({

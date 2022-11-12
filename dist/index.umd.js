@@ -427,19 +427,18 @@
     };
   };
 
-  /* eslint-disable max-len */
   /**
    * Callback to give replacement text based on a substitution value.
    * @callback AllSubstitutionCallback
    * @param {PlainObject} cfg
-   * @param {string|Node|number|Date|RelativeTimeInfo|ListInfo|NumberInfo|DateInfo} cfg.value Contains
+   * @param {string|Node|number|Date|RelativeTimeInfo|DurationInfo|
+   *   ListInfo|NumberInfo|DateInfo} cfg.value Contains
    *   the value returned by the individual substitution
    * @param {string} cfg.arg See `cfg.arg` of {@link SubstitutionCallback}.
    * @param {string} cfg.key The substitution key Not currently in use
    * @param {string} cfg.locale The locale
    * @returns {string|Element} The replacement text or element
   */
-  /* eslint-enable max-len */
 
   /**
    * @type {AllSubstitutionCallback}
@@ -485,7 +484,7 @@
     var expectsDatetime = false;
     if (value && _typeof(value) === 'object' && !Array.isArray(value)) {
       var singleKey = Object.keys(value)[0];
-      if (['number', 'date', 'datetime', 'dateRange', 'datetimeRange', 'relative', 'region', 'language', 'script', 'currency', 'list', 'plural'].includes(singleKey)) {
+      if (['number', 'date', 'datetime', 'dateRange', 'datetimeRange', 'relative', 'duration', 'region', 'language', 'script', 'currency', 'list', 'plural'].includes(singleKey)) {
         var extraOpts, callback;
         var _getFormatterInfo = getFormatterInfo({
           object: value[singleKey]
@@ -516,6 +515,10 @@
             })), {}, {
               type: singleKey
             })).of(value);
+          case 'duration':
+            return new Intl.DurationFormat(locale, applyArgs({
+              type: 'DURATION'
+            })).format(value);
           case 'relative':
             // The second argument actually contains the primary options, so swap
             var _ref4 = [opts, extraOpts];
@@ -1205,10 +1208,24 @@
   */
 
   /**
+  * @typedef {PlainObject} DurationObject
+  * @property {Integer} years
+  * @property {Integer} months
+  * @property {Integer} weeks
+  * @property {Integer} days
+  * @property {Integer} hours
+  * @property {Integer} minutes
+  * @property {Integer} seconds
+  * @property {Integer} milliseconds
+  * @property {Integer} microseconds
+  * @property {Integer} nanoseconds
+  */
+
+  /**
    * May have additional properties if supplying options to an underlying
    * formatter.
    * @typedef {GenericArray} ValueArray
-   * @property {string|Node|number|Date} 0 The main value
+   * @property {string|Node|number|Date|DurationObject} 0 The main value
    * @property {PlainObject} [1] The options related to the main value
    * @property {PlainObject} [2] Any additional options
   */
@@ -1231,6 +1248,11 @@
   /**
   * @typedef {PlainObject} DateInfo
   * @property {ValueArray} date
+  */
+
+  /**
+  * @typedef {PlainObject} DurationInfo
+  * @property {ValueArray} duration
   */
 
   /**
@@ -1402,7 +1424,7 @@
             locale: locale
           });
         }, substitution);
-      } else if (arg && /^(?:NUMBER|DATE(?:TIME|RANGE|TIMERANGE)?|REGION|LANGUAGE|SCRIPT|CURRENCY|RELATIVE|LIST)(?:\||$)/.test(arg)) {
+      } else if (arg && /^(?:NUMBER|DATE(?:TIME|RANGE|TIMERANGE)?|REGION|LANGUAGE|SCRIPT|CURRENCY|RELATIVE|DURATION|LIST)(?:\||$)/.test(arg)) {
         substitution = defaultAllSubstitutions({
           value: substitution,
           arg: arg,

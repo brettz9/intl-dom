@@ -9,10 +9,24 @@
 */
 
 /**
+* @typedef {PlainObject} DurationObject
+* @property {Integer} years
+* @property {Integer} months
+* @property {Integer} weeks
+* @property {Integer} days
+* @property {Integer} hours
+* @property {Integer} minutes
+* @property {Integer} seconds
+* @property {Integer} milliseconds
+* @property {Integer} microseconds
+* @property {Integer} nanoseconds
+*/
+
+/**
  * May have additional properties if supplying options to an underlying
  * formatter.
  * @typedef {GenericArray} ValueArray
- * @property {string|Node|number|Date} 0 The main value
+ * @property {string|Node|number|Date|DurationObject} 0 The main value
  * @property {PlainObject} [1] The options related to the main value
  * @property {PlainObject} [2] Any additional options
 */
@@ -35,6 +49,11 @@
 /**
 * @typedef {PlainObject} DateInfo
 * @property {ValueArray} date
+*/
+
+/**
+* @typedef {PlainObject} DurationInfo
+* @property {ValueArray} duration
 */
 
 /**
