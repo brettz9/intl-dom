@@ -1550,11 +1550,15 @@ See the tests for further examples.
 #### `i18n`
 
 This method ties together all of the elements for full, end-to-end
-localization.
+localization. It is in summary a combination of `localeStringFinder`
+(by default `findLocaleStrings`) and `i18nServer`, supplying the
+file system strings and detected locale from the former to the latter.
+The latter in turn conducts its work through a number of other
+component functions.
 
-It returns a callback that can be used to extract messages out of a
-locale file's data, falling back to any defaults (e.g., if the item has
-not been translated yet).
+`i18n` (as with `i18nServer`) returns a callback that can be used to
+extract messages out of a locale file's data, falling back to any
+defaults (e.g., if the item has not been translated yet).
 
 In its simplest signature, you can call `i18n` without params:
 
@@ -1575,6 +1579,9 @@ to allow introspection on the locale detected.
 The function also has a `strings` property allowing direct access to the
 resolved string messages, but this should normally not be directly used
 or needed.
+
+The function also contains the `sort`, `sortList`, and `list` methods
+elsewhere described.
 
 ##### Usage of the function returned by `i18n`
 
@@ -2039,8 +2046,9 @@ const _ = await i18n({
   insertNodes: defaultInsertNodes,
 
   // Object for falling back if the locale object is missing a given key;
-  // `false`, `null`, or `undefined`, it will throw if a value is not found;
-  //  should otherwise be an object of the same message style as the locales.
+  //   if `false`, `null`, or `undefined`, it will throw when a value is not
+  //   found; should otherwise be an object of the same message style as the
+  //   locales.
   defaults: undefined,
 
   // A substitutions object to apply to all keys; if it is a function, it
@@ -2130,8 +2138,13 @@ these arguments:
 - `localeResolver`
 - `localeMatcher`
 
-This runs synchronously unlike `i18n` since there is no need for a network
-request with the locale info supplied by you.
+To build the formatter, this function uses `getMessageForKeyByStyle`
+for the message builder, then when its return function is invoked,
+uses `getStringFromMessageAndDefaults` to return a string which
+is then interpreted with `getDOMForLocaleString`.
+
+This function runs synchronously unlike `i18n` since there is no need
+for a network request with the locale info supplied by you.
 
 May be of particular use on the server, where it is practical to cache some
 locale strings and serve them, rather than fetching them anew each time.

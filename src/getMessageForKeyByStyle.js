@@ -48,7 +48,6 @@ export const getMessageForKeyByStyle = ({
   /* eslint-enable max-len */
   messageStyle = 'richNested'
 } = {}) => {
-  // Todo: Support `plainNested` style
   return typeof messageStyle === 'function'
     ? messageStyle
     : (messageStyle === 'richNested'
