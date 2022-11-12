@@ -13,7 +13,8 @@ export class Formatter {
  * @param {string} cfg.key
  * @param {LocaleBody} cfg.body
  * @param {string} cfg.type
- * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} cfg.messageStyle
+ * @param {"richNested"|"rich"|"plain"|
+ *   "plainNested"|MessageStyleCallback} cfg.messageStyle
  * @returns {string|Element}
  */
 const getSubstitution = ({key, body, type, messageStyle = 'richNested'}) => {

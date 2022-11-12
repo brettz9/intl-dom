@@ -434,4 +434,25 @@ export const setExpectedData = function () {
       }
     }
   };
+
+  this.expectedPlainNestedStyleObject = {
+    head: {},
+    body: {
+      key: {
+        that: {
+          lessNested: 'anotherKeyValue',
+          is: {
+            nested: 'myKeyValue'
+          },
+          'has.dot': 'dotKeyValue',
+          'has.dot.at.end.': 'dotAtEndKeyValue',
+          'has..double-dots': 'doubleDotsKeyValue',
+          'has\\': {
+            backslashes: 'backslashesKeyValue'
+          },
+          'has\\.backslashesWithDot': 'backslashesWithDotKeyValue'
+        }
+      }
+    }
+  };
 };

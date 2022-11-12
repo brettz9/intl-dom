@@ -209,6 +209,33 @@ describe('getMessageForKeyByStyle', function () {
       );
       expect(func(this.expectedPlainStyleObject, 'missingKey')).to.equal(false);
     });
+
+    it('should process nested in plain nested style', function () {
+      const func = getMessageForKeyByStyle({
+        messageStyle: 'plainNested'
+      });
+      const localeObj = {
+        body: {
+          key: {
+            that: {
+              lessNested: 'anotherKeyValue',
+              is: {
+                nested: 'myKeyValue'
+              }
+            }
+          }
+        }
+      };
+      expect(func(localeObj, 'key.that.is.nested').value).to.equal(
+        this.expectedPlainNestedStyleObject.body.key.that.is.nested
+      );
+      expect(func(localeObj, 'key.that.lessNested').value).to.equal(
+        this.expectedPlainNestedStyleObject.body.key.that.lessNested
+      );
+      expect(func(localeObj, 'key.that')).to.equal(false);
+      expect(func(localeObj, 'key.that.is.nested.too.deep')).to.equal(false);
+      expect(func(localeObj, 'a.nested.missingKey')).to.equal(false);
+    });
   });
   describe('Bad style', function () {
     it('should throw with an unknown style', function () {

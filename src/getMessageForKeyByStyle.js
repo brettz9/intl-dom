@@ -41,7 +41,7 @@ import {unescapeBackslashes, processRegex} from './utils.js';
 /* eslint-disable max-len */
 /**
  * @param {PlainObject} [cfg]
- * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle="richNested"]
+ * @param {"richNested"|"rich"|"plain"|"plainNested"|MessageStyleCallback} [cfg.messageStyle="richNested"]
  * @returns {MessageStyleCallback}
  */
 export const getMessageForKeyByStyle = ({
@@ -134,9 +134,27 @@ export const getMessageForKeyByStyle = ({
             }
             return false;
           }
-          : (() => {
-            throw new TypeError(`Unknown \`messageStyle\` ${messageStyle}`);
-          })())
+          : (messageStyle === 'plainNested'
+            ? (mainObj, key) => {
+              const obj = mainObj && typeof mainObj === 'object' &&
+                mainObj.body;
+              if (obj && typeof obj === 'object') {
+                const keys = key.split('.');
+                const value = keys.reduce((o, k) => {
+                  if (o && o[k]) {
+                    return o[k];
+                  }
+                  return null;
+                }, obj);
+                if (value && typeof value === 'string') {
+                  return {value};
+                }
+              }
+              return false;
+            }
+            : (() => {
+              throw new TypeError(`Unknown \`messageStyle\` ${messageStyle}`);
+            })()))
       )
     );
 };

@@ -1,7 +1,10 @@
 # intl-dom CHANGES
 
-## ?
+## 0.15.0
 
+- feat: support `plainNested` message style
+- feat: allow non-string keys by passing in a custom validator to
+    `getStringFromMessageAndDefaults`
 - chore: update devDeps.
 - chore: update per latest ESLint
 - test: update ignore comment for Node and global fetch

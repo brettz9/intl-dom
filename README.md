@@ -306,6 +306,36 @@ e.g., a `description` of the locale entry (see the "rich" format).
 }
 ```
 
+#### "plainNested"
+
+This format also maps just to a value, but its keys may be nested. Its
+advantage is in its brevity for values, while allowing some complexity of
+organization of keys.
+
+Its disadvantage is that additional meta-data cannot be added inline,
+e.g., a `description` of the locale entry (see the "rich" format).
+
+```json
+{
+  "myKey": "This is a key",
+  "a": {
+    "nested": {
+      "key": "This is a nested key"
+    }
+  }
+}
+```
+
+Such keys are referenced with a `.` separator:
+
+```js
+_('a.nested.key');
+```
+
+This comes at the cost of reserving `.` for references (and backslashes
+needing escaping). You can escape an actual `.` with `plainNested` with
+a backslash.
+
 #### "rich"
 
 This format is used in the likes of Chrome/WebExtensions i18n. Its
@@ -1995,7 +2025,7 @@ const _ = await i18n({
   localeMatcher: 'lookup',
 
   // Determines the organization structure style of the locale files;
-  //   may be "richNested", "rich", "plain", or a function; see
+  //   may be "richNested", "rich", "plain", "plainNested", or a function; see
   //   "Message styles" and `getMessageForKeyByStyle`
   messageStyle: 'richNested',
 

@@ -19,6 +19,21 @@ describe('getStringFromMessageAndDefaults', function () {
       );
     }
   );
+
+  it(
+    'should not throw with non-throwing validator', function () {
+      expect(() => {
+        getStringFromMessageAndDefaults({
+          message: 'ok',
+          validator () {
+            // Don't throw
+          },
+          key: null
+        });
+      }).to.not.throw();
+    }
+  );
+
   it(
     'should throw with non-string key', function () {
       expect(() => {

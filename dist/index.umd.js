@@ -547,7 +547,8 @@
    * @param {string} cfg.key
    * @param {LocaleBody} cfg.body
    * @param {string} cfg.type
-   * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} cfg.messageStyle
+   * @param {"richNested"|"rich"|"plain"|
+   *   "plainNested"|MessageStyleCallback} cfg.messageStyle
    * @returns {string|Element}
    */
   var _getSubstitution = function getSubstitution(_ref) {
@@ -1561,7 +1562,7 @@
   /* eslint-disable max-len */
   /**
    * @param {PlainObject} [cfg]
-   * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle="richNested"]
+   * @param {"richNested"|"rich"|"plain"|"plainNested"|MessageStyleCallback} [cfg.messageStyle="richNested"]
    * @returns {MessageStyleCallback}
    */
   var getMessageForKeyByStyle = function getMessageForKeyByStyle() {
@@ -1634,19 +1635,45 @@
         };
       }
       return false;
+    } : messageStyle === 'plainNested' ? function (mainObj, key) {
+      var obj = mainObj && _typeof(mainObj) === 'object' && mainObj.body;
+      if (obj && _typeof(obj) === 'object') {
+        var keys = key.split('.');
+        var value = keys.reduce(function (o, k) {
+          if (o && o[k]) {
+            return o[k];
+          }
+          return null;
+        }, obj);
+        if (value && typeof value === 'string') {
+          return {
+            value: value
+          };
+        }
+      }
+      return false;
     } : function () {
       throw new TypeError("Unknown `messageStyle` ".concat(messageStyle));
     }();
   };
+
+  /**
+   * @callback Validator
+   * @param {string} key By default may only be a string, but a non-default
+   *   validator may do otherwise.
+   * @returns {void}
+   */
 
   /* eslint-disable max-len */
   /**
    * @param {PlainObject} cfg
    * @param {string} [cfg.message] If present, this string will be the return value.
    * @param {false|null|undefined|LocaleObject} [cfg.defaults]
-   * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle="richNested"]
+   * @param {"richNested"|"rich"|"plain"|"plainNested"|MessageStyleCallback} [cfg.messageStyle="richNested"]
    * @param {MessageStyleCallback} [cfg.messageForKey] Defaults to getting `MessageStyleCallback` based on `messageStyle`
    * @param {string} cfg.key Key to check against object of strings; used to find a default if no string `message` is provided.
+   * @param {Validator} cfg.validator By default throws a `TypeError` if key is not a string
+   * @throws {TypeError}
    * @returns {string}
    */
   var getStringFromMessageAndDefaults = function getStringFromMessageAndDefaults() {
@@ -1658,14 +1685,14 @@
       messageForKey = _ref$messageForKey === void 0 ? getMessageForKeyByStyle({
         messageStyle: messageStyle
       }) : _ref$messageForKey,
+      _ref$validator = _ref.validator,
+      validator = _ref$validator === void 0 ? function (key) {
+        if (typeof key !== 'string') {
+          throw new TypeError('An options object with a `key` string is expected on ' + '`getStringFromMessageAndDefaults`');
+        }
+      } : _ref$validator,
       key = _ref.key;
-    // Todo: Allow for non-strings if `messageForKey` handling
-    // Todo: Support `plainNested`
-    // Todo: Support latest Intl?
-    // Todo: Give README overview
-    if (typeof key !== 'string') {
-      throw new TypeError('An options object with a `key` string is expected on ' + '`getStringFromMessageAndDefaults`');
-    }
+    validator(key);
     // NECESSARY CHECK FOR SECURITY ON UNTRUSTED LOCALES
     var str;
     if (typeof message === 'string') {
@@ -2039,7 +2066,7 @@
    * @param {PlainObject} cfg
    * @param {LocaleObject} cfg.strings
    * @param {string} cfg.resolvedLocale
-   * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle="richNested"]
+   * @param {"richNested"|"rich"|"plain"|"plainNested"|MessageStyleCallback} [cfg.messageStyle="richNested"]
    * @param {?AllSubstitutionCallback|AllSubstitutionCallback[]} [cfg.allSubstitutions]
    * @param {InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
    * @param {false|null|undefined|LocaleObject} [cfg.defaults]
@@ -2071,7 +2098,7 @@
    * @param {string} [cfg.localesBasePath="."]
    * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
    * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher="lookup"]
-   * @param {"richNested"|"rich"|"plain"|MessageStyleCallback} [cfg.messageStyle="richNested"]
+   * @param {"richNested"|"rich"|"plain"|"plainNested"|MessageStyleCallback} [cfg.messageStyle="richNested"]
    * @param {?AllSubstitutionCallback|AllSubstitutionCallback[]} [cfg.allSubstitutions]
    * @param {InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
    * @param {false|null|undefined|LocaleObject} [cfg.defaults]
