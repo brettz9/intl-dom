@@ -94,7 +94,7 @@ module.exports = {
       indent: 0
     }
   }, {
-    files: ['.eslintrc.js', '.mocharc.js'],
+    files: ['.eslintrc.cjs', '.mocharc.js'],
     extends: ['ash-nazg/sauron-script-overrides'],
     rules: {
       'import/no-commonjs': 0
