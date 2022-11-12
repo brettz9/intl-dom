@@ -78,6 +78,96 @@ describe('i18n', function () {
     }
   );
 
+  describe('keyCheckerConverter', function () {
+    it(
+      'should throw with empty argument', async function () {
+        const _ = await i18n();
+        expect(() => {
+          _();
+        }).to.throw(
+          TypeError,
+          '`key` is expected to be a string (or array of strings ' +
+          'for nested style)'
+        );
+      }
+    );
+    it(
+      'should not throw with empty argument ' +
+      'and custom `keyCheckerConverter`', async function () {
+        const _ = await i18n({
+          keyCheckerConverter () {
+            // Do not throw
+            return 'abc';
+          }
+        });
+        expect(() => {
+          _({});
+        }).to.not.throw();
+      }
+    );
+    it(
+      'should not throw with string argument', async function () {
+        const _ = await i18n();
+        expect(() => {
+          _('abc');
+        }).to.not.throw();
+      }
+    );
+    it(
+      'should not throw with array string argument', async function () {
+        const _ = await i18n({
+          locales: ['ja'],
+          messageStyle: 'richNested'
+        });
+        expect(() => {
+          _(['key', 'that', 'is', 'nested']);
+        }).to.not.throw();
+      }
+    );
+    it(
+      'should throw with array non-string argument', async function () {
+        const _ = await i18n({
+          locales: ['ja'],
+          messageStyle: 'richNested'
+        });
+        expect(() => {
+          _(['key', null]);
+        }).to.throw(
+          TypeError,
+          '`key` is expected to be a string (or array of strings ' +
+          'for nested style)'
+        );
+      }
+    );
+    it(
+      'should throw with non-string key', async function () {
+        const _ = await i18n();
+        expect(() => {
+          _(null);
+        }).to.throw(
+          TypeError,
+          '`key` is expected to be a string (or array of strings ' +
+          'for nested style)'
+        );
+      }
+    );
+    it(
+      'should throw with array string key ' +
+      'and non-nested style', async function () {
+        const _ = await i18n({
+          messageStyle: 'plain'
+        });
+        expect(() => {
+          _(['an', 'array']);
+        }).to.throw(
+          TypeError,
+          '`key` is expected to be a string (or array of strings ' +
+          'for nested style)'
+        );
+      }
+    );
+  });
+
   it('should return a function given empty object argument', async function () {
     const _ = await i18n({});
     expect(_).to.be.a('function');

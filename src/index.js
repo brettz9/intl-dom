@@ -11,6 +11,7 @@ export {promiseChainForValues} from './promiseChainForValues.js';
 export {defaultLocaleResolver} from './defaultLocaleResolver.js';
 export {defaultAllSubstitutions} from './defaultAllSubstitutions.js';
 export {defaultInsertNodes} from './defaultInsertNodes.js';
+export {defaultKeyCheckerConverter} from './defaultKeyCheckerConverter.js';
 
 // COMPONENTS
 export {getMessageForKeyByStyle} from './getMessageForKeyByStyle.js';

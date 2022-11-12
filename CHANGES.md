@@ -1,5 +1,9 @@
 # intl-dom CHANGES
 
+## 0.16.0
+
+- feat: support array keys (removes `validator`)
+
 ## 0.15.0
 
 - feat: support `plainNested` message style

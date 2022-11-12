@@ -8,45 +8,7 @@ describe('getStringFromMessageAndDefaults', function () {
   beforeEach(function () {
     setExpectedData.call(this);
   });
-  it(
-    'should throw with empty argument', function () {
-      expect(() => {
-        getStringFromMessageAndDefaults();
-      }).to.throw(
-        TypeError,
-        'An options object with a `key` string is expected on ' +
-        '`getStringFromMessageAndDefaults`'
-      );
-    }
-  );
 
-  it(
-    'should not throw with non-throwing validator', function () {
-      expect(() => {
-        getStringFromMessageAndDefaults({
-          message: 'ok',
-          validator () {
-            // Don't throw
-          },
-          key: null
-        });
-      }).to.not.throw();
-    }
-  );
-
-  it(
-    'should throw with non-string key', function () {
-      expect(() => {
-        getStringFromMessageAndDefaults({
-          key: null
-        });
-      }).to.throw(
-        TypeError,
-        'An options object with a `key` string is expected on ' +
-        '`getStringFromMessageAndDefaults`'
-      );
-    }
-  );
   it('should return a string message', function () {
     const string = getStringFromMessageAndDefaults({
       message: 'myKeyValue',

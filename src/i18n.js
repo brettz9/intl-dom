@@ -5,6 +5,7 @@ import {
   getStringFromMessageAndDefaults
 } from './getStringFromMessageAndDefaults.js';
 import {sort, sortList, list} from './collation.js';
+import {defaultKeyCheckerConverter} from './defaultKeyCheckerConverter.js';
 
 /**
  * Checks a key (against an object of strings). Optionally
@@ -31,6 +32,7 @@ import {sort, sortList, list} from './collation.js';
  * @param {"richNested"|"rich"|"plain"|"plainNested"|MessageStyleCallback} [cfg.messageStyle="richNested"]
  * @param {?AllSubstitutionCallback|AllSubstitutionCallback[]} [cfg.allSubstitutions]
  * @param {InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
+ * @param {KeyCheckerConverterCallback} [cfg.keyCheckerConverter]
  * @param {false|null|undefined|LocaleObject} [cfg.defaults]
  * @param {false|SubstitutionObject} [cfg.substitutions={}]
  * @param {Integer} [cfg.maximumLocalNestingDepth=3]
@@ -44,9 +46,10 @@ export const i18nServer = function i18nServer ({
   /* eslint-enable max-len */
   strings,
   resolvedLocale,
-  messageStyle,
+  messageStyle = 'richNested',
   allSubstitutions: defaultAllSubstitutionsValue,
   insertNodes,
+  keyCheckerConverter = defaultKeyCheckerConverter,
   defaults: defaultDefaults,
   substitutions: defaultSubstitutions,
   maximumLocalNestingDepth,
@@ -69,6 +72,7 @@ export const i18nServer = function i18nServer ({
     throwOnMissingSuppliedFormatters = throwOnMissingSuppliedFormattersDefault,
     throwOnExtraSuppliedFormatters = throwOnExtraSuppliedFormattersDefault
   } = {}) => {
+    key = keyCheckerConverter(key, messageStyle);
     const message = messageForKey(strings, key);
     const string = getStringFromMessageAndDefaults({
       message: message && typeof message.value === 'string'
@@ -129,6 +133,7 @@ export const i18nServer = function i18nServer ({
  * @param {"richNested"|"rich"|"plain"|"plainNested"|MessageStyleCallback} [cfg.messageStyle="richNested"]
  * @param {?AllSubstitutionCallback|AllSubstitutionCallback[]} [cfg.allSubstitutions]
  * @param {InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
+ * @param {KeyCheckerConverterCallback} [cfg.keyCheckerConverter]
  * @param {false|null|undefined|LocaleObject} [cfg.defaults]
  * @param {false|SubstitutionObject} [cfg.substitutions={}]
  * @param {Integer} [cfg.maximumLocalNestingDepth=3]
@@ -149,6 +154,7 @@ export const i18n = async function i18n ({
   messageStyle,
   allSubstitutions,
   insertNodes,
+  keyCheckerConverter,
   defaults,
   substitutions,
   maximumLocalNestingDepth,
@@ -167,6 +173,7 @@ export const i18n = async function i18n ({
     messageStyle,
     allSubstitutions,
     insertNodes,
+    keyCheckerConverter,
     defaults,
     substitutions,
     maximumLocalNestingDepth,

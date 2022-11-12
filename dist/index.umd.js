@@ -34,6 +34,53 @@
       return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
     }, _typeof(obj);
   }
+  function _wrapRegExp() {
+    _wrapRegExp = function (re, groups) {
+      return new BabelRegExp(re, void 0, groups);
+    };
+    var _super = RegExp.prototype,
+      _groups = new WeakMap();
+    function BabelRegExp(re, flags, groups) {
+      var _this = new RegExp(re, flags);
+      return _groups.set(_this, groups || _groups.get(re)), _setPrototypeOf(_this, BabelRegExp.prototype);
+    }
+    function buildGroups(result, re) {
+      var g = _groups.get(re);
+      return Object.keys(g).reduce(function (groups, name) {
+        var i = g[name];
+        if ("number" == typeof i) groups[name] = result[i];else {
+          for (var k = 0; void 0 === result[i[k]] && k + 1 < i.length;) k++;
+          groups[name] = result[i[k]];
+        }
+        return groups;
+      }, Object.create(null));
+    }
+    return _inherits(BabelRegExp, RegExp), BabelRegExp.prototype.exec = function (str) {
+      var result = _super.exec.call(this, str);
+      if (result) {
+        result.groups = buildGroups(result, this);
+        var indices = result.indices;
+        indices && (indices.groups = buildGroups(indices, this));
+      }
+      return result;
+    }, BabelRegExp.prototype[Symbol.replace] = function (str, substitution) {
+      if ("string" == typeof substitution) {
+        var groups = _groups.get(this);
+        return _super[Symbol.replace].call(this, str, substitution.replace(/\$<([^>]+)>/g, function (_, name) {
+          var group = groups[name];
+          return "$" + (Array.isArray(group) ? group.join("$") : group);
+        }));
+      }
+      if ("function" == typeof substitution) {
+        var _this = this;
+        return _super[Symbol.replace].call(this, str, function () {
+          var args = arguments;
+          return "object" != typeof args[args.length - 1] && (args = [].slice.call(args)).push(buildGroups(args, _this)), substitution.apply(this, args);
+        });
+      }
+      return _super[Symbol.replace].call(this, str, substitution);
+    }, _wrapRegExp.apply(this, arguments);
+  }
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
@@ -1522,6 +1569,35 @@
   };
 
   /**
+   * @callback KeyCheckerConverterCallback
+   * @param {string|string[]} key By default may be an array (if the type ends
+   *   with "Nested") or a string, but a non-default validator may do otherwise.
+   * @param {"plain"|"plainNested"|"rich"|
+   *   "richNested"|MessageStyleCallback} messageStyle
+   * @throws {TypeError}
+   * @returns {string} The converted (or unconverted) key
+   */
+
+  /**
+   * @type {KeyCheckerConverterCallback}
+   */
+  function defaultKeyCheckerConverter(key, messageStyle) {
+    if (Array.isArray(key) && key.every(function (k) {
+      return typeof k === 'string';
+    }) && typeof messageStyle === 'string' && messageStyle.endsWith('Nested')) {
+      return key.map(function (k) {
+        return k.replace( /*#__PURE__*/_wrapRegExp(/(\\+)/g, {
+          backslashes: 1
+        }), '\\$<backslashes>').replace(/\./g, '\\.');
+      }).join('.');
+    }
+    if (typeof key !== 'string') {
+      throw new TypeError('`key` is expected to be a string (or array of strings for nested style)');
+    }
+    return key;
+  }
+
+  /**
   * @typedef {LocaleBody} LocalObject
   */
 
@@ -1569,7 +1645,6 @@
     var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
       _ref$messageStyle = _ref.messageStyle,
       messageStyle = _ref$messageStyle === void 0 ? 'richNested' : _ref$messageStyle;
-    // Todo: Support `plainNested` style
     return typeof messageStyle === 'function' ? messageStyle : messageStyle === 'richNested' ? function (mainObj, key) {
       var obj = mainObj && _typeof(mainObj) === 'object' && mainObj.body;
       var keys = [];
@@ -1638,7 +1713,9 @@
     } : messageStyle === 'plainNested' ? function (mainObj, key) {
       var obj = mainObj && _typeof(mainObj) === 'object' && mainObj.body;
       if (obj && _typeof(obj) === 'object') {
-        var keys = key.split('.');
+        // Should really be counting that it is an odd number
+        //  of backslashes only
+        var keys = key.split(/(?<!\\)\./);
         var value = keys.reduce(function (o, k) {
           if (o && o[k]) {
             return o[k];
@@ -1657,13 +1734,6 @@
     }();
   };
 
-  /**
-   * @callback Validator
-   * @param {string} key By default may only be a string, but a non-default
-   *   validator may do otherwise.
-   * @returns {void}
-   */
-
   /* eslint-disable max-len */
   /**
    * @param {PlainObject} cfg
@@ -1672,8 +1742,6 @@
    * @param {"richNested"|"rich"|"plain"|"plainNested"|MessageStyleCallback} [cfg.messageStyle="richNested"]
    * @param {MessageStyleCallback} [cfg.messageForKey] Defaults to getting `MessageStyleCallback` based on `messageStyle`
    * @param {string} cfg.key Key to check against object of strings; used to find a default if no string `message` is provided.
-   * @param {Validator} cfg.validator By default throws a `TypeError` if key is not a string
-   * @throws {TypeError}
    * @returns {string}
    */
   var getStringFromMessageAndDefaults = function getStringFromMessageAndDefaults() {
@@ -1685,14 +1753,7 @@
       messageForKey = _ref$messageForKey === void 0 ? getMessageForKeyByStyle({
         messageStyle: messageStyle
       }) : _ref$messageForKey,
-      _ref$validator = _ref.validator,
-      validator = _ref$validator === void 0 ? function (key) {
-        if (typeof key !== 'string') {
-          throw new TypeError('An options object with a `key` string is expected on ' + '`getStringFromMessageAndDefaults`');
-        }
-      } : _ref$validator,
       key = _ref.key;
-    validator(key);
     // NECESSARY CHECK FOR SECURITY ON UNTRUSTED LOCALES
     var str;
     if (typeof message === 'string') {
@@ -2069,6 +2130,7 @@
    * @param {"richNested"|"rich"|"plain"|"plainNested"|MessageStyleCallback} [cfg.messageStyle="richNested"]
    * @param {?AllSubstitutionCallback|AllSubstitutionCallback[]} [cfg.allSubstitutions]
    * @param {InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
+   * @param {KeyCheckerConverterCallback} [cfg.keyCheckerConverter]
    * @param {false|null|undefined|LocaleObject} [cfg.defaults]
    * @param {false|SubstitutionObject} [cfg.substitutions={}]
    * @param {Integer} [cfg.maximumLocalNestingDepth=3]
@@ -2101,6 +2163,7 @@
    * @param {"richNested"|"rich"|"plain"|"plainNested"|MessageStyleCallback} [cfg.messageStyle="richNested"]
    * @param {?AllSubstitutionCallback|AllSubstitutionCallback[]} [cfg.allSubstitutions]
    * @param {InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
+   * @param {KeyCheckerConverterCallback} [cfg.keyCheckerConverter]
    * @param {false|null|undefined|LocaleObject} [cfg.defaults]
    * @param {false|SubstitutionObject} [cfg.substitutions={}]
    * @param {Integer} [cfg.maximumLocalNestingDepth=3]
@@ -2113,9 +2176,12 @@
   var i18nServer = function i18nServer(_ref) {
     var strings = _ref.strings,
       resolvedLocale = _ref.resolvedLocale,
-      messageStyle = _ref.messageStyle,
+      _ref$messageStyle = _ref.messageStyle,
+      messageStyle = _ref$messageStyle === void 0 ? 'richNested' : _ref$messageStyle,
       defaultAllSubstitutionsValue = _ref.allSubstitutions,
       insertNodes = _ref.insertNodes,
+      _ref$keyCheckerConver = _ref.keyCheckerConverter,
+      keyCheckerConverter = _ref$keyCheckerConver === void 0 ? defaultKeyCheckerConverter : _ref$keyCheckerConver,
       defaultDefaults = _ref.defaults,
       defaultSubstitutions = _ref.substitutions,
       maximumLocalNestingDepth = _ref.maximumLocalNestingDepth,
@@ -2147,6 +2213,7 @@
         throwOnMissingSuppliedFormatters = _ref2$throwOnMissingS === void 0 ? throwOnMissingSuppliedFormattersDefault : _ref2$throwOnMissingS,
         _ref2$throwOnExtraSup = _ref2.throwOnExtraSuppliedFormatters,
         throwOnExtraSuppliedFormatters = _ref2$throwOnExtraSup === void 0 ? throwOnExtraSuppliedFormattersDefault : _ref2$throwOnExtraSup;
+      key = keyCheckerConverter(key, messageStyle);
       var message = messageForKey(strings, key);
       var string = getStringFromMessageAndDefaults({
         message: message && typeof message.value === 'string' ? message.value : false,
@@ -2203,6 +2270,7 @@
       messageStyle = _ref3.messageStyle,
       allSubstitutions = _ref3.allSubstitutions,
       insertNodes = _ref3.insertNodes,
+      keyCheckerConverter = _ref3.keyCheckerConverter,
       defaults = _ref3.defaults,
       substitutions = _ref3.substitutions,
       maximumLocalNestingDepth = _ref3.maximumLocalNestingDepth,
@@ -2226,6 +2294,7 @@
           messageStyle: messageStyle,
           allSubstitutions: allSubstitutions,
           insertNodes: insertNodes,
+          keyCheckerConverter: keyCheckerConverter,
           defaults: defaults,
           substitutions: substitutions,
           maximumLocalNestingDepth: maximumLocalNestingDepth,
@@ -2246,6 +2315,7 @@
   exports.SwitchFormatter = SwitchFormatter;
   exports.defaultAllSubstitutions = defaultAllSubstitutions;
   exports.defaultInsertNodes = defaultInsertNodes;
+  exports.defaultKeyCheckerConverter = defaultKeyCheckerConverter;
   exports.defaultLocaleMatcher = defaultLocaleMatcher;
   exports.defaultLocaleResolver = defaultLocaleResolver;
   exports.findLocale = findLocale;

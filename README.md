@@ -233,6 +233,7 @@ const {
   defaultLocaleResolver,
   defaultAllSubstitutions,
   defaultInsertNodes,
+  defaultKeyCheckerConverter,
 
   // COMPONENTS
   getMessageForKeyByStyle,
@@ -1534,6 +1535,7 @@ of a custom localization system.)
 1. `defaultLocaleResolver`
 1. `defaultAllSubstitutions`
 1. `defaultInsertNodes`
+1. `defaultKeyCheckerConverter`
 1. `promiseChainForValues`
 1. `getMatchingLocale`
 1. `setFetch`
@@ -2045,6 +2047,10 @@ const _ = await i18n({
   // `defaultInsertNodes`
   insertNodes: defaultInsertNodes,
 
+  // Callback to validate key types and convert a key to a string for
+  //  processing; see `defaultKeyCheckerConverter`
+  keyCheckerConverter: defaultKeyCheckerConverter,
+
   // Object for falling back if the locale object is missing a given key;
   //   if `false`, `null`, or `undefined`, it will throw when a value is not
   //   found; should otherwise be an object of the same message style as the
@@ -2426,6 +2432,20 @@ defaultInsertNodes({
 ```
 
 > 'You have 3 bananas'
+
+#### `defaultKeyCheckerConverter`
+
+The default function for `keyCheckerConverter`. Converts an array string key
+to a string as necessary for further processing and validates the original
+or converted key is a string.
+
+```js
+const convertedKey = defaultKeyCheckerConverter([
+  'a', 'nested', 'key'
+]);
+```
+
+> `a.nested.key`
 
 #### `promiseChainForValues`
 

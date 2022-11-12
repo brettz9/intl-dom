@@ -138,7 +138,9 @@ export const getMessageForKeyByStyle = ({
               const obj = mainObj && typeof mainObj === 'object' &&
                 mainObj.body;
               if (obj && typeof obj === 'object') {
-                const keys = key.split('.');
+                // Should really be counting that it is an odd number
+                //  of backslashes only
+                const keys = key.split(/(?<!\\)\./u);
                 const value = keys.reduce((o, k) => {
                   if (o && o[k]) {
                     return o[k];
