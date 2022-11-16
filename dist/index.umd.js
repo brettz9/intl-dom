@@ -1761,9 +1761,7 @@
     } else if (defaults === false || defaults === undefined || defaults === null) {
       str = false;
     } else if (defaults && _typeof(defaults) === 'object') {
-      str = messageForKey({
-        body: defaults
-      }, key);
+      str = messageForKey(defaults, key);
       if (str) {
         str = str.value;
       }

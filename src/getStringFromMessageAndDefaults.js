@@ -27,7 +27,7 @@ export const getStringFromMessageAndDefaults = ({
   ) {
     str = false;
   } else if (defaults && typeof defaults === 'object') {
-    str = messageForKey({body: defaults}, key);
+    str = messageForKey(defaults, key);
     if (str) {
       str = str.value;
     }

@@ -23,7 +23,9 @@ describe('getStringFromMessageAndDefaults', function () {
         message: 'myKeyValue',
         key: 'myKey',
         defaults: {
-          myKey: 'somethingElse'
+          body: {
+            myKey: 'somethingElse'
+          }
         }
       });
       expect(string).to.equal('myKeyValue');
@@ -88,7 +90,9 @@ describe('getStringFromMessageAndDefaults', function () {
         getStringFromMessageAndDefaults({
           message: undefined,
           key: 'myKey',
-          defaults: {},
+          defaults: {
+            body: {}
+          },
           messageForKey (defaults, key) {
             return key in defaults ? String(defaults[key]) : false;
           }
@@ -104,8 +108,10 @@ describe('getStringFromMessageAndDefaults', function () {
           message: undefined,
           key: 'myKey',
           defaults: {
-            anotherKey: {
-              message: 'anotherKeyOk'
+            body: {
+              anotherKey: {
+                message: 'anotherKeyOk'
+              }
             }
           },
           messageStyle: 'rich'
@@ -116,8 +122,10 @@ describe('getStringFromMessageAndDefaults', function () {
           message: undefined,
           key: 'myKey',
           defaults: {
-            myKey: {
-              message: false
+            body: {
+              myKey: {
+                message: false
+              }
             }
           },
           messageStyle: 'rich'
@@ -128,7 +136,9 @@ describe('getStringFromMessageAndDefaults', function () {
           message: undefined,
           key: 'myKey',
           defaults: {
-            myKey: false
+            body: {
+              myKey: false
+            }
           },
           messageStyle: 'plain'
         });
@@ -138,7 +148,9 @@ describe('getStringFromMessageAndDefaults', function () {
           message: undefined,
           key: 'myKey',
           defaults: {
-            myKey: {}
+            body: {
+              myKey: {}
+            }
           },
           messageStyle: 'plain'
         });
@@ -148,7 +160,9 @@ describe('getStringFromMessageAndDefaults', function () {
           message: undefined,
           key: 'myKey',
           defaults: {
-            anotherKey: 'anotherKeyOk'
+            body: {
+              anotherKey: 'anotherKeyOk'
+            }
           },
           messageStyle: 'plain'
         });
@@ -162,8 +176,10 @@ describe('getStringFromMessageAndDefaults', function () {
         message: undefined,
         key: 'key',
         defaults: {
-          key: {
-            message: 'myKeyValue'
+          body: {
+            key: {
+              message: 'myKeyValue'
+            }
           }
         },
         messageStyle: 'rich'
@@ -174,7 +190,9 @@ describe('getStringFromMessageAndDefaults', function () {
         message: undefined,
         key: 'myKey',
         defaults: {
-          myKey: 'myKeyValue'
+          body: {
+            myKey: 'myKeyValue'
+          }
         },
         messageStyle: 'plain'
       });
@@ -188,7 +206,9 @@ describe('getStringFromMessageAndDefaults', function () {
         message: undefined,
         key: 'myKey',
         defaults: {
-          myKey: 'myKeyValue'
+          body: {
+            myKey: 'myKeyValue'
+          }
         },
         messageForKey (defaults, key) {
           defaults = defaults.body;

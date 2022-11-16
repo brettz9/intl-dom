@@ -2169,8 +2169,10 @@ const string = getStringFromMessageAndDefaults({
   message: undefined,
   key: 'key',
   defaults: {
-    key: {
-      message: 'myKeyValue'
+    body: {
+      key: {
+        message: 'myKeyValue'
+      }
     }
   },
   messageStyle: 'rich'

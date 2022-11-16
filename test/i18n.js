@@ -266,8 +266,10 @@ describe('i18n', function () {
     async function () {
       let _ = await i18n({
         defaults: {
-          myKey: {
-            message: 'myKeyValue'
+          body: {
+            myKey: {
+              message: 'myKeyValue'
+            }
           }
         },
         messageStyle: 'rich'
@@ -277,7 +279,9 @@ describe('i18n', function () {
 
       _ = await i18n({
         defaults: {
-          myKey: 'myKeyValue'
+          body: {
+            myKey: 'myKeyValue'
+          }
         },
         messageStyle: 'plain'
       });
@@ -326,7 +330,9 @@ describe('i18n', function () {
         locales: ['zx'],
         messageStyle: 'plain',
         defaults: {
-          myKey: 'somethingElse'
+          body: {
+            myKey: 'somethingElse'
+          }
         }
       });
       const string = _('key');
@@ -432,7 +438,9 @@ describe('i18n', function () {
       });
       const string = _('key', null, {
         defaults: {
-          myKey: 'somethingElse'
+          body: {
+            myKey: 'somethingElse'
+          }
         }
       });
       expect(string).to.equal(this.expectedPlainStyleObject.body.key);

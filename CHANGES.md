@@ -1,5 +1,10 @@
 # intl-dom CHANGES
 
+## 0.17.0
+
+- BREAKING: feat: `defaults` must now be encapsulated in a `body`, allowing
+  now for `head` as well
+
 ## 0.16.0
 
 - feat: support array keys (removes `validator`)
