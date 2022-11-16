@@ -133,7 +133,7 @@ describe('findLocaleStrings', function () {
     return expect(findLocaleStrings({
       locales: ['xy'],
       defaultLocales: []
-    })).to.be.rejectedWith(Error, 'No matching locale found!');
+    })).to.be.rejectedWith(Error, /No matching locale found for/u);
   });
 
   it(
@@ -142,7 +142,7 @@ describe('findLocaleStrings', function () {
       return expect(findLocaleStrings({
         locales: [null],
         defaultLocales: []
-      })).to.be.rejectedWith(Error, 'No matching locale found!');
+      })).to.be.rejectedWith(Error, /No matching locale found for/u);
     }
   );
 
@@ -168,7 +168,7 @@ describe('findLocaleStrings', function () {
         localeResolver (localesBasePath, locale) {
           return false;
         }
-      })).to.be.rejectedWith(Error, 'No matching locale found!');
+      })).to.be.rejectedWith(Error, /No matching locale found for/u);
     }
   );
 

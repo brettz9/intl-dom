@@ -4,6 +4,7 @@
 
 - BREAKING: feat: `defaults` must now be encapsulated in a `body`, allowing
   now for `head` as well
+- feat: If locales missing, throw with the supplied locales named
 
 ## 0.16.0
 

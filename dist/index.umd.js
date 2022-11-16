@@ -2100,7 +2100,7 @@
     } else if (typeof localeMatcher !== 'function') {
       throw new TypeError('`localeMatcher` must be "lookup" or a function!');
     }
-    return promiseChainForValues([].concat(_toConsumableArray(locales), _toConsumableArray(defaultLocales)), getLocale, 'No matching locale found!');
+    return promiseChainForValues([].concat(_toConsumableArray(locales), _toConsumableArray(defaultLocales)), getLocale, 'No matching locale found for ' + [].concat(_toConsumableArray(locales), _toConsumableArray(defaultLocales)).join(', '));
   });
 
   /**

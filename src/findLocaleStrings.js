@@ -179,6 +179,6 @@ const _findLocale = async ({
   return await promiseChainForValues(
     [...locales, ...defaultLocales],
     getLocale,
-    'No matching locale found!'
+    'No matching locale found for ' + [...locales, ...defaultLocales].join(', ')
   );
 };
