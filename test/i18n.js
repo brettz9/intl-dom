@@ -199,10 +199,22 @@ describe('i18n', function () {
   });
   it(
     'should return function that can return string when needing to ' +
-    'revert to `defaultLocales`',
+    'revert to `defaultLocales` (due to bad file)',
     async function () {
       const _ = await i18n({
         locales: ['zz'],
+        defaultLocales: ['en-US']
+      });
+      const string = _('abc');
+      expect(string).to.deep.equal(this.expectedEnUS.body.abc.message);
+    }
+  );
+  it(
+    'should return function that can return string when needing to ' +
+    'revert to `defaultLocales` (due to missing strings)',
+    async function () {
+      const _ = await i18n({
+        locales: ['fr'],
         defaultLocales: ['en-US']
       });
       const string = _('abc');

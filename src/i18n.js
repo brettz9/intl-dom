@@ -166,6 +166,17 @@ export const i18n = async function i18n ({
   const {strings, locale: resolvedLocale} = await localeStringFinder({
     locales, defaultLocales, localeResolver, localesBasePath, localeMatcher
   });
+  if (!defaults && defaultLocales) {
+    let defaultLocale;
+    ({strings: defaults, locale: defaultLocale} = await localeStringFinder({
+      locales: defaultLocales,
+      defaultLocales: [],
+      localeResolver, localesBasePath, localeMatcher
+    }));
+    if (defaultLocale === resolvedLocale) {
+      defaults = null; // No need to fall back
+    }
+  }
 
   return i18nServer({
     strings,

@@ -1,6 +1,6 @@
 {
   "name": "intl-dom",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "description": "Internationalization allowing interspersing of DOM elements among the localized strings",
   "type": "module",
   "main": "./dist/index.umd.js",
@@ -119,7 +119,7 @@
     "mocha-multi-reporters": "^1.5.1",
     "node-fetch": "^3.3.0",
     "open-cli": "^7.1.0",
-    "rollup": "^3.2.5",
-    "typescript": "^4.8.4"
+    "rollup": "^3.3.0",
+    "typescript": "^4.9.3"
   }
 }

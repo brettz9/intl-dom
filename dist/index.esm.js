@@ -2165,6 +2165,14 @@ function _await(value, then, direct) {
  * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
  * @returns {Promise<I18NCallback>} Rejects if no suitable locale is found.
  */
+
+function _invoke(body, then) {
+  var result = body();
+  if (result && result.then) {
+    return result.then(then);
+  }
+  return then(result);
+}
 var i18nServer = function i18nServer(_ref) {
   var strings = _ref.strings,
     resolvedLocale = _ref.resolvedLocale,
@@ -2280,20 +2288,39 @@ var i18n = function i18n() {
     }), function (_ref4) {
       var strings = _ref4.strings,
         resolvedLocale = _ref4.locale;
-      return i18nServer({
-        strings: strings,
-        resolvedLocale: resolvedLocale,
-        messageStyle: messageStyle,
-        allSubstitutions: allSubstitutions,
-        insertNodes: insertNodes,
-        keyCheckerConverter: keyCheckerConverter,
-        defaults: defaults,
-        substitutions: substitutions,
-        maximumLocalNestingDepth: maximumLocalNestingDepth,
-        dom: dom,
-        forceNodeReturn: forceNodeReturn,
-        throwOnMissingSuppliedFormatters: throwOnMissingSuppliedFormatters,
-        throwOnExtraSuppliedFormatters: throwOnExtraSuppliedFormatters
+      return _invoke(function () {
+        if (!defaults && defaultLocales) {
+          var defaultLocale;
+          return _await(localeStringFinder({
+            locales: defaultLocales,
+            defaultLocales: [],
+            localeResolver: localeResolver,
+            localesBasePath: localesBasePath,
+            localeMatcher: localeMatcher
+          }), function (_localeStringFinder) {
+            defaults = _localeStringFinder.strings;
+            defaultLocale = _localeStringFinder.locale;
+            if (defaultLocale === resolvedLocale) {
+              defaults = null; // No need to fall back
+            }
+          });
+        }
+      }, function () {
+        return i18nServer({
+          strings: strings,
+          resolvedLocale: resolvedLocale,
+          messageStyle: messageStyle,
+          allSubstitutions: allSubstitutions,
+          insertNodes: insertNodes,
+          keyCheckerConverter: keyCheckerConverter,
+          defaults: defaults,
+          substitutions: substitutions,
+          maximumLocalNestingDepth: maximumLocalNestingDepth,
+          dom: dom,
+          forceNodeReturn: forceNodeReturn,
+          throwOnMissingSuppliedFormatters: throwOnMissingSuppliedFormatters,
+          throwOnExtraSuppliedFormatters: throwOnExtraSuppliedFormatters
+        });
       });
     });
   } catch (e) {
