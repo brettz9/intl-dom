@@ -945,7 +945,7 @@
     }, {
       key: "getKey",
       value: function getKey(key) {
-        var match = key.match(/^(?:(?!\|)[\s\S])*/);
+        var match = key.match(/^(?:[\0-\{\}-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*/);
         return match && match[0];
       }
     }]);
@@ -1379,7 +1379,7 @@
 
     // eslint-disable-next-line max-len
     // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
-    var formattingRegex = /(\\*)\{((?:(?:(?!\})[\s\S])|\\\})*?)(?:(\|)((?:(?!\})[\s\S])*))?\}/g;
+    var formattingRegex = /(\\*)\{((?:(?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])|\\\})*?)(?:(\|)((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g;
     if (allSubstitutions) {
       allSubstitutions = Array.isArray(allSubstitutions) ? allSubstitutions : [allSubstitutions];
     }
@@ -1961,7 +1961,7 @@
     // Try without hyphen, i.e., the "lookup" algorithm:
     // See https://tools.ietf.org/html/rfc4647#section-3.4 and
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl
-    return locale.replace(/\x2D(?:(?!\x2D)[\s\S])*$/, '');
+    return locale.replace(/\x2D(?:[\0-,\.-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*$/, '');
   };
 
   /**

@@ -1,7 +1,7 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.DisplayNames = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SecFromTime = exports.MinFromTime = exports.HourFromTime = exports.DateFromTime = exports.MonthFromTime = exports.InLeapYear = exports.DayWithinYear = exports.DaysInYear = exports.YearFromTime = exports.TimeFromYear = exports.DayFromYear = exports.WeekDay = exports.Day = exports.Type = exports.HasOwnProperty = exports.ArrayCreate = exports.SameValue = exports.ToObject = exports.TimeClip = exports.ToNumber = exports.ToString = void 0;
+exports.msFromTime = exports.OrdinaryHasInstance = exports.SecFromTime = exports.MinFromTime = exports.HourFromTime = exports.DateFromTime = exports.MonthFromTime = exports.InLeapYear = exports.DayWithinYear = exports.DaysInYear = exports.YearFromTime = exports.TimeFromYear = exports.DayFromYear = exports.WeekDay = exports.Day = exports.Type = exports.HasOwnProperty = exports.ArrayCreate = exports.SameValue = exports.ToObject = exports.TimeClip = exports.ToNumber = exports.ToString = void 0;
 /**
  * https://tc39.es/ecma262/#sec-tostring
  */
@@ -65,7 +65,7 @@ function TimeClip(time) {
     if (!isFinite(time)) {
         return NaN;
     }
-    if (Math.abs(time) > 8.64 * 1e16) {
+    if (Math.abs(time) > 8.64 * 1e15) {
         return NaN;
     }
     return ToInteger(time);
@@ -180,10 +180,7 @@ exports.WeekDay = WeekDay;
  * @param y
  */
 function DayFromYear(y) {
-    return (365 * (y - 1970) +
-        Math.floor((y - 1969) / 4) -
-        Math.floor((y - 1901) / 100) +
-        Math.floor((y - 1601) / 400));
+    return Date.UTC(y, 0) / MS_PER_DAY;
 }
 exports.DayFromYear = DayFromYear;
 /**
@@ -191,7 +188,7 @@ exports.DayFromYear = DayFromYear;
  * @param y
  */
 function TimeFromYear(y) {
-    return MS_PER_DAY * DayFromYear(y);
+    return Date.UTC(y, 0);
 }
 exports.TimeFromYear = TimeFromYear;
 /**
@@ -199,12 +196,7 @@ exports.TimeFromYear = TimeFromYear;
  * @param t
  */
 function YearFromTime(t) {
-    var min = Math.ceil(t / MS_PER_DAY / 366);
-    var y = min;
-    while (TimeFromYear(y) <= t) {
-        y++;
-    }
-    return y - 1;
+    return new Date(t).getUTCFullYear();
 }
 exports.YearFromTime = YearFromTime;
 function DaysInYear(y) {
@@ -335,89 +327,42 @@ function SecFromTime(t) {
     return mod(Math.floor(t / MS_PER_SECOND), SECONDS_PER_MINUTE);
 }
 exports.SecFromTime = SecFromTime;
+function IsCallable(fn) {
+    return typeof fn === 'function';
+}
+/**
+ * The abstract operation OrdinaryHasInstance implements
+ * the default algorithm for determining if an object O
+ * inherits from the instance object inheritance path
+ * provided by constructor C.
+ * @param C class
+ * @param O object
+ * @param internalSlots internalSlots
+ */
+function OrdinaryHasInstance(C, O, internalSlots) {
+    if (!IsCallable(C)) {
+        return false;
+    }
+    if (internalSlots === null || internalSlots === void 0 ? void 0 : internalSlots.boundTargetFunction) {
+        var BC = internalSlots === null || internalSlots === void 0 ? void 0 : internalSlots.boundTargetFunction;
+        return O instanceof BC;
+    }
+    if (typeof O !== 'object') {
+        return false;
+    }
+    var P = C.prototype;
+    if (typeof P !== 'object') {
+        throw new TypeError('OrdinaryHasInstance called on an object with an invalid prototype property.');
+    }
+    return Object.prototype.isPrototypeOf.call(P, O);
+}
+exports.OrdinaryHasInstance = OrdinaryHasInstance;
+function msFromTime(t) {
+    return mod(t, MS_PER_SECOND);
+}
+exports.msFromTime = msFromTime;
 
 },{}],2:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.BestAvailableLocale = void 0;
-/**
- * https://tc39.es/ecma402/#sec-bestavailablelocale
- * @param availableLocales
- * @param locale
- */
-function BestAvailableLocale(availableLocales, locale) {
-    var candidate = locale;
-    while (true) {
-        if (availableLocales.has(candidate)) {
-            return candidate;
-        }
-        var pos = candidate.lastIndexOf('-');
-        if (!~pos) {
-            return undefined;
-        }
-        if (pos >= 2 && candidate[pos - 2] === '-') {
-            pos -= 2;
-        }
-        candidate = candidate.slice(0, pos);
-    }
-}
-exports.BestAvailableLocale = BestAvailableLocale;
-
-},{}],3:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.BestFitMatcher = void 0;
-var BestAvailableLocale_1 = require("./BestAvailableLocale");
-var utils_1 = require("./utils");
-/**
- * https://tc39.es/ecma402/#sec-bestfitmatcher
- * @param availableLocales
- * @param requestedLocales
- * @param getDefaultLocale
- */
-function BestFitMatcher(availableLocales, requestedLocales, getDefaultLocale) {
-    var minimizedAvailableLocaleMap = {};
-    var minimizedAvailableLocales = new Set();
-    availableLocales.forEach(function (locale) {
-        var minimizedLocale = new Intl.Locale(locale)
-            .minimize()
-            .toString();
-        minimizedAvailableLocaleMap[minimizedLocale] = locale;
-        minimizedAvailableLocales.add(minimizedLocale);
-    });
-    var foundLocale;
-    for (var _i = 0, requestedLocales_1 = requestedLocales; _i < requestedLocales_1.length; _i++) {
-        var l = requestedLocales_1[_i];
-        if (foundLocale) {
-            break;
-        }
-        var noExtensionLocale = l.replace(utils_1.UNICODE_EXTENSION_SEQUENCE_REGEX, '');
-        if (availableLocales.has(noExtensionLocale)) {
-            foundLocale = noExtensionLocale;
-            break;
-        }
-        if (minimizedAvailableLocales.has(noExtensionLocale)) {
-            foundLocale = minimizedAvailableLocaleMap[noExtensionLocale];
-            break;
-        }
-        var locale = new Intl.Locale(noExtensionLocale);
-        var maximizedRequestedLocale = locale.maximize().toString();
-        var minimizedRequestedLocale = locale.minimize().toString();
-        // Check minimized locale
-        if (minimizedAvailableLocales.has(minimizedRequestedLocale)) {
-            foundLocale = minimizedAvailableLocaleMap[minimizedRequestedLocale];
-            break;
-        }
-        // Lookup algo on maximized locale
-        foundLocale = BestAvailableLocale_1.BestAvailableLocale(minimizedAvailableLocales, maximizedRequestedLocale);
-    }
-    return {
-        locale: foundLocale || getDefaultLocale(),
-    };
-}
-exports.BestFitMatcher = BestFitMatcher;
-
-},{"./BestAvailableLocale":2,"./utils":66}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CanonicalizeLocaleList = void 0;
@@ -431,7 +376,7 @@ function CanonicalizeLocaleList(locales) {
 }
 exports.CanonicalizeLocaleList = CanonicalizeLocaleList;
 
-},{}],5:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CanonicalizeTimeZoneName = void 0;
@@ -454,1284 +399,33 @@ function CanonicalizeTimeZoneName(tz, _a) {
 }
 exports.CanonicalizeTimeZoneName = CanonicalizeTimeZoneName;
 
-},{}],6:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BasicFormatMatcher = void 0;
-var tslib_1 = require("tslib");
-var utils_1 = require("../utils");
-var utils_2 = require("./utils");
+exports.CoerceOptionsToObject = void 0;
+var _262_1 = require("./262");
 /**
- * https://tc39.es/ecma402/#sec-basicformatmatcher
+ * https://tc39.es/ecma402/#sec-coerceoptionstoobject
  * @param options
- * @param formats
+ * @returns
  */
-function BasicFormatMatcher(options, formats) {
-    var bestScore = -Infinity;
-    var bestFormat = formats[0];
-    utils_1.invariant(Array.isArray(formats), 'formats should be a list of things');
-    for (var _i = 0, formats_1 = formats; _i < formats_1.length; _i++) {
-        var format = formats_1[_i];
-        var score = 0;
-        for (var _a = 0, DATE_TIME_PROPS_1 = utils_2.DATE_TIME_PROPS; _a < DATE_TIME_PROPS_1.length; _a++) {
-            var prop = DATE_TIME_PROPS_1[_a];
-            var optionsProp = options[prop];
-            var formatProp = format[prop];
-            if (optionsProp === undefined && formatProp !== undefined) {
-                score -= utils_2.additionPenalty;
-            }
-            else if (optionsProp !== undefined && formatProp === undefined) {
-                score -= utils_2.removalPenalty;
-            }
-            else if (optionsProp !== formatProp) {
-                var values = ['2-digit', 'numeric', 'narrow', 'short', 'long'];
-                var optionsPropIndex = values.indexOf(optionsProp);
-                var formatPropIndex = values.indexOf(formatProp);
-                var delta = Math.max(-2, Math.min(formatPropIndex - optionsPropIndex, 2));
-                if (delta === 2) {
-                    score -= utils_2.longMorePenalty;
-                }
-                else if (delta === 1) {
-                    score -= utils_2.shortMorePenalty;
-                }
-                else if (delta === -1) {
-                    score -= utils_2.shortLessPenalty;
-                }
-                else if (delta === -2) {
-                    score -= utils_2.longLessPenalty;
-                }
-            }
-        }
-        if (score > bestScore) {
-            bestScore = score;
-            bestFormat = format;
-        }
+function CoerceOptionsToObject(options) {
+    if (typeof options === 'undefined') {
+        return Object.create(null);
     }
-    return tslib_1.__assign({}, bestFormat);
+    return (0, _262_1.ToObject)(options);
 }
-exports.BasicFormatMatcher = BasicFormatMatcher;
+exports.CoerceOptionsToObject = CoerceOptionsToObject;
 
-},{"../utils":66,"./utils":20,"tslib":59}],7:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.BestFitFormatMatcher = exports.bestFitFormatMatcherScore = void 0;
-var tslib_1 = require("tslib");
-var utils_1 = require("../utils");
-var utils_2 = require("./utils");
-var skeleton_1 = require("./skeleton");
-function isNumericType(t) {
-    return t === 'numeric' || t === '2-digit';
-}
-/**
- * Credit: https://github.com/andyearnshaw/Intl.js/blob/0958dc1ad8153f1056653ea22b8208f0df289a4e/src/12.datetimeformat.js#L611
- * with some modifications
- * @param options
- * @param format
- */
-function bestFitFormatMatcherScore(options, format) {
-    var score = 0;
-    if (options.hour12 && !format.hour12) {
-        score -= utils_2.removalPenalty;
-    }
-    else if (!options.hour12 && format.hour12) {
-        score -= utils_2.additionPenalty;
-    }
-    for (var _i = 0, DATE_TIME_PROPS_1 = utils_2.DATE_TIME_PROPS; _i < DATE_TIME_PROPS_1.length; _i++) {
-        var prop = DATE_TIME_PROPS_1[_i];
-        var optionsProp = options[prop];
-        var formatProp = format[prop];
-        if (optionsProp === undefined && formatProp !== undefined) {
-            score -= utils_2.additionPenalty;
-        }
-        else if (optionsProp !== undefined && formatProp === undefined) {
-            score -= utils_2.removalPenalty;
-        }
-        else if (optionsProp !== formatProp) {
-            // extra penalty for numeric vs non-numeric
-            if (isNumericType(optionsProp) !==
-                isNumericType(formatProp)) {
-                score -= utils_2.differentNumericTypePenalty;
-            }
-            else {
-                var values = ['2-digit', 'numeric', 'narrow', 'short', 'long'];
-                var optionsPropIndex = values.indexOf(optionsProp);
-                var formatPropIndex = values.indexOf(formatProp);
-                var delta = Math.max(-2, Math.min(formatPropIndex - optionsPropIndex, 2));
-                if (delta === 2) {
-                    score -= utils_2.longMorePenalty;
-                }
-                else if (delta === 1) {
-                    score -= utils_2.shortMorePenalty;
-                }
-                else if (delta === -1) {
-                    score -= utils_2.shortLessPenalty;
-                }
-                else if (delta === -2) {
-                    score -= utils_2.longLessPenalty;
-                }
-            }
-        }
-    }
-    return score;
-}
-exports.bestFitFormatMatcherScore = bestFitFormatMatcherScore;
-/**
- * https://tc39.es/ecma402/#sec-bestfitformatmatcher
- * Just alias to basic for now
- * @param options
- * @param formats
- * @param implDetails Implementation details
- */
-function BestFitFormatMatcher(options, formats) {
-    var bestScore = -Infinity;
-    var bestFormat = formats[0];
-    utils_1.invariant(Array.isArray(formats), 'formats should be a list of things');
-    for (var _i = 0, formats_1 = formats; _i < formats_1.length; _i++) {
-        var format = formats_1[_i];
-        var score = bestFitFormatMatcherScore(options, format);
-        if (score > bestScore) {
-            bestScore = score;
-            bestFormat = format;
-        }
-    }
-    var skeletonFormat = tslib_1.__assign({}, bestFormat);
-    var patternFormat = { rawPattern: bestFormat.rawPattern };
-    skeleton_1.processDateTimePattern(bestFormat.rawPattern, patternFormat);
-    // Kinda following https://github.com/unicode-org/icu/blob/dd50e38f459d84e9bf1b0c618be8483d318458ad/icu4j/main/classes/core/src/com/ibm/icu/text/DateTimePatternGenerator.java
-    // Method adjustFieldTypes
-    for (var prop in skeletonFormat) {
-        var skeletonValue = skeletonFormat[prop];
-        var patternValue = patternFormat[prop];
-        var requestedValue = options[prop];
-        // Don't mess with minute/second or we can get in the situation of
-        // 7:0:0 which is weird
-        if (prop === 'minute' || prop === 'second') {
-            continue;
-        }
-        // Nothing to do here
-        if (!requestedValue) {
-            continue;
-        }
-        // https://unicode.org/reports/tr35/tr35-dates.html#Matching_Skeletons
-        // Looks like we should not convert numeric to alphabetic but the other way
-        // around is ok
-        if (isNumericType(patternValue) &&
-            !isNumericType(requestedValue)) {
-            continue;
-        }
-        if (skeletonValue === requestedValue) {
-            continue;
-        }
-        patternFormat[prop] = requestedValue;
-    }
-    // Copy those over
-    patternFormat.pattern = skeletonFormat.pattern;
-    patternFormat.pattern12 = skeletonFormat.pattern12;
-    patternFormat.skeleton = skeletonFormat.skeleton;
-    patternFormat.rangePatterns = skeletonFormat.rangePatterns;
-    patternFormat.rangePatterns12 = skeletonFormat.rangePatterns12;
-    return patternFormat;
-}
-exports.BestFitFormatMatcher = BestFitFormatMatcher;
-
-},{"../utils":66,"./skeleton":19,"./utils":20,"tslib":59}],8:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DateTimeStyleFormat = void 0;
-var utils_1 = require("../utils");
-function DateTimeStyleFormat(dateStyle, timeStyle, dataLocaleData) {
-    var dateFormat, timeFormat;
-    if (timeStyle !== undefined) {
-        utils_1.invariant(timeStyle === 'full' ||
-            timeStyle === 'long' ||
-            timeStyle === 'medium' ||
-            timeStyle === 'short', 'invalid timeStyle');
-        timeFormat = dataLocaleData.timeFormat[timeStyle];
-    }
-    if (dateStyle !== undefined) {
-        utils_1.invariant(dateStyle === 'full' ||
-            dateStyle === 'long' ||
-            dateStyle === 'medium' ||
-            dateStyle === 'short', 'invalid dateStyle');
-        dateFormat = dataLocaleData.dateFormat[dateStyle];
-    }
-    if (dateStyle !== undefined && timeStyle !== undefined) {
-        var format = {};
-        for (var field in dateFormat) {
-            if (field !== 'pattern') {
-                // @ts-ignore
-                format[field] = dateFormat[field];
-            }
-        }
-        for (var field in timeFormat) {
-            if (field !== 'pattern' && field !== 'pattern12') {
-                // @ts-ignore
-                format[field] = timeFormat[field];
-            }
-        }
-        var connector = dataLocaleData.dateTimeFormat[dateStyle];
-        var pattern = connector
-            .replace('{0}', timeFormat.pattern)
-            .replace('{1}', dateFormat.pattern);
-        format.pattern = pattern;
-        if ('pattern12' in timeFormat) {
-            var pattern12 = connector
-                .replace('{0}', timeFormat.pattern12)
-                .replace('{1}', dateFormat.pattern);
-            format.pattern12 = pattern12;
-        }
-        return format;
-    }
-    if (timeStyle !== undefined) {
-        return timeFormat;
-    }
-    utils_1.invariant(dateStyle !== undefined, 'dateStyle should not be undefined');
-    return dateFormat;
-}
-exports.DateTimeStyleFormat = DateTimeStyleFormat;
-
-},{"../utils":66}],9:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FormatDateTime = void 0;
-var PartitionDateTimePattern_1 = require("./PartitionDateTimePattern");
-/**
- * https://tc39.es/ecma402/#sec-formatdatetime
- * @param dtf DateTimeFormat
- * @param x
- */
-function FormatDateTime(dtf, x, implDetails) {
-    var parts = PartitionDateTimePattern_1.PartitionDateTimePattern(dtf, x, implDetails);
-    var result = '';
-    for (var _i = 0, parts_1 = parts; _i < parts_1.length; _i++) {
-        var part = parts_1[_i];
-        result += part.value;
-    }
-    return result;
-}
-exports.FormatDateTime = FormatDateTime;
-
-},{"./PartitionDateTimePattern":15}],10:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FormatDateTimePattern = void 0;
-var utils_1 = require("./utils");
-var ToLocalTime_1 = require("./ToLocalTime");
-var _262_1 = require("../262");
-function pad(n) {
-    if (n < 10) {
-        return "0" + n;
-    }
-    return String(n);
-}
-function offsetToGmtString(gmtFormat, hourFormat, offsetInMs, style) {
-    var offsetInMinutes = Math.floor(offsetInMs / 60000);
-    var mins = Math.abs(offsetInMinutes) % 60;
-    var hours = Math.floor(Math.abs(offsetInMinutes) / 60);
-    var _a = hourFormat.split(';'), positivePattern = _a[0], negativePattern = _a[1];
-    var offsetStr = '';
-    var pattern = offsetInMs < 0 ? negativePattern : positivePattern;
-    if (style === 'long') {
-        offsetStr = pattern
-            .replace('HH', pad(hours))
-            .replace('H', String(hours))
-            .replace('mm', pad(mins))
-            .replace('m', String(mins));
-    }
-    else if (mins || hours) {
-        if (!mins) {
-            pattern = pattern.replace(/:?m+/, '');
-        }
-        offsetStr = pattern
-            .replace(/H+/, String(hours))
-            .replace(/m+/, String(mins));
-    }
-    return gmtFormat.replace('{0}', offsetStr);
-}
-/**
- * https://tc39.es/ecma402/#sec-partitiondatetimepattern
- * @param dtf
- * @param x
- */
-function FormatDateTimePattern(dtf, patternParts, x, _a) {
-    var getInternalSlots = _a.getInternalSlots, localeData = _a.localeData, getDefaultTimeZone = _a.getDefaultTimeZone, tzData = _a.tzData;
-    x = _262_1.TimeClip(x);
-    /** IMPL START */
-    var internalSlots = getInternalSlots(dtf);
-    var dataLocale = internalSlots.dataLocale;
-    var dataLocaleData = localeData[dataLocale];
-    /** IMPL END */
-    var locale = internalSlots.locale;
-    var nfOptions = Object.create(null);
-    nfOptions.useGrouping = false;
-    var nf = new Intl.NumberFormat(locale, nfOptions);
-    var nf2Options = Object.create(null);
-    nf2Options.minimumIntegerDigits = 2;
-    nf2Options.useGrouping = false;
-    var nf2 = new Intl.NumberFormat(locale, nf2Options);
-    var tm = ToLocalTime_1.ToLocalTime(x, 
-    // @ts-ignore
-    internalSlots.calendar, internalSlots.timeZone, { tzData: tzData });
-    var result = [];
-    for (var _i = 0, patternParts_1 = patternParts; _i < patternParts_1.length; _i++) {
-        var patternPart = patternParts_1[_i];
-        var p = patternPart.type;
-        if (p === 'literal') {
-            result.push({
-                type: 'literal',
-                value: patternPart.value,
-            });
-        }
-        else if (utils_1.DATE_TIME_PROPS.indexOf(p) > -1) {
-            var fv = '';
-            var f = internalSlots[p];
-            // @ts-ignore
-            var v = tm[p];
-            if (p === 'year' && v <= 0) {
-                v = 1 - v;
-            }
-            if (p === 'month') {
-                v++;
-            }
-            var hourCycle = internalSlots.hourCycle;
-            if (p === 'hour' && (hourCycle === 'h11' || hourCycle === 'h12')) {
-                v = v % 12;
-                if (v === 0 && hourCycle === 'h12') {
-                    v = 12;
-                }
-            }
-            if (p === 'hour' && hourCycle === 'h24') {
-                if (v === 0) {
-                    v = 24;
-                }
-            }
-            if (f === 'numeric') {
-                fv = nf.format(v);
-            }
-            else if (f === '2-digit') {
-                fv = nf2.format(v);
-                if (fv.length > 2) {
-                    fv = fv.slice(fv.length - 2, fv.length);
-                }
-            }
-            else if (f === 'narrow' || f === 'short' || f === 'long') {
-                if (p === 'era') {
-                    fv = dataLocaleData[p][f][v];
-                }
-                else if (p === 'timeZoneName') {
-                    var timeZoneName = dataLocaleData.timeZoneName, gmtFormat = dataLocaleData.gmtFormat, hourFormat = dataLocaleData.hourFormat;
-                    var timeZone = internalSlots.timeZone || getDefaultTimeZone();
-                    var timeZoneData = timeZoneName[timeZone];
-                    if (timeZoneData && timeZoneData[f]) {
-                        fv = timeZoneData[f][+tm.inDST];
-                    }
-                    else {
-                        // Fallback to gmtFormat
-                        fv = offsetToGmtString(gmtFormat, hourFormat, tm.timeZoneOffset, f);
-                    }
-                }
-                else if (p === 'month') {
-                    fv = dataLocaleData.month[f][v - 1];
-                }
-                else {
-                    fv = dataLocaleData[p][f][v];
-                }
-            }
-            result.push({
-                type: p,
-                value: fv,
-            });
-        }
-        else if (p === 'ampm') {
-            var v = tm.hour;
-            var fv = void 0;
-            if (v > 11) {
-                fv = dataLocaleData.pm;
-            }
-            else {
-                fv = dataLocaleData.am;
-            }
-            result.push({
-                type: 'dayPeriod',
-                value: fv,
-            });
-        }
-        else if (p === 'relatedYear') {
-            var v = tm.relatedYear;
-            // @ts-ignore
-            var fv = nf.format(v);
-            result.push({
-                // @ts-ignore TODO: Fix TS type
-                type: 'relatedYear',
-                value: fv,
-            });
-        }
-        else if (p === 'yearName') {
-            var v = tm.yearName;
-            // @ts-ignore
-            var fv = nf.format(v);
-            result.push({
-                // @ts-ignore TODO: Fix TS type
-                type: 'yearName',
-                value: fv,
-            });
-        }
-    }
-    return result;
-}
-exports.FormatDateTimePattern = FormatDateTimePattern;
-
-},{"../262":1,"./ToLocalTime":18,"./utils":20}],11:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FormatDateTimeRange = void 0;
-var PartitionDateTimeRangePattern_1 = require("./PartitionDateTimeRangePattern");
-function FormatDateTimeRange(dtf, x, y, implDetails) {
-    var parts = PartitionDateTimeRangePattern_1.PartitionDateTimeRangePattern(dtf, x, y, implDetails);
-    var result = '';
-    for (var _i = 0, parts_1 = parts; _i < parts_1.length; _i++) {
-        var part = parts_1[_i];
-        result += part.value;
-    }
-    return result;
-}
-exports.FormatDateTimeRange = FormatDateTimeRange;
-
-},{"./PartitionDateTimeRangePattern":16}],12:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FormatDateTimeRangeToParts = void 0;
-var PartitionDateTimeRangePattern_1 = require("./PartitionDateTimeRangePattern");
-function FormatDateTimeRangeToParts(dtf, x, y, implDetails) {
-    var parts = PartitionDateTimeRangePattern_1.PartitionDateTimeRangePattern(dtf, x, y, implDetails);
-    var result = new Array(0);
-    for (var _i = 0, parts_1 = parts; _i < parts_1.length; _i++) {
-        var part = parts_1[_i];
-        result.push({
-            type: part.type,
-            value: part.value,
-            source: part.source,
-        });
-    }
-    return result;
-}
-exports.FormatDateTimeRangeToParts = FormatDateTimeRangeToParts;
-
-},{"./PartitionDateTimeRangePattern":16}],13:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FormatDateTimeToParts = void 0;
-var PartitionDateTimePattern_1 = require("./PartitionDateTimePattern");
-var _262_1 = require("../262");
-/**
- * https://tc39.es/ecma402/#sec-formatdatetimetoparts
- *
- * @param dtf
- * @param x
- * @param implDetails
- */
-function FormatDateTimeToParts(dtf, x, implDetails) {
-    var parts = PartitionDateTimePattern_1.PartitionDateTimePattern(dtf, x, implDetails);
-    var result = _262_1.ArrayCreate(0);
-    for (var _i = 0, parts_1 = parts; _i < parts_1.length; _i++) {
-        var part = parts_1[_i];
-        result.push({
-            type: part.type,
-            value: part.value,
-        });
-    }
-    return result;
-}
-exports.FormatDateTimeToParts = FormatDateTimeToParts;
-
-},{"../262":1,"./PartitionDateTimePattern":15}],14:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.InitializeDateTimeFormat = void 0;
-var CanonicalizeLocaleList_1 = require("../CanonicalizeLocaleList");
-var ToDateTimeOptions_1 = require("./ToDateTimeOptions");
-var GetOption_1 = require("../GetOption");
-var ResolveLocale_1 = require("../ResolveLocale");
-var IsValidTimeZoneName_1 = require("../IsValidTimeZoneName");
-var CanonicalizeTimeZoneName_1 = require("../CanonicalizeTimeZoneName");
-var BasicFormatMatcher_1 = require("./BasicFormatMatcher");
-var BestFitFormatMatcher_1 = require("./BestFitFormatMatcher");
-var utils_1 = require("../utils");
-var utils_2 = require("./utils");
-var DateTimeStyleFormat_1 = require("./DateTimeStyleFormat");
-function isTimeRelated(opt) {
-    for (var _i = 0, _a = ['hour', 'minute', 'second']; _i < _a.length; _i++) {
-        var prop = _a[_i];
-        var value = opt[prop];
-        if (value !== undefined) {
-            return true;
-        }
-    }
-    return false;
-}
-function resolveHourCycle(hc, hcDefault, hour12) {
-    if (hc == null) {
-        hc = hcDefault;
-    }
-    if (hour12 !== undefined) {
-        if (hour12) {
-            if (hcDefault === 'h11' || hcDefault === 'h23') {
-                hc = 'h11';
-            }
-            else {
-                hc = 'h12';
-            }
-        }
-        else {
-            utils_1.invariant(!hour12, 'hour12 must not be set');
-            if (hcDefault === 'h11' || hcDefault === 'h23') {
-                hc = 'h23';
-            }
-            else {
-                hc = 'h24';
-            }
-        }
-    }
-    return hc;
-}
-var TYPE_REGEX = /^[a-z0-9]{3,8}$/i;
-/**
- * https://tc39.es/ecma402/#sec-initializedatetimeformat
- * @param dtf DateTimeFormat
- * @param locales locales
- * @param opts options
- */
-function InitializeDateTimeFormat(dtf, locales, opts, _a) {
-    var getInternalSlots = _a.getInternalSlots, availableLocales = _a.availableLocales, localeData = _a.localeData, getDefaultLocale = _a.getDefaultLocale, getDefaultTimeZone = _a.getDefaultTimeZone, relevantExtensionKeys = _a.relevantExtensionKeys, tzData = _a.tzData, uppercaseLinks = _a.uppercaseLinks;
-    // @ts-ignore
-    var requestedLocales = CanonicalizeLocaleList_1.CanonicalizeLocaleList(locales);
-    var options = ToDateTimeOptions_1.ToDateTimeOptions(opts, 'any', 'date');
-    var opt = Object.create(null);
-    var matcher = GetOption_1.GetOption(options, 'localeMatcher', 'string', ['lookup', 'best fit'], 'best fit');
-    opt.localeMatcher = matcher;
-    var calendar = GetOption_1.GetOption(options, 'calendar', 'string', undefined, undefined);
-    if (calendar !== undefined && !TYPE_REGEX.test(calendar)) {
-        throw new RangeError('Malformed calendar');
-    }
-    var internalSlots = getInternalSlots(dtf);
-    opt.ca = calendar;
-    var numberingSystem = GetOption_1.GetOption(options, 'numberingSystem', 'string', undefined, undefined);
-    if (numberingSystem !== undefined && !TYPE_REGEX.test(numberingSystem)) {
-        throw new RangeError('Malformed numbering system');
-    }
-    opt.nu = numberingSystem;
-    var hour12 = GetOption_1.GetOption(options, 'hour12', 'boolean', undefined, undefined);
-    var hourCycle = GetOption_1.GetOption(options, 'hourCycle', 'string', ['h11', 'h12', 'h23', 'h24'], undefined);
-    if (hour12 !== undefined) {
-        // @ts-ignore
-        hourCycle = null;
-    }
-    opt.hc = hourCycle;
-    var r = ResolveLocale_1.ResolveLocale(availableLocales, requestedLocales, opt, relevantExtensionKeys, localeData, getDefaultLocale);
-    internalSlots.locale = r.locale;
-    calendar = r.ca;
-    internalSlots.calendar = calendar;
-    internalSlots.hourCycle = r.hc;
-    internalSlots.numberingSystem = r.nu;
-    var dataLocale = r.dataLocale;
-    internalSlots.dataLocale = dataLocale;
-    var timeZone = options.timeZone;
-    if (timeZone !== undefined) {
-        timeZone = String(timeZone);
-        if (!IsValidTimeZoneName_1.IsValidTimeZoneName(timeZone, { tzData: tzData, uppercaseLinks: uppercaseLinks })) {
-            throw new RangeError('Invalid timeZoneName');
-        }
-        timeZone = CanonicalizeTimeZoneName_1.CanonicalizeTimeZoneName(timeZone, { tzData: tzData, uppercaseLinks: uppercaseLinks });
-    }
-    else {
-        timeZone = getDefaultTimeZone();
-    }
-    internalSlots.timeZone = timeZone;
-    opt = Object.create(null);
-    opt.weekday = GetOption_1.GetOption(options, 'weekday', 'string', ['narrow', 'short', 'long'], undefined);
-    opt.era = GetOption_1.GetOption(options, 'era', 'string', ['narrow', 'short', 'long'], undefined);
-    opt.year = GetOption_1.GetOption(options, 'year', 'string', ['2-digit', 'numeric'], undefined);
-    opt.month = GetOption_1.GetOption(options, 'month', 'string', ['2-digit', 'numeric', 'narrow', 'short', 'long'], undefined);
-    opt.day = GetOption_1.GetOption(options, 'day', 'string', ['2-digit', 'numeric'], undefined);
-    opt.hour = GetOption_1.GetOption(options, 'hour', 'string', ['2-digit', 'numeric'], undefined);
-    opt.minute = GetOption_1.GetOption(options, 'minute', 'string', ['2-digit', 'numeric'], undefined);
-    opt.second = GetOption_1.GetOption(options, 'second', 'string', ['2-digit', 'numeric'], undefined);
-    opt.timeZoneName = GetOption_1.GetOption(options, 'timeZoneName', 'string', ['short', 'long'], undefined);
-    var dataLocaleData = localeData[dataLocale];
-    utils_1.invariant(!!dataLocaleData, "Missing locale data for " + dataLocale);
-    var formats = dataLocaleData.formats[calendar];
-    // UNSPECCED: IMPLEMENTATION DETAILS
-    if (!formats) {
-        throw new RangeError("Calendar \"" + calendar + "\" is not supported. Try setting \"calendar\" to 1 of the following: " + Object.keys(dataLocaleData.formats).join(', '));
-    }
-    matcher = GetOption_1.GetOption(options, 'formatMatcher', 'string', ['basic', 'best fit'], 'best fit');
-    var dateStyle = GetOption_1.GetOption(options, 'dateStyle', 'string', ['full', 'long', 'medium', 'short'], undefined);
-    internalSlots.dateStyle = dateStyle;
-    var timeStyle = GetOption_1.GetOption(options, 'timeStyle', 'string', ['full', 'long', 'medium', 'short'], undefined);
-    internalSlots.timeStyle = timeStyle;
-    var bestFormat;
-    if (dateStyle === undefined && timeStyle === undefined) {
-        if (matcher === 'basic') {
-            bestFormat = BasicFormatMatcher_1.BasicFormatMatcher(opt, formats);
-        }
-        else {
-            // IMPL DETAILS START
-            if (isTimeRelated(opt)) {
-                var hc = resolveHourCycle(internalSlots.hourCycle, dataLocaleData.hourCycle, hour12);
-                opt.hour12 = hc === 'h11' || hc === 'h12';
-            }
-            // IMPL DETAILS END
-            bestFormat = BestFitFormatMatcher_1.BestFitFormatMatcher(opt, formats);
-        }
-    }
-    else {
-        for (var _i = 0, DATE_TIME_PROPS_1 = utils_2.DATE_TIME_PROPS; _i < DATE_TIME_PROPS_1.length; _i++) {
-            var prop = DATE_TIME_PROPS_1[_i];
-            var p = opt[prop];
-            if (p !== undefined) {
-                throw new TypeError("Intl.DateTimeFormat can't set option " + prop + " when " + (dateStyle ? 'dateStyle' : 'timeStyle') + " is used");
-            }
-        }
-        bestFormat = DateTimeStyleFormat_1.DateTimeStyleFormat(dateStyle, timeStyle, dataLocaleData);
-    }
-    // IMPL DETAIL START
-    // For debugging
-    internalSlots.format = bestFormat;
-    // IMPL DETAIL END
-    for (var prop in opt) {
-        var p = bestFormat[prop];
-        if (p !== undefined) {
-            internalSlots[prop] = p;
-        }
-    }
-    var pattern;
-    var rangePatterns;
-    if (internalSlots.hour !== undefined) {
-        var hc = resolveHourCycle(internalSlots.hourCycle, dataLocaleData.hourCycle, hour12);
-        internalSlots.hourCycle = hc;
-        if (hc === 'h11' || hc === 'h12') {
-            pattern = bestFormat.pattern12;
-            rangePatterns = bestFormat.rangePatterns12;
-        }
-        else {
-            pattern = bestFormat.pattern;
-            rangePatterns = bestFormat.rangePatterns;
-        }
-    }
-    else {
-        // @ts-ignore
-        internalSlots.hourCycle = undefined;
-        pattern = bestFormat.pattern;
-        rangePatterns = bestFormat.rangePatterns;
-    }
-    internalSlots.pattern = pattern;
-    internalSlots.rangePatterns = rangePatterns;
-    return dtf;
-}
-exports.InitializeDateTimeFormat = InitializeDateTimeFormat;
-
-},{"../CanonicalizeLocaleList":4,"../CanonicalizeTimeZoneName":5,"../GetOption":24,"../IsValidTimeZoneName":26,"../ResolveLocale":54,"../utils":66,"./BasicFormatMatcher":6,"./BestFitFormatMatcher":7,"./DateTimeStyleFormat":8,"./ToDateTimeOptions":17,"./utils":20}],15:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.PartitionDateTimePattern = void 0;
-var _262_1 = require("../262");
-var FormatDateTimePattern_1 = require("./FormatDateTimePattern");
-var PartitionPattern_1 = require("../PartitionPattern");
-/**
- * https://tc39.es/ecma402/#sec-partitiondatetimepattern
- * @param dtf
- * @param x
- */
-function PartitionDateTimePattern(dtf, x, implDetails) {
-    x = _262_1.TimeClip(x);
-    if (isNaN(x)) {
-        throw new RangeError('invalid time');
-    }
-    /** IMPL START */
-    var getInternalSlots = implDetails.getInternalSlots;
-    var internalSlots = getInternalSlots(dtf);
-    /** IMPL END */
-    var pattern = internalSlots.pattern;
-    return FormatDateTimePattern_1.FormatDateTimePattern(dtf, PartitionPattern_1.PartitionPattern(pattern), x, implDetails);
-}
-exports.PartitionDateTimePattern = PartitionDateTimePattern;
-
-},{"../262":1,"../PartitionPattern":44,"./FormatDateTimePattern":10}],16:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.PartitionDateTimeRangePattern = void 0;
-var _262_1 = require("../262");
-var ToLocalTime_1 = require("./ToLocalTime");
-var FormatDateTimePattern_1 = require("./FormatDateTimePattern");
-var PartitionPattern_1 = require("../PartitionPattern");
-var TABLE_2_FIELDS = [
-    'era',
-    'year',
-    'month',
-    'day',
-    'ampm',
-    'hour',
-    'minute',
-    'second',
-];
-function PartitionDateTimeRangePattern(dtf, x, y, implDetails) {
-    x = _262_1.TimeClip(x);
-    if (isNaN(x)) {
-        throw new RangeError('Invalid start time');
-    }
-    y = _262_1.TimeClip(y);
-    if (isNaN(y)) {
-        throw new RangeError('Invalid end time');
-    }
-    /** IMPL START */
-    var getInternalSlots = implDetails.getInternalSlots, tzData = implDetails.tzData;
-    var internalSlots = getInternalSlots(dtf);
-    /** IMPL END */
-    var tm1 = ToLocalTime_1.ToLocalTime(x, 
-    // @ts-ignore
-    internalSlots.calendar, internalSlots.timeZone, { tzData: tzData });
-    var tm2 = ToLocalTime_1.ToLocalTime(y, 
-    // @ts-ignore
-    internalSlots.calendar, internalSlots.timeZone, { tzData: tzData });
-    var pattern = internalSlots.pattern, rangePatterns = internalSlots.rangePatterns;
-    var rangePattern;
-    var dateFieldsPracticallyEqual = true;
-    var patternContainsLargerDateField = false;
-    for (var _i = 0, TABLE_2_FIELDS_1 = TABLE_2_FIELDS; _i < TABLE_2_FIELDS_1.length; _i++) {
-        var fieldName = TABLE_2_FIELDS_1[_i];
-        if (dateFieldsPracticallyEqual && !patternContainsLargerDateField) {
-            if (fieldName === 'ampm') {
-                var rp = rangePatterns.ampm;
-                if (rangePattern !== undefined && rp === undefined) {
-                    patternContainsLargerDateField = true;
-                }
-                else {
-                    var v1 = tm1.hour;
-                    var v2 = tm2.hour;
-                    if ((v1 > 11 && v2 < 11) || (v1 < 11 && v2 > 11)) {
-                        dateFieldsPracticallyEqual = false;
-                    }
-                    rangePattern = rp;
-                }
-            }
-            else {
-                var rp = rangePatterns[fieldName];
-                if (rangePattern !== undefined && rp === undefined) {
-                    patternContainsLargerDateField = true;
-                }
-                else {
-                    var v1 = tm1[fieldName];
-                    var v2 = tm2[fieldName];
-                    if (!_262_1.SameValue(v1, v2)) {
-                        dateFieldsPracticallyEqual = false;
-                    }
-                    rangePattern = rp;
-                }
-            }
-        }
-    }
-    if (dateFieldsPracticallyEqual) {
-        var result_2 = FormatDateTimePattern_1.FormatDateTimePattern(dtf, PartitionPattern_1.PartitionPattern(pattern), x, implDetails);
-        for (var _a = 0, result_1 = result_2; _a < result_1.length; _a++) {
-            var r = result_1[_a];
-            r.source = "shared" /* shared */;
-        }
-        return result_2;
-    }
-    var result = [];
-    if (rangePattern === undefined) {
-        rangePattern = rangePatterns.default;
-        /** IMPL DETAILS */
-        // Now we have to replace {0} & {1} with actual pattern
-        for (var _b = 0, _c = rangePattern.patternParts; _b < _c.length; _b++) {
-            var patternPart = _c[_b];
-            if (patternPart.pattern === '{0}' || patternPart.pattern === '{1}') {
-                patternPart.pattern = pattern;
-            }
-        }
-    }
-    for (var _d = 0, _e = rangePattern.patternParts; _d < _e.length; _d++) {
-        var rangePatternPart = _e[_d];
-        var source = rangePatternPart.source, pattern_1 = rangePatternPart.pattern;
-        var z = void 0;
-        if (source === "startRange" /* startRange */ ||
-            source === "shared" /* shared */) {
-            z = x;
-        }
-        else {
-            z = y;
-        }
-        var patternParts = PartitionPattern_1.PartitionPattern(pattern_1);
-        var partResult = FormatDateTimePattern_1.FormatDateTimePattern(dtf, patternParts, z, implDetails);
-        for (var _f = 0, partResult_1 = partResult; _f < partResult_1.length; _f++) {
-            var r = partResult_1[_f];
-            r.source = source;
-        }
-        result = result.concat(partResult);
-    }
-    return result;
-}
-exports.PartitionDateTimeRangePattern = PartitionDateTimeRangePattern;
-
-},{"../262":1,"../PartitionPattern":44,"./FormatDateTimePattern":10,"./ToLocalTime":18}],17:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ToDateTimeOptions = void 0;
-var _262_1 = require("../262");
-/**
- * https://tc39.es/ecma402/#sec-todatetimeoptions
- * @param options
- * @param required
- * @param defaults
- */
-function ToDateTimeOptions(options, required, defaults) {
-    if (options === undefined) {
-        options = null;
-    }
-    else {
-        options = _262_1.ToObject(options);
-    }
-    options = Object.create(options);
-    var needDefaults = true;
-    if (required === 'date' || required === 'any') {
-        for (var _i = 0, _a = ['weekday', 'year', 'month', 'day']; _i < _a.length; _i++) {
-            var prop = _a[_i];
-            var value = options[prop];
-            if (value !== undefined) {
-                needDefaults = false;
-            }
-        }
-    }
-    if (required === 'time' || required === 'any') {
-        for (var _b = 0, _c = ['hour', 'minute', 'second']; _b < _c.length; _b++) {
-            var prop = _c[_b];
-            var value = options[prop];
-            if (value !== undefined) {
-                needDefaults = false;
-            }
-        }
-    }
-    if (options.dateStyle !== undefined || options.timeStyle !== undefined) {
-        needDefaults = false;
-    }
-    if (required === 'date' && options.timeStyle) {
-        throw new TypeError('Intl.DateTimeFormat date was required but timeStyle was included');
-    }
-    if (required === 'time' && options.dateStyle) {
-        throw new TypeError('Intl.DateTimeFormat time was required but dateStyle was included');
-    }
-    if (needDefaults && (defaults === 'date' || defaults === 'all')) {
-        for (var _d = 0, _e = ['year', 'month', 'day']; _d < _e.length; _d++) {
-            var prop = _e[_d];
-            options[prop] = 'numeric';
-        }
-    }
-    if (needDefaults && (defaults === 'time' || defaults === 'all')) {
-        for (var _f = 0, _g = ['hour', 'minute', 'second']; _f < _g.length; _f++) {
-            var prop = _g[_f];
-            options[prop] = 'numeric';
-        }
-    }
-    return options;
-}
-exports.ToDateTimeOptions = ToDateTimeOptions;
-
-},{"../262":1}],18:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ToLocalTime = void 0;
-var utils_1 = require("../utils");
-var _262_1 = require("../262");
-function getApplicableZoneData(t, timeZone, tzData) {
-    var _a;
-    var zoneData = tzData[timeZone];
-    // We don't have data for this so just say it's UTC
-    if (!zoneData) {
-        return [0, false];
-    }
-    var i = 0;
-    var offset = 0;
-    var dst = false;
-    for (; i <= zoneData.length; i++) {
-        if (i === zoneData.length || zoneData[i][0] * 1e3 > t) {
-            _a = zoneData[i - 1], offset = _a[2], dst = _a[3];
-            break;
-        }
-    }
-    return [offset * 1e3, dst];
-}
-/**
- * https://tc39.es/ecma402/#sec-tolocaltime
- * @param t
- * @param calendar
- * @param timeZone
- */
-function ToLocalTime(t, calendar, timeZone, _a) {
-    var tzData = _a.tzData;
-    utils_1.invariant(_262_1.Type(t) === 'Number', 'invalid time');
-    utils_1.invariant(calendar === 'gregory', 'We only support Gregory calendar right now');
-    var _b = getApplicableZoneData(t, timeZone, tzData), timeZoneOffset = _b[0], inDST = _b[1];
-    var tz = t + timeZoneOffset;
-    var year = _262_1.YearFromTime(tz);
-    return {
-        weekday: _262_1.WeekDay(tz),
-        era: year < 0 ? 'BC' : 'AD',
-        year: year,
-        relatedYear: undefined,
-        yearName: undefined,
-        month: _262_1.MonthFromTime(tz),
-        day: _262_1.DateFromTime(tz),
-        hour: _262_1.HourFromTime(tz),
-        minute: _262_1.MinFromTime(tz),
-        second: _262_1.SecFromTime(tz),
-        inDST: inDST,
-        // IMPORTANT: Not in spec
-        timeZoneOffset: timeZoneOffset,
-    };
-}
-exports.ToLocalTime = ToLocalTime;
-
-},{"../262":1,"../utils":66}],19:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.splitRangePattern = exports.splitFallbackRangePattern = exports.parseDateTimeSkeleton = exports.processDateTimePattern = void 0;
-var tslib_1 = require("tslib");
-/**
- * https://unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
- * Credit: https://github.com/caridy/intl-datetimeformat-pattern/blob/master/index.js
- * with some tweaks
- */
-var DATE_TIME_REGEX = /(?:[Eec]{1,6}|G{1,5}|[Qq]{1,5}|(?:[yYur]+|U{1,5})|[ML]{1,5}|d{1,2}|D{1,3}|F{1}|[abB]{1,5}|[hkHK]{1,2}|w{1,2}|W{1}|m{1,2}|s{1,2}|[zZOvVxX]{1,4})(?=([^']*'[^']*')*[^']*$)/g;
-// trim patterns after transformations
-var expPatternTrimmer = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
-function matchSkeletonPattern(match, result) {
-    var len = match.length;
-    switch (match[0]) {
-        // Era
-        case 'G':
-            result.era = len === 4 ? 'long' : len === 5 ? 'narrow' : 'short';
-            return '{era}';
-        // Year
-        case 'y':
-        case 'Y':
-        case 'u':
-        case 'U':
-        case 'r':
-            result.year = len === 2 ? '2-digit' : 'numeric';
-            return '{year}';
-        // Quarter
-        case 'q':
-        case 'Q':
-            throw new RangeError('`w/Q` (quarter) patterns are not supported');
-        // Month
-        case 'M':
-        case 'L':
-            result.month = ['numeric', '2-digit', 'short', 'long', 'narrow'][len - 1];
-            return '{month}';
-        // Week
-        case 'w':
-        case 'W':
-            throw new RangeError('`w/W` (week of year) patterns are not supported');
-        case 'd':
-            result.day = ['numeric', '2-digit'][len - 1];
-            return '{day}';
-        case 'D':
-        case 'F':
-        case 'g':
-            result.day = 'numeric';
-            return '{day}';
-        // Weekday
-        case 'E':
-            result.weekday = len === 4 ? 'long' : len === 5 ? 'narrow' : 'short';
-            return '{weekday}';
-        case 'e':
-            result.weekday = [
-                'numeric',
-                '2-digit',
-                'short',
-                'long',
-                'narrow',
-                'short',
-            ][len - 1];
-            return '{weekday}';
-        case 'c':
-            result.weekday = [
-                'numeric',
-                undefined,
-                'short',
-                'long',
-                'narrow',
-                'short',
-            ][len - 1];
-            return '{weekday}';
-        // Period
-        case 'a': // AM, PM
-        case 'b': // am, pm, noon, midnight
-        case 'B': // flexible day periods
-            result.hour12 = true;
-            return '{ampm}';
-        // Hour
-        case 'h':
-            result.hour = ['numeric', '2-digit'][len - 1];
-            result.hour12 = true;
-            return '{hour}';
-        case 'H':
-            result.hour = ['numeric', '2-digit'][len - 1];
-            return '{hour}';
-        case 'K':
-            result.hour = ['numeric', '2-digit'][len - 1];
-            result.hour12 = true;
-            return '{hour}';
-        case 'k':
-            result.hour = ['numeric', '2-digit'][len - 1];
-            return '{hour}';
-        case 'j':
-        case 'J':
-        case 'C':
-            throw new RangeError('`j/J/C` (hour) patterns are not supported, use `h/H/K/k` instead');
-        // Minute
-        case 'm':
-            result.minute = ['numeric', '2-digit'][len - 1];
-            return '{minute}';
-        // Second
-        case 's':
-            result.second = ['numeric', '2-digit'][len - 1];
-            return '{second}';
-        case 'S':
-        case 'A':
-            result.second = 'numeric';
-            return '{second}';
-        // Zone
-        case 'z': // 1..3, 4: specific non-location format
-        case 'Z': // 1..3, 4, 5: The ISO8601 varios formats
-        case 'O': // 1, 4: miliseconds in day short, long
-        case 'v': // 1, 4: generic non-location format
-        case 'V': // 1, 2, 3, 4: time zone ID or city
-        case 'X': // 1, 2, 3, 4: The ISO8601 varios formats
-        case 'x': // 1, 2, 3, 4: The ISO8601 varios formats
-            result.timeZoneName = len < 4 ? 'short' : 'long';
-            return '{timeZoneName}';
-    }
-    return '';
-}
-function skeletonTokenToTable2(c) {
-    switch (c) {
-        // Era
-        case 'G':
-            return 'era';
-        // Year
-        case 'y':
-        case 'Y':
-        case 'u':
-        case 'U':
-        case 'r':
-            return 'year';
-        // Month
-        case 'M':
-        case 'L':
-            return 'month';
-        // Day
-        case 'd':
-        case 'D':
-        case 'F':
-        case 'g':
-            return 'day';
-        // Period
-        case 'a': // AM, PM
-        case 'b': // am, pm, noon, midnight
-        case 'B': // flexible day periods
-            return 'ampm';
-        // Hour
-        case 'h':
-        case 'H':
-        case 'K':
-        case 'k':
-            return 'hour';
-        // Minute
-        case 'm':
-            return 'minute';
-        // Second
-        case 's':
-        case 'S':
-        case 'A':
-            return 'second';
-        default:
-            throw new RangeError('Invalid range pattern token');
-    }
-}
-function processDateTimePattern(pattern, result) {
-    var literals = [];
-    // Use skeleton to populate result, but use mapped pattern to populate pattern
-    var pattern12 = pattern
-        // Double apostrophe
-        .replace(/'{2}/g, '{apostrophe}')
-        // Apostrophe-escaped
-        .replace(/'(.*?)'/g, function (_, literal) {
-        literals.push(literal);
-        return "$$" + (literals.length - 1) + "$$";
-    })
-        .replace(DATE_TIME_REGEX, function (m) { return matchSkeletonPattern(m, result || {}); });
-    //Restore literals
-    if (literals.length) {
-        pattern12 = pattern12
-            .replace(/\$\$(\d+)\$\$/g, function (_, i) {
-            return literals[+i];
-        })
-            .replace(/\{apostrophe\}/g, "'");
-    }
-    // Handle apostrophe-escaped things
-    return [
-        pattern12
-            .replace(/([\s\uFEFF\xA0])\{ampm\}([\s\uFEFF\xA0])/, '$1')
-            .replace('{ampm}', '')
-            .replace(expPatternTrimmer, ''),
-        pattern12,
-    ];
-}
-exports.processDateTimePattern = processDateTimePattern;
-/**
- * Parse Date time skeleton into Intl.DateTimeFormatOptions
- * Ref: https://unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
- * @public
- * @param skeleton skeleton string
- */
-function parseDateTimeSkeleton(skeleton, rawPattern, rangePatterns, intervalFormatFallback) {
-    if (rawPattern === void 0) { rawPattern = skeleton; }
-    var result = {
-        pattern: '',
-        pattern12: '',
-        skeleton: skeleton,
-        rawPattern: rawPattern,
-        rangePatterns: {},
-        rangePatterns12: {},
-    };
-    if (rangePatterns) {
-        for (var k in rangePatterns) {
-            var key = skeletonTokenToTable2(k);
-            var rawPattern_1 = rangePatterns[k];
-            var intervalResult = {
-                patternParts: [],
-            };
-            var _a = processDateTimePattern(rawPattern_1, intervalResult), pattern_1 = _a[0], pattern12_1 = _a[1];
-            result.rangePatterns[key] = tslib_1.__assign(tslib_1.__assign({}, intervalResult), { patternParts: splitRangePattern(pattern_1) });
-            result.rangePatterns12[key] = tslib_1.__assign(tslib_1.__assign({}, intervalResult), { patternParts: splitRangePattern(pattern12_1) });
-        }
-    }
-    else if (intervalFormatFallback) {
-        var patternParts = splitFallbackRangePattern(intervalFormatFallback);
-        result.rangePatterns.default = {
-            patternParts: patternParts,
-        };
-        result.rangePatterns12.default = {
-            patternParts: patternParts,
-        };
-    }
-    // Process skeleton
-    skeleton.replace(DATE_TIME_REGEX, function (m) { return matchSkeletonPattern(m, result); });
-    var _b = processDateTimePattern(rawPattern), pattern = _b[0], pattern12 = _b[1];
-    result.pattern = pattern;
-    result.pattern12 = pattern12;
-    return result;
-}
-exports.parseDateTimeSkeleton = parseDateTimeSkeleton;
-function splitFallbackRangePattern(pattern) {
-    var parts = pattern.split(/(\{[0|1]\})/g).filter(Boolean);
-    return parts.map(function (pattern) {
-        switch (pattern) {
-            case '{0}':
-                return {
-                    source: "startRange" /* startRange */,
-                    pattern: pattern,
-                };
-            case '{1}':
-                return {
-                    source: "endRange" /* endRange */,
-                    pattern: pattern,
-                };
-            default:
-                return {
-                    source: "shared" /* shared */,
-                    pattern: pattern,
-                };
-        }
-    });
-}
-exports.splitFallbackRangePattern = splitFallbackRangePattern;
-function splitRangePattern(pattern) {
-    var PART_REGEX = /\{(.*?)\}/g;
-    // Map of part and index within the string
-    var parts = {};
-    var match;
-    var splitIndex = 0;
-    while ((match = PART_REGEX.exec(pattern))) {
-        if (!(match[0] in parts)) {
-            parts[match[0]] = match.index;
-        }
-        else {
-            splitIndex = match.index;
-            break;
-        }
-    }
-    if (!splitIndex) {
-        return [
-            {
-                source: "startRange" /* startRange */,
-                pattern: pattern,
-            },
-        ];
-    }
-    return [
-        {
-            source: "startRange" /* startRange */,
-            pattern: pattern.slice(0, splitIndex),
-        },
-        {
-            source: "endRange" /* endRange */,
-            pattern: pattern.slice(splitIndex),
-        },
-    ];
-}
-exports.splitRangePattern = splitRangePattern;
-
-},{"tslib":59}],20:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.shortMorePenalty = exports.shortLessPenalty = exports.longMorePenalty = exports.longLessPenalty = exports.differentNumericTypePenalty = exports.additionPenalty = exports.removalPenalty = exports.DATE_TIME_PROPS = void 0;
-exports.DATE_TIME_PROPS = [
-    'weekday',
-    'era',
-    'year',
-    'month',
-    'day',
-    'hour',
-    'minute',
-    'second',
-    'timeZoneName',
-];
-exports.removalPenalty = 120;
-exports.additionPenalty = 20;
-exports.differentNumericTypePenalty = 15;
-exports.longLessPenalty = 8;
-exports.longMorePenalty = 6;
-exports.shortLessPenalty = 6;
-exports.shortMorePenalty = 3;
-
-},{}],21:[function(require,module,exports){
+},{"./262":1}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DefaultNumberOption = void 0;
-/**
- * https://tc39.es/ecma402/#sec-defaultnumberoption
- * @param val
- * @param min
- * @param max
- * @param fallback
- */
 function DefaultNumberOption(val, min, max, fallback) {
     if (val !== undefined) {
         val = Number(val);
         if (isNaN(val) || val < min || val > max) {
-            throw new RangeError(val + " is outside of range [" + min + ", " + max + "]");
+            throw new RangeError("".concat(val, " is outside of range [").concat(min, ", ").concat(max, "]"));
         }
         return Math.floor(val);
     }
@@ -1739,46 +433,7 @@ function DefaultNumberOption(val, min, max, fallback) {
 }
 exports.DefaultNumberOption = DefaultNumberOption;
 
-},{}],22:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.CanonicalCodeForDisplayNames = void 0;
-var CanonicalizeLocaleList_1 = require("../CanonicalizeLocaleList");
-var utils_1 = require("../utils");
-var IsWellFormedCurrencyCode_1 = require("../IsWellFormedCurrencyCode");
-var UNICODE_REGION_SUBTAG_REGEX = /^([a-z]{2}|[0-9]{3})$/i;
-var ALPHA_4 = /^[a-z]{4}$/i;
-function isUnicodeRegionSubtag(region) {
-    return UNICODE_REGION_SUBTAG_REGEX.test(region);
-}
-function isUnicodeScriptSubtag(script) {
-    return ALPHA_4.test(script);
-}
-function CanonicalCodeForDisplayNames(type, code) {
-    if (type === 'language') {
-        return CanonicalizeLocaleList_1.CanonicalizeLocaleList([code])[0];
-    }
-    if (type === 'region') {
-        if (!isUnicodeRegionSubtag(code)) {
-            throw RangeError('invalid region');
-        }
-        return code.toUpperCase();
-    }
-    if (type === 'script') {
-        if (!isUnicodeScriptSubtag(code)) {
-            throw RangeError('invalid script');
-        }
-        return "" + code[0].toUpperCase() + code.slice(1);
-    }
-    utils_1.invariant(type === 'currency', 'invalid type');
-    if (!IsWellFormedCurrencyCode_1.IsWellFormedCurrencyCode(code)) {
-        throw RangeError('invalid currency');
-    }
-    return code.toUpperCase();
-}
-exports.CanonicalCodeForDisplayNames = CanonicalCodeForDisplayNames;
-
-},{"../CanonicalizeLocaleList":4,"../IsWellFormedCurrencyCode":27,"../utils":66}],23:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 /**
  * https://tc39.es/ecma402/#sec-getnumberoption
@@ -1793,11 +448,12 @@ exports.GetNumberOption = void 0;
 var DefaultNumberOption_1 = require("./DefaultNumberOption");
 function GetNumberOption(options, property, minimum, maximum, fallback) {
     var val = options[property];
-    return DefaultNumberOption_1.DefaultNumberOption(val, minimum, maximum, fallback);
+    // @ts-expect-error
+    return (0, DefaultNumberOption_1.DefaultNumberOption)(val, minimum, maximum, fallback);
 }
 exports.GetNumberOption = GetNumberOption;
 
-},{"./DefaultNumberOption":21}],24:[function(require,module,exports){
+},{"./DefaultNumberOption":5}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GetOption = void 0;
@@ -1811,7 +467,9 @@ var _262_1 = require("./262");
  * @param fallback
  */
 function GetOption(opts, prop, type, values, fallback) {
-    // const descriptor = Object.getOwnPropertyDescriptor(opts, prop);
+    if (typeof opts !== 'object') {
+        throw new TypeError('Options must be an object');
+    }
     var value = opts[prop];
     if (value !== undefined) {
         if (type !== 'boolean' && type !== 'string') {
@@ -1821,10 +479,10 @@ function GetOption(opts, prop, type, values, fallback) {
             value = Boolean(value);
         }
         if (type === 'string') {
-            value = _262_1.ToString(value);
+            value = (0, _262_1.ToString)(value);
         }
         if (values !== undefined && !values.filter(function (val) { return val == value; }).length) {
-            throw new RangeError(value + " is not within " + values.join(', '));
+            throw new RangeError("".concat(value, " is not within ").concat(values.join(', ')));
         }
         return value;
     }
@@ -1832,7 +490,64 @@ function GetOption(opts, prop, type, values, fallback) {
 }
 exports.GetOption = GetOption;
 
-},{"./262":1}],25:[function(require,module,exports){
+},{"./262":1}],8:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GetOptionsObject = void 0;
+/**
+ * https://tc39.es/ecma402/#sec-getoptionsobject
+ * @param options
+ * @returns
+ */
+function GetOptionsObject(options) {
+    if (typeof options === 'undefined') {
+        return Object.create(null);
+    }
+    if (typeof options === 'object') {
+        return options;
+    }
+    throw new TypeError('Options must be an object');
+}
+exports.GetOptionsObject = GetOptionsObject;
+
+},{}],9:[function(require,module,exports){
+"use strict";
+/**
+ * https://tc39.es/ecma402/#sec-getstringorbooleanoption
+ * @param opts
+ * @param prop
+ * @param values
+ * @param trueValue
+ * @param falsyValue
+ * @param fallback
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GetStringOrBooleanOption = void 0;
+var _262_1 = require("./262");
+function GetStringOrBooleanOption(opts, prop, values, trueValue, falsyValue, fallback) {
+    var value = opts[prop];
+    if (value === undefined) {
+        return fallback;
+    }
+    if (value === true) {
+        return trueValue;
+    }
+    var valueBoolean = Boolean(value);
+    if (valueBoolean === false) {
+        return falsyValue;
+    }
+    value = (0, _262_1.ToString)(value);
+    if (value === 'true' || value === 'false') {
+        return fallback;
+    }
+    if ((values || []).indexOf(value) === -1) {
+        throw new RangeError("Invalid value ".concat(value));
+    }
+    return value;
+}
+exports.GetStringOrBooleanOption = GetStringOrBooleanOption;
+
+},{"./262":1}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.IsSanctionedSimpleUnitIdentifier = exports.SIMPLE_UNITS = exports.removeUnitNamespace = exports.SANCTIONED_UNITS = void 0;
@@ -1902,7 +617,7 @@ function IsSanctionedSimpleUnitIdentifier(unitIdentifier) {
 }
 exports.IsSanctionedSimpleUnitIdentifier = IsSanctionedSimpleUnitIdentifier;
 
-},{}],26:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.IsValidTimeZoneName = void 0;
@@ -1914,12 +629,20 @@ exports.IsValidTimeZoneName = void 0;
 function IsValidTimeZoneName(tz, _a) {
     var tzData = _a.tzData, uppercaseLinks = _a.uppercaseLinks;
     var uppercasedTz = tz.toUpperCase();
-    var zoneNames = new Set(Object.keys(tzData).map(function (z) { return z.toUpperCase(); }));
-    return zoneNames.has(uppercasedTz) || uppercasedTz in uppercaseLinks;
+    var zoneNames = new Set();
+    var linkNames = new Set();
+    Object.keys(tzData)
+        .map(function (z) { return z.toUpperCase(); })
+        .forEach(function (z) { return zoneNames.add(z); });
+    Object.keys(uppercaseLinks).forEach(function (linkName) {
+        linkNames.add(linkName.toUpperCase());
+        zoneNames.add(uppercaseLinks[linkName].toUpperCase());
+    });
+    return zoneNames.has(uppercasedTz) || linkNames.has(uppercasedTz);
 }
 exports.IsValidTimeZoneName = IsValidTimeZoneName;
 
-},{}],27:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.IsWellFormedCurrencyCode = void 0;
@@ -1946,7 +669,7 @@ function IsWellFormedCurrencyCode(currency) {
 }
 exports.IsWellFormedCurrencyCode = IsWellFormedCurrencyCode;
 
-},{}],28:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.IsWellFormedUnitIdentifier = void 0;
@@ -1964,7 +687,7 @@ function toLowerCase(str) {
  */
 function IsWellFormedUnitIdentifier(unit) {
     unit = toLowerCase(unit);
-    if (IsSanctionedSimpleUnitIdentifier_1.IsSanctionedSimpleUnitIdentifier(unit)) {
+    if ((0, IsSanctionedSimpleUnitIdentifier_1.IsSanctionedSimpleUnitIdentifier)(unit)) {
         return true;
     }
     var units = unit.split('-per-');
@@ -1972,71 +695,71 @@ function IsWellFormedUnitIdentifier(unit) {
         return false;
     }
     var numerator = units[0], denominator = units[1];
-    if (!IsSanctionedSimpleUnitIdentifier_1.IsSanctionedSimpleUnitIdentifier(numerator) ||
-        !IsSanctionedSimpleUnitIdentifier_1.IsSanctionedSimpleUnitIdentifier(denominator)) {
+    if (!(0, IsSanctionedSimpleUnitIdentifier_1.IsSanctionedSimpleUnitIdentifier)(numerator) ||
+        !(0, IsSanctionedSimpleUnitIdentifier_1.IsSanctionedSimpleUnitIdentifier)(denominator)) {
         return false;
     }
     return true;
 }
 exports.IsWellFormedUnitIdentifier = IsWellFormedUnitIdentifier;
 
-},{"./IsSanctionedSimpleUnitIdentifier":25}],29:[function(require,module,exports){
+},{"./IsSanctionedSimpleUnitIdentifier":10}],14:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LookupMatcher = void 0;
-var utils_1 = require("./utils");
-var BestAvailableLocale_1 = require("./BestAvailableLocale");
-/**
- * https://tc39.es/ecma402/#sec-lookupmatcher
- * @param availableLocales
- * @param requestedLocales
- * @param getDefaultLocale
- */
-function LookupMatcher(availableLocales, requestedLocales, getDefaultLocale) {
-    var result = { locale: '' };
-    for (var _i = 0, requestedLocales_1 = requestedLocales; _i < requestedLocales_1.length; _i++) {
-        var locale = requestedLocales_1[_i];
-        var noExtensionLocale = locale.replace(utils_1.UNICODE_EXTENSION_SEQUENCE_REGEX, '');
-        var availableLocale = BestAvailableLocale_1.BestAvailableLocale(availableLocales, noExtensionLocale);
-        if (availableLocale) {
-            result.locale = availableLocale;
-            if (locale !== noExtensionLocale) {
-                result.extension = locale.slice(noExtensionLocale.length + 1, locale.length);
-            }
-            return result;
-        }
+exports.ApplyUnsignedRoundingMode = void 0;
+function ApplyUnsignedRoundingMode(x, r1, r2, unsignedRoundingMode) {
+    if (x === r1)
+        return r1;
+    if (unsignedRoundingMode === undefined) {
+        throw new Error('unsignedRoundingMode is mandatory');
     }
-    result.locale = getDefaultLocale();
+    if (unsignedRoundingMode === 'zero') {
+        return r1;
+    }
+    if (unsignedRoundingMode === 'infinity') {
+        return r2;
+    }
+    var d1 = x - r1;
+    var d2 = r2 - x;
+    if (d1 < d2) {
+        return r1;
+    }
+    if (d2 < d1) {
+        return r2;
+    }
+    if (d1 !== d2) {
+        throw new Error('Unexpected error');
+    }
+    if (unsignedRoundingMode === 'half-zero') {
+        return r1;
+    }
+    if (unsignedRoundingMode === 'half-infinity') {
+        return r2;
+    }
+    if (unsignedRoundingMode !== 'half-even') {
+        throw new Error("Unexpected value for unsignedRoundingMode: ".concat(unsignedRoundingMode));
+    }
+    var cardinality = (r1 / (r2 - r1)) % 2;
+    if (cardinality === 0) {
+        return r1;
+    }
+    return r2;
+}
+exports.ApplyUnsignedRoundingMode = ApplyUnsignedRoundingMode;
+
+},{}],15:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CollapseNumberRange = void 0;
+/**
+ * https://tc39.es/ecma402/#sec-collapsenumberrange
+ */
+function CollapseNumberRange(result) {
     return result;
 }
-exports.LookupMatcher = LookupMatcher;
+exports.CollapseNumberRange = CollapseNumberRange;
 
-},{"./BestAvailableLocale":2,"./utils":66}],30:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.LookupSupportedLocales = void 0;
-var utils_1 = require("./utils");
-var BestAvailableLocale_1 = require("./BestAvailableLocale");
-/**
- * https://tc39.es/ecma402/#sec-lookupsupportedlocales
- * @param availableLocales
- * @param requestedLocales
- */
-function LookupSupportedLocales(availableLocales, requestedLocales) {
-    var subset = [];
-    for (var _i = 0, requestedLocales_1 = requestedLocales; _i < requestedLocales_1.length; _i++) {
-        var locale = requestedLocales_1[_i];
-        var noExtensionLocale = locale.replace(utils_1.UNICODE_EXTENSION_SEQUENCE_REGEX, '');
-        var availableLocale = BestAvailableLocale_1.BestAvailableLocale(availableLocales, noExtensionLocale);
-        if (availableLocale) {
-            subset.push(availableLocale);
-        }
-    }
-    return subset;
-}
-exports.LookupSupportedLocales = LookupSupportedLocales;
-
-},{"./BestAvailableLocale":2,"./utils":66}],31:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ComputeExponent = void 0;
@@ -2058,22 +781,22 @@ function ComputeExponent(numberFormat, x, _a) {
     if (x < 0) {
         x = -x;
     }
-    var magnitude = utils_1.getMagnitude(x);
-    var exponent = ComputeExponentForMagnitude_1.ComputeExponentForMagnitude(numberFormat, magnitude, {
+    var magnitude = (0, utils_1.getMagnitude)(x);
+    var exponent = (0, ComputeExponentForMagnitude_1.ComputeExponentForMagnitude)(numberFormat, magnitude, {
         getInternalSlots: getInternalSlots,
     });
     // Preserve more precision by doing multiplication when exponent is negative.
     x = exponent < 0 ? x * Math.pow(10, -exponent) : x / Math.pow(10, exponent);
-    var formatNumberResult = FormatNumericToString_1.FormatNumericToString(getInternalSlots(numberFormat), x);
+    var formatNumberResult = (0, FormatNumericToString_1.FormatNumericToString)(getInternalSlots(numberFormat), x);
     if (formatNumberResult.roundedNumber === 0) {
         return [exponent, magnitude];
     }
-    var newMagnitude = utils_1.getMagnitude(formatNumberResult.roundedNumber);
+    var newMagnitude = (0, utils_1.getMagnitude)(formatNumberResult.roundedNumber);
     if (newMagnitude === magnitude - exponent) {
         return [exponent, magnitude];
     }
     return [
-        ComputeExponentForMagnitude_1.ComputeExponentForMagnitude(numberFormat, magnitude + 1, {
+        (0, ComputeExponentForMagnitude_1.ComputeExponentForMagnitude)(numberFormat, magnitude + 1, {
             getInternalSlots: getInternalSlots,
         }),
         magnitude + 1,
@@ -2081,7 +804,7 @@ function ComputeExponent(numberFormat, x, _a) {
 }
 exports.ComputeExponent = ComputeExponent;
 
-},{"../utils":66,"./ComputeExponentForMagnitude":32,"./FormatNumericToString":35}],32:[function(require,module,exports){
+},{"../utils":45,"./ComputeExponentForMagnitude":17,"./FormatNumericToString":23}],17:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ComputeExponentForMagnitude = void 0;
@@ -2147,7 +870,7 @@ function ComputeExponentForMagnitude(numberFormat, magnitude, _a) {
 }
 exports.ComputeExponentForMagnitude = ComputeExponentForMagnitude;
 
-},{}],33:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurrencyDigits = void 0;
@@ -2157,21 +880,77 @@ var _262_1 = require("../262");
  */
 function CurrencyDigits(c, _a) {
     var currencyDigitsData = _a.currencyDigitsData;
-    return _262_1.HasOwnProperty(currencyDigitsData, c)
+    return (0, _262_1.HasOwnProperty)(currencyDigitsData, c)
         ? currencyDigitsData[c]
         : 2;
 }
 exports.CurrencyDigits = CurrencyDigits;
 
-},{"../262":1}],34:[function(require,module,exports){
+},{"../262":1}],19:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FormatApproximately = void 0;
+/**
+ * https://tc39.es/ecma402/#sec-formatapproximately
+ */
+function FormatApproximately(numberFormat, result, _a) {
+    var getInternalSlots = _a.getInternalSlots;
+    var internalSlots = getInternalSlots(numberFormat);
+    var symbols = internalSlots.dataLocaleData.numbers.symbols[internalSlots.numberingSystem];
+    var approximatelySign = symbols.approximatelySign;
+    result.push({ type: 'approximatelySign', value: approximatelySign });
+    return result;
+}
+exports.FormatApproximately = FormatApproximately;
+
+},{}],20:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FormatNumericRange = void 0;
+var PartitionNumberRangePattern_1 = require("./PartitionNumberRangePattern");
+/**
+ * https://tc39.es/ecma402/#sec-formatnumericrange
+ */
+function FormatNumericRange(numberFormat, x, y, _a) {
+    var getInternalSlots = _a.getInternalSlots;
+    var parts = (0, PartitionNumberRangePattern_1.PartitionNumberRangePattern)(numberFormat, x, y, {
+        getInternalSlots: getInternalSlots,
+    });
+    return parts.map(function (part) { return part.value; }).join('');
+}
+exports.FormatNumericRange = FormatNumericRange;
+
+},{"./PartitionNumberRangePattern":27}],21:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FormatNumericRangeToParts = void 0;
+var PartitionNumberRangePattern_1 = require("./PartitionNumberRangePattern");
+/**
+ * https://tc39.es/ecma402/#sec-formatnumericrangetoparts
+ */
+function FormatNumericRangeToParts(numberFormat, x, y, _a) {
+    var getInternalSlots = _a.getInternalSlots;
+    var parts = (0, PartitionNumberRangePattern_1.PartitionNumberRangePattern)(numberFormat, x, y, {
+        getInternalSlots: getInternalSlots,
+    });
+    return parts.map(function (part, index) { return ({
+        type: part.type,
+        value: part.value,
+        source: part.source,
+        result: index.toString(),
+    }); });
+}
+exports.FormatNumericRangeToParts = FormatNumericRangeToParts;
+
+},{"./PartitionNumberRangePattern":27}],22:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FormatNumericToParts = void 0;
 var PartitionNumberPattern_1 = require("./PartitionNumberPattern");
 var _262_1 = require("../262");
 function FormatNumericToParts(nf, x, implDetails) {
-    var parts = PartitionNumberPattern_1.PartitionNumberPattern(nf, x, implDetails);
-    var result = _262_1.ArrayCreate(0);
+    var parts = (0, PartitionNumberPattern_1.PartitionNumberPattern)(nf, x, implDetails);
+    var result = (0, _262_1.ArrayCreate)(0);
     for (var _i = 0, parts_1 = parts; _i < parts_1.length; _i++) {
         var part = parts_1[_i];
         result.push({
@@ -2183,7 +962,7 @@ function FormatNumericToParts(nf, x, implDetails) {
 }
 exports.FormatNumericToParts = FormatNumericToParts;
 
-},{"../262":1,"./PartitionNumberPattern":37}],35:[function(require,module,exports){
+},{"../262":1,"./PartitionNumberPattern":26}],23:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FormatNumericToString = void 0;
@@ -2195,7 +974,7 @@ var ToRawFixed_1 = require("./ToRawFixed");
  * https://tc39.es/ecma402/#sec-formatnumberstring
  */
 function FormatNumericToString(intlObject, x) {
-    var isNegative = x < 0 || _262_1.SameValue(x, -0);
+    var isNegative = x < 0 || (0, _262_1.SameValue)(x, -0);
     if (isNegative) {
         x = -x;
     }
@@ -2203,15 +982,15 @@ function FormatNumericToString(intlObject, x) {
     var rourndingType = intlObject.roundingType;
     switch (rourndingType) {
         case 'significantDigits':
-            result = ToRawPrecision_1.ToRawPrecision(x, intlObject.minimumSignificantDigits, intlObject.maximumSignificantDigits);
+            result = (0, ToRawPrecision_1.ToRawPrecision)(x, intlObject.minimumSignificantDigits, intlObject.maximumSignificantDigits);
             break;
         case 'fractionDigits':
-            result = ToRawFixed_1.ToRawFixed(x, intlObject.minimumFractionDigits, intlObject.maximumFractionDigits);
+            result = (0, ToRawFixed_1.ToRawFixed)(x, intlObject.minimumFractionDigits, intlObject.maximumFractionDigits);
             break;
         default:
-            result = ToRawPrecision_1.ToRawPrecision(x, 1, 2);
+            result = (0, ToRawPrecision_1.ToRawPrecision)(x, 1, 2);
             if (result.integerDigitsCount > 1) {
-                result = ToRawFixed_1.ToRawFixed(x, 0, 0);
+                result = (0, ToRawFixed_1.ToRawFixed)(x, 0, 0);
             }
             break;
     }
@@ -2220,7 +999,7 @@ function FormatNumericToString(intlObject, x) {
     var int = result.integerDigitsCount;
     var minInteger = intlObject.minimumIntegerDigits;
     if (int < minInteger) {
-        var forwardZeros = utils_1.repeat('0', minInteger - int);
+        var forwardZeros = (0, utils_1.repeat)('0', minInteger - int);
         string = forwardZeros + string;
     }
     if (isNegative) {
@@ -2230,54 +1009,93 @@ function FormatNumericToString(intlObject, x) {
 }
 exports.FormatNumericToString = FormatNumericToString;
 
-},{"../262":1,"../utils":66,"./ToRawFixed":40,"./ToRawPrecision":41}],36:[function(require,module,exports){
+},{"../262":1,"../utils":45,"./ToRawFixed":30,"./ToRawPrecision":31}],24:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GetUnsignedRoundingMode = void 0;
+var negativeMapping = {
+    ceil: 'zero',
+    floor: 'infinity',
+    expand: 'infinity',
+    trunc: 'zero',
+    halfCeil: 'half-zero',
+    halfFloor: 'half-infinity',
+    halfExpand: 'half-infinity',
+    halfTrunc: 'half-zero',
+    halfEven: 'half-even',
+};
+var positiveMapping = {
+    ceil: 'infinity',
+    floor: 'zero',
+    expand: 'infinity',
+    trunc: 'zero',
+    halfCeil: 'half-infinity',
+    halfFloor: 'half-zero',
+    halfExpand: 'half-infinity',
+    halfTrunc: 'half-zero',
+    halfEven: 'half-even',
+};
+function GetUnsignedRoundingMode(roundingMode, isNegative) {
+    if (isNegative) {
+        return negativeMapping[roundingMode];
+    }
+    return positiveMapping[roundingMode];
+}
+exports.GetUnsignedRoundingMode = GetUnsignedRoundingMode;
+
+},{}],25:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InitializeNumberFormat = void 0;
 var CanonicalizeLocaleList_1 = require("../CanonicalizeLocaleList");
-var _262_1 = require("../262");
 var GetOption_1 = require("../GetOption");
-var ResolveLocale_1 = require("../ResolveLocale");
+var intl_localematcher_1 = require("@formatjs/intl-localematcher");
 var SetNumberFormatUnitOptions_1 = require("./SetNumberFormatUnitOptions");
 var CurrencyDigits_1 = require("./CurrencyDigits");
 var SetNumberFormatDigitOptions_1 = require("./SetNumberFormatDigitOptions");
 var utils_1 = require("../utils");
+var CoerceOptionsToObject_1 = require("../CoerceOptionsToObject");
+var GetNumberOption_1 = require("../GetNumberOption");
+var GetStringOrBooleanOption_1 = require("../GetStringOrBooleanOption");
+var VALID_ROUND_INCREMENT_VALUES = [
+    1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000,
+];
 /**
  * https://tc39.es/ecma402/#sec-initializenumberformat
  */
 function InitializeNumberFormat(nf, locales, opts, _a) {
     var getInternalSlots = _a.getInternalSlots, localeData = _a.localeData, availableLocales = _a.availableLocales, numberingSystemNames = _a.numberingSystemNames, getDefaultLocale = _a.getDefaultLocale, currencyDigitsData = _a.currencyDigitsData;
     // @ts-ignore
-    var requestedLocales = CanonicalizeLocaleList_1.CanonicalizeLocaleList(locales);
-    var options = opts === undefined ? Object.create(null) : _262_1.ToObject(opts);
+    var requestedLocales = (0, CanonicalizeLocaleList_1.CanonicalizeLocaleList)(locales);
+    var options = (0, CoerceOptionsToObject_1.CoerceOptionsToObject)(opts);
     var opt = Object.create(null);
-    var matcher = GetOption_1.GetOption(options, 'localeMatcher', 'string', ['lookup', 'best fit'], 'best fit');
+    var matcher = (0, GetOption_1.GetOption)(options, 'localeMatcher', 'string', ['lookup', 'best fit'], 'best fit');
     opt.localeMatcher = matcher;
-    var numberingSystem = GetOption_1.GetOption(options, 'numberingSystem', 'string', undefined, undefined);
+    var numberingSystem = (0, GetOption_1.GetOption)(options, 'numberingSystem', 'string', undefined, undefined);
     if (numberingSystem !== undefined &&
         numberingSystemNames.indexOf(numberingSystem) < 0) {
         // 8.a. If numberingSystem does not match the Unicode Locale Identifier type nonterminal,
         // throw a RangeError exception.
-        throw RangeError("Invalid numberingSystems: " + numberingSystem);
+        throw RangeError("Invalid numberingSystems: ".concat(numberingSystem));
     }
     opt.nu = numberingSystem;
-    var r = ResolveLocale_1.ResolveLocale(availableLocales, requestedLocales, opt, 
+    var r = (0, intl_localematcher_1.ResolveLocale)(availableLocales, requestedLocales, opt, 
     // [[RelevantExtensionKeys]] slot, which is a constant
     ['nu'], localeData, getDefaultLocale);
     var dataLocaleData = localeData[r.dataLocale];
-    utils_1.invariant(!!dataLocaleData, "Missing locale data for " + r.dataLocale);
+    (0, utils_1.invariant)(!!dataLocaleData, "Missing locale data for ".concat(r.dataLocale));
     var internalSlots = getInternalSlots(nf);
     internalSlots.locale = r.locale;
     internalSlots.dataLocale = r.dataLocale;
     internalSlots.numberingSystem = r.nu;
     internalSlots.dataLocaleData = dataLocaleData;
-    SetNumberFormatUnitOptions_1.SetNumberFormatUnitOptions(nf, options, { getInternalSlots: getInternalSlots });
+    (0, SetNumberFormatUnitOptions_1.SetNumberFormatUnitOptions)(nf, options, { getInternalSlots: getInternalSlots });
     var style = internalSlots.style;
     var mnfdDefault;
     var mxfdDefault;
     if (style === 'currency') {
         var currency = internalSlots.currency;
-        var cDigits = CurrencyDigits_1.CurrencyDigits(currency, { currencyDigitsData: currencyDigitsData });
+        var cDigits = (0, CurrencyDigits_1.CurrencyDigits)(currency, { currencyDigitsData: currencyDigitsData });
         mnfdDefault = cDigits;
         mxfdDefault = cDigits;
     }
@@ -2285,22 +1103,48 @@ function InitializeNumberFormat(nf, locales, opts, _a) {
         mnfdDefault = 0;
         mxfdDefault = style === 'percent' ? 0 : 3;
     }
-    var notation = GetOption_1.GetOption(options, 'notation', 'string', ['standard', 'scientific', 'engineering', 'compact'], 'standard');
+    var notation = (0, GetOption_1.GetOption)(options, 'notation', 'string', ['standard', 'scientific', 'engineering', 'compact'], 'standard');
     internalSlots.notation = notation;
-    SetNumberFormatDigitOptions_1.SetNumberFormatDigitOptions(internalSlots, options, mnfdDefault, mxfdDefault, notation);
-    var compactDisplay = GetOption_1.GetOption(options, 'compactDisplay', 'string', ['short', 'long'], 'short');
+    (0, SetNumberFormatDigitOptions_1.SetNumberFormatDigitOptions)(internalSlots, options, mnfdDefault, mxfdDefault, notation);
+    var roundingIncrement = (0, GetNumberOption_1.GetNumberOption)(options, 'roundingIncrement', 1, 5000, 1);
+    if (VALID_ROUND_INCREMENT_VALUES.indexOf(roundingIncrement) === -1) {
+        throw new RangeError("Invalid rounding increment value: ".concat(roundingIncrement, ".\nValid values are ").concat(VALID_ROUND_INCREMENT_VALUES, "."));
+    }
+    if (roundingIncrement !== 1 &&
+        internalSlots.roundingType !== 'fractionDigits') {
+        throw new TypeError("For roundingIncrement > 1 only fractionDigits is a valid roundingType");
+    }
+    if (roundingIncrement !== 1 &&
+        internalSlots.maximumFractionDigits !== internalSlots.minimumFractionDigits) {
+        throw new RangeError('With roundingIncrement > 1, maximumFractionDigits and minimumFractionDigits must be equal.');
+    }
+    internalSlots.roundingIncrement = roundingIncrement;
+    var trailingZeroDisplay = (0, GetOption_1.GetOption)(options, 'trailingZeroDisplay', 'string', ['auto', 'stripIfInteger'], 'auto');
+    internalSlots.trailingZeroDisplay = trailingZeroDisplay;
+    var compactDisplay = (0, GetOption_1.GetOption)(options, 'compactDisplay', 'string', ['short', 'long'], 'short');
+    var defaultUseGrouping = 'auto';
     if (notation === 'compact') {
         internalSlots.compactDisplay = compactDisplay;
+        defaultUseGrouping = 'min2';
     }
-    var useGrouping = GetOption_1.GetOption(options, 'useGrouping', 'boolean', undefined, true);
-    internalSlots.useGrouping = useGrouping;
-    var signDisplay = GetOption_1.GetOption(options, 'signDisplay', 'string', ['auto', 'never', 'always', 'exceptZero'], 'auto');
-    internalSlots.signDisplay = signDisplay;
+    internalSlots.useGrouping = (0, GetStringOrBooleanOption_1.GetStringOrBooleanOption)(options, 'useGrouping', ['min2', 'auto', 'always'], 'always', false, defaultUseGrouping);
+    internalSlots.signDisplay = (0, GetOption_1.GetOption)(options, 'signDisplay', 'string', ['auto', 'never', 'always', 'exceptZero', 'negative'], 'auto');
+    internalSlots.roundingMode = (0, GetOption_1.GetOption)(options, 'roundingMode', 'string', [
+        'ceil',
+        'floor',
+        'expand',
+        'trunc',
+        'halfCeil',
+        'halfFloor',
+        'halfExpand',
+        'halfTrunc',
+        'halfEven',
+    ], 'halfExpand');
     return nf;
 }
 exports.InitializeNumberFormat = InitializeNumberFormat;
 
-},{"../262":1,"../CanonicalizeLocaleList":4,"../GetOption":24,"../ResolveLocale":54,"../utils":66,"./CurrencyDigits":33,"./SetNumberFormatDigitOptions":38,"./SetNumberFormatUnitOptions":39}],37:[function(require,module,exports){
+},{"../CanonicalizeLocaleList":2,"../CoerceOptionsToObject":4,"../GetNumberOption":6,"../GetOption":7,"../GetStringOrBooleanOption":9,"../utils":45,"./CurrencyDigits":18,"./SetNumberFormatDigitOptions":28,"./SetNumberFormatUnitOptions":29,"@formatjs/intl-localematcher":59}],26:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PartitionNumberPattern = void 0;
@@ -2325,19 +1169,25 @@ function PartitionNumberPattern(numberFormat, x, _a) {
     if (isNaN(x)) {
         n = symbols.nan;
     }
-    else if (!isFinite(x)) {
+    else if (x == Number.POSITIVE_INFINITY || x == Number.NEGATIVE_INFINITY) {
         n = symbols.infinity;
     }
     else {
-        if (internalSlots.style === 'percent') {
-            x *= 100;
+        if (!(0, _262_1.SameValue)(x, -0)) {
+            if (!isFinite(x)) {
+                throw new Error('Input must be a mathematical value');
+            }
+            if (internalSlots.style == 'percent') {
+                x *= 100;
+            }
+            ;
+            _b = (0, ComputeExponent_1.ComputeExponent)(numberFormat, x, {
+                getInternalSlots: getInternalSlots,
+            }), exponent = _b[0], magnitude = _b[1];
+            // Preserve more precision by doing multiplication when exponent is negative.
+            x = exponent < 0 ? x * Math.pow(10, -exponent) : x / Math.pow(10, exponent);
         }
-        _b = ComputeExponent_1.ComputeExponent(numberFormat, x, {
-            getInternalSlots: getInternalSlots,
-        }), exponent = _b[0], magnitude = _b[1];
-        // Preserve more precision by doing multiplication when exponent is negative.
-        x = exponent < 0 ? x * Math.pow(10, -exponent) : x / Math.pow(10, exponent);
-        var formatNumberResult = FormatNumericToString_1.FormatNumericToString(internalSlots, x);
+        var formatNumberResult = (0, FormatNumericToString_1.FormatNumericToString)(internalSlots, x);
         n = formatNumberResult.formattedString;
         x = formatNumberResult.roundedNumber;
     }
@@ -2350,7 +1200,7 @@ function PartitionNumberPattern(numberFormat, x, _a) {
             sign = 0;
             break;
         case 'auto':
-            if (_262_1.SameValue(x, 0) || x > 0 || isNaN(x)) {
+            if ((0, _262_1.SameValue)(x, 0) || x > 0 || isNaN(x)) {
                 sign = 0;
             }
             else {
@@ -2358,7 +1208,7 @@ function PartitionNumberPattern(numberFormat, x, _a) {
             }
             break;
         case 'always':
-            if (_262_1.SameValue(x, 0) || x > 0 || isNaN(x)) {
+            if ((0, _262_1.SameValue)(x, 0) || x > 0 || isNaN(x)) {
                 sign = 1;
             }
             else {
@@ -2377,53 +1227,136 @@ function PartitionNumberPattern(numberFormat, x, _a) {
                 sign = -1;
             }
     }
-    return format_to_parts_1.default({ roundedNumber: x, formattedString: n, exponent: exponent, magnitude: magnitude, sign: sign }, internalSlots.dataLocaleData, pl, internalSlots);
+    return (0, format_to_parts_1.default)({ roundedNumber: x, formattedString: n, exponent: exponent, magnitude: magnitude, sign: sign }, internalSlots.dataLocaleData, pl, internalSlots);
 }
 exports.PartitionNumberPattern = PartitionNumberPattern;
 
-},{"../262":1,"./ComputeExponent":31,"./FormatNumericToString":35,"./format_to_parts":43,"tslib":59}],38:[function(require,module,exports){
+},{"../262":1,"./ComputeExponent":16,"./FormatNumericToString":23,"./format_to_parts":33,"tslib":60}],27:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PartitionNumberRangePattern = void 0;
+var PartitionNumberPattern_1 = require("./PartitionNumberPattern");
+var CollapseNumberRange_1 = require("./CollapseNumberRange");
+var FormatApproximately_1 = require("./FormatApproximately");
+/**
+ * https://tc39.es/ecma402/#sec-partitionnumberrangepattern
+ */
+function PartitionNumberRangePattern(numberFormat, x, y, _a) {
+    var getInternalSlots = _a.getInternalSlots;
+    if (isNaN(x) || isNaN(y)) {
+        throw new RangeError('Input must be a number');
+    }
+    var result = [];
+    var xResult = (0, PartitionNumberPattern_1.PartitionNumberPattern)(numberFormat, x, { getInternalSlots: getInternalSlots });
+    var yResult = (0, PartitionNumberPattern_1.PartitionNumberPattern)(numberFormat, y, { getInternalSlots: getInternalSlots });
+    if (xResult === yResult) {
+        return (0, FormatApproximately_1.FormatApproximately)(numberFormat, xResult, { getInternalSlots: getInternalSlots });
+    }
+    for (var _i = 0, xResult_1 = xResult; _i < xResult_1.length; _i++) {
+        var r = xResult_1[_i];
+        r.source = 'startRange';
+    }
+    result = result.concat(xResult);
+    var internalSlots = getInternalSlots(numberFormat);
+    var symbols = internalSlots.dataLocaleData.numbers.symbols[internalSlots.numberingSystem];
+    result.push({ type: 'literal', value: symbols.rangeSign, source: 'shared' });
+    for (var _b = 0, yResult_1 = yResult; _b < yResult_1.length; _b++) {
+        var r = yResult_1[_b];
+        r.source = 'endRange';
+    }
+    result = result.concat(yResult);
+    return (0, CollapseNumberRange_1.CollapseNumberRange)(result);
+}
+exports.PartitionNumberRangePattern = PartitionNumberRangePattern;
+
+},{"./CollapseNumberRange":15,"./FormatApproximately":19,"./PartitionNumberPattern":26}],28:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SetNumberFormatDigitOptions = void 0;
 var GetNumberOption_1 = require("../GetNumberOption");
 var DefaultNumberOption_1 = require("../DefaultNumberOption");
+var GetOption_1 = require("../GetOption");
 /**
  * https://tc39.es/ecma402/#sec-setnfdigitoptions
  */
 function SetNumberFormatDigitOptions(internalSlots, opts, mnfdDefault, mxfdDefault, notation) {
-    var mnid = GetNumberOption_1.GetNumberOption(opts, 'minimumIntegerDigits', 1, 21, 1);
+    var mnid = (0, GetNumberOption_1.GetNumberOption)(opts, 'minimumIntegerDigits', 1, 21, 1);
     var mnfd = opts.minimumFractionDigits;
     var mxfd = opts.maximumFractionDigits;
     var mnsd = opts.minimumSignificantDigits;
     var mxsd = opts.maximumSignificantDigits;
     internalSlots.minimumIntegerDigits = mnid;
-    if (mnsd !== undefined || mxsd !== undefined) {
-        internalSlots.roundingType = 'significantDigits';
-        mnsd = DefaultNumberOption_1.DefaultNumberOption(mnsd, 1, 21, 1);
-        mxsd = DefaultNumberOption_1.DefaultNumberOption(mxsd, mnsd, 21, 21);
-        internalSlots.minimumSignificantDigits = mnsd;
-        internalSlots.maximumSignificantDigits = mxsd;
+    var roundingPriority = (0, GetOption_1.GetOption)(opts, 'roundingPriority', 'string', ['auto', 'morePrecision', 'lessPrecision'], 'auto');
+    var hasSd = mnsd !== undefined || mxsd !== undefined;
+    var hasFd = mnfd !== undefined || mxfd !== undefined;
+    var needSd = true;
+    var needFd = true;
+    if (roundingPriority === 'auto') {
+        needSd = hasSd;
+        if (hasSd || (!hasFd && notation === 'compact')) {
+            needFd = false;
+        }
     }
-    else if (mnfd !== undefined || mxfd !== undefined) {
-        internalSlots.roundingType = 'fractionDigits';
-        mnfd = DefaultNumberOption_1.DefaultNumberOption(mnfd, 0, 20, mnfdDefault);
-        var mxfdActualDefault = Math.max(mnfd, mxfdDefault);
-        mxfd = DefaultNumberOption_1.DefaultNumberOption(mxfd, mnfd, 20, mxfdActualDefault);
-        internalSlots.minimumFractionDigits = mnfd;
-        internalSlots.maximumFractionDigits = mxfd;
+    if (needSd) {
+        if (hasSd) {
+            mnsd = (0, DefaultNumberOption_1.DefaultNumberOption)(mnsd, 1, 21, 1);
+            mxsd = (0, DefaultNumberOption_1.DefaultNumberOption)(mxsd, mnsd, 21, 21);
+            internalSlots.minimumSignificantDigits = mnsd;
+            internalSlots.maximumSignificantDigits = mxsd;
+        }
+        else {
+            internalSlots.minimumSignificantDigits = 1;
+            internalSlots.maximumSignificantDigits = 21;
+        }
     }
-    else if (notation === 'compact') {
-        internalSlots.roundingType = 'compactRounding';
+    if (needFd) {
+        if (hasFd) {
+            // @ts-expect-error
+            mnfd = (0, DefaultNumberOption_1.DefaultNumberOption)(mnfd, 0, 20, undefined);
+            // @ts-expect-error
+            mxfd = (0, DefaultNumberOption_1.DefaultNumberOption)(mxfd, 0, 20, undefined);
+            if (mnfd === undefined) {
+                mnfd = Math.min(mnfdDefault, mxfd);
+            }
+            else if (mxfd === undefined) {
+                mxfd = Math.max(mxfdDefault, mnfd);
+            }
+            else if (mnfd > mxfd) {
+                throw new RangeError("Invalid range, ".concat(mnfd, " > ").concat(mxfd));
+            }
+            internalSlots.minimumFractionDigits = mnfd;
+            internalSlots.maximumFractionDigits = mxfd;
+        }
+        else {
+            internalSlots.minimumFractionDigits = mnfdDefault;
+            internalSlots.maximumFractionDigits = mxfdDefault;
+        }
+    }
+    if (needSd || needFd) {
+        if (roundingPriority === 'morePrecision') {
+            internalSlots.roundingType = 'morePrecision';
+        }
+        else if (roundingPriority === 'lessPrecision') {
+            internalSlots.roundingType = 'lessPrecision';
+        }
+        else if (hasSd) {
+            internalSlots.roundingType = 'significantDigits';
+        }
+        else {
+            internalSlots.roundingType = 'fractionDigits';
+        }
     }
     else {
-        internalSlots.roundingType = 'fractionDigits';
-        internalSlots.minimumFractionDigits = mnfdDefault;
-        internalSlots.maximumFractionDigits = mxfdDefault;
+        internalSlots.roundingType = 'morePrecision';
+        internalSlots.minimumFractionDigits = 0;
+        internalSlots.maximumFractionDigits = 0;
+        internalSlots.minimumSignificantDigits = 1;
+        internalSlots.maximumSignificantDigits = 2;
     }
 }
 exports.SetNumberFormatDigitOptions = SetNumberFormatDigitOptions;
 
-},{"../DefaultNumberOption":21,"../GetNumberOption":23}],39:[function(require,module,exports){
+},{"../DefaultNumberOption":5,"../GetNumberOption":6,"../GetOption":7}],29:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SetNumberFormatUnitOptions = void 0;
@@ -2437,25 +1370,25 @@ function SetNumberFormatUnitOptions(nf, options, _a) {
     if (options === void 0) { options = Object.create(null); }
     var getInternalSlots = _a.getInternalSlots;
     var internalSlots = getInternalSlots(nf);
-    var style = GetOption_1.GetOption(options, 'style', 'string', ['decimal', 'percent', 'currency', 'unit'], 'decimal');
+    var style = (0, GetOption_1.GetOption)(options, 'style', 'string', ['decimal', 'percent', 'currency', 'unit'], 'decimal');
     internalSlots.style = style;
-    var currency = GetOption_1.GetOption(options, 'currency', 'string', undefined, undefined);
-    if (currency !== undefined && !IsWellFormedCurrencyCode_1.IsWellFormedCurrencyCode(currency)) {
+    var currency = (0, GetOption_1.GetOption)(options, 'currency', 'string', undefined, undefined);
+    if (currency !== undefined && !(0, IsWellFormedCurrencyCode_1.IsWellFormedCurrencyCode)(currency)) {
         throw RangeError('Malformed currency code');
     }
     if (style === 'currency' && currency === undefined) {
         throw TypeError('currency cannot be undefined');
     }
-    var currencyDisplay = GetOption_1.GetOption(options, 'currencyDisplay', 'string', ['code', 'symbol', 'narrowSymbol', 'name'], 'symbol');
-    var currencySign = GetOption_1.GetOption(options, 'currencySign', 'string', ['standard', 'accounting'], 'standard');
-    var unit = GetOption_1.GetOption(options, 'unit', 'string', undefined, undefined);
-    if (unit !== undefined && !IsWellFormedUnitIdentifier_1.IsWellFormedUnitIdentifier(unit)) {
+    var currencyDisplay = (0, GetOption_1.GetOption)(options, 'currencyDisplay', 'string', ['code', 'symbol', 'narrowSymbol', 'name'], 'symbol');
+    var currencySign = (0, GetOption_1.GetOption)(options, 'currencySign', 'string', ['standard', 'accounting'], 'standard');
+    var unit = (0, GetOption_1.GetOption)(options, 'unit', 'string', undefined, undefined);
+    if (unit !== undefined && !(0, IsWellFormedUnitIdentifier_1.IsWellFormedUnitIdentifier)(unit)) {
         throw RangeError('Invalid unit argument for Intl.NumberFormat()');
     }
     if (style === 'unit' && unit === undefined) {
         throw TypeError('unit cannot be undefined');
     }
-    var unitDisplay = GetOption_1.GetOption(options, 'unitDisplay', 'string', ['short', 'narrow', 'long'], 'short');
+    var unitDisplay = (0, GetOption_1.GetOption)(options, 'unitDisplay', 'string', ['short', 'narrow', 'long'], 'short');
     if (style === 'currency') {
         internalSlots.currency = currency.toUpperCase();
         internalSlots.currencyDisplay = currencyDisplay;
@@ -2468,7 +1401,7 @@ function SetNumberFormatUnitOptions(nf, options, _a) {
 }
 exports.SetNumberFormatUnitOptions = SetNumberFormatUnitOptions;
 
-},{"../GetOption":24,"../IsWellFormedCurrencyCode":27,"../IsWellFormedUnitIdentifier":28}],40:[function(require,module,exports){
+},{"../GetOption":7,"../IsWellFormedCurrencyCode":12,"../IsWellFormedUnitIdentifier":13}],30:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ToRawFixed = void 0;
@@ -2495,19 +1428,19 @@ function ToRawFixed(x, minFraction, maxFraction) {
         m = n.toString();
         var _a = m.split('e'), mantissa = _a[0], exponent = _a[1];
         m = mantissa.replace('.', '');
-        m = m + utils_1.repeat('0', Math.max(+exponent - m.length + 1, 0));
+        m = m + (0, utils_1.repeat)('0', Math.max(+exponent - m.length + 1, 0));
     }
     var int;
     if (f !== 0) {
         var k = m.length;
         if (k <= f) {
-            var z = utils_1.repeat('0', f + 1 - k);
+            var z = (0, utils_1.repeat)('0', f + 1 - k);
             m = z + m;
             k = f + 1;
         }
         var a = m.slice(0, k - f);
         var b = m.slice(k - f);
-        m = a + "." + b;
+        m = "".concat(a, ".").concat(b);
         int = a.length;
     }
     else {
@@ -2525,7 +1458,7 @@ function ToRawFixed(x, minFraction, maxFraction) {
 }
 exports.ToRawFixed = ToRawFixed;
 
-},{"../utils":66}],41:[function(require,module,exports){
+},{"../utils":45}],31:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ToRawPrecision = void 0;
@@ -2536,7 +1469,7 @@ function ToRawPrecision(x, minPrecision, maxPrecision) {
     var e;
     var xFinal;
     if (x === 0) {
-        m = utils_1.repeat('0', p);
+        m = (0, utils_1.repeat)('0', p);
         e = 0;
         xFinal = 0;
     }
@@ -2554,11 +1487,11 @@ function ToRawPrecision(x, minPrecision, maxPrecision) {
             e = +xToStringExponent;
             m =
                 xToStringMantissaWithoutDecimalPoint +
-                    utils_1.repeat('0', p - xToStringMantissaWithoutDecimalPoint.length);
+                    (0, utils_1.repeat)('0', p - xToStringMantissaWithoutDecimalPoint.length);
             xFinal = x;
         }
         else {
-            e = utils_1.getMagnitude(x);
+            e = (0, utils_1.getMagnitude)(x);
             var decimalPlaceOffset = e - p + 1;
             // n is the integer containing the required precision digits. To derive the formatted string,
             // we will adjust its decimal place in the logic below.
@@ -2576,15 +1509,15 @@ function ToRawPrecision(x, minPrecision, maxPrecision) {
     }
     var int;
     if (e >= p - 1) {
-        m = m + utils_1.repeat('0', e - p + 1);
+        m = m + (0, utils_1.repeat)('0', e - p + 1);
         int = e + 1;
     }
     else if (e >= 0) {
-        m = m.slice(0, e + 1) + "." + m.slice(e + 1);
+        m = "".concat(m.slice(0, e + 1), ".").concat(m.slice(e + 1));
         int = e + 1;
     }
     else {
-        m = "0." + utils_1.repeat('0', -e - 1) + m;
+        m = "0.".concat((0, utils_1.repeat)('0', -e - 1)).concat(m);
         int = 1;
     }
     if (m.indexOf('.') >= 0 && maxPrecision > minPrecision) {
@@ -2605,22 +1538,24 @@ function ToRawPrecision(x, minPrecision, maxPrecision) {
 }
 exports.ToRawPrecision = ToRawPrecision;
 
-},{"../utils":66}],42:[function(require,module,exports){
-module.exports={ "adlm": ["𞥐", "𞥑", "𞥒", "𞥓", "𞥔", "𞥕", "𞥖", "𞥗", "𞥘", "𞥙"], "ahom": ["𑜰", "𑜱", "𑜲", "𑜳", "𑜴", "𑜵", "𑜶", "𑜷", "𑜸", "𑜹"], "arab": ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"], "arabext": ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"], "bali": ["᭐", "᭑", "᭒", "᭓", "᭔", "᭕", "᭖", "᭗", "᭘", "᭙"], "beng": ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"], "bhks": ["𑱐", "𑱑", "𑱒", "𑱓", "𑱔", "𑱕", "𑱖", "𑱗", "𑱘", "𑱙"], "brah": ["𑁦", "𑁧", "𑁨", "𑁩", "𑁪", "𑁫", "𑁬", "𑁭", "𑁮", "𑁯"], "cakm": ["𑄶", "𑄷", "𑄸", "𑄹", "𑄺", "𑄻", "𑄼", "𑄽", "𑄾", "𑄿"], "cham": ["꩐", "꩑", "꩒", "꩓", "꩔", "꩕", "꩖", "꩗", "꩘", "꩙"], "deva": ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"], "diak": ["𑥐", "𑥑", "𑥒", "𑥓", "𑥔", "𑥕", "𑥖", "𑥗", "𑥘", "𑥙"], "fullwide": ["０", "１", "２", "３", "４", "５", "６", "７", "８", "９"], "gong": ["𑶠", "𑶡", "𑶢", "𑶣", "𑶤", "𑶥", "𑶦", "𑶧", "𑶨", "𑶩"], "gonm": ["𑵐", "𑵑", "𑵒", "𑵓", "𑵔", "𑵕", "𑵖", "𑵗", "𑵘", "𑵙"], "gujr": ["૦", "૧", "૨", "૩", "૪", "૫", "૬", "૭", "૮", "૯"], "guru": ["੦", "੧", "੨", "੩", "੪", "੫", "੬", "੭", "੮", "੯"], "hanidec": ["〇", "一", "二", "三", "四", "五", "六", "七", "八", "九"], "hmng": ["𖭐", "𖭑", "𖭒", "𖭓", "𖭔", "𖭕", "𖭖", "𖭗", "𖭘", "𖭙"], "hmnp": ["𞅀", "𞅁", "𞅂", "𞅃", "𞅄", "𞅅", "𞅆", "𞅇", "𞅈", "𞅉"], "java": ["꧐", "꧑", "꧒", "꧓", "꧔", "꧕", "꧖", "꧗", "꧘", "꧙"], "kali": ["꤀", "꤁", "꤂", "꤃", "꤄", "꤅", "꤆", "꤇", "꤈", "꤉"], "khmr": ["០", "១", "២", "៣", "៤", "៥", "៦", "៧", "៨", "៩"], "knda": ["೦", "೧", "೨", "೩", "೪", "೫", "೬", "೭", "೮", "೯"], "lana": ["᪀", "᪁", "᪂", "᪃", "᪄", "᪅", "᪆", "᪇", "᪈", "᪉"], "lanatham": ["᪐", "᪑", "᪒", "᪓", "᪔", "᪕", "᪖", "᪗", "᪘", "᪙"], "laoo": ["໐", "໑", "໒", "໓", "໔", "໕", "໖", "໗", "໘", "໙"], "lepc": ["᪐", "᪑", "᪒", "᪓", "᪔", "᪕", "᪖", "᪗", "᪘", "᪙"], "limb": ["᥆", "᥇", "᥈", "᥉", "᥊", "᥋", "᥌", "᥍", "᥎", "᥏"], "mathbold": ["𝟎", "𝟏", "𝟐", "𝟑", "𝟒", "𝟓", "𝟔", "𝟕", "𝟖", "𝟗"], "mathdbl": ["𝟘", "𝟙", "𝟚", "𝟛", "𝟜", "𝟝", "𝟞", "𝟟", "𝟠", "𝟡"], "mathmono": ["𝟶", "𝟷", "𝟸", "𝟹", "𝟺", "𝟻", "𝟼", "𝟽", "𝟾", "𝟿"], "mathsanb": ["𝟬", "𝟭", "𝟮", "𝟯", "𝟰", "𝟱", "𝟲", "𝟳", "𝟴", "𝟵"], "mathsans": ["𝟢", "𝟣", "𝟤", "𝟥", "𝟦", "𝟧", "𝟨", "𝟩", "𝟪", "𝟫"], "mlym": ["൦", "൧", "൨", "൩", "൪", "൫", "൬", "൭", "൮", "൯"], "modi": ["𑙐", "𑙑", "𑙒", "𑙓", "𑙔", "𑙕", "𑙖", "𑙗", "𑙘", "𑙙"], "mong": ["᠐", "᠑", "᠒", "᠓", "᠔", "᠕", "᠖", "᠗", "᠘", "᠙"], "mroo": ["𖩠", "𖩡", "𖩢", "𖩣", "𖩤", "𖩥", "𖩦", "𖩧", "𖩨", "𖩩"], "mtei": ["꯰", "꯱", "꯲", "꯳", "꯴", "꯵", "꯶", "꯷", "꯸", "꯹"], "mymr": ["၀", "၁", "၂", "၃", "၄", "၅", "၆", "၇", "၈", "၉"], "mymrshan": ["႐", "႑", "႒", "႓", "႔", "႕", "႖", "႗", "႘", "႙"], "mymrtlng": ["꧰", "꧱", "꧲", "꧳", "꧴", "꧵", "꧶", "꧷", "꧸", "꧹"], "newa": ["𑑐", "𑑑", "𑑒", "𑑓", "𑑔", "𑑕", "𑑖", "𑑗", "𑑘", "𑑙"], "nkoo": ["߀", "߁", "߂", "߃", "߄", "߅", "߆", "߇", "߈", "߉"], "olck": ["᱐", "᱑", "᱒", "᱓", "᱔", "᱕", "᱖", "᱗", "᱘", "᱙"], "orya": ["୦", "୧", "୨", "୩", "୪", "୫", "୬", "୭", "୮", "୯"], "osma": ["𐒠", "𐒡", "𐒢", "𐒣", "𐒤", "𐒥", "𐒦", "𐒧", "𐒨", "𐒩"], "rohg": ["𐴰", "𐴱", "𐴲", "𐴳", "𐴴", "𐴵", "𐴶", "𐴷", "𐴸", "𐴹"], "saur": ["꣐", "꣑", "꣒", "꣓", "꣔", "꣕", "꣖", "꣗", "꣘", "꣙"], "segment": ["🯰", "🯱", "🯲", "🯳", "🯴", "🯵", "🯶", "🯷", "🯸", "🯹"], "shrd": ["𑇐", "𑇑", "𑇒", "𑇓", "𑇔", "𑇕", "𑇖", "𑇗", "𑇘", "𑇙"], "sind": ["𑋰", "𑋱", "𑋲", "𑋳", "𑋴", "𑋵", "𑋶", "𑋷", "𑋸", "𑋹"], "sinh": ["෦", "෧", "෨", "෩", "෪", "෫", "෬", "෭", "෮", "෯"], "sora": ["𑃰", "𑃱", "𑃲", "𑃳", "𑃴", "𑃵", "𑃶", "𑃷", "𑃸", "𑃹"], "sund": ["᮰", "᮱", "᮲", "᮳", "᮴", "᮵", "᮶", "᮷", "᮸", "᮹"], "takr": ["𑛀", "𑛁", "𑛂", "𑛃", "𑛄", "𑛅", "𑛆", "𑛇", "𑛈", "𑛉"], "talu": ["᧐", "᧑", "᧒", "᧓", "᧔", "᧕", "᧖", "᧗", "᧘", "᧙"], "tamldec": ["௦", "௧", "௨", "௩", "௪", "௫", "௬", "௭", "௮", "௯"], "telu": ["౦", "౧", "౨", "౩", "౪", "౫", "౬", "౭", "౮", "౯"], "thai": ["๐", "๑", "๒", "๓", "๔", "๕", "๖", "๗", "๘", "๙"], "tibt": ["༠", "༡", "༢", "༣", "༤", "༥", "༦", "༧", "༨", "༩"], "tirh": ["𑓐", "𑓑", "𑓒", "𑓓", "𑓔", "𑓕", "𑓖", "𑓗", "𑓘", "𑓙"], "vaii": ["ᘠ", "ᘡ", "ᘢ", "ᘣ", "ᘤ", "ᘥ", "ᘦ", "ᘧ", "ᘨ", "ᘩ"], "wara": ["𑣠", "𑣡", "𑣢", "𑣣", "𑣤", "𑣥", "𑣦", "𑣧", "𑣨", "𑣩"], "wcho": ["𞋰", "𞋱", "𞋲", "𞋳", "𞋴", "𞋵", "𞋶", "𞋷", "𞋸", "𞋹"] }
-
-},{}],43:[function(require,module,exports){
+},{"../utils":45}],32:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var tslib_1 = require("tslib");
+exports.digitMapping = void 0;
+exports.digitMapping = { "adlm": ["𞥐", "𞥑", "𞥒", "𞥓", "𞥔", "𞥕", "𞥖", "𞥗", "𞥘", "𞥙"], "ahom": ["𑜰", "𑜱", "𑜲", "𑜳", "𑜴", "𑜵", "𑜶", "𑜷", "𑜸", "𑜹"], "arab": ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"], "arabext": ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"], "bali": ["᭐", "᭑", "᭒", "᭓", "᭔", "᭕", "᭖", "᭗", "᭘", "᭙"], "beng": ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"], "bhks": ["𑱐", "𑱑", "𑱒", "𑱓", "𑱔", "𑱕", "𑱖", "𑱗", "𑱘", "𑱙"], "brah": ["𑁦", "𑁧", "𑁨", "𑁩", "𑁪", "𑁫", "𑁬", "𑁭", "𑁮", "𑁯"], "cakm": ["𑄶", "𑄷", "𑄸", "𑄹", "𑄺", "𑄻", "𑄼", "𑄽", "𑄾", "𑄿"], "cham": ["꩐", "꩑", "꩒", "꩓", "꩔", "꩕", "꩖", "꩗", "꩘", "꩙"], "deva": ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"], "diak": ["𑥐", "𑥑", "𑥒", "𑥓", "𑥔", "𑥕", "𑥖", "𑥗", "𑥘", "𑥙"], "fullwide": ["０", "１", "２", "３", "４", "５", "６", "７", "８", "９"], "gong": ["𑶠", "𑶡", "𑶢", "𑶣", "𑶤", "𑶥", "𑶦", "𑶧", "𑶨", "𑶩"], "gonm": ["𑵐", "𑵑", "𑵒", "𑵓", "𑵔", "𑵕", "𑵖", "𑵗", "𑵘", "𑵙"], "gujr": ["૦", "૧", "૨", "૩", "૪", "૫", "૬", "૭", "૮", "૯"], "guru": ["੦", "੧", "੨", "੩", "੪", "੫", "੬", "੭", "੮", "੯"], "hanidec": ["〇", "一", "二", "三", "四", "五", "六", "七", "八", "九"], "hmng": ["𖭐", "𖭑", "𖭒", "𖭓", "𖭔", "𖭕", "𖭖", "𖭗", "𖭘", "𖭙"], "hmnp": ["𞅀", "𞅁", "𞅂", "𞅃", "𞅄", "𞅅", "𞅆", "𞅇", "𞅈", "𞅉"], "java": ["꧐", "꧑", "꧒", "꧓", "꧔", "꧕", "꧖", "꧗", "꧘", "꧙"], "kali": ["꤀", "꤁", "꤂", "꤃", "꤄", "꤅", "꤆", "꤇", "꤈", "꤉"], "khmr": ["០", "១", "២", "៣", "៤", "៥", "៦", "៧", "៨", "៩"], "knda": ["೦", "೧", "೨", "೩", "೪", "೫", "೬", "೭", "೮", "೯"], "lana": ["᪀", "᪁", "᪂", "᪃", "᪄", "᪅", "᪆", "᪇", "᪈", "᪉"], "lanatham": ["᪐", "᪑", "᪒", "᪓", "᪔", "᪕", "᪖", "᪗", "᪘", "᪙"], "laoo": ["໐", "໑", "໒", "໓", "໔", "໕", "໖", "໗", "໘", "໙"], "lepc": ["᪐", "᪑", "᪒", "᪓", "᪔", "᪕", "᪖", "᪗", "᪘", "᪙"], "limb": ["᥆", "᥇", "᥈", "᥉", "᥊", "᥋", "᥌", "᥍", "᥎", "᥏"], "mathbold": ["𝟎", "𝟏", "𝟐", "𝟑", "𝟒", "𝟓", "𝟔", "𝟕", "𝟖", "𝟗"], "mathdbl": ["𝟘", "𝟙", "𝟚", "𝟛", "𝟜", "𝟝", "𝟞", "𝟟", "𝟠", "𝟡"], "mathmono": ["𝟶", "𝟷", "𝟸", "𝟹", "𝟺", "𝟻", "𝟼", "𝟽", "𝟾", "𝟿"], "mathsanb": ["𝟬", "𝟭", "𝟮", "𝟯", "𝟰", "𝟱", "𝟲", "𝟳", "𝟴", "𝟵"], "mathsans": ["𝟢", "𝟣", "𝟤", "𝟥", "𝟦", "𝟧", "𝟨", "𝟩", "𝟪", "𝟫"], "mlym": ["൦", "൧", "൨", "൩", "൪", "൫", "൬", "൭", "൮", "൯"], "modi": ["𑙐", "𑙑", "𑙒", "𑙓", "𑙔", "𑙕", "𑙖", "𑙗", "𑙘", "𑙙"], "mong": ["᠐", "᠑", "᠒", "᠓", "᠔", "᠕", "᠖", "᠗", "᠘", "᠙"], "mroo": ["𖩠", "𖩡", "𖩢", "𖩣", "𖩤", "𖩥", "𖩦", "𖩧", "𖩨", "𖩩"], "mtei": ["꯰", "꯱", "꯲", "꯳", "꯴", "꯵", "꯶", "꯷", "꯸", "꯹"], "mymr": ["၀", "၁", "၂", "၃", "၄", "၅", "၆", "၇", "၈", "၉"], "mymrshan": ["႐", "႑", "႒", "႓", "႔", "႕", "႖", "႗", "႘", "႙"], "mymrtlng": ["꧰", "꧱", "꧲", "꧳", "꧴", "꧵", "꧶", "꧷", "꧸", "꧹"], "newa": ["𑑐", "𑑑", "𑑒", "𑑓", "𑑔", "𑑕", "𑑖", "𑑗", "𑑘", "𑑙"], "nkoo": ["߀", "߁", "߂", "߃", "߄", "߅", "߆", "߇", "߈", "߉"], "olck": ["᱐", "᱑", "᱒", "᱓", "᱔", "᱕", "᱖", "᱗", "᱘", "᱙"], "orya": ["୦", "୧", "୨", "୩", "୪", "୫", "୬", "୭", "୮", "୯"], "osma": ["𐒠", "𐒡", "𐒢", "𐒣", "𐒤", "𐒥", "𐒦", "𐒧", "𐒨", "𐒩"], "rohg": ["𐴰", "𐴱", "𐴲", "𐴳", "𐴴", "𐴵", "𐴶", "𐴷", "𐴸", "𐴹"], "saur": ["꣐", "꣑", "꣒", "꣓", "꣔", "꣕", "꣖", "꣗", "꣘", "꣙"], "segment": ["🯰", "🯱", "🯲", "🯳", "🯴", "🯵", "🯶", "🯷", "🯸", "🯹"], "shrd": ["𑇐", "𑇑", "𑇒", "𑇓", "𑇔", "𑇕", "𑇖", "𑇗", "𑇘", "𑇙"], "sind": ["𑋰", "𑋱", "𑋲", "𑋳", "𑋴", "𑋵", "𑋶", "𑋷", "𑋸", "𑋹"], "sinh": ["෦", "෧", "෨", "෩", "෪", "෫", "෬", "෭", "෮", "෯"], "sora": ["𑃰", "𑃱", "𑃲", "𑃳", "𑃴", "𑃵", "𑃶", "𑃷", "𑃸", "𑃹"], "sund": ["᮰", "᮱", "᮲", "᮳", "᮴", "᮵", "᮶", "᮷", "᮸", "᮹"], "takr": ["𑛀", "𑛁", "𑛂", "𑛃", "𑛄", "𑛅", "𑛆", "𑛇", "𑛈", "𑛉"], "talu": ["᧐", "᧑", "᧒", "᧓", "᧔", "᧕", "᧖", "᧗", "᧘", "᧙"], "tamldec": ["௦", "௧", "௨", "௩", "௪", "௫", "௬", "௭", "௮", "௯"], "telu": ["౦", "౧", "౨", "౩", "౪", "౫", "౬", "౭", "౮", "౯"], "thai": ["๐", "๑", "๒", "๓", "๔", "๕", "๖", "๗", "๘", "๙"], "tibt": ["༠", "༡", "༢", "༣", "༤", "༥", "༦", "༧", "༨", "༩"], "tirh": ["𑓐", "𑓑", "𑓒", "𑓓", "𑓔", "𑓕", "𑓖", "𑓗", "𑓘", "𑓙"], "vaii": ["ᘠ", "ᘡ", "ᘢ", "ᘣ", "ᘤ", "ᘥ", "ᘦ", "ᘧ", "ᘨ", "ᘩ"], "wara": ["𑣠", "𑣡", "𑣢", "𑣣", "𑣤", "𑣥", "𑣦", "𑣧", "𑣨", "𑣩"], "wcho": ["𞋰", "𞋱", "𞋲", "𞋳", "𞋴", "𞋵", "𞋶", "𞋷", "𞋸", "𞋹"] };
+
+},{}],33:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var ToRawFixed_1 = require("./ToRawFixed");
-var digitMapping = tslib_1.__importStar(require("./digit-mapping.json"));
+var digit_mapping_generated_1 = require("./digit-mapping.generated");
+var regex_generated_1 = require("../regex.generated");
 // This is from: unicode-12.1.0/General_Category/Symbol/regex.js
 // IE11 does not support unicode flag, otherwise this is just /\p{S}/u.
-var S_UNICODE_REGEX = /[\$\+<->\^`\|~\xA2-\xA6\xA8\xA9\xAC\xAE-\xB1\xB4\xB8\xD7\xF7\u02C2-\u02C5\u02D2-\u02DF\u02E5-\u02EB\u02ED\u02EF-\u02FF\u0375\u0384\u0385\u03F6\u0482\u058D-\u058F\u0606-\u0608\u060B\u060E\u060F\u06DE\u06E9\u06FD\u06FE\u07F6\u07FE\u07FF\u09F2\u09F3\u09FA\u09FB\u0AF1\u0B70\u0BF3-\u0BFA\u0C7F\u0D4F\u0D79\u0E3F\u0F01-\u0F03\u0F13\u0F15-\u0F17\u0F1A-\u0F1F\u0F34\u0F36\u0F38\u0FBE-\u0FC5\u0FC7-\u0FCC\u0FCE\u0FCF\u0FD5-\u0FD8\u109E\u109F\u1390-\u1399\u166D\u17DB\u1940\u19DE-\u19FF\u1B61-\u1B6A\u1B74-\u1B7C\u1FBD\u1FBF-\u1FC1\u1FCD-\u1FCF\u1FDD-\u1FDF\u1FED-\u1FEF\u1FFD\u1FFE\u2044\u2052\u207A-\u207C\u208A-\u208C\u20A0-\u20BF\u2100\u2101\u2103-\u2106\u2108\u2109\u2114\u2116-\u2118\u211E-\u2123\u2125\u2127\u2129\u212E\u213A\u213B\u2140-\u2144\u214A-\u214D\u214F\u218A\u218B\u2190-\u2307\u230C-\u2328\u232B-\u2426\u2440-\u244A\u249C-\u24E9\u2500-\u2767\u2794-\u27C4\u27C7-\u27E5\u27F0-\u2982\u2999-\u29D7\u29DC-\u29FB\u29FE-\u2B73\u2B76-\u2B95\u2B98-\u2BFF\u2CE5-\u2CEA\u2E80-\u2E99\u2E9B-\u2EF3\u2F00-\u2FD5\u2FF0-\u2FFB\u3004\u3012\u3013\u3020\u3036\u3037\u303E\u303F\u309B\u309C\u3190\u3191\u3196-\u319F\u31C0-\u31E3\u3200-\u321E\u322A-\u3247\u3250\u3260-\u327F\u328A-\u32B0\u32C0-\u33FF\u4DC0-\u4DFF\uA490-\uA4C6\uA700-\uA716\uA720\uA721\uA789\uA78A\uA828-\uA82B\uA836-\uA839\uAA77-\uAA79\uAB5B\uFB29\uFBB2-\uFBC1\uFDFC\uFDFD\uFE62\uFE64-\uFE66\uFE69\uFF04\uFF0B\uFF1C-\uFF1E\uFF3E\uFF40\uFF5C\uFF5E\uFFE0-\uFFE6\uFFE8-\uFFEE\uFFFC\uFFFD]|\uD800[\uDD37-\uDD3F\uDD79-\uDD89\uDD8C-\uDD8E\uDD90-\uDD9B\uDDA0\uDDD0-\uDDFC]|\uD802[\uDC77\uDC78\uDEC8]|\uD805\uDF3F|\uD807[\uDFD5-\uDFF1]|\uD81A[\uDF3C-\uDF3F\uDF45]|\uD82F\uDC9C|\uD834[\uDC00-\uDCF5\uDD00-\uDD26\uDD29-\uDD64\uDD6A-\uDD6C\uDD83\uDD84\uDD8C-\uDDA9\uDDAE-\uDDE8\uDE00-\uDE41\uDE45\uDF00-\uDF56]|\uD835[\uDEC1\uDEDB\uDEFB\uDF15\uDF35\uDF4F\uDF6F\uDF89\uDFA9\uDFC3]|\uD836[\uDC00-\uDDFF\uDE37-\uDE3A\uDE6D-\uDE74\uDE76-\uDE83\uDE85\uDE86]|\uD838[\uDD4F\uDEFF]|\uD83B[\uDCAC\uDCB0\uDD2E\uDEF0\uDEF1]|\uD83C[\uDC00-\uDC2B\uDC30-\uDC93\uDCA0-\uDCAE\uDCB1-\uDCBF\uDCC1-\uDCCF\uDCD1-\uDCF5\uDD10-\uDD6C\uDD70-\uDDAC\uDDE6-\uDE02\uDE10-\uDE3B\uDE40-\uDE48\uDE50\uDE51\uDE60-\uDE65\uDF00-\uDFFF]|\uD83D[\uDC00-\uDED5\uDEE0-\uDEEC\uDEF0-\uDEFA\uDF00-\uDF73\uDF80-\uDFD8\uDFE0-\uDFEB]|\uD83E[\uDC00-\uDC0B\uDC10-\uDC47\uDC50-\uDC59\uDC60-\uDC87\uDC90-\uDCAD\uDD00-\uDD0B\uDD0D-\uDD71\uDD73-\uDD76\uDD7A-\uDDA2\uDDA5-\uDDAA\uDDAE-\uDDCA\uDDCD-\uDE53\uDE60-\uDE6D\uDE70-\uDE73\uDE78-\uDE7A\uDE80-\uDE82\uDE90-\uDE95]/;
 // /^\p{S}/u
-var CARET_S_UNICODE_REGEX = new RegExp("^" + S_UNICODE_REGEX.source);
+var CARET_S_UNICODE_REGEX = new RegExp("^".concat(regex_generated_1.S_UNICODE_REGEX.source));
 // /\p{S}$/u
-var S_DOLLAR_UNICODE_REGEX = new RegExp(S_UNICODE_REGEX.source + "$");
+var S_DOLLAR_UNICODE_REGEX = new RegExp("".concat(regex_generated_1.S_UNICODE_REGEX.source, "$"));
 var CLDR_NUMBER_PATTERN = /[#0](?:[\.,][#0]+)*/g;
 function formatToParts(numberResult, data, pl, options) {
     var sign = numberResult.sign, exponent = numberResult.exponent, magnitude = numberResult.magnitude;
@@ -2709,11 +1644,11 @@ function formatToParts(numberResult, data, pl, options) {
         // We also assume that `beforeInsertBetween` and `afterInsertBetween` will never be `;`.
         var afterCurrency = currencyData.currencySpacing.afterInsertBetween;
         if (afterCurrency && !S_DOLLAR_UNICODE_REGEX.test(nonNameCurrencyPart)) {
-            numberPattern = numberPattern.replace('¤{0}', "\u00A4" + afterCurrency + "{0}");
+            numberPattern = numberPattern.replace('¤{0}', "\u00A4".concat(afterCurrency, "{0}"));
         }
         var beforeCurrency = currencyData.currencySpacing.beforeInsertBetween;
         if (beforeCurrency && !CARET_S_UNICODE_REGEX.test(nonNameCurrencyPart)) {
-            numberPattern = numberPattern.replace('{0}¤', "{0}" + beforeCurrency + "\u00A4");
+            numberPattern = numberPattern.replace('{0}¤', "{0}".concat(beforeCurrency, "\u00A4"));
         }
     }
     // The following tokens are special: `{0}`, `¤`, `%`, `-`, `+`, `{c:...}.
@@ -2731,7 +1666,7 @@ function formatToParts(numberResult, data, pl, options) {
                 // We only need to handle scientific and engineering notation here.
                 numberParts.push.apply(numberParts, paritionNumberIntoParts(symbols, numberResult, notation, exponent, numberingSystem, 
                 // If compact number pattern exists, do not insert group separators.
-                !compactNumberPattern && options.useGrouping, decimalNumberPattern));
+                !compactNumberPattern && Boolean(options.useGrouping), decimalNumberPattern));
                 break;
             }
             case '-':
@@ -2884,7 +1819,7 @@ decimalNumberPattern) {
     else if (!isFinite(x)) {
         return [{ type: 'infinity', value: n }];
     }
-    var digitReplacementTable = digitMapping[numberingSystem];
+    var digitReplacementTable = digit_mapping_generated_1.digitMapping[numberingSystem];
     if (digitReplacementTable) {
         n = n.replace(/\d/g, function (digit) { return digitReplacementTable[+digit] || digit; });
     }
@@ -2960,7 +1895,7 @@ decimalNumberPattern) {
             result.push({ type: 'exponentMinusSign', value: symbols.minusSign });
             exponent = -exponent;
         }
-        var exponentResult = ToRawFixed_1.ToRawFixed(exponent, 0, 0);
+        var exponentResult = (0, ToRawFixed_1.ToRawFixed)(exponent, 0, 0);
         result.push({
             type: 'exponentInteger',
             value: exponentResult.formattedString,
@@ -2970,7 +1905,7 @@ decimalNumberPattern) {
 }
 function getPatternForSign(pattern, sign) {
     if (pattern.indexOf(';') < 0) {
-        pattern = pattern + ";-" + pattern;
+        pattern = "".concat(pattern, ";-").concat(pattern);
     }
     var _a = pattern.split(';'), zeroPattern = _a[0], negativePattern = _a[1];
     switch (sign) {
@@ -2981,7 +1916,7 @@ function getPatternForSign(pattern, sign) {
         default:
             return negativePattern.indexOf('-') >= 0
                 ? negativePattern.replace(/-/g, '+')
-                : "+" + zeroPattern;
+                : "+".concat(zeroPattern);
     }
 }
 // Find the CLDR pattern for compact notation based on the magnitude of data and style.
@@ -3035,7 +1970,7 @@ function selectPlural(pl, x, rules) {
     return rules[pl.select(x)] || rules.other;
 }
 
-},{"./ToRawFixed":40,"./digit-mapping.json":42,"tslib":59}],44:[function(require,module,exports){
+},{"../regex.generated":38,"./ToRawFixed":30,"./digit-mapping.generated":32}],34:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PartitionPattern = void 0;
@@ -3052,7 +1987,7 @@ function PartitionPattern(pattern) {
     var length = pattern.length;
     while (beginIndex < pattern.length && beginIndex > -1) {
         endIndex = pattern.indexOf('}', beginIndex);
-        utils_1.invariant(endIndex > beginIndex, "Invalid pattern " + pattern);
+        (0, utils_1.invariant)(endIndex > beginIndex, "Invalid pattern ".concat(pattern));
         if (beginIndex > nextIndex) {
             result.push({
                 type: 'literal',
@@ -3076,333 +2011,737 @@ function PartitionPattern(pattern) {
 }
 exports.PartitionPattern = PartitionPattern;
 
-},{"./utils":66}],45:[function(require,module,exports){
+},{"./utils":45}],35:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetOperands = void 0;
-var utils_1 = require("../utils");
-var _262_1 = require("../262");
+exports.SupportedLocales = void 0;
+var _262_1 = require("./262");
+var GetOption_1 = require("./GetOption");
+var intl_localematcher_1 = require("@formatjs/intl-localematcher");
 /**
- * http://ecma-international.org/ecma-402/7.0/index.html#sec-getoperands
- * @param s
+ * https://tc39.es/ecma402/#sec-supportedlocales
+ * @param availableLocales
+ * @param requestedLocales
+ * @param options
  */
-function GetOperands(s) {
-    utils_1.invariant(typeof s === 'string', "GetOperands should have been called with a string");
-    var n = _262_1.ToNumber(s);
-    utils_1.invariant(isFinite(n), 'n should be finite');
-    var dp = s.indexOf('.');
-    var iv;
-    var f;
-    var v;
-    var fv = '';
-    if (dp === -1) {
-        iv = n;
-        f = 0;
-        v = 0;
+function SupportedLocales(availableLocales, requestedLocales, options) {
+    var matcher = 'best fit';
+    if (options !== undefined) {
+        options = (0, _262_1.ToObject)(options);
+        matcher = (0, GetOption_1.GetOption)(options, 'localeMatcher', 'string', ['lookup', 'best fit'], 'best fit');
     }
-    else {
-        iv = s.slice(0, dp);
-        fv = s.slice(dp, s.length);
-        f = _262_1.ToNumber(fv);
-        v = fv.length;
+    if (matcher === 'best fit') {
+        return (0, intl_localematcher_1.LookupSupportedLocales)(availableLocales, requestedLocales);
     }
-    var i = Math.abs(_262_1.ToNumber(iv));
-    var w;
-    var t;
-    if (f !== 0) {
-        var ft = fv.replace(/0+$/, '');
-        w = ft.length;
-        t = _262_1.ToNumber(ft);
+    return (0, intl_localematcher_1.LookupSupportedLocales)(availableLocales, requestedLocales);
+}
+exports.SupportedLocales = SupportedLocales;
+
+},{"./262":1,"./GetOption":7,"@formatjs/intl-localematcher":59}],36:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.isMissingLocaleDataError = void 0;
+var tslib_1 = require("tslib");
+var MissingLocaleDataError = /** @class */ (function (_super) {
+    tslib_1.__extends(MissingLocaleDataError, _super);
+    function MissingLocaleDataError() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.type = 'MISSING_LOCALE_DATA';
+        return _this;
     }
-    else {
-        w = 0;
-        t = 0;
+    return MissingLocaleDataError;
+}(Error));
+function isMissingLocaleDataError(e) {
+    return e.type === 'MISSING_LOCALE_DATA';
+}
+exports.isMissingLocaleDataError = isMissingLocaleDataError;
+
+},{"tslib":60}],37:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.invariant = exports.isMissingLocaleDataError = exports.defineProperty = exports.getMagnitude = exports.setMultiInternalSlots = exports.setInternalSlot = exports.isLiteralPart = exports.getMultiInternalSlots = exports.getInternalSlot = exports._formatToParts = void 0;
+var tslib_1 = require("tslib");
+tslib_1.__exportStar(require("./CanonicalizeLocaleList"), exports);
+tslib_1.__exportStar(require("./CanonicalizeTimeZoneName"), exports);
+tslib_1.__exportStar(require("./CoerceOptionsToObject"), exports);
+tslib_1.__exportStar(require("./GetNumberOption"), exports);
+tslib_1.__exportStar(require("./GetOption"), exports);
+tslib_1.__exportStar(require("./GetOptionsObject"), exports);
+tslib_1.__exportStar(require("./GetStringOrBooleanOption"), exports);
+tslib_1.__exportStar(require("./IsSanctionedSimpleUnitIdentifier"), exports);
+tslib_1.__exportStar(require("./IsValidTimeZoneName"), exports);
+tslib_1.__exportStar(require("./IsWellFormedCurrencyCode"), exports);
+tslib_1.__exportStar(require("./IsWellFormedUnitIdentifier"), exports);
+tslib_1.__exportStar(require("./NumberFormat/ApplyUnsignedRoundingMode"), exports);
+tslib_1.__exportStar(require("./NumberFormat/CollapseNumberRange"), exports);
+tslib_1.__exportStar(require("./NumberFormat/ComputeExponent"), exports);
+tslib_1.__exportStar(require("./NumberFormat/ComputeExponentForMagnitude"), exports);
+tslib_1.__exportStar(require("./NumberFormat/CurrencyDigits"), exports);
+tslib_1.__exportStar(require("./NumberFormat/FormatApproximately"), exports);
+tslib_1.__exportStar(require("./NumberFormat/FormatNumericRange"), exports);
+tslib_1.__exportStar(require("./NumberFormat/FormatNumericRangeToParts"), exports);
+tslib_1.__exportStar(require("./NumberFormat/FormatNumericToParts"), exports);
+tslib_1.__exportStar(require("./NumberFormat/FormatNumericToString"), exports);
+tslib_1.__exportStar(require("./NumberFormat/GetUnsignedRoundingMode"), exports);
+tslib_1.__exportStar(require("./NumberFormat/InitializeNumberFormat"), exports);
+tslib_1.__exportStar(require("./NumberFormat/PartitionNumberPattern"), exports);
+tslib_1.__exportStar(require("./NumberFormat/PartitionNumberRangePattern"), exports);
+tslib_1.__exportStar(require("./NumberFormat/SetNumberFormatDigitOptions"), exports);
+tslib_1.__exportStar(require("./NumberFormat/SetNumberFormatUnitOptions"), exports);
+tslib_1.__exportStar(require("./NumberFormat/ToRawFixed"), exports);
+tslib_1.__exportStar(require("./NumberFormat/ToRawPrecision"), exports);
+var format_to_parts_1 = require("./NumberFormat/format_to_parts");
+Object.defineProperty(exports, "_formatToParts", { enumerable: true, get: function () { return tslib_1.__importDefault(format_to_parts_1).default; } });
+tslib_1.__exportStar(require("./PartitionPattern"), exports);
+tslib_1.__exportStar(require("./SupportedLocales"), exports);
+var utils_1 = require("./utils");
+Object.defineProperty(exports, "getInternalSlot", { enumerable: true, get: function () { return utils_1.getInternalSlot; } });
+Object.defineProperty(exports, "getMultiInternalSlots", { enumerable: true, get: function () { return utils_1.getMultiInternalSlots; } });
+Object.defineProperty(exports, "isLiteralPart", { enumerable: true, get: function () { return utils_1.isLiteralPart; } });
+Object.defineProperty(exports, "setInternalSlot", { enumerable: true, get: function () { return utils_1.setInternalSlot; } });
+Object.defineProperty(exports, "setMultiInternalSlots", { enumerable: true, get: function () { return utils_1.setMultiInternalSlots; } });
+Object.defineProperty(exports, "getMagnitude", { enumerable: true, get: function () { return utils_1.getMagnitude; } });
+Object.defineProperty(exports, "defineProperty", { enumerable: true, get: function () { return utils_1.defineProperty; } });
+var data_1 = require("./data");
+Object.defineProperty(exports, "isMissingLocaleDataError", { enumerable: true, get: function () { return data_1.isMissingLocaleDataError; } });
+tslib_1.__exportStar(require("./types/relative-time"), exports);
+tslib_1.__exportStar(require("./types/date-time"), exports);
+tslib_1.__exportStar(require("./types/list"), exports);
+tslib_1.__exportStar(require("./types/plural-rules"), exports);
+tslib_1.__exportStar(require("./types/number"), exports);
+tslib_1.__exportStar(require("./types/displaynames"), exports);
+var utils_2 = require("./utils");
+Object.defineProperty(exports, "invariant", { enumerable: true, get: function () { return utils_2.invariant; } });
+tslib_1.__exportStar(require("./262"), exports);
+
+},{"./262":1,"./CanonicalizeLocaleList":2,"./CanonicalizeTimeZoneName":3,"./CoerceOptionsToObject":4,"./GetNumberOption":6,"./GetOption":7,"./GetOptionsObject":8,"./GetStringOrBooleanOption":9,"./IsSanctionedSimpleUnitIdentifier":10,"./IsValidTimeZoneName":11,"./IsWellFormedCurrencyCode":12,"./IsWellFormedUnitIdentifier":13,"./NumberFormat/ApplyUnsignedRoundingMode":14,"./NumberFormat/CollapseNumberRange":15,"./NumberFormat/ComputeExponent":16,"./NumberFormat/ComputeExponentForMagnitude":17,"./NumberFormat/CurrencyDigits":18,"./NumberFormat/FormatApproximately":19,"./NumberFormat/FormatNumericRange":20,"./NumberFormat/FormatNumericRangeToParts":21,"./NumberFormat/FormatNumericToParts":22,"./NumberFormat/FormatNumericToString":23,"./NumberFormat/GetUnsignedRoundingMode":24,"./NumberFormat/InitializeNumberFormat":25,"./NumberFormat/PartitionNumberPattern":26,"./NumberFormat/PartitionNumberRangePattern":27,"./NumberFormat/SetNumberFormatDigitOptions":28,"./NumberFormat/SetNumberFormatUnitOptions":29,"./NumberFormat/ToRawFixed":30,"./NumberFormat/ToRawPrecision":31,"./NumberFormat/format_to_parts":33,"./PartitionPattern":34,"./SupportedLocales":35,"./data":36,"./types/date-time":39,"./types/displaynames":40,"./types/list":41,"./types/number":42,"./types/plural-rules":43,"./types/relative-time":44,"./utils":45,"tslib":60}],38:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.S_UNICODE_REGEX = void 0;
+// @generated from regex-gen.ts
+exports.S_UNICODE_REGEX = /[\$\+<->\^`\|~\xA2-\xA6\xA8\xA9\xAC\xAE-\xB1\xB4\xB8\xD7\xF7\u02C2-\u02C5\u02D2-\u02DF\u02E5-\u02EB\u02ED\u02EF-\u02FF\u0375\u0384\u0385\u03F6\u0482\u058D-\u058F\u0606-\u0608\u060B\u060E\u060F\u06DE\u06E9\u06FD\u06FE\u07F6\u07FE\u07FF\u09F2\u09F3\u09FA\u09FB\u0AF1\u0B70\u0BF3-\u0BFA\u0C7F\u0D4F\u0D79\u0E3F\u0F01-\u0F03\u0F13\u0F15-\u0F17\u0F1A-\u0F1F\u0F34\u0F36\u0F38\u0FBE-\u0FC5\u0FC7-\u0FCC\u0FCE\u0FCF\u0FD5-\u0FD8\u109E\u109F\u1390-\u1399\u166D\u17DB\u1940\u19DE-\u19FF\u1B61-\u1B6A\u1B74-\u1B7C\u1FBD\u1FBF-\u1FC1\u1FCD-\u1FCF\u1FDD-\u1FDF\u1FED-\u1FEF\u1FFD\u1FFE\u2044\u2052\u207A-\u207C\u208A-\u208C\u20A0-\u20BF\u2100\u2101\u2103-\u2106\u2108\u2109\u2114\u2116-\u2118\u211E-\u2123\u2125\u2127\u2129\u212E\u213A\u213B\u2140-\u2144\u214A-\u214D\u214F\u218A\u218B\u2190-\u2307\u230C-\u2328\u232B-\u2426\u2440-\u244A\u249C-\u24E9\u2500-\u2767\u2794-\u27C4\u27C7-\u27E5\u27F0-\u2982\u2999-\u29D7\u29DC-\u29FB\u29FE-\u2B73\u2B76-\u2B95\u2B97-\u2BFF\u2CE5-\u2CEA\u2E50\u2E51\u2E80-\u2E99\u2E9B-\u2EF3\u2F00-\u2FD5\u2FF0-\u2FFB\u3004\u3012\u3013\u3020\u3036\u3037\u303E\u303F\u309B\u309C\u3190\u3191\u3196-\u319F\u31C0-\u31E3\u3200-\u321E\u322A-\u3247\u3250\u3260-\u327F\u328A-\u32B0\u32C0-\u33FF\u4DC0-\u4DFF\uA490-\uA4C6\uA700-\uA716\uA720\uA721\uA789\uA78A\uA828-\uA82B\uA836-\uA839\uAA77-\uAA79\uAB5B\uAB6A\uAB6B\uFB29\uFBB2-\uFBC1\uFDFC\uFDFD\uFE62\uFE64-\uFE66\uFE69\uFF04\uFF0B\uFF1C-\uFF1E\uFF3E\uFF40\uFF5C\uFF5E\uFFE0-\uFFE6\uFFE8-\uFFEE\uFFFC\uFFFD]|\uD800[\uDD37-\uDD3F\uDD79-\uDD89\uDD8C-\uDD8E\uDD90-\uDD9C\uDDA0\uDDD0-\uDDFC]|\uD802[\uDC77\uDC78\uDEC8]|\uD805\uDF3F|\uD807[\uDFD5-\uDFF1]|\uD81A[\uDF3C-\uDF3F\uDF45]|\uD82F\uDC9C|\uD834[\uDC00-\uDCF5\uDD00-\uDD26\uDD29-\uDD64\uDD6A-\uDD6C\uDD83\uDD84\uDD8C-\uDDA9\uDDAE-\uDDE8\uDE00-\uDE41\uDE45\uDF00-\uDF56]|\uD835[\uDEC1\uDEDB\uDEFB\uDF15\uDF35\uDF4F\uDF6F\uDF89\uDFA9\uDFC3]|\uD836[\uDC00-\uDDFF\uDE37-\uDE3A\uDE6D-\uDE74\uDE76-\uDE83\uDE85\uDE86]|\uD838[\uDD4F\uDEFF]|\uD83B[\uDCAC\uDCB0\uDD2E\uDEF0\uDEF1]|\uD83C[\uDC00-\uDC2B\uDC30-\uDC93\uDCA0-\uDCAE\uDCB1-\uDCBF\uDCC1-\uDCCF\uDCD1-\uDCF5\uDD0D-\uDDAD\uDDE6-\uDE02\uDE10-\uDE3B\uDE40-\uDE48\uDE50\uDE51\uDE60-\uDE65\uDF00-\uDFFF]|\uD83D[\uDC00-\uDED7\uDEE0-\uDEEC\uDEF0-\uDEFC\uDF00-\uDF73\uDF80-\uDFD8\uDFE0-\uDFEB]|\uD83E[\uDC00-\uDC0B\uDC10-\uDC47\uDC50-\uDC59\uDC60-\uDC87\uDC90-\uDCAD\uDCB0\uDCB1\uDD00-\uDD78\uDD7A-\uDDCB\uDDCD-\uDE53\uDE60-\uDE6D\uDE70-\uDE74\uDE78-\uDE7A\uDE80-\uDE86\uDE90-\uDEA8\uDEB0-\uDEB6\uDEC0-\uDEC2\uDED0-\uDED6\uDF00-\uDF92\uDF94-\uDFCA]/;
+
+},{}],39:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.RangePatternType = void 0;
+var RangePatternType;
+(function (RangePatternType) {
+    RangePatternType["startRange"] = "startRange";
+    RangePatternType["shared"] = "shared";
+    RangePatternType["endRange"] = "endRange";
+})(RangePatternType = exports.RangePatternType || (exports.RangePatternType = {}));
+
+},{}],40:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],41:[function(require,module,exports){
+arguments[4][40][0].apply(exports,arguments)
+},{"dup":40}],42:[function(require,module,exports){
+arguments[4][40][0].apply(exports,arguments)
+},{"dup":40}],43:[function(require,module,exports){
+arguments[4][40][0].apply(exports,arguments)
+},{"dup":40}],44:[function(require,module,exports){
+arguments[4][40][0].apply(exports,arguments)
+},{"dup":40}],45:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.invariant = exports.UNICODE_EXTENSION_SEQUENCE_REGEX = exports.defineProperty = exports.isLiteralPart = exports.getMultiInternalSlots = exports.getInternalSlot = exports.setMultiInternalSlots = exports.setInternalSlot = exports.repeat = exports.getMagnitude = void 0;
+/**
+ * Cannot do Math.log(x) / Math.log(10) bc if IEEE floating point issue
+ * @param x number
+ */
+function getMagnitude(x) {
+    // Cannot count string length via Number.toString because it may use scientific notation
+    // for very small or very large numbers.
+    return Math.floor(Math.log(x) * Math.LOG10E);
+}
+exports.getMagnitude = getMagnitude;
+function repeat(s, times) {
+    if (typeof s.repeat === 'function') {
+        return s.repeat(times);
     }
-    return {
-        Number: n,
-        IntegerDigits: i,
-        NumberOfFractionDigits: v,
-        NumberOfFractionDigitsWithoutTrailing: w,
-        FractionDigits: f,
-        FractionDigitsWithoutTrailing: t,
+    var arr = new Array(times);
+    for (var i = 0; i < arr.length; i++) {
+        arr[i] = s;
+    }
+    return arr.join('');
+}
+exports.repeat = repeat;
+function setInternalSlot(map, pl, field, value) {
+    if (!map.get(pl)) {
+        map.set(pl, Object.create(null));
+    }
+    var slots = map.get(pl);
+    slots[field] = value;
+}
+exports.setInternalSlot = setInternalSlot;
+function setMultiInternalSlots(map, pl, props) {
+    for (var _i = 0, _a = Object.keys(props); _i < _a.length; _i++) {
+        var k = _a[_i];
+        setInternalSlot(map, pl, k, props[k]);
+    }
+}
+exports.setMultiInternalSlots = setMultiInternalSlots;
+function getInternalSlot(map, pl, field) {
+    return getMultiInternalSlots(map, pl, field)[field];
+}
+exports.getInternalSlot = getInternalSlot;
+function getMultiInternalSlots(map, pl) {
+    var fields = [];
+    for (var _i = 2; _i < arguments.length; _i++) {
+        fields[_i - 2] = arguments[_i];
+    }
+    var slots = map.get(pl);
+    if (!slots) {
+        throw new TypeError("".concat(pl, " InternalSlot has not been initialized"));
+    }
+    return fields.reduce(function (all, f) {
+        all[f] = slots[f];
+        return all;
+    }, Object.create(null));
+}
+exports.getMultiInternalSlots = getMultiInternalSlots;
+function isLiteralPart(patternPart) {
+    return patternPart.type === 'literal';
+}
+exports.isLiteralPart = isLiteralPart;
+/*
+  17 ECMAScript Standard Built-in Objects:
+    Every built-in Function object, including constructors, that is not
+    identified as an anonymous function has a name property whose value
+    is a String.
+
+    Unless otherwise specified, the name property of a built-in Function
+    object, if it exists, has the attributes { [[Writable]]: false,
+    [[Enumerable]]: false, [[Configurable]]: true }.
+*/
+function defineProperty(target, name, _a) {
+    var value = _a.value;
+    Object.defineProperty(target, name, {
+        configurable: true,
+        enumerable: false,
+        writable: true,
+        value: value,
+    });
+}
+exports.defineProperty = defineProperty;
+exports.UNICODE_EXTENSION_SEQUENCE_REGEX = /-u(?:-[0-9a-z]{2,8})+/gi;
+function invariant(condition, message, Err) {
+    if (Err === void 0) { Err = Error; }
+    if (!condition) {
+        throw new Err(message);
+    }
+}
+exports.invariant = invariant;
+
+},{}],46:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CanonicalCodeForDisplayNames = void 0;
+var ecma402_abstract_1 = require("@formatjs/ecma402-abstract");
+var IsValidDateTimeFieldCode_1 = require("./IsValidDateTimeFieldCode");
+var UNICODE_REGION_SUBTAG_REGEX = /^([a-z]{2}|[0-9]{3})$/i;
+var ALPHA_4 = /^[a-z]{4}$/i;
+var UNICODE_TYPE_REGEX = /^[a-z0-9]{3,8}([-_][a-z0-9]{3,8})*$/i;
+function isUnicodeRegionSubtag(region) {
+    return UNICODE_REGION_SUBTAG_REGEX.test(region);
+}
+function isUnicodeScriptSubtag(script) {
+    return ALPHA_4.test(script);
+}
+function isUnicodeLocaleIdentifierType(code) {
+    return UNICODE_TYPE_REGEX.test(code);
+}
+function CanonicalCodeForDisplayNames(type, code) {
+    if (type === 'language') {
+        return (0, ecma402_abstract_1.CanonicalizeLocaleList)([code])[0];
+    }
+    if (type === 'region') {
+        if (!isUnicodeRegionSubtag(code)) {
+            throw RangeError('invalid region');
+        }
+        return code.toUpperCase();
+    }
+    if (type === 'script') {
+        if (!isUnicodeScriptSubtag(code)) {
+            throw RangeError('invalid script');
+        }
+        return "".concat(code[0].toUpperCase()).concat(code.slice(1).toLowerCase());
+    }
+    if (type === 'calendar') {
+        if (!isUnicodeLocaleIdentifierType(code)) {
+            throw RangeError('invalid calendar');
+        }
+        return code.toLowerCase();
+    }
+    if (type === 'dateTimeField') {
+        if (!(0, IsValidDateTimeFieldCode_1.IsValidDateTimeFieldCode)(code)) {
+            throw RangeError('invalid dateTimeField');
+        }
+        return code;
+    }
+    (0, ecma402_abstract_1.invariant)(type === 'currency', 'invalid type');
+    if (!(0, ecma402_abstract_1.IsWellFormedCurrencyCode)(code)) {
+        throw RangeError('invalid currency');
+    }
+    return code.toUpperCase();
+}
+exports.CanonicalCodeForDisplayNames = CanonicalCodeForDisplayNames;
+
+},{"./IsValidDateTimeFieldCode":47,"@formatjs/ecma402-abstract":37}],47:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.IsValidDateTimeFieldCode = void 0;
+var CODES_FOR_DATE_TIME_FIELD = [
+    'era',
+    'year',
+    'quarter',
+    'month',
+    'weekOfYear',
+    'weekday',
+    'day',
+    'dayPeriod',
+    'hour',
+    'minute',
+    'second',
+    'timeZoneName',
+];
+function IsValidDateTimeFieldCode(field) {
+    return CODES_FOR_DATE_TIME_FIELD.indexOf(field) >= 0;
+}
+exports.IsValidDateTimeFieldCode = IsValidDateTimeFieldCode;
+
+},{}],48:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DisplayNames = void 0;
+var tslib_1 = require("tslib");
+var ecma402_abstract_1 = require("@formatjs/ecma402-abstract");
+var CanonicalCodeForDisplayNames_1 = require("./abstract/CanonicalCodeForDisplayNames");
+var IsValidDateTimeFieldCode_1 = require("./abstract/IsValidDateTimeFieldCode");
+var intl_localematcher_1 = require("@formatjs/intl-localematcher");
+var DisplayNames = /** @class */ (function () {
+    function DisplayNames(locales, options) {
+        var _newTarget = this.constructor;
+        if (_newTarget === undefined) {
+            throw TypeError("Constructor Intl.DisplayNames requires 'new'");
+        }
+        var requestedLocales = (0, ecma402_abstract_1.CanonicalizeLocaleList)(locales);
+        options = (0, ecma402_abstract_1.GetOptionsObject)(options);
+        var opt = Object.create(null);
+        var localeData = DisplayNames.localeData;
+        var matcher = (0, ecma402_abstract_1.GetOption)(options, 'localeMatcher', 'string', ['lookup', 'best fit'], 'best fit');
+        opt.localeMatcher = matcher;
+        var r = (0, intl_localematcher_1.ResolveLocale)(DisplayNames.availableLocales, requestedLocales, opt, [], // there is no relevantExtensionKeys
+        DisplayNames.localeData, DisplayNames.getDefaultLocale);
+        var style = (0, ecma402_abstract_1.GetOption)(options, 'style', 'string', ['narrow', 'short', 'long'], 'long');
+        setSlot(this, 'style', style);
+        var type = (0, ecma402_abstract_1.GetOption)(options, 'type', 'string', ['language', 'region', 'script', 'currency', 'calendar', 'dateTimeField'], undefined);
+        if (type === undefined) {
+            throw TypeError("Intl.DisplayNames constructor requires \"type\" option");
+        }
+        setSlot(this, 'type', type);
+        var fallback = (0, ecma402_abstract_1.GetOption)(options, 'fallback', 'string', ['code', 'none'], 'code');
+        setSlot(this, 'fallback', fallback);
+        setSlot(this, 'locale', r.locale);
+        var dataLocale = r.dataLocale;
+        var dataLocaleData = localeData[dataLocale];
+        (0, ecma402_abstract_1.invariant)(!!dataLocaleData, "Missing locale data for ".concat(dataLocale));
+        setSlot(this, 'localeData', dataLocaleData);
+        (0, ecma402_abstract_1.invariant)(dataLocaleData !== undefined, "locale data for ".concat(r.locale, " does not exist."));
+        var types = dataLocaleData.types;
+        (0, ecma402_abstract_1.invariant)(typeof types === 'object' && types != null, 'invalid types data');
+        var typeFields = types[type];
+        (0, ecma402_abstract_1.invariant)(typeof typeFields === 'object' && typeFields != null, 'invalid typeFields data');
+        var languageDisplay = (0, ecma402_abstract_1.GetOption)(options, 'languageDisplay', 'string', ['dialect', 'standard'], 'dialect');
+        if (type === 'language') {
+            setSlot(this, 'languageDisplay', languageDisplay);
+            // Using types[type] instead of typeFields because TypeScript cannot infer the correct type
+            var typeFields_1 = types[type][languageDisplay];
+            (0, ecma402_abstract_1.invariant)(typeof typeFields_1 === 'object' && typeFields_1 != null, 'invalid language typeFields data');
+        }
+        // Using types[type] instead of typeFields because TypeScript cannot infer the correct type
+        var styleFields = type === 'language'
+            ? types[type][languageDisplay][style]
+            : types[type][style];
+        (0, ecma402_abstract_1.invariant)(typeof styleFields === 'object' && styleFields != null, 'invalid styleFields data');
+        setSlot(this, 'fields', styleFields);
+    }
+    DisplayNames.supportedLocalesOf = function (locales, options) {
+        return (0, ecma402_abstract_1.SupportedLocales)(DisplayNames.availableLocales, (0, ecma402_abstract_1.CanonicalizeLocaleList)(locales), options);
     };
-}
-exports.GetOperands = GetOperands;
-
-},{"../262":1,"../utils":66}],46:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.InitializePluralRules = void 0;
-var CanonicalizeLocaleList_1 = require("../CanonicalizeLocaleList");
-var _262_1 = require("../262");
-var GetOption_1 = require("../GetOption");
-var SetNumberFormatDigitOptions_1 = require("../NumberFormat/SetNumberFormatDigitOptions");
-var ResolveLocale_1 = require("../ResolveLocale");
-function InitializePluralRules(pl, locales, options, _a) {
-    var availableLocales = _a.availableLocales, relevantExtensionKeys = _a.relevantExtensionKeys, localeData = _a.localeData, getDefaultLocale = _a.getDefaultLocale, getInternalSlots = _a.getInternalSlots;
-    var requestedLocales = CanonicalizeLocaleList_1.CanonicalizeLocaleList(locales);
-    var opt = Object.create(null);
-    var opts = options === undefined ? Object.create(null) : _262_1.ToObject(options);
-    var internalSlots = getInternalSlots(pl);
-    internalSlots.initializedPluralRules = true;
-    var matcher = GetOption_1.GetOption(opts, 'localeMatcher', 'string', ['best fit', 'lookup'], 'best fit');
-    opt.localeMatcher = matcher;
-    internalSlots.type = GetOption_1.GetOption(opts, 'type', 'string', ['cardinal', 'ordinal'], 'cardinal');
-    SetNumberFormatDigitOptions_1.SetNumberFormatDigitOptions(internalSlots, opts, 0, 3, 'standard');
-    var r = ResolveLocale_1.ResolveLocale(availableLocales, requestedLocales, opt, relevantExtensionKeys, localeData, getDefaultLocale);
-    internalSlots.locale = r.locale;
-    return pl;
-}
-exports.InitializePluralRules = InitializePluralRules;
-
-},{"../262":1,"../CanonicalizeLocaleList":4,"../GetOption":24,"../NumberFormat/SetNumberFormatDigitOptions":38,"../ResolveLocale":54}],47:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ResolvePlural = void 0;
-var utils_1 = require("../utils");
-var _262_1 = require("../262");
-var FormatNumericToString_1 = require("../NumberFormat/FormatNumericToString");
-var GetOperands_1 = require("./GetOperands");
-/**
- * http://ecma-international.org/ecma-402/7.0/index.html#sec-resolveplural
- * @param pl
- * @param n
- * @param PluralRuleSelect Has to pass in bc it's implementation-specific
- */
-function ResolvePlural(pl, n, _a) {
-    var getInternalSlots = _a.getInternalSlots, PluralRuleSelect = _a.PluralRuleSelect;
-    var internalSlots = getInternalSlots(pl);
-    utils_1.invariant(_262_1.Type(internalSlots) === 'Object', 'pl has to be an object');
-    utils_1.invariant('initializedPluralRules' in internalSlots, 'pluralrules must be initialized');
-    utils_1.invariant(_262_1.Type(n) === 'Number', 'n must be a number');
-    if (!isFinite(n)) {
-        return 'other';
-    }
-    var locale = internalSlots.locale, type = internalSlots.type;
-    var res = FormatNumericToString_1.FormatNumericToString(internalSlots, n);
-    var s = res.formattedString;
-    var operands = GetOperands_1.GetOperands(s);
-    return PluralRuleSelect(locale, type, n, operands);
-}
-exports.ResolvePlural = ResolvePlural;
-
-},{"../262":1,"../NumberFormat/FormatNumericToString":35,"../utils":66,"./GetOperands":45}],48:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FormatRelativeTime = void 0;
-var PartitionRelativeTimePattern_1 = require("./PartitionRelativeTimePattern");
-function FormatRelativeTime(rtf, value, unit, implDetails) {
-    var parts = PartitionRelativeTimePattern_1.PartitionRelativeTimePattern(rtf, value, unit, implDetails);
-    var result = '';
-    for (var _i = 0, parts_1 = parts; _i < parts_1.length; _i++) {
-        var part = parts_1[_i];
-        result += part.value;
-    }
-    return result;
-}
-exports.FormatRelativeTime = FormatRelativeTime;
-
-},{"./PartitionRelativeTimePattern":52}],49:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FormatRelativeTimeToParts = void 0;
-var PartitionRelativeTimePattern_1 = require("./PartitionRelativeTimePattern");
-var _262_1 = require("../262");
-function FormatRelativeTimeToParts(rtf, value, unit, implDetails) {
-    var parts = PartitionRelativeTimePattern_1.PartitionRelativeTimePattern(rtf, value, unit, implDetails);
-    var result = _262_1.ArrayCreate(0);
-    for (var _i = 0, parts_1 = parts; _i < parts_1.length; _i++) {
-        var part = parts_1[_i];
-        var o = {
-            type: part.type,
-            value: part.value,
-        };
-        if ('unit' in part) {
-            o.unit = part.unit;
+    DisplayNames.__addLocaleData = function () {
+        var data = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            data[_i] = arguments[_i];
         }
-        result.push(o);
-    }
-    return result;
-}
-exports.FormatRelativeTimeToParts = FormatRelativeTimeToParts;
-
-},{"../262":1,"./PartitionRelativeTimePattern":52}],50:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.InitializeRelativeTimeFormat = void 0;
-var CanonicalizeLocaleList_1 = require("../CanonicalizeLocaleList");
-var _262_1 = require("../262");
-var GetOption_1 = require("../GetOption");
-var ResolveLocale_1 = require("../ResolveLocale");
-var utils_1 = require("../utils");
-var NUMBERING_SYSTEM_REGEX = /^[a-z0-9]{3,8}(-[a-z0-9]{3,8})*$/i;
-function InitializeRelativeTimeFormat(rtf, locales, options, _a) {
-    var getInternalSlots = _a.getInternalSlots, availableLocales = _a.availableLocales, relevantExtensionKeys = _a.relevantExtensionKeys, localeData = _a.localeData, getDefaultLocale = _a.getDefaultLocale;
-    var internalSlots = getInternalSlots(rtf);
-    internalSlots.initializedRelativeTimeFormat = true;
-    var requestedLocales = CanonicalizeLocaleList_1.CanonicalizeLocaleList(locales);
-    var opt = Object.create(null);
-    var opts = options === undefined ? Object.create(null) : _262_1.ToObject(options);
-    var matcher = GetOption_1.GetOption(opts, 'localeMatcher', 'string', ['best fit', 'lookup'], 'best fit');
-    opt.localeMatcher = matcher;
-    var numberingSystem = GetOption_1.GetOption(opts, 'numberingSystem', 'string', undefined, undefined);
-    if (numberingSystem !== undefined) {
-        if (!NUMBERING_SYSTEM_REGEX.test(numberingSystem)) {
-            throw new RangeError("Invalid numbering system " + numberingSystem);
+        for (var _a = 0, data_1 = data; _a < data_1.length; _a++) {
+            var _b = data_1[_a], d = _b.data, locale = _b.locale;
+            var minimizedLocale = new Intl.Locale(locale)
+                .minimize()
+                .toString();
+            DisplayNames.localeData[locale] = DisplayNames.localeData[minimizedLocale] = d;
+            DisplayNames.availableLocales.add(minimizedLocale);
+            DisplayNames.availableLocales.add(locale);
+            if (!DisplayNames.__defaultLocale) {
+                DisplayNames.__defaultLocale = minimizedLocale;
+            }
         }
-    }
-    opt.nu = numberingSystem;
-    var r = ResolveLocale_1.ResolveLocale(availableLocales, requestedLocales, opt, relevantExtensionKeys, localeData, getDefaultLocale);
-    var locale = r.locale, nu = r.nu;
-    internalSlots.locale = locale;
-    internalSlots.style = GetOption_1.GetOption(opts, 'style', 'string', ['long', 'narrow', 'short'], 'long');
-    internalSlots.numeric = GetOption_1.GetOption(opts, 'numeric', 'string', ['always', 'auto'], 'always');
-    var fields = localeData[r.dataLocale];
-    utils_1.invariant(!!fields, "Missing locale data for " + r.dataLocale);
-    internalSlots.fields = fields;
-    internalSlots.numberFormat = new Intl.NumberFormat(locales);
-    internalSlots.pluralRules = new Intl.PluralRules(locales);
-    internalSlots.numberingSystem = nu;
-    return rtf;
-}
-exports.InitializeRelativeTimeFormat = InitializeRelativeTimeFormat;
-
-},{"../262":1,"../CanonicalizeLocaleList":4,"../GetOption":24,"../ResolveLocale":54,"../utils":66}],51:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.MakePartsList = void 0;
-var PartitionPattern_1 = require("../PartitionPattern");
-var utils_1 = require("../utils");
-function MakePartsList(pattern, unit, parts) {
-    var patternParts = PartitionPattern_1.PartitionPattern(pattern);
-    var result = [];
-    for (var _i = 0, patternParts_1 = patternParts; _i < patternParts_1.length; _i++) {
-        var patternPart = patternParts_1[_i];
-        if (patternPart.type === 'literal') {
-            result.push({
-                type: 'literal',
-                value: patternPart.value,
-            });
+    };
+    DisplayNames.prototype.of = function (code) {
+        checkReceiver(this, 'of');
+        var type = getSlot(this, 'type');
+        var codeAsString = (0, ecma402_abstract_1.ToString)(code);
+        if (!isValidCodeForDisplayNames(type, codeAsString)) {
+            throw RangeError('invalid code for Intl.DisplayNames.prototype.of');
+        }
+        var _a = (0, ecma402_abstract_1.getMultiInternalSlots)(__INTERNAL_SLOT_MAP__, this, 'localeData', 'style', 'fallback'), localeData = _a.localeData, style = _a.style, fallback = _a.fallback;
+        // Canonicalize the case.
+        var canonicalCode = (0, CanonicalCodeForDisplayNames_1.CanonicalCodeForDisplayNames)(type, codeAsString);
+        var name;
+        if (type === 'language') {
+            var languageDisplay = getSlot(this, 'languageDisplay');
+            name = getNameForTypeLanguage(languageDisplay, localeData, style, canonicalCode, fallback);
         }
         else {
-            utils_1.invariant(patternPart.type === '0', "Malformed pattern " + pattern);
-            for (var _a = 0, parts_1 = parts; _a < parts_1.length; _a++) {
-                var part = parts_1[_a];
-                result.push({
-                    type: part.type,
-                    value: part.value,
-                    unit: unit,
-                });
+            // All the other types
+            var typesData = localeData.types[type];
+            name = typesData[style][canonicalCode] || typesData.long[canonicalCode];
+        }
+        if (name !== undefined) {
+            return name;
+        }
+        if (fallback === 'code') {
+            return codeAsString;
+        }
+    };
+    DisplayNames.prototype.resolvedOptions = function () {
+        checkReceiver(this, 'resolvedOptions');
+        return tslib_1.__assign({}, (0, ecma402_abstract_1.getMultiInternalSlots)(__INTERNAL_SLOT_MAP__, this, 'locale', 'style', 'type', 'fallback', 'languageDisplay'));
+    };
+    DisplayNames.getDefaultLocale = function () {
+        return DisplayNames.__defaultLocale;
+    };
+    DisplayNames.localeData = {};
+    DisplayNames.availableLocales = new Set();
+    DisplayNames.__defaultLocale = '';
+    DisplayNames.polyfilled = true;
+    return DisplayNames;
+}());
+exports.DisplayNames = DisplayNames;
+// https://tc39.es/proposal-intl-displaynames/#sec-isvalidcodefordisplaynames
+function isValidCodeForDisplayNames(type, code) {
+    switch (type) {
+        case 'language':
+            // subset of unicode_language_id
+            // languageCode ["-" scriptCode] ["-" regionCode] *("-" variant)
+            // where:
+            // - languageCode is either a two letters ISO 639-1 language code or a three letters ISO 639-2 language code.
+            // - scriptCode is should be an ISO-15924 four letters script code
+            // - regionCode is either an ISO-3166 two letters region code, or a three digits UN M49 Geographic Regions.
+            return /^[a-z]{2,3}(-[a-z]{4})?(-([a-z]{2}|\d{3}))?(-([a-z\d]{5,8}|\d[a-z\d]{3}))*$/i.test(code);
+        case 'region':
+            // unicode_region_subtag
+            return /^([a-z]{2}|\d{3})$/i.test(code);
+        case 'script':
+            // unicode_script_subtag
+            return /^[a-z]{4}$/i.test(code);
+        case 'currency':
+            return (0, ecma402_abstract_1.IsWellFormedCurrencyCode)(code);
+        case 'calendar':
+            // unicode locale identifier type
+            return /^[a-z0-9]{3,8}([-_][a-z0-9]{3,8})*$/i.test(code);
+        case 'dateTimeField':
+            return (0, IsValidDateTimeFieldCode_1.IsValidDateTimeFieldCode)(code);
+    }
+}
+try {
+    // IE11 does not have Symbol
+    if (typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+        Object.defineProperty(DisplayNames.prototype, Symbol.toStringTag, {
+            value: 'Intl.DisplayNames',
+            configurable: true,
+            enumerable: false,
+            writable: false,
+        });
+    }
+    Object.defineProperty(DisplayNames, 'length', {
+        value: 2,
+        writable: false,
+        enumerable: false,
+        configurable: true,
+    });
+}
+catch (e) {
+    // Make test 262 compliant
+}
+var __INTERNAL_SLOT_MAP__ = new WeakMap();
+function getSlot(instance, key) {
+    return (0, ecma402_abstract_1.getInternalSlot)(__INTERNAL_SLOT_MAP__, instance, key);
+}
+function setSlot(instance, key, value) {
+    (0, ecma402_abstract_1.setInternalSlot)(__INTERNAL_SLOT_MAP__, instance, key, value);
+}
+function checkReceiver(receiver, methodName) {
+    if (!(receiver instanceof DisplayNames)) {
+        throw TypeError("Method Intl.DisplayNames.prototype.".concat(methodName, " called on incompatible receiver"));
+    }
+}
+function getNameForTypeLanguage(languageDisplay, localeData, style, canonicalCode, fallback) {
+    // First, try to get the name using the canonicalCode
+    var typesData = localeData.types.language[languageDisplay];
+    var name = typesData[style][canonicalCode] || typesData.long[canonicalCode];
+    if (name === undefined) {
+        // If no name has been found using the canonicalCode,
+        // check if the latter contains a region sub tag
+        var regionMatch = /-([a-z]{2}|\d{3})\b/i.exec(canonicalCode);
+        if (regionMatch) {
+            // Extract the language and region sub tags
+            var languageSubTag = canonicalCode.substring(0, regionMatch.index) +
+                canonicalCode.substring(regionMatch.index + regionMatch[0].length);
+            var regionSubTag = regionMatch[1];
+            // Let's try again using languageSubTag this time
+            var name_1 = typesData[style][languageSubTag] || typesData.long[languageSubTag];
+            // If a name has been found and a region sub tag exists,
+            // compose them together or use the code fallback
+            if (name_1 !== undefined && regionSubTag) {
+                // Retrieve region display names
+                var regionsData = localeData.types.region;
+                var regionDisplayName = regionsData[style][regionSubTag] || regionsData.long[regionSubTag];
+                if (regionDisplayName || fallback === 'code') {
+                    // Interpolate into locale-specific pattern.
+                    var pattern = localeData.patterns.locale;
+                    return pattern
+                        .replace('{0}', name_1)
+                        .replace('{1}', regionDisplayName || regionSubTag);
+                }
+            }
+            else {
+                return name_1;
             }
         }
     }
-    return result;
+    else {
+        return name;
+    }
 }
-exports.MakePartsList = MakePartsList;
 
-},{"../PartitionPattern":44,"../utils":66}],52:[function(require,module,exports){
+},{"./abstract/CanonicalCodeForDisplayNames":46,"./abstract/IsValidDateTimeFieldCode":47,"@formatjs/ecma402-abstract":37,"@formatjs/intl-localematcher":59,"tslib":60}],49:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PartitionRelativeTimePattern = void 0;
-var utils_1 = require("../utils");
-var SingularRelativeTimeUnit_1 = require("./SingularRelativeTimeUnit");
-var MakePartsList_1 = require("./MakePartsList");
-var _262_1 = require("../262");
-function PartitionRelativeTimePattern(rtf, value, unit, _a) {
-    var getInternalSlots = _a.getInternalSlots;
-    utils_1.invariant(_262_1.Type(value) === 'Number', "value must be number, instead got " + typeof value, TypeError);
-    utils_1.invariant(_262_1.Type(unit) === 'String', "unit must be number, instead got " + typeof value, TypeError);
-    if (isNaN(value) || !isFinite(value)) {
-        throw new RangeError("Invalid value " + value);
+exports.shouldPolyfill = exports._shouldPolyfillWithoutLocale = void 0;
+var intl_localematcher_1 = require("@formatjs/intl-localematcher");
+var supported_locales_generated_1 = require("./supported-locales.generated");
+/**
+ * https://bugs.chromium.org/p/chromium/issues/detail?id=1097432
+ */
+function hasMissingICUBug() {
+    var DisplayNames = Intl.DisplayNames;
+    if (DisplayNames && !DisplayNames.polyfilled) {
+        return (new DisplayNames(['en'], {
+            type: 'region',
+        }).of('CA') === 'CA');
     }
-    var resolvedUnit = SingularRelativeTimeUnit_1.SingularRelativeTimeUnit(unit);
-    var _b = getInternalSlots(rtf), fields = _b.fields, style = _b.style, numeric = _b.numeric, pluralRules = _b.pluralRules, numberFormat = _b.numberFormat;
-    var entry = resolvedUnit;
-    if (style === 'short') {
-        entry = resolvedUnit + "-short";
+    return false;
+}
+/**
+ * https://bugs.chromium.org/p/chromium/issues/detail?id=1176979
+ */
+function hasScriptBug() {
+    var DisplayNames = Intl.DisplayNames;
+    if (DisplayNames && !DisplayNames.polyfilled) {
+        return (new DisplayNames(['en'], {
+            type: 'script',
+        }).of('arab') !== 'Arabic');
     }
-    else if (style === 'narrow') {
-        entry = resolvedUnit + "-narrow";
+    return false;
+}
+function supportedLocalesOf(locale) {
+    if (!locale) {
+        return true;
     }
-    if (!(entry in fields)) {
-        entry = resolvedUnit;
-    }
-    var patterns = fields[entry];
-    if (numeric === 'auto') {
-        if (_262_1.ToString(value) in patterns) {
-            return [
-                {
-                    type: 'literal',
-                    value: patterns[_262_1.ToString(value)],
-                },
-            ];
+    var locales = Array.isArray(locale) ? locale : [locale];
+    return (Intl.DisplayNames.supportedLocalesOf(locales).length ===
+        locales.length);
+}
+function _shouldPolyfillWithoutLocale() {
+    return !Intl.DisplayNames || hasMissingICUBug() || hasScriptBug();
+}
+exports._shouldPolyfillWithoutLocale = _shouldPolyfillWithoutLocale;
+function shouldPolyfill(locale) {
+    if (locale === void 0) { locale = 'en'; }
+    try {
+        if (_shouldPolyfillWithoutLocale() || !supportedLocalesOf(locale)) {
+            return (0, intl_localematcher_1.match)([locale], supported_locales_generated_1.supportedLocales, 'en');
         }
     }
-    var tl = 'future';
-    if (_262_1.SameValue(value, -0) || value < 0) {
-        tl = 'past';
+    catch (e) {
+        return true;
     }
-    var po = patterns[tl];
-    var fv = typeof numberFormat.formatToParts === 'function'
-        ? numberFormat.formatToParts(Math.abs(value))
-        : // TODO: If formatToParts is not supported, we assume the whole formatted
-            // number is a part
-            [
-                {
-                    type: 'literal',
-                    value: numberFormat.format(Math.abs(value)),
-                    unit: unit,
-                },
-            ];
-    var pr = pluralRules.select(value);
-    var pattern = po[pr];
-    return MakePartsList_1.MakePartsList(pattern, resolvedUnit, fv);
 }
-exports.PartitionRelativeTimePattern = PartitionRelativeTimePattern;
+exports.shouldPolyfill = shouldPolyfill;
 
-},{"../262":1,"../utils":66,"./MakePartsList":51,"./SingularRelativeTimeUnit":53}],53:[function(require,module,exports){
+},{"./supported-locales.generated":50,"@formatjs/intl-localematcher":59}],50:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SingularRelativeTimeUnit = void 0;
-var utils_1 = require("../utils");
-var _262_1 = require("../262");
-/**
- * https://tc39.es/proposal-intl-relative-time/#sec-singularrelativetimeunit
- * @param unit
- */
-function SingularRelativeTimeUnit(unit) {
-    utils_1.invariant(_262_1.Type(unit) === 'String', 'unit must be a string');
-    if (unit === 'seconds')
-        return 'second';
-    if (unit === 'minutes')
-        return 'minute';
-    if (unit === 'hours')
-        return 'hour';
-    if (unit === 'days')
-        return 'day';
-    if (unit === 'weeks')
-        return 'week';
-    if (unit === 'months')
-        return 'month';
-    if (unit === 'quarters')
-        return 'quarter';
-    if (unit === 'years')
-        return 'year';
-    if (unit !== 'second' &&
-        unit !== 'minute' &&
-        unit !== 'hour' &&
-        unit !== 'day' &&
-        unit !== 'week' &&
-        unit !== 'month' &&
-        unit !== 'quarter' &&
-        unit !== 'year') {
-        throw new RangeError('invalid unit');
-    }
-    return unit;
-}
-exports.SingularRelativeTimeUnit = SingularRelativeTimeUnit;
+exports.supportedLocales = void 0;
+exports.supportedLocales = ["af", "af-NA", "agq", "ak", "am", "ar", "ar-AE", "ar-BH", "ar-DJ", "ar-DZ", "ar-EG", "ar-EH", "ar-ER", "ar-IL", "ar-IQ", "ar-JO", "ar-KM", "ar-KW", "ar-LB", "ar-LY", "ar-MA", "ar-MR", "ar-OM", "ar-PS", "ar-QA", "ar-SA", "ar-SD", "ar-SO", "ar-SS", "ar-SY", "ar-TD", "ar-TN", "ar-YE", "as", "asa", "ast", "az", "az-Cyrl", "az-Latn", "bas", "be", "be-tarask", "bem", "bez", "bg", "bm", "bn", "bn-IN", "bo", "bo-IN", "br", "brx", "bs", "bs-Cyrl", "bs-Latn", "ca", "ca-AD", "ca-ES-valencia", "ca-FR", "ca-IT", "ccp", "ccp-IN", "ce", "ceb", "cgg", "chr", "ckb", "ckb-IR", "cs", "cy", "da", "da-GL", "dav", "de", "de-AT", "de-BE", "de-CH", "de-IT", "de-LI", "de-LU", "dje", "doi", "dsb", "dua", "dyo", "dz", "ebu", "ee", "ee-TG", "el", "el-CY", "en", "en-001", "en-150", "en-AE", "en-AG", "en-AI", "en-AS", "en-AT", "en-AU", "en-BB", "en-BE", "en-BI", "en-BM", "en-BS", "en-BW", "en-BZ", "en-CA", "en-CC", "en-CH", "en-CK", "en-CM", "en-CX", "en-CY", "en-DE", "en-DG", "en-DK", "en-DM", "en-ER", "en-FI", "en-FJ", "en-FK", "en-FM", "en-GB", "en-GD", "en-GG", "en-GH", "en-GI", "en-GM", "en-GU", "en-GY", "en-HK", "en-IE", "en-IL", "en-IM", "en-IN", "en-IO", "en-JE", "en-JM", "en-KE", "en-KI", "en-KN", "en-KY", "en-LC", "en-LR", "en-LS", "en-MG", "en-MH", "en-MO", "en-MP", "en-MS", "en-MT", "en-MU", "en-MW", "en-MY", "en-NA", "en-NF", "en-NG", "en-NL", "en-NR", "en-NU", "en-NZ", "en-PG", "en-PH", "en-PK", "en-PN", "en-PR", "en-PW", "en-RW", "en-SB", "en-SC", "en-SD", "en-SE", "en-SG", "en-SH", "en-SI", "en-SL", "en-SS", "en-SX", "en-SZ", "en-TC", "en-TK", "en-TO", "en-TT", "en-TV", "en-TZ", "en-UG", "en-UM", "en-VC", "en-VG", "en-VI", "en-VU", "en-WS", "en-ZA", "en-ZM", "en-ZW", "eo", "es", "es-419", "es-AR", "es-BO", "es-BR", "es-BZ", "es-CL", "es-CO", "es-CR", "es-CU", "es-DO", "es-EA", "es-EC", "es-GQ", "es-GT", "es-HN", "es-IC", "es-MX", "es-NI", "es-PA", "es-PE", "es-PH", "es-PR", "es-PY", "es-SV", "es-US", "es-UY", "es-VE", "et", "eu", "ewo", "fa", "fa-AF", "ff", "ff-Adlm", "ff-Adlm-BF", "ff-Adlm-CM", "ff-Adlm-GH", "ff-Adlm-GM", "ff-Adlm-GW", "ff-Adlm-LR", "ff-Adlm-MR", "ff-Adlm-NE", "ff-Adlm-NG", "ff-Adlm-SL", "ff-Adlm-SN", "ff-Latn", "ff-Latn-BF", "ff-Latn-CM", "ff-Latn-GH", "ff-Latn-GM", "ff-Latn-GN", "ff-Latn-GW", "ff-Latn-LR", "ff-Latn-MR", "ff-Latn-NE", "ff-Latn-NG", "ff-Latn-SL", "fi", "fil", "fo", "fo-DK", "fr", "fr-BE", "fr-BF", "fr-BI", "fr-BJ", "fr-BL", "fr-CA", "fr-CD", "fr-CF", "fr-CG", "fr-CH", "fr-CI", "fr-CM", "fr-DJ", "fr-DZ", "fr-GA", "fr-GF", "fr-GN", "fr-GP", "fr-GQ", "fr-HT", "fr-KM", "fr-LU", "fr-MA", "fr-MC", "fr-MF", "fr-MG", "fr-ML", "fr-MQ", "fr-MR", "fr-MU", "fr-NC", "fr-NE", "fr-PF", "fr-PM", "fr-RE", "fr-RW", "fr-SC", "fr-SN", "fr-SY", "fr-TD", "fr-TG", "fr-TN", "fr-VU", "fr-WF", "fr-YT", "fur", "fy", "ga", "ga-GB", "gd", "gl", "gsw", "gsw-FR", "gsw-LI", "gu", "guz", "gv", "ha", "ha-GH", "ha-NE", "haw", "he", "hi", "hr", "hr-BA", "hsb", "hu", "hy", "ia", "id", "ig", "ii", "is", "it", "it-CH", "it-SM", "it-VA", "ja", "jgo", "jmc", "jv", "ka", "kab", "kam", "kde", "kea", "kgp", "khq", "ki", "kk", "kkj", "kl", "kln", "km", "kn", "ko", "ko-KP", "kok", "ks", "ks-Arab", "ksb", "ksf", "ksh", "ku", "kw", "ky", "lag", "lb", "lg", "lkt", "ln", "ln-AO", "ln-CF", "ln-CG", "lo", "lrc", "lrc-IQ", "lt", "lu", "luo", "luy", "lv", "mai", "mas", "mas-TZ", "mer", "mfe", "mg", "mgh", "mgo", "mi", "mk", "ml", "mn", "mni", "mni-Beng", "mr", "ms", "ms-BN", "ms-ID", "ms-SG", "mt", "mua", "my", "mzn", "naq", "nb", "nb-SJ", "nd", "nds", "nds-NL", "ne", "ne-IN", "nl", "nl-AW", "nl-BE", "nl-BQ", "nl-CW", "nl-SR", "nl-SX", "nmg", "nn", "nnh", "no", "nus", "nyn", "om", "om-KE", "or", "os", "os-RU", "pa", "pa-Arab", "pa-Guru", "pcm", "pl", "ps", "ps-PK", "pt", "pt-AO", "pt-CH", "pt-CV", "pt-GQ", "pt-GW", "pt-LU", "pt-MO", "pt-MZ", "pt-PT", "pt-ST", "pt-TL", "qu", "qu-BO", "qu-EC", "rm", "rn", "ro", "ro-MD", "rof", "ru", "ru-BY", "ru-KG", "ru-KZ", "ru-MD", "ru-UA", "rw", "rwk", "sa", "sah", "saq", "sat", "sat-Olck", "sbp", "sc", "sd", "sd-Arab", "sd-Deva", "se", "se-FI", "se-SE", "seh", "ses", "sg", "shi", "shi-Latn", "shi-Tfng", "si", "sk", "sl", "smn", "sn", "so", "so-DJ", "so-ET", "so-KE", "sq", "sq-MK", "sq-XK", "sr", "sr-Cyrl", "sr-Cyrl-BA", "sr-Cyrl-ME", "sr-Cyrl-XK", "sr-Latn", "sr-Latn-BA", "sr-Latn-ME", "sr-Latn-XK", "su", "su-Latn", "sv", "sv-AX", "sv-FI", "sw", "sw-CD", "sw-KE", "sw-UG", "ta", "ta-LK", "ta-MY", "ta-SG", "te", "teo", "teo-KE", "tg", "th", "ti", "ti-ER", "tk", "to", "tr", "tr-CY", "tt", "twq", "tzm", "ug", "uk", "und", "ur", "ur-IN", "uz", "uz-Arab", "uz-Cyrl", "uz-Latn", "vai", "vai-Latn", "vai-Vaii", "vi", "vun", "wae", "wo", "xh", "xog", "yav", "yi", "yo", "yo-BJ", "yrl", "yrl-CO", "yrl-VE", "yue", "yue-Hans", "yue-Hant", "zgh", "zh", "zh-Hans", "zh-Hans-HK", "zh-Hans-MO", "zh-Hans-SG", "zh-Hant", "zh-Hant-HK", "zh-Hant-MO", "zu"];
 
-},{"../262":1,"../utils":66}],54:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BestAvailableLocale = void 0;
+/**
+ * https://tc39.es/ecma402/#sec-bestavailablelocale
+ * @param availableLocales
+ * @param locale
+ */
+function BestAvailableLocale(availableLocales, locale) {
+    var candidate = locale;
+    while (true) {
+        if (availableLocales.has(candidate)) {
+            return candidate;
+        }
+        var pos = candidate.lastIndexOf('-');
+        if (!~pos) {
+            return undefined;
+        }
+        if (pos >= 2 && candidate[pos - 2] === '-') {
+            pos -= 2;
+        }
+        candidate = candidate.slice(0, pos);
+    }
+}
+exports.BestAvailableLocale = BestAvailableLocale;
+
+},{}],52:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BestFitMatcher = void 0;
+var BestAvailableLocale_1 = require("./BestAvailableLocale");
+var utils_1 = require("./utils");
+/**
+ * https://tc39.es/ecma402/#sec-bestfitmatcher
+ * @param availableLocales
+ * @param requestedLocales
+ * @param getDefaultLocale
+ */
+function BestFitMatcher(availableLocales, requestedLocales, getDefaultLocale) {
+    var minimizedAvailableLocaleMap = {};
+    var availableLocaleMap = {};
+    var canonicalizedLocaleMap = {};
+    var minimizedAvailableLocales = new Set();
+    availableLocales.forEach(function (locale) {
+        var minimizedLocale = new Intl.Locale(locale)
+            .minimize()
+            .toString();
+        var canonicalizedLocale = Intl.getCanonicalLocales(locale)[0] || locale;
+        minimizedAvailableLocaleMap[minimizedLocale] = locale;
+        availableLocaleMap[locale] = locale;
+        canonicalizedLocaleMap[canonicalizedLocale] = locale;
+        minimizedAvailableLocales.add(minimizedLocale);
+        minimizedAvailableLocales.add(locale);
+        minimizedAvailableLocales.add(canonicalizedLocale);
+    });
+    var foundLocale;
+    for (var _i = 0, requestedLocales_1 = requestedLocales; _i < requestedLocales_1.length; _i++) {
+        var l = requestedLocales_1[_i];
+        if (foundLocale) {
+            break;
+        }
+        var noExtensionLocale = l.replace(utils_1.UNICODE_EXTENSION_SEQUENCE_REGEX, '');
+        if (availableLocales.has(noExtensionLocale)) {
+            foundLocale = noExtensionLocale;
+            break;
+        }
+        if (minimizedAvailableLocales.has(noExtensionLocale)) {
+            foundLocale = noExtensionLocale;
+            break;
+        }
+        var locale = new Intl.Locale(noExtensionLocale);
+        var maximizedRequestedLocale = locale.maximize().toString();
+        var minimizedRequestedLocale = locale.minimize().toString();
+        // Check minimized locale
+        if (minimizedAvailableLocales.has(minimizedRequestedLocale)) {
+            foundLocale = minimizedRequestedLocale;
+            break;
+        }
+        // Lookup algo on maximized locale
+        foundLocale = (0, BestAvailableLocale_1.BestAvailableLocale)(minimizedAvailableLocales, maximizedRequestedLocale);
+    }
+    if (!foundLocale) {
+        return { locale: getDefaultLocale() };
+    }
+    return {
+        locale: availableLocaleMap[foundLocale] ||
+            canonicalizedLocaleMap[foundLocale] ||
+            minimizedAvailableLocaleMap[foundLocale] ||
+            foundLocale,
+    };
+}
+exports.BestFitMatcher = BestFitMatcher;
+
+},{"./BestAvailableLocale":51,"./utils":58}],53:[function(require,module,exports){
+arguments[4][2][0].apply(exports,arguments)
+},{"dup":2}],54:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.LookupMatcher = void 0;
+var utils_1 = require("./utils");
+var BestAvailableLocale_1 = require("./BestAvailableLocale");
+/**
+ * https://tc39.es/ecma402/#sec-lookupmatcher
+ * @param availableLocales
+ * @param requestedLocales
+ * @param getDefaultLocale
+ */
+function LookupMatcher(availableLocales, requestedLocales, getDefaultLocale) {
+    var result = { locale: '' };
+    for (var _i = 0, requestedLocales_1 = requestedLocales; _i < requestedLocales_1.length; _i++) {
+        var locale = requestedLocales_1[_i];
+        var noExtensionLocale = locale.replace(utils_1.UNICODE_EXTENSION_SEQUENCE_REGEX, '');
+        var availableLocale = (0, BestAvailableLocale_1.BestAvailableLocale)(availableLocales, noExtensionLocale);
+        if (availableLocale) {
+            result.locale = availableLocale;
+            if (locale !== noExtensionLocale) {
+                result.extension = locale.slice(noExtensionLocale.length + 1, locale.length);
+            }
+            return result;
+        }
+    }
+    result.locale = getDefaultLocale();
+    return result;
+}
+exports.LookupMatcher = LookupMatcher;
+
+},{"./BestAvailableLocale":51,"./utils":58}],55:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.LookupSupportedLocales = void 0;
+var utils_1 = require("./utils");
+var BestAvailableLocale_1 = require("./BestAvailableLocale");
+/**
+ * https://tc39.es/ecma402/#sec-lookupsupportedlocales
+ * @param availableLocales
+ * @param requestedLocales
+ */
+function LookupSupportedLocales(availableLocales, requestedLocales) {
+    var subset = [];
+    for (var _i = 0, requestedLocales_1 = requestedLocales; _i < requestedLocales_1.length; _i++) {
+        var locale = requestedLocales_1[_i];
+        var noExtensionLocale = locale.replace(utils_1.UNICODE_EXTENSION_SEQUENCE_REGEX, '');
+        var availableLocale = (0, BestAvailableLocale_1.BestAvailableLocale)(availableLocales, noExtensionLocale);
+        if (availableLocale) {
+            subset.push(availableLocale);
+        }
+    }
+    return subset;
+}
+exports.LookupSupportedLocales = LookupSupportedLocales;
+
+},{"./BestAvailableLocale":51,"./utils":58}],56:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResolveLocale = void 0;
@@ -3417,42 +2756,42 @@ function ResolveLocale(availableLocales, requestedLocales, options, relevantExte
     var matcher = options.localeMatcher;
     var r;
     if (matcher === 'lookup') {
-        r = LookupMatcher_1.LookupMatcher(availableLocales, requestedLocales, getDefaultLocale);
+        r = (0, LookupMatcher_1.LookupMatcher)(availableLocales, requestedLocales, getDefaultLocale);
     }
     else {
-        r = BestFitMatcher_1.BestFitMatcher(availableLocales, requestedLocales, getDefaultLocale);
+        r = (0, BestFitMatcher_1.BestFitMatcher)(availableLocales, requestedLocales, getDefaultLocale);
     }
     var foundLocale = r.locale;
     var result = { locale: '', dataLocale: foundLocale };
     var supportedExtension = '-u';
     for (var _i = 0, relevantExtensionKeys_1 = relevantExtensionKeys; _i < relevantExtensionKeys_1.length; _i++) {
         var key = relevantExtensionKeys_1[_i];
-        utils_1.invariant(foundLocale in localeData, "Missing locale data for " + foundLocale);
+        (0, utils_1.invariant)(foundLocale in localeData, "Missing locale data for ".concat(foundLocale));
         var foundLocaleData = localeData[foundLocale];
-        utils_1.invariant(typeof foundLocaleData === 'object' && foundLocaleData !== null, "locale data " + key + " must be an object");
+        (0, utils_1.invariant)(typeof foundLocaleData === 'object' && foundLocaleData !== null, "locale data ".concat(key, " must be an object"));
         var keyLocaleData = foundLocaleData[key];
-        utils_1.invariant(Array.isArray(keyLocaleData), "keyLocaleData for " + key + " must be an array");
+        (0, utils_1.invariant)(Array.isArray(keyLocaleData), "keyLocaleData for ".concat(key, " must be an array"));
         var value = keyLocaleData[0];
-        utils_1.invariant(typeof value === 'string' || value === null, "value must be string or null but got " + typeof value + " in key " + key);
+        (0, utils_1.invariant)(typeof value === 'string' || value === null, "value must be string or null but got ".concat(typeof value, " in key ").concat(key));
         var supportedExtensionAddition = '';
         if (r.extension) {
-            var requestedValue = UnicodeExtensionValue_1.UnicodeExtensionValue(r.extension, key);
+            var requestedValue = (0, UnicodeExtensionValue_1.UnicodeExtensionValue)(r.extension, key);
             if (requestedValue !== undefined) {
                 if (requestedValue !== '') {
                     if (~keyLocaleData.indexOf(requestedValue)) {
                         value = requestedValue;
-                        supportedExtensionAddition = "-" + key + "-" + value;
+                        supportedExtensionAddition = "-".concat(key, "-").concat(value);
                     }
                 }
                 else if (~requestedValue.indexOf('true')) {
                     value = 'true';
-                    supportedExtensionAddition = "-" + key;
+                    supportedExtensionAddition = "-".concat(key);
                 }
             }
         }
         if (key in options) {
             var optionsValue = options[key];
-            utils_1.invariant(typeof optionsValue === 'string' ||
+            (0, utils_1.invariant)(typeof optionsValue === 'string' ||
                 typeof optionsValue === 'undefined' ||
                 optionsValue === null, 'optionsValue must be String, Undefined or Null');
             if (~keyLocaleData.indexOf(optionsValue)) {
@@ -3482,33 +2821,7 @@ function ResolveLocale(availableLocales, requestedLocales, options, relevantExte
 }
 exports.ResolveLocale = ResolveLocale;
 
-},{"./BestFitMatcher":3,"./LookupMatcher":29,"./UnicodeExtensionValue":56,"./utils":66}],55:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.SupportedLocales = void 0;
-var _262_1 = require("./262");
-var GetOption_1 = require("./GetOption");
-var LookupSupportedLocales_1 = require("./LookupSupportedLocales");
-/**
- * https://tc39.es/ecma402/#sec-supportedlocales
- * @param availableLocales
- * @param requestedLocales
- * @param options
- */
-function SupportedLocales(availableLocales, requestedLocales, options) {
-    var matcher = 'best fit';
-    if (options !== undefined) {
-        options = _262_1.ToObject(options);
-        matcher = GetOption_1.GetOption(options, 'localeMatcher', 'string', ['lookup', 'best fit'], 'best fit');
-    }
-    if (matcher === 'best fit') {
-        return LookupSupportedLocales_1.LookupSupportedLocales(availableLocales, requestedLocales);
-    }
-    return LookupSupportedLocales_1.LookupSupportedLocales(availableLocales, requestedLocales);
-}
-exports.SupportedLocales = SupportedLocales;
-
-},{"./262":1,"./GetOption":24,"./LookupSupportedLocales":30}],56:[function(require,module,exports){
+},{"./BestFitMatcher":52,"./LookupMatcher":54,"./UnicodeExtensionValue":57,"./utils":58}],57:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UnicodeExtensionValue = void 0;
@@ -3519,9 +2832,9 @@ var utils_1 = require("./utils");
  * @param key
  */
 function UnicodeExtensionValue(extension, key) {
-    utils_1.invariant(key.length === 2, 'key must have 2 elements');
+    (0, utils_1.invariant)(key.length === 2, 'key must have 2 elements');
     var size = extension.length;
-    var searchValue = "-" + key + "-";
+    var searchValue = "-".concat(key, "-");
     var pos = extension.indexOf(searchValue);
     if (pos !== -1) {
         var start = pos + 4;
@@ -3551,7 +2864,7 @@ function UnicodeExtensionValue(extension, key) {
         }
         return extension.slice(start, end);
     }
-    searchValue = "-" + key;
+    searchValue = "-".concat(key);
     pos = extension.indexOf(searchValue);
     if (pos !== -1 && pos + 3 === size) {
         return '';
@@ -3560,102 +2873,43 @@ function UnicodeExtensionValue(extension, key) {
 }
 exports.UnicodeExtensionValue = UnicodeExtensionValue;
 
-},{"./utils":66}],57:[function(require,module,exports){
+},{"./utils":58}],58:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isMissingLocaleDataError = void 0;
-var tslib_1 = require("tslib");
-var MissingLocaleDataError = /** @class */ (function (_super) {
-    tslib_1.__extends(MissingLocaleDataError, _super);
-    function MissingLocaleDataError() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.type = 'MISSING_LOCALE_DATA';
-        return _this;
+exports.invariant = exports.UNICODE_EXTENSION_SEQUENCE_REGEX = void 0;
+exports.UNICODE_EXTENSION_SEQUENCE_REGEX = /-u(?:-[0-9a-z]{2,8})+/gi;
+function invariant(condition, message, Err) {
+    if (Err === void 0) { Err = Error; }
+    if (!condition) {
+        throw new Err(message);
     }
-    return MissingLocaleDataError;
-}(Error));
-function isMissingLocaleDataError(e) {
-    return e.type === 'MISSING_LOCALE_DATA';
 }
-exports.isMissingLocaleDataError = isMissingLocaleDataError;
+exports.invariant = invariant;
 
-},{"tslib":59}],58:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.invariant = exports.isMissingLocaleDataError = exports.defineProperty = exports.getMagnitude = exports.setMultiInternalSlots = exports.setInternalSlot = exports.isLiteralPart = exports.getMultiInternalSlots = exports.getInternalSlot = exports.parseDateTimeSkeleton = exports.DATE_TIME_PROPS = exports._formatToParts = exports.BestFitFormatMatcher = void 0;
-var tslib_1 = require("tslib");
-var BestFitFormatMatcher_1 = require("./DateTimeFormat/BestFitFormatMatcher");
-Object.defineProperty(exports, "BestFitFormatMatcher", { enumerable: true, get: function () { return BestFitFormatMatcher_1.BestFitFormatMatcher; } });
-tslib_1.__exportStar(require("./CanonicalizeLocaleList"), exports);
-tslib_1.__exportStar(require("./CanonicalizeTimeZoneName"), exports);
-tslib_1.__exportStar(require("./DateTimeFormat/BasicFormatMatcher"), exports);
-tslib_1.__exportStar(require("./DateTimeFormat/DateTimeStyleFormat"), exports);
-tslib_1.__exportStar(require("./DateTimeFormat/FormatDateTime"), exports);
-tslib_1.__exportStar(require("./DateTimeFormat/FormatDateTimeRange"), exports);
-tslib_1.__exportStar(require("./DateTimeFormat/FormatDateTimeRangeToParts"), exports);
-tslib_1.__exportStar(require("./DateTimeFormat/FormatDateTimeToParts"), exports);
-tslib_1.__exportStar(require("./DateTimeFormat/InitializeDateTimeFormat"), exports);
-tslib_1.__exportStar(require("./DateTimeFormat/PartitionDateTimePattern"), exports);
-tslib_1.__exportStar(require("./DateTimeFormat/ToDateTimeOptions"), exports);
-tslib_1.__exportStar(require("./DisplayNames/CanonicalCodeForDisplayNames"), exports);
-tslib_1.__exportStar(require("./GetNumberOption"), exports);
-tslib_1.__exportStar(require("./GetOption"), exports);
-tslib_1.__exportStar(require("./IsSanctionedSimpleUnitIdentifier"), exports);
-tslib_1.__exportStar(require("./IsValidTimeZoneName"), exports);
-tslib_1.__exportStar(require("./IsWellFormedCurrencyCode"), exports);
-tslib_1.__exportStar(require("./IsWellFormedUnitIdentifier"), exports);
-tslib_1.__exportStar(require("./NumberFormat/ComputeExponent"), exports);
-tslib_1.__exportStar(require("./NumberFormat/ComputeExponentForMagnitude"), exports);
-tslib_1.__exportStar(require("./NumberFormat/CurrencyDigits"), exports);
-tslib_1.__exportStar(require("./NumberFormat/FormatNumericToParts"), exports);
-tslib_1.__exportStar(require("./NumberFormat/FormatNumericToString"), exports);
-tslib_1.__exportStar(require("./NumberFormat/InitializeNumberFormat"), exports);
-tslib_1.__exportStar(require("./NumberFormat/PartitionNumberPattern"), exports);
-tslib_1.__exportStar(require("./NumberFormat/SetNumberFormatDigitOptions"), exports);
-tslib_1.__exportStar(require("./NumberFormat/SetNumberFormatUnitOptions"), exports);
-tslib_1.__exportStar(require("./NumberFormat/ToRawFixed"), exports);
-tslib_1.__exportStar(require("./NumberFormat/ToRawPrecision"), exports);
-tslib_1.__exportStar(require("./PartitionPattern"), exports);
-tslib_1.__exportStar(require("./PluralRules/GetOperands"), exports);
-tslib_1.__exportStar(require("./PluralRules/InitializePluralRules"), exports);
-tslib_1.__exportStar(require("./PluralRules/ResolvePlural"), exports);
-tslib_1.__exportStar(require("./RelativeTimeFormat/FormatRelativeTime"), exports);
-tslib_1.__exportStar(require("./RelativeTimeFormat/FormatRelativeTimeToParts"), exports);
-tslib_1.__exportStar(require("./RelativeTimeFormat/InitializeRelativeTimeFormat"), exports);
-tslib_1.__exportStar(require("./RelativeTimeFormat/MakePartsList"), exports);
-tslib_1.__exportStar(require("./RelativeTimeFormat/PartitionRelativeTimePattern"), exports);
-tslib_1.__exportStar(require("./RelativeTimeFormat/SingularRelativeTimeUnit"), exports);
-tslib_1.__exportStar(require("./ResolveLocale"), exports);
-tslib_1.__exportStar(require("./SupportedLocales"), exports);
-var format_to_parts_1 = require("./NumberFormat/format_to_parts");
-Object.defineProperty(exports, "_formatToParts", { enumerable: true, get: function () { return tslib_1.__importDefault(format_to_parts_1).default; } });
-var utils_1 = require("./DateTimeFormat/utils");
-Object.defineProperty(exports, "DATE_TIME_PROPS", { enumerable: true, get: function () { return utils_1.DATE_TIME_PROPS; } });
-var skeleton_1 = require("./DateTimeFormat/skeleton");
-Object.defineProperty(exports, "parseDateTimeSkeleton", { enumerable: true, get: function () { return skeleton_1.parseDateTimeSkeleton; } });
-var utils_2 = require("./utils");
-Object.defineProperty(exports, "getInternalSlot", { enumerable: true, get: function () { return utils_2.getInternalSlot; } });
-Object.defineProperty(exports, "getMultiInternalSlots", { enumerable: true, get: function () { return utils_2.getMultiInternalSlots; } });
-Object.defineProperty(exports, "isLiteralPart", { enumerable: true, get: function () { return utils_2.isLiteralPart; } });
-Object.defineProperty(exports, "setInternalSlot", { enumerable: true, get: function () { return utils_2.setInternalSlot; } });
-Object.defineProperty(exports, "setMultiInternalSlots", { enumerable: true, get: function () { return utils_2.setMultiInternalSlots; } });
-Object.defineProperty(exports, "getMagnitude", { enumerable: true, get: function () { return utils_2.getMagnitude; } });
-Object.defineProperty(exports, "defineProperty", { enumerable: true, get: function () { return utils_2.defineProperty; } });
-var data_1 = require("./data");
-Object.defineProperty(exports, "isMissingLocaleDataError", { enumerable: true, get: function () { return data_1.isMissingLocaleDataError; } });
-tslib_1.__exportStar(require("./types/relative-time"), exports);
-tslib_1.__exportStar(require("./types/date-time"), exports);
-tslib_1.__exportStar(require("./types/list"), exports);
-tslib_1.__exportStar(require("./types/plural-rules"), exports);
-tslib_1.__exportStar(require("./types/number"), exports);
-tslib_1.__exportStar(require("./types/displaynames"), exports);
-var utils_3 = require("./utils");
-Object.defineProperty(exports, "invariant", { enumerable: true, get: function () { return utils_3.invariant; } });
-tslib_1.__exportStar(require("./262"), exports);
+exports.ResolveLocale = exports.LookupSupportedLocales = exports.match = void 0;
+var CanonicalizeLocaleList_1 = require("./abstract/CanonicalizeLocaleList");
+var ResolveLocale_1 = require("./abstract/ResolveLocale");
+function match(requestedLocales, availableLocales, defaultLocale, opts) {
+    var locales = availableLocales.reduce(function (all, l) {
+        all.add(l);
+        return all;
+    }, new Set());
+    return (0, ResolveLocale_1.ResolveLocale)(locales, (0, CanonicalizeLocaleList_1.CanonicalizeLocaleList)(requestedLocales), {
+        localeMatcher: (opts === null || opts === void 0 ? void 0 : opts.algorithm) || 'best fit',
+    }, [], {}, function () { return defaultLocale; }).locale;
+}
+exports.match = match;
+var LookupSupportedLocales_1 = require("./abstract/LookupSupportedLocales");
+Object.defineProperty(exports, "LookupSupportedLocales", { enumerable: true, get: function () { return LookupSupportedLocales_1.LookupSupportedLocales; } });
+var ResolveLocale_2 = require("./abstract/ResolveLocale");
+Object.defineProperty(exports, "ResolveLocale", { enumerable: true, get: function () { return ResolveLocale_2.ResolveLocale; } });
 
-},{"./262":1,"./CanonicalizeLocaleList":4,"./CanonicalizeTimeZoneName":5,"./DateTimeFormat/BasicFormatMatcher":6,"./DateTimeFormat/BestFitFormatMatcher":7,"./DateTimeFormat/DateTimeStyleFormat":8,"./DateTimeFormat/FormatDateTime":9,"./DateTimeFormat/FormatDateTimeRange":11,"./DateTimeFormat/FormatDateTimeRangeToParts":12,"./DateTimeFormat/FormatDateTimeToParts":13,"./DateTimeFormat/InitializeDateTimeFormat":14,"./DateTimeFormat/PartitionDateTimePattern":15,"./DateTimeFormat/ToDateTimeOptions":17,"./DateTimeFormat/skeleton":19,"./DateTimeFormat/utils":20,"./DisplayNames/CanonicalCodeForDisplayNames":22,"./GetNumberOption":23,"./GetOption":24,"./IsSanctionedSimpleUnitIdentifier":25,"./IsValidTimeZoneName":26,"./IsWellFormedCurrencyCode":27,"./IsWellFormedUnitIdentifier":28,"./NumberFormat/ComputeExponent":31,"./NumberFormat/ComputeExponentForMagnitude":32,"./NumberFormat/CurrencyDigits":33,"./NumberFormat/FormatNumericToParts":34,"./NumberFormat/FormatNumericToString":35,"./NumberFormat/InitializeNumberFormat":36,"./NumberFormat/PartitionNumberPattern":37,"./NumberFormat/SetNumberFormatDigitOptions":38,"./NumberFormat/SetNumberFormatUnitOptions":39,"./NumberFormat/ToRawFixed":40,"./NumberFormat/ToRawPrecision":41,"./NumberFormat/format_to_parts":43,"./PartitionPattern":44,"./PluralRules/GetOperands":45,"./PluralRules/InitializePluralRules":46,"./PluralRules/ResolvePlural":47,"./RelativeTimeFormat/FormatRelativeTime":48,"./RelativeTimeFormat/FormatRelativeTimeToParts":49,"./RelativeTimeFormat/InitializeRelativeTimeFormat":50,"./RelativeTimeFormat/MakePartsList":51,"./RelativeTimeFormat/PartitionRelativeTimePattern":52,"./RelativeTimeFormat/SingularRelativeTimeUnit":53,"./ResolveLocale":54,"./SupportedLocales":55,"./data":57,"./types/date-time":60,"./types/displaynames":61,"./types/list":62,"./types/number":63,"./types/plural-rules":64,"./types/relative-time":65,"./utils":66,"tslib":59}],59:[function(require,module,exports){
+},{"./abstract/CanonicalizeLocaleList":53,"./abstract/LookupSupportedLocales":55,"./abstract/ResolveLocale":56}],60:[function(require,module,exports){
 (function (global){(function (){
-/*! *****************************************************************************
+/******************************************************************************
 Copyright (c) Microsoft Corporation.
 
 Permission to use, copy, modify, and/or distribute this software for any
@@ -3675,6 +2929,10 @@ var __assign;
 var __rest;
 var __decorate;
 var __param;
+var __esDecorate;
+var __runInitializers;
+var __propKey;
+var __setFunctionName;
 var __metadata;
 var __awaiter;
 var __generator;
@@ -3693,6 +2951,7 @@ var __importStar;
 var __importDefault;
 var __classPrivateFieldGet;
 var __classPrivateFieldSet;
+var __classPrivateFieldIn;
 var __createBinding;
 (function (factory) {
     var root = typeof global === "object" ? global : typeof self === "object" ? self : typeof this === "object" ? this : {};
@@ -3761,6 +3020,51 @@ var __createBinding;
         return function (target, key) { decorator(target, key, paramIndex); }
     };
 
+    __esDecorate = function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+        function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+        var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+        var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+        var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+        var _, done = false;
+        for (var i = decorators.length - 1; i >= 0; i--) {
+            var context = {};
+            for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+            for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+            context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+            var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+            if (kind === "accessor") {
+                if (result === void 0) continue;
+                if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+                if (_ = accept(result.get)) descriptor.get = _;
+                if (_ = accept(result.set)) descriptor.set = _;
+                if (_ = accept(result.init)) initializers.push(_);
+            }
+            else if (_ = accept(result)) {
+                if (kind === "field") initializers.push(_);
+                else descriptor[key] = _;
+            }
+        }
+        if (target) Object.defineProperty(target, contextIn.name, descriptor);
+        done = true;
+    };
+
+    __runInitializers = function (thisArg, initializers, value) {
+        var useValue = arguments.length > 2;
+        for (var i = 0; i < initializers.length; i++) {
+            value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+        }
+        return useValue ? value : void 0;
+    };
+
+    __propKey = function (x) {
+        return typeof x === "symbol" ? x : "".concat(x);
+    };
+
+    __setFunctionName = function (f, name, prefix) {
+        if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
+        return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
+    };
+
     __metadata = function (metadataKey, metadataValue) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
     };
@@ -3781,7 +3085,7 @@ var __createBinding;
         function verb(n) { return function (v) { return step([n, v]); }; }
         function step(op) {
             if (f) throw new TypeError("Generator is already executing.");
-            while (_) try {
+            while (g && (g = 0, op[0] && (_ = 0)), _) try {
                 if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
                 if (y = 0, t) op = [op[0] & 2, t.value];
                 switch (op[0]) {
@@ -3809,7 +3113,11 @@ var __createBinding;
 
     __createBinding = Object.create ? (function(o, m, k, k2) {
         if (k2 === undefined) k2 = k;
-        Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+        var desc = Object.getOwnPropertyDescriptor(m, k);
+        if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+            desc = { enumerable: true, get: function() { return m[k]; } };
+        }
+        Object.defineProperty(o, k2, desc);
     }) : (function(o, m, k, k2) {
         if (k2 === undefined) k2 = k;
         o[k2] = m[k];
@@ -3860,10 +3168,14 @@ var __createBinding;
         return r;
     };
 
-    __spreadArray = function (to, from) {
-        for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-            to[j] = from[i];
-        return to;
+    __spreadArray = function (to, from, pack) {
+        if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+            if (ar || !(i in from)) {
+                if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+                ar[i] = from[i];
+            }
+        }
+        return to.concat(ar || Array.prototype.slice.call(from));
     };
 
     __await = function (v) {
@@ -3885,7 +3197,7 @@ var __createBinding;
     __asyncDelegator = function (o) {
         var i, p;
         return i = {}, verb("next"), verb("throw", function (e) { throw e; }), verb("return"), i[Symbol.iterator] = function () { return this; }, i;
-        function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: n === "return" } : f ? f(v) : v; } : f; }
+        function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: false } : f ? f(v) : v; } : f; }
     };
 
     __asyncValues = function (o) {
@@ -3919,19 +3231,22 @@ var __createBinding;
         return (mod && mod.__esModule) ? mod : { "default": mod };
     };
 
-    __classPrivateFieldGet = function (receiver, privateMap) {
-        if (!privateMap.has(receiver)) {
-            throw new TypeError("attempted to get private field on non-instance");
-        }
-        return privateMap.get(receiver);
+    __classPrivateFieldGet = function (receiver, state, kind, f) {
+        if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
+        if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
+        return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
     };
 
-    __classPrivateFieldSet = function (receiver, privateMap, value) {
-        if (!privateMap.has(receiver)) {
-            throw new TypeError("attempted to set private field on non-instance");
-        }
-        privateMap.set(receiver, value);
-        return value;
+    __classPrivateFieldSet = function (receiver, state, value, kind, f) {
+        if (kind === "m") throw new TypeError("Private method is not writable");
+        if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
+        if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
+        return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
+    };
+
+    __classPrivateFieldIn = function (state, receiver) {
+        if (receiver === null || (typeof receiver !== "object" && typeof receiver !== "function")) throw new TypeError("Cannot use 'in' operator on non-object");
+        return typeof state === "function" ? receiver === state : state.has(receiver);
     };
 
     exporter("__extends", __extends);
@@ -3939,6 +3254,10 @@ var __createBinding;
     exporter("__rest", __rest);
     exporter("__decorate", __decorate);
     exporter("__param", __param);
+    exporter("__esDecorate", __esDecorate);
+    exporter("__runInitializers", __runInitializers);
+    exporter("__propKey", __propKey);
+    exporter("__setFunctionName", __setFunctionName);
     exporter("__metadata", __metadata);
     exporter("__awaiter", __awaiter);
     exporter("__generator", __generator);
@@ -3958,329 +3277,16 @@ var __createBinding;
     exporter("__importDefault", __importDefault);
     exporter("__classPrivateFieldGet", __classPrivateFieldGet);
     exporter("__classPrivateFieldSet", __classPrivateFieldSet);
+    exporter("__classPrivateFieldIn", __classPrivateFieldIn);
 });
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],60:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.RangePatternType = void 0;
-var RangePatternType;
-(function (RangePatternType) {
-    RangePatternType["startRange"] = "startRange";
-    RangePatternType["shared"] = "shared";
-    RangePatternType["endRange"] = "endRange";
-})(RangePatternType = exports.RangePatternType || (exports.RangePatternType = {}));
-
 },{}],61:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-
-},{}],62:[function(require,module,exports){
-arguments[4][61][0].apply(exports,arguments)
-},{"dup":61}],63:[function(require,module,exports){
-arguments[4][61][0].apply(exports,arguments)
-},{"dup":61}],64:[function(require,module,exports){
-arguments[4][61][0].apply(exports,arguments)
-},{"dup":61}],65:[function(require,module,exports){
-arguments[4][61][0].apply(exports,arguments)
-},{"dup":61}],66:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.invariant = exports.UNICODE_EXTENSION_SEQUENCE_REGEX = exports.defineProperty = exports.isLiteralPart = exports.getMultiInternalSlots = exports.getInternalSlot = exports.setMultiInternalSlots = exports.setInternalSlot = exports.repeat = exports.getMagnitude = void 0;
-/**
- * Cannot do Math.log(x) / Math.log(10) bc if IEEE floating point issue
- * @param x number
- */
-function getMagnitude(x) {
-    // Cannot count string length via Number.toString because it may use scientific notation
-    // for very small or very large numbers.
-    return Math.floor(Math.log(x) * Math.LOG10E);
-}
-exports.getMagnitude = getMagnitude;
-function repeat(s, times) {
-    if (typeof s.repeat === 'function') {
-        return s.repeat(times);
-    }
-    var arr = new Array(times);
-    for (var i = 0; i < arr.length; i++) {
-        arr[i] = s;
-    }
-    return arr.join('');
-}
-exports.repeat = repeat;
-function setInternalSlot(map, pl, field, value) {
-    if (!map.get(pl)) {
-        map.set(pl, Object.create(null));
-    }
-    var slots = map.get(pl);
-    slots[field] = value;
-}
-exports.setInternalSlot = setInternalSlot;
-function setMultiInternalSlots(map, pl, props) {
-    for (var _i = 0, _a = Object.keys(props); _i < _a.length; _i++) {
-        var k = _a[_i];
-        setInternalSlot(map, pl, k, props[k]);
-    }
-}
-exports.setMultiInternalSlots = setMultiInternalSlots;
-function getInternalSlot(map, pl, field) {
-    return getMultiInternalSlots(map, pl, field)[field];
-}
-exports.getInternalSlot = getInternalSlot;
-function getMultiInternalSlots(map, pl) {
-    var fields = [];
-    for (var _i = 2; _i < arguments.length; _i++) {
-        fields[_i - 2] = arguments[_i];
-    }
-    var slots = map.get(pl);
-    if (!slots) {
-        throw new TypeError(pl + " InternalSlot has not been initialized");
-    }
-    return fields.reduce(function (all, f) {
-        all[f] = slots[f];
-        return all;
-    }, Object.create(null));
-}
-exports.getMultiInternalSlots = getMultiInternalSlots;
-function isLiteralPart(patternPart) {
-    return patternPart.type === 'literal';
-}
-exports.isLiteralPart = isLiteralPart;
-/*
-  17 ECMAScript Standard Built-in Objects:
-    Every built-in Function object, including constructors, that is not
-    identified as an anonymous function has a name property whose value
-    is a String.
-
-    Unless otherwise specified, the name property of a built-in Function
-    object, if it exists, has the attributes { [[Writable]]: false,
-    [[Enumerable]]: false, [[Configurable]]: true }.
-*/
-function defineProperty(target, name, _a) {
-    var value = _a.value;
-    Object.defineProperty(target, name, {
-        configurable: true,
-        enumerable: false,
-        writable: true,
-        value: value,
-    });
-}
-exports.defineProperty = defineProperty;
-exports.UNICODE_EXTENSION_SEQUENCE_REGEX = /-u(?:-[0-9a-z]{2,8})+/gi;
-function invariant(condition, message, Err) {
-    if (Err === void 0) { Err = Error; }
-    if (!condition) {
-        throw new Err(message);
-    }
-}
-exports.invariant = invariant;
-
-},{}],67:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DisplayNames = void 0;
-var tslib_1 = require("tslib");
-var ecma402_abstract_1 = require("@formatjs/ecma402-abstract");
-var DisplayNames = /** @class */ (function () {
-    function DisplayNames(locales, options) {
-        var _newTarget = this.constructor;
-        if (_newTarget === undefined) {
-            throw TypeError("Constructor Intl.DisplayNames requires 'new'");
-        }
-        var requestedLocales = ecma402_abstract_1.CanonicalizeLocaleList(locales);
-        options = ecma402_abstract_1.ToObject(options);
-        var opt = Object.create(null);
-        var localeData = DisplayNames.localeData;
-        var matcher = ecma402_abstract_1.GetOption(options, 'localeMatcher', 'string', ['lookup', 'best fit'], 'best fit');
-        opt.localeMatcher = matcher;
-        var r = ecma402_abstract_1.ResolveLocale(DisplayNames.availableLocales, requestedLocales, opt, [], // there is no relevantExtensionKeys
-        DisplayNames.localeData, DisplayNames.getDefaultLocale);
-        var style = ecma402_abstract_1.GetOption(options, 'style', 'string', ['narrow', 'short', 'long'], 'long');
-        setSlot(this, 'style', style);
-        var type = ecma402_abstract_1.GetOption(options, 'type', 'string', ['language', 'currency', 'region', 'script'], undefined);
-        if (type === undefined) {
-            throw TypeError("Intl.DisplayNames constructor requires \"type\" option");
-        }
-        setSlot(this, 'type', type);
-        var fallback = ecma402_abstract_1.GetOption(options, 'fallback', 'string', ['code', 'none'], 'code');
-        setSlot(this, 'fallback', fallback);
-        setSlot(this, 'locale', r.locale);
-        var dataLocale = r.dataLocale;
-        var dataLocaleData = localeData[dataLocale];
-        ecma402_abstract_1.invariant(!!dataLocaleData, "Missing locale data for " + dataLocale);
-        setSlot(this, 'localeData', dataLocaleData);
-        ecma402_abstract_1.invariant(dataLocaleData !== undefined, "locale data for " + r.locale + " does not exist.");
-        var types = dataLocaleData.types;
-        ecma402_abstract_1.invariant(typeof types === 'object' && types != null, 'invalid types data');
-        var typeFields = types[type];
-        ecma402_abstract_1.invariant(typeof typeFields === 'object' && typeFields != null, 'invalid typeFields data');
-        var styleFields = typeFields[style];
-        ecma402_abstract_1.invariant(typeof styleFields === 'object' && styleFields != null, 'invalid styleFields data');
-        setSlot(this, 'fields', styleFields);
-    }
-    DisplayNames.supportedLocalesOf = function (locales, options) {
-        return ecma402_abstract_1.SupportedLocales(DisplayNames.availableLocales, ecma402_abstract_1.CanonicalizeLocaleList(locales), options);
-    };
-    DisplayNames.__addLocaleData = function () {
-        var data = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            data[_i] = arguments[_i];
-        }
-        for (var _a = 0, data_1 = data; _a < data_1.length; _a++) {
-            var _b = data_1[_a], d = _b.data, locale = _b.locale;
-            var minimizedLocale = new Intl.Locale(locale)
-                .minimize()
-                .toString();
-            DisplayNames.localeData[locale] = DisplayNames.localeData[minimizedLocale] = d;
-            DisplayNames.availableLocales.add(minimizedLocale);
-            DisplayNames.availableLocales.add(locale);
-            if (!DisplayNames.__defaultLocale) {
-                DisplayNames.__defaultLocale = minimizedLocale;
-            }
-        }
-    };
-    DisplayNames.prototype.of = function (code) {
-        checkReceiver(this, 'of');
-        var type = getSlot(this, 'type');
-        var codeAsString = ecma402_abstract_1.ToString(code);
-        if (!isValidCodeForDisplayNames(type, codeAsString)) {
-            throw RangeError('invalid code for Intl.DisplayNames.prototype.of');
-        }
-        var _a = ecma402_abstract_1.getMultiInternalSlots(__INTERNAL_SLOT_MAP__, this, 'localeData', 'style', 'fallback'), localeData = _a.localeData, style = _a.style, fallback = _a.fallback;
-        // Canonicalize the case.
-        var canonicalCode;
-        // This is only used to store extracted language region.
-        var regionSubTag;
-        switch (type) {
-            // Normalize the locale id and remove the region.
-            case 'language': {
-                canonicalCode = ecma402_abstract_1.CanonicalizeLocaleList(codeAsString)[0];
-                var regionMatch = /-([a-z]{2}|\d{3})\b/i.exec(canonicalCode);
-                if (regionMatch) {
-                    // Remove region subtag
-                    canonicalCode =
-                        canonicalCode.substring(0, regionMatch.index) +
-                            canonicalCode.substring(regionMatch.index + regionMatch[0].length);
-                    regionSubTag = regionMatch[1];
-                }
-                break;
-            }
-            // currency code should be all upper-case.
-            case 'currency':
-                canonicalCode = codeAsString.toUpperCase();
-                break;
-            // script code should be title case
-            case 'script':
-                canonicalCode =
-                    codeAsString[0] + codeAsString.substring(1).toLowerCase();
-                break;
-            // region shold be all upper-case
-            case 'region':
-                canonicalCode = codeAsString.toUpperCase();
-                break;
-        }
-        var typesData = localeData.types[type];
-        // If the style of choice does not exist, fallback to "long".
-        var name = typesData[style][canonicalCode] || typesData.long[canonicalCode];
-        if (name !== undefined) {
-            // If there is a region subtag in the language id, use locale pattern to interpolate the region
-            if (regionSubTag) {
-                // Retrieve region display names
-                var regionsData = localeData.types.region;
-                var regionDisplayName = regionsData[style][regionSubTag] || regionsData.long[regionSubTag];
-                if (regionDisplayName || fallback === 'code') {
-                    // Interpolate into locale-specific pattern.
-                    var pattern = localeData.patterns.locale;
-                    return pattern
-                        .replace('{0}', name)
-                        .replace('{1}', regionDisplayName || regionSubTag);
-                }
-            }
-            else {
-                return name;
-            }
-        }
-        if (fallback === 'code') {
-            return codeAsString;
-        }
-    };
-    DisplayNames.prototype.resolvedOptions = function () {
-        checkReceiver(this, 'resolvedOptions');
-        return tslib_1.__assign({}, ecma402_abstract_1.getMultiInternalSlots(__INTERNAL_SLOT_MAP__, this, 'locale', 'style', 'type', 'fallback'));
-    };
-    DisplayNames.getDefaultLocale = function () {
-        return DisplayNames.__defaultLocale;
-    };
-    DisplayNames.localeData = {};
-    DisplayNames.availableLocales = new Set();
-    DisplayNames.__defaultLocale = '';
-    DisplayNames.polyfilled = true;
-    return DisplayNames;
-}());
-exports.DisplayNames = DisplayNames;
-// https://tc39.es/proposal-intl-displaynames/#sec-isvalidcodefordisplaynames
-function isValidCodeForDisplayNames(type, code) {
-    switch (type) {
-        case 'language':
-            // subset of unicode_language_id
-            // languageCode ["-" scriptCode] ["-" regionCode] *("-" variant)
-            // where:
-            // - languageCode is either a two letters ISO 639-1 language code or a three letters ISO 639-2 language code.
-            // - scriptCode is should be an ISO-15924 four letters script code
-            // - regionCode is either an ISO-3166 two letters region code, or a three digits UN M49 Geographic Regions.
-            return /^[a-z]{2,3}(-[a-z]{4})?(-([a-z]{2}|\d{3}))?(-([a-z\d]{5,8}|\d[a-z\d]{3}))*$/i.test(code);
-        case 'region':
-            // unicode_region_subtag
-            return /^([a-z]{2}|\d{3})$/i.test(code);
-        case 'script':
-            // unicode_script_subtag
-            return /^[a-z]{4}$/i.test(code);
-        case 'currency':
-            return ecma402_abstract_1.IsWellFormedCurrencyCode(code);
-    }
-}
-try {
-    // IE11 does not have Symbol
-    if (typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-        Object.defineProperty(DisplayNames.prototype, Symbol.toStringTag, {
-            value: 'Intl.DisplayNames',
-            configurable: true,
-            enumerable: false,
-            writable: false,
-        });
-    }
-    Object.defineProperty(DisplayNames, 'length', {
-        value: 2,
-        writable: false,
-        enumerable: false,
-        configurable: true,
-    });
-}
-catch (e) {
-    // Make test 262 compliant
-}
-var __INTERNAL_SLOT_MAP__ = new WeakMap();
-function getSlot(instance, key) {
-    return ecma402_abstract_1.getInternalSlot(__INTERNAL_SLOT_MAP__, instance, key);
-}
-function setSlot(instance, key, value) {
-    ecma402_abstract_1.setInternalSlot(__INTERNAL_SLOT_MAP__, instance, key, value);
-}
-function checkReceiver(receiver, methodName) {
-    if (!(receiver instanceof DisplayNames)) {
-        throw TypeError("Method Intl.DisplayNames.prototype." + methodName + " called on incompatible receiver");
-    }
-}
-
-},{"@formatjs/ecma402-abstract":58,"tslib":68}],68:[function(require,module,exports){
-arguments[4][59][0].apply(exports,arguments)
-},{"dup":59}],69:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var _1 = require("./");
 var should_polyfill_1 = require("./should-polyfill");
-if (should_polyfill_1.shouldPolyfill()) {
+if ((0, should_polyfill_1.shouldPolyfill)()) {
     Object.defineProperty(Intl, 'DisplayNames', {
         value: _1.DisplayNames,
         enumerable: false,
@@ -4289,26 +3295,5 @@ if (should_polyfill_1.shouldPolyfill()) {
     });
 }
 
-},{"./":67,"./should-polyfill":70}],70:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.shouldPolyfill = void 0;
-/**
- * https://bugs.chromium.org/p/chromium/issues/detail?id=1097432
- */
-function hasMissingICUBug() {
-    if (Intl.DisplayNames) {
-        var regionNames = new Intl.DisplayNames(['en'], {
-            type: 'region',
-        });
-        return regionNames.of('CA') === 'CA';
-    }
-    return false;
-}
-function shouldPolyfill() {
-    return !Intl.DisplayNames || hasMissingICUBug();
-}
-exports.shouldPolyfill = shouldPolyfill;
-
-},{}]},{},[69])(69)
+},{"./":48,"./should-polyfill":49}]},{},[61])(61)
 });

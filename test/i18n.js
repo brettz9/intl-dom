@@ -724,7 +724,7 @@ describe('i18n', function () {
             new Date(Date.UTC(2001, 11, 28, 7, 8, 9))
           ]
         });
-        expect(string).to.equal('It is between 12/28/2000 – 12/28/2001.');
+        expect(string).to.equal('It is between 12/28/2000 – 12/28/2001.');
       }
     );
 
@@ -741,7 +741,7 @@ describe('i18n', function () {
             Date.UTC(2001, 11, 28, 7, 8, 9)
           ]
         });
-        expect(string).to.equal('It is between 12/28/2000 – 12/28/2001.');
+        expect(string).to.equal('It is between 12/28/2000 – 12/28/2001.');
       }
     );
 
@@ -761,7 +761,7 @@ describe('i18n', function () {
             }
           ]
         });
-        expect(string).to.equal('It is between 00 – 01.');
+        expect(string).to.equal('It is between 00 – 01.');
       }
     );
 
@@ -784,7 +784,7 @@ describe('i18n', function () {
             ]
           }
         });
-        expect(string).to.equal('It is between 00 – 01.');
+        expect(string).to.equal('It is between 00 – 01.');
       }
     );
 
@@ -814,10 +814,10 @@ describe('i18n', function () {
             'It is between December 27, 2000, 7 PM – December 27, 2001, 11 PM.'
           );
         } catch (err) {
-          // Firefox using polyfill
+          // Firefox using polyfill (or Node now)
           expect(string).to.equal(
-            'It is between December 27, 2000 at 7 PM – December 27, 2001 at ' +
-            '11 PM.'
+            'It is between December 27, 2000 at 7 PM – December 27, 2001 at ' +
+            '11 PM.'
           );
         }
       }
@@ -849,10 +849,10 @@ describe('i18n', function () {
             'It is between December 27, 2000, 7 PM – December 27, 2001, 11 PM.'
           );
         } catch (err) {
-          // Firefox using polyfill
+          // Firefox using polyfill (or Node now)
           expect(string).to.equal(
-            'It is between December 27, 2000 at 7 PM – December 27, 2001 at ' +
-            '11 PM.'
+            'It is between December 27, 2000 at 7 PM – December 27, 2001 at ' +
+            '11 PM.'
           );
         }
       }
@@ -882,10 +882,10 @@ describe('i18n', function () {
             'It is between December 27, 2000, 7 PM – December 27, 2001, 11 PM.'
           );
         } catch (err) {
-          // Firefox using polyfill
+          // Firefox using polyfill (or Node now)
           expect(string).to.equal(
-            'It is between December 27, 2000 at 7 PM – December 27, 2001 at ' +
-            '11 PM.'
+            'It is between December 27, 2000 at 7 PM – December 27, 2001 at ' +
+            '11 PM.'
           );
         }
       }
@@ -911,7 +911,7 @@ describe('i18n', function () {
             ]
           }
         });
-        expect(string).to.equal('It is between 12/28/2000 – 12/28/2001.');
+        expect(string).to.equal('It is between 12/28/2000 – 12/28/2001.');
       }
     );
 
@@ -934,7 +934,7 @@ describe('i18n', function () {
             ]
           }
         });
-        expect(string).to.equal('It is between 12/28/2000 – 12/28/2001.');
+        expect(string).to.equal('It is between 12/28/2000 – 12/28/2001.');
       }
     );
 
@@ -957,7 +957,7 @@ describe('i18n', function () {
             ]
           }
         });
-        expect(string).to.equal('It is between 12/28/2000 – 12/28/2001.');
+        expect(string).to.equal('It is between 12/28/2000 – 12/28/2001.');
       }
     );
   });
@@ -1201,7 +1201,7 @@ describe('i18n', function () {
         }
       });
       expect(string).to.equal(
-        'It is between 12/27/2000, 7 PM – 12/27/2001, 11 PM.'
+        'It is between 12/27/2000, 7 PM – 12/27/2001, 11 PM.'
       );
 
       string = _('dateRangeKey', {
@@ -1217,7 +1217,7 @@ describe('i18n', function () {
         }
       });
       expect(string).to.equal(
-        'It is between 12/27/2000, 7 PM – 12/27/2001, 11 PM.'
+        'It is between 12/27/2000, 7 PM – 12/27/2001, 11 PM.'
       );
     }
   );
