@@ -8,12 +8,12 @@ import {nodeResolve} from '@rollup/plugin-node-resolve';
 
 /**
  * @external RollupConfig
- * @type {PlainObject}
+ * @type {object}
  * @see {@link https://rollupjs.org/guide/en#big-list-of-options}
  */
 
 /**
- * @param {PlainObject} [config={}]
+ * @param {object} [config={}]
  * @param {boolean} [config.minifying=false]
  * @param {string} [config.format="umd"]
  * @returns {RollupConfig}

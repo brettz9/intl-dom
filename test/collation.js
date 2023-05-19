@@ -1,3 +1,5 @@
+// eslint-disable-next-line no-shadow -- Needed
+import {expect} from 'chai';
 import {sort, sortList, sortListSimple, list} from '../src/collation.js';
 
 describe('Collation', function () {

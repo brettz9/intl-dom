@@ -1,3 +1,5 @@
+// eslint-disable-next-line no-shadow -- Needed
+import {expect} from 'chai';
 import {
   Formatter, LocalFormatter, RegularFormatter, SwitchFormatter,
   unescapeBackslashes, parseJSONExtra, setJSONExtra, processRegex,
@@ -15,7 +17,10 @@ import {
 
 describe('API', function () {
   it('should export utility classes', function () {
-    setJSONExtra(globalThis.jsonExtra);
+    setJSONExtra(
+      // @ts-expect-error Need to get types for JSON6
+      globalThis.jsonExtra
+    );
 
     expect(Formatter).to.be.a('function');
     expect(LocalFormatter).to.be.a('function');
@@ -38,5 +43,30 @@ describe('API', function () {
     expect(getDOMForLocaleString).to.be.a('function');
     expect(findLocaleStrings).to.be.a('function');
     expect(i18n).to.be.a('function');
+  });
+
+  it('should throw with bad `processRegex` arguments', function () {
+    expect(() => {
+      processRegex(/test/u, 'string', {
+        onMatch (..._args) {
+          //
+        }
+      });
+    }).to.throw(
+      'You must have `extra` or `betweenMatches` and `afterMatch` arguments.'
+    );
+
+    expect(() => {
+      processRegex(/test/u, 'string', {
+        betweenMatches (_str) {
+          //
+        },
+        onMatch (...args) {
+          //
+        }
+      });
+    }).to.throw(
+      'You must have `extra` or `betweenMatches` and `afterMatch` arguments.'
+    );
   });
 });

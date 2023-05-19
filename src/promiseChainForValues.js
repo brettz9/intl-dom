@@ -1,8 +1,6 @@
 /**
-* @callback PromiseChainErrback
-* @param {(value: any) => Promise<any>} errBack
-* @returns {Promise<any>|any}
-*/
+ * @typedef {(value: any) => Promise<any>|any} PromiseChainErrback
+ */
 
 /**
  * The given array will have its items processed in series; if the supplied

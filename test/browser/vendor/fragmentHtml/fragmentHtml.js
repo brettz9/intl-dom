@@ -1,7 +1,14 @@
 // Todo: Move to own repo?
-const fragmentHtml = function (_chai, utils) {
-  const {flag, elToString} = utils;
+/// <reference types="chai" />
 
+/** @type {Chai.ChaiPlugin} */
+const fragmentHtml = function (_chai, utils) {
+  const {flag} = utils;
+
+  /**
+   * @param {DocumentFragment} contents
+   * @returns {HTMLDivElement}
+   */
   const container = (contents) => {
     const dummyContainer = document.createElement('div');
     dummyContainer.append(contents);
@@ -9,7 +16,7 @@ const fragmentHtml = function (_chai, utils) {
   };
 
   _chai.Assertion.addMethod('fragmentHtml', function (html) {
-    const el = flag(this, 'object'),
+    const frag = flag(this, 'object'),
       actual = container(flag(this, 'object')).innerHTML;
 
     if (flag(this, 'contains')) {
@@ -23,9 +30,9 @@ const fragmentHtml = function (_chai, utils) {
     } else {
       this.assert(
         actual === html,
-        'expected ' + elToString(el) +
+        'expected ' + String(frag) +
           ' to have HTML #{exp}, but the HTML was #{act}',
-        'expected ' + elToString(el) + ' not to have HTML #{exp}',
+        'expected ' + String(frag) + ' not to have HTML #{exp}',
         html,
         actual
       );

@@ -1,3 +1,5 @@
+// eslint-disable-next-line no-shadow -- Needed
+import {expect} from 'chai';
 import {setExpectedData} from './utils/utils.js';
 import {
   getStringFromMessageAndDefaults
@@ -75,6 +77,7 @@ describe('getStringFromMessageAndDefaults', function () {
         getStringFromMessageAndDefaults({
           message: undefined,
           key: 'myKey',
+          // @ts-expect-error Testing bad values
           defaults: 500
         });
       }).to.throw(
@@ -94,7 +97,18 @@ describe('getStringFromMessageAndDefaults', function () {
             body: {}
           },
           messageForKey (defaults, key) {
-            return key in defaults ? String(defaults[key]) : false;
+            return key in defaults.body
+              ? {
+                value: String(
+                  /**
+                   * @type {import('../src/defaultLocaleResolver.js').
+                   *   PlainLocaleStringBodyObject
+                   * }
+                   */ (
+                    defaults.body
+                  )[key]
+                )}
+              : false;
           }
         });
       }).to.throw(Error, 'Key value not found for key: (myKey)');
@@ -211,8 +225,19 @@ describe('getStringFromMessageAndDefaults', function () {
           }
         },
         messageForKey (defaults, key) {
-          defaults = defaults.body;
-          return key in defaults ? {value: String(defaults[key])} : false;
+          return key in defaults.body
+            ? {
+              value: String(
+                /**
+                 * @type {import('../src/defaultLocaleResolver.js').
+                 *   PlainLocaleStringBodyObject
+                 * }
+                 */ (
+                  defaults.body
+                )[key]
+              )
+            }
+            : false;
         }
       });
       expect(string).to.equal('myKeyValue');

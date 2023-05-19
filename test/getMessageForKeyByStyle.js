@@ -1,3 +1,5 @@
+// eslint-disable-next-line no-shadow -- Needed
+import {expect} from 'chai';
 import {setExpectedData} from './utils/utils.js';
 import {
   getMessageForKeyByStyle
@@ -18,7 +20,15 @@ describe('getMessageForKeyByStyle', function () {
           }
         }
       };
-      expect(func(localeObj, 'key').value).to.equal(
+      expect(
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+         *   MessageStyleCallbackResult
+         * }
+         */ (
+          func(localeObj, 'key')
+        ).value
+      ).to.equal(
         this.expectedRichStyleObject.body.key.message
       );
       expect(func(localeObj, 'missingKey')).to.equal(false);
@@ -59,40 +69,104 @@ describe('getMessageForKeyByStyle', function () {
           }
         }
       };
-      expect(func(localeObj, 'key.that.is.nested').value).to.equal(
+      expect(
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+         *   MessageStyleCallbackResult
+         * }
+         */ (
+          func(localeObj, 'key.that.is.nested')
+        ).value
+      ).to.equal(
         this.expectedRichNestedStyleObject.body.key.that.is.nested.message
       ).and.to.be.a('string');
-      expect(func(localeObj, 'key.that.lessNested').value).to.equal(
+      expect(
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+         *   MessageStyleCallbackResult
+         * }
+         */ (
+          func(localeObj, 'key.that.lessNested')
+        ).value
+      ).to.equal(
         this.expectedRichNestedStyleObject.body.key.that.lessNested.message
       ).and.to.be.a('string');
-      expect(func(localeObj, 'key.that.is.nested').info).to.deep.equal(
+      expect(
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+         *   MessageStyleCallbackResult
+         * }
+         */ (
+          func(localeObj, 'key.that.is.nested')
+        ).info
+      ).to.deep.equal(
         this.expectedRichNestedStyleObject.body.key.that.is.nested
       ).and.to.be.an('object');
-      expect(func(localeObj, 'key.that.lessNested').info).to.deep.equal(
+      expect(
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+         *   MessageStyleCallbackResult
+         * }
+         */ (
+          func(localeObj, 'key.that.lessNested')
+        ).info
+      ).to.deep.equal(
         this.expectedRichNestedStyleObject.body.key.that.lessNested
       ).and.to.be.an('object');
-      expect(func(localeObj, 'key.that.has\\.dot').info).to.deep.equal(
+      expect(
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+         *   MessageStyleCallbackResult
+         * }
+         */ (
+          func(localeObj, 'key.that.has\\.dot')
+        ).info
+      ).to.deep.equal(
         this.expectedRichNestedStyleObject.body.key.that['has.dot']
       ).and.to.be.an('object');
       expect(
-        func(localeObj, 'key.that.has\\.dot\\.at\\.end\\.').info
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+         *   MessageStyleCallbackResult
+         * }
+         */ (
+          func(localeObj, 'key.that.has\\.dot\\.at\\.end\\.')
+        ).info
       ).to.deep.equal(
         this.expectedRichNestedStyleObject.body.key.that['has.dot.at.end.']
       ).and.to.be.an('object');
       expect(
-        func(localeObj, 'key.that.has\\.\\.double-dots').info
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+         *   MessageStyleCallbackResult
+         * }
+         */ (
+          func(localeObj, 'key.that.has\\.\\.double-dots')
+        ).info
       ).to.deep.equal(
         this.expectedRichNestedStyleObject.body.key.that['has..double-dots']
       ).and.to.be.an('object');
       expect(
-        func(localeObj, 'key.that.has\\\\.backslashes').info
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+         *   MessageStyleCallbackResult
+         * }
+         */ (
+          func(localeObj, 'key.that.has\\\\.backslashes')
+        ).info
       ).to.deep.equal(
         this.expectedRichNestedStyleObject.body.key.that[
           'has\\'
         ].backslashes
       ).and.to.be.an('object');
       expect(
-        func(localeObj, 'key.that.has\\\\\\.backslashesWithDot').info
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+         *   MessageStyleCallbackResult
+         * }
+         */ (
+          func(localeObj, 'key.that.has\\\\\\.backslashesWithDot')
+        ).info
       ).to.deep.equal(
         this.expectedRichNestedStyleObject.body.key.that[
           'has\\.backslashesWithDot'
@@ -113,15 +187,32 @@ describe('getMessageForKeyByStyle', function () {
       };
       const func = getMessageForKeyByStyle({
         messageStyle (obj, key) {
-          if (obj.body[key]) {
+          if (
+            /**
+             * @type {import('../src/defaultLocaleResolver.js').
+             *   PlainLocaleStringBodyObject}
+             */ (obj.body)[key]
+          ) {
             return {
-              value: obj.body[key]
+              value: /**
+              * @type {import('../src/defaultLocaleResolver.js').
+              *   PlainLocaleStringBodyObject
+              * }
+              */ (obj.body)[key]
             };
           }
           return false;
         }
       });
-      expect(func(localeObj, 'key').value).to.equal(
+      expect(
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+         *   MessageStyleCallbackResult
+         * }
+         */ (
+          func(localeObj, 'key')
+        ).value
+      ).to.equal(
         this.expectedPlainStyleObject.body.key
       );
       expect(func(localeObj, 'missingKey')).to.equal(false);
@@ -142,16 +233,48 @@ describe('getMessageForKeyByStyle', function () {
           }
         }
       };
-      expect(func(localeObj, 'key').value).to.equal(
+      expect(
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+        *   MessageStyleCallbackResult
+        * }
+        */ (
+          func(localeObj, 'key')
+        ).value
+      ).to.equal(
         this.expectedRichStyleObject.body.key.message
       );
-      expect(func(localeObj, 'key').info).to.deep.equal(
+      expect(
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+        *   MessageStyleCallbackResult
+        * }
+        */ (
+          func(localeObj, 'key')
+        ).info
+      ).to.deep.equal(
         this.expectedRichStyleObject.body.key
       );
-      expect(func(localeObj, 'key.with.dots').value).to.equal(
+      expect(
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+        *   MessageStyleCallbackResult
+        * }
+        */ (
+          func(localeObj, 'key.with.dots')
+        ).value
+      ).to.equal(
         this.expectedRichStyleObject.body['key.with.dots'].message
       );
-      expect(func(localeObj, 'key.with.dots').info).to.deep.equal(
+      expect(
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+         *   MessageStyleCallbackResult
+         * }
+         */ (
+          func(localeObj, 'key.with.dots')
+        ).info
+      ).to.deep.equal(
         this.expectedRichStyleObject.body['key.with.dots']
       );
       expect(func(localeObj, 'missingKey')).to.equal(false);
@@ -176,16 +299,48 @@ describe('getMessageForKeyByStyle', function () {
           }
         }
       };
-      expect(func(localeObj, 'key.that.is.nested').value).to.equal(
+      expect(
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+        *   MessageStyleCallbackResult
+        * }
+        */ (
+          func(localeObj, 'key.that.is.nested')
+        ).value
+      ).to.equal(
         this.expectedRichNestedStyleObject.body.key.that.is.nested.message
       );
-      expect(func(localeObj, 'key.that.lessNested').value).to.equal(
+      expect(
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+        *   MessageStyleCallbackResult
+        * }
+        */ (
+          func(localeObj, 'key.that.lessNested')
+        ).value
+      ).to.equal(
         this.expectedRichNestedStyleObject.body.key.that.lessNested.message
       );
-      expect(func(localeObj, 'key.that.is.nested').info).to.deep.equal(
+      expect(
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+        *   MessageStyleCallbackResult
+        * }
+        */ (
+          func(localeObj, 'key.that.is.nested')
+        ).info
+      ).to.deep.equal(
         this.expectedRichNestedStyleObject.body.key.that.is.nested
       );
-      expect(func(localeObj, 'key.that.lessNested').info).to.deep.equal(
+      expect(
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+        *   MessageStyleCallbackResult
+        * }
+        */ (
+          func(localeObj, 'key.that.lessNested')
+        ).info
+      ).to.deep.equal(
         this.expectedRichNestedStyleObject.body.key.that.lessNested
       );
       expect(func(localeObj, 'key.that')).to.equal(false);
@@ -201,10 +356,26 @@ describe('getMessageForKeyByStyle', function () {
       const func = getMessageForKeyByStyle({
         messageStyle: 'plain'
       });
-      expect(func(this.expectedPlainStyleObject, 'key').value).to.equal(
+      expect(
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+        *   MessageStyleCallbackResult
+        * }
+        */ (
+          func(this.expectedPlainStyleObject, 'key')
+        ).value
+      ).to.equal(
         this.expectedPlainStyleObject.body.key
       );
-      expect(func(this.expectedPlainStyleObject, 'message').value).to.equal(
+      expect(
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+        *   MessageStyleCallbackResult
+        * }
+        */ (
+          func(this.expectedPlainStyleObject, 'message')
+        ).value
+      ).to.equal(
         this.expectedPlainStyleObject.body.message
       );
       expect(func(this.expectedPlainStyleObject, 'missingKey')).to.equal(false);
@@ -226,10 +397,26 @@ describe('getMessageForKeyByStyle', function () {
           }
         }
       };
-      expect(func(localeObj, 'key.that.is.nested').value).to.equal(
+      expect(
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+        *   MessageStyleCallbackResult
+        * }
+        */ (
+          func(localeObj, 'key.that.is.nested')
+        ).value
+      ).to.equal(
         this.expectedPlainNestedStyleObject.body.key.that.is.nested
       );
-      expect(func(localeObj, 'key.that.lessNested').value).to.equal(
+      expect(
+        /**
+         * @type {import('../src/getMessageForKeyByStyle.js').
+        *   MessageStyleCallbackResult
+        * }
+        */ (
+          func(localeObj, 'key.that.lessNested')
+        ).value
+      ).to.equal(
         this.expectedPlainNestedStyleObject.body.key.that.lessNested
       );
       expect(func(localeObj, 'key.that')).to.equal(false);
@@ -241,6 +428,7 @@ describe('getMessageForKeyByStyle', function () {
     it('should throw with an unknown style', function () {
       expect(() => {
         getMessageForKeyByStyle({
+          // @ts-expect-error Bad argument for testing
           messageStyle: 'badStyle'
         });
       }).to.throw(TypeError, 'Unknown `messageStyle` badStyle');

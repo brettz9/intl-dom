@@ -4,36 +4,81 @@ import {
 import {defaultAllSubstitutions} from './defaultAllSubstitutions.js';
 import {unescapeBackslashes, parseJSONExtra, processRegex} from './utils.js';
 
-/* eslint-disable max-len */
 /**
- * Callback to return a string or array of nodes and strings based on a localized
- * string, substitutions object, and other metadata.
- * @callback InsertNodesCallback
- * @param {PlainObject} cfg
- * @param {string} cfg.string The localized string
- * @param {boolean} [cfg.dom] If substitutions known to contain DOM, can be set
- *   to `true` to optimize
- * @param {string[]} [cfg.usedKeys=[]] Array for tracking which keys have been used
- * @param {SubstitutionObject} cfg.substitutions The formatting substitutions object
- * @param {?(AllSubstitutionCallback|AllSubstitutionCallback[])} [cfg.allSubstitutions] The
+ * @typedef {number} Integer
+ */
+
+/**
+ * @callback Replace
+ * @param {{
+ *   str: string,
+ *   substs?: import('./defaultLocaleResolver.js').SubstitutionObject,
+ *   formatter?: import('./Formatter.js').RegularFormatter|
+ *     import('./Formatter.js').LocalFormatter|
+ *     import('./Formatter.js').SwitchFormatter
+ * }} cfg
+ * @returns {string}
+ */
+
+/**
+ * @callback ProcessSubstitutions
+ * @param {{
+ *   str: string,
+ *   substs?: import('./defaultLocaleResolver.js').SubstitutionObject,
+ *   formatter?: import('./Formatter.js').RegularFormatter|
+ *     import('./Formatter.js').LocalFormatter|
+ *     import('./Formatter.js').SwitchFormatter
+ * }} cfg
+ * @returns {(string|Node)[]}
+ */
+
+/**
+ * Callback to return a string or array of nodes and strings based on
+ *   a localized string, substitutions object, and other metadata.
+ *
+ * `string` - The localized string.
+ * `dom` - If substitutions known to contain DOM, can be set
+ *    to `true` to optimize.
+ * `usedKeys` - Array for tracking which keys have been used. Defaults
+ *   to empty array.
+ * `substitutions` - The formatting substitutions object.
+ * `allSubstitutions` - The
  *   callback or array composed thereof for applying to each substitution.
- * @param {string} locale The successfully resolved locale
- * @param {Integer} [maximumLocalNestingDepth=3] Depth of local variable resolution to
- *   check before reporting a recursion error
- * @param {MissingSuppliedFormattersCallback} [cfg.missingSuppliedFormatters] Callback
+ * `locale` - The successfully resolved locale
+ * `locals` - The local section.
+ * `switches` - The switch section.
+ * `maximumLocalNestingDepth` - Depth of local variable resolution to
+ *   check before reporting a recursion error. Defaults to 3.
+ * `missingSuppliedFormatters` - Callback
  *   supplied key to throw if the supplied key is present (if
  *   `throwOnMissingSuppliedFormatters` is enabled). Defaults to no-op.
- * @param {CheckExtraSuppliedFormattersCallback} [cfg.checkExtraSuppliedFormatters] No
+ * `checkExtraSuppliedFormatters` - No
  *   argument callback to check if any formatters are not present in `string`
  *   (if `throwOnExtraSuppliedFormatters` is enabled). Defaults to no-op.
- * @returns {string|Array<Node|string>}
+ * @typedef {(cfg: {
+ *   string: string,
+ *   dom?: boolean,
+ *   usedKeys: string[],
+ *   substitutions: import('./defaultLocaleResolver.js').SubstitutionObject,
+ *   allSubstitutions?: ?(
+ *     import('./defaultAllSubstitutions.js').AllSubstitutionCallback|
+ *     import('./defaultAllSubstitutions.js').AllSubstitutionCallback[]
+ *   )
+ *   locale: string|undefined,
+ *   locals?: import('./getMessageForKeyByStyle.js').LocalObject|undefined,
+ *   switches: import('./defaultLocaleResolver.js').Switches|undefined,
+ *   maximumLocalNestingDepth?: Integer,
+ *   missingSuppliedFormatters: import('./getDOMForLocaleString.js').
+ *     MissingSuppliedFormattersCallback,
+ *   checkExtraSuppliedFormatters: import('./getDOMForLocaleString.js').
+ *     CheckExtraSuppliedFormattersCallback
+ * }) => string|(Node|string)[]} InsertNodesCallback
  */
 
 /**
  * @type {InsertNodesCallback}
  */
 export const defaultInsertNodes = ({
-  /* eslint-enable max-len */
   string, dom, usedKeys, substitutions, allSubstitutions, locale,
   locals, switches,
   maximumLocalNestingDepth = 3,
@@ -53,9 +98,15 @@ export const defaultInsertNodes = ({
   };
   addFunctionKeys();
 
-  const localFormatter = new LocalFormatter(locals);
+  const localFormatter = new LocalFormatter(
+    /** @type {import('./getMessageForKeyByStyle.js').LocalObject} */ (locals)
+  );
   const regularFormatter = new RegularFormatter(substitutions);
-  const switchFormatter = new SwitchFormatter(switches, {substitutions});
+  const switchFormatter = new SwitchFormatter(
+    /** @type {import('./defaultLocaleResolver.js').Switches} */
+    (switches),
+    {substitutions}
+  );
 
   // eslint-disable-next-line max-len
   // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
@@ -66,14 +117,35 @@ export const defaultInsertNodes = ({
       : [allSubstitutions];
   }
 
+  /**
+   * @param {{
+   *   key: string,
+   *   arg: string,
+   *   substs: import('./defaultLocaleResolver.js').SubstitutionObject
+   * }} cfg
+   * @returns {string|Node}
+   */
   const getSubstitution = ({key, arg, substs}) => {
+    /** @type {import('./defaultLocaleResolver.js').SubstitutionObjectValue} */
     let substitution;
-    const isLocalKey = localFormatter.constructor.isMatchingKey(key);
+    const isLocalKey =
+      /**
+       * @type {typeof import('./Formatter.js').LocalFormatter}
+       */ (
+        localFormatter.constructor
+      ).isMatchingKey(key);
     if (isLocalKey) {
       substitution = localFormatter.getSubstitution(key);
-    } else if (switchFormatter.constructor.isMatchingKey(key)) {
+    } else if (
+      /**
+       * @type {typeof import('./Formatter.js').SwitchFormatter}
+       */ (switchFormatter.constructor).isMatchingKey(key)
+    ) {
       substitution = switchFormatter.getSubstitution(key, {
-        locale, usedKeys, arg,
+        // eslint-disable-next-line object-shorthand -- TS casting
+        locale: /** @type {string} */ (locale),
+        usedKeys,
+        arg,
         missingSuppliedFormatters
       });
     } else {
@@ -87,21 +159,53 @@ export const defaultInsertNodes = ({
     //  a mode to throw for non-string/non-DOM (non-numbers?),
     //  or whatever is not likely intended as a target for `toString()`.
     if (allSubstitutions) {
-      substitution = allSubstitutions.reduce((subst, allSubst) => {
-        return allSubst({
-          value: subst, arg, key, locale
-        });
-      }, substitution);
+      substitution = /** @type {string|Node} */ (
+        /**
+         * @type {import('./defaultAllSubstitutions.js').
+         *   AllSubstitutionCallback[]
+         * }
+         */ (
+          allSubstitutions
+        ).reduce(
+          /**
+           * @param {import('./defaultLocaleResolver.js').
+           *   SubstitutionObjectValue} subst
+           * @param {import('./defaultAllSubstitutions.js').
+           *   AllSubstitutionCallback} allSubst
+           * @returns {string|Node}
+           */
+          (subst, allSubst) => {
+            return allSubst({
+              value: subst,
+              arg,
+              key,
+              locale
+            });
+          }, substitution
+        ));
     } else if (arg && (/^(?:NUMBER|DATE(?:TIME|RANGE|TIMERANGE)?|REGION|LANGUAGE|SCRIPT|CURRENCY|RELATIVE|LIST)(?:\||$)/u).test(arg)) {
       substitution = defaultAllSubstitutions({
         value: substitution, arg, key, locale
       });
     }
-    return substitution;
+
+    // Change this and return type if other substitutions possible
+    return /** @type {string|Node} */ (substitution);
   };
 
   let recursiveLocalCount = 1;
+  /**
+   * @param {{
+   *   substitution: string|Node,
+   *   ky: string,
+   *   arg: string,
+   *   processSubsts: Replace|ProcessSubstitutions
+   * }} cfg
+   * @returns {number|string|Node|(string|Node)[]}
+   */
   const checkLocalVars = ({substitution, ky, arg, processSubsts}) => {
+    /** @type {number|string|Node|(string|Node)[]} */
+    let subst = substitution;
     if (
       typeof substitution === 'string' &&
       substitution.includes('{')
@@ -110,7 +214,11 @@ export const defaultInsertNodes = ({
         throw new TypeError('Too much recursion in local variables.');
       }
 
-      if (localFormatter.constructor.isMatchingKey(ky)) {
+      if (
+        /** @type {typeof import('./Formatter.js').LocalFormatter} */ (
+          localFormatter.constructor
+        ).isMatchingKey(ky)
+      ) {
         let extraSubsts = substitutions;
         let localFormatters;
         if (arg) {
@@ -120,52 +228,70 @@ export const defaultInsertNodes = ({
             ...localFormatters
           };
         }
-        substitution = processSubsts({
+        subst = processSubsts({
           str: substitution, substs: extraSubsts,
           formatter: localFormatter
         });
         if (localFormatters) {
           checkExtraSuppliedFormatters({substitutions: localFormatters});
         }
-      } else if (switchFormatter.constructor.isMatchingKey(ky)) {
-        substitution = processSubsts({
+      } else if (
+        /** @type {typeof import('./Formatter.js').SwitchFormatter} */
+        (switchFormatter.constructor).isMatchingKey(ky)
+      ) {
+        subst = processSubsts({
           str: substitution
         });
       }
     }
-    return substitution;
+
+    return subst;
   };
 
   // Give chance to avoid this block when known to contain DOM
   if (!dom) {
     // Run this block to optimize non-DOM substitutions
     let returnsDOM = false;
+
+    /** @type {Replace} */
     const replace = ({
       str, substs = substitutions,
       formatter = regularFormatter
     }) => {
-      return str.replace(formattingRegex, (_, esc, ky, pipe, arg) => {
-        if (esc.length % 2) {
-          return _;
-        }
-        if (missingSuppliedFormatters({
-          key: ky,
-          formatter
-        })) {
-          return _;
-        }
-        let substitution = getSubstitution({key: ky, arg, substs});
+      return str.replace(
+        formattingRegex,
+        /**
+         * @param {string} _
+         * @param {string} esc
+         * @param {string} ky
+         * @param {string} pipe
+         * @param {string} arg
+         * @returns {string}
+         */
+        (_, esc, ky, pipe, arg) => {
+          if (esc.length % 2) {
+            return _;
+          }
+          if (missingSuppliedFormatters({
+            key: ky,
+            formatter
+          })) {
+            return _;
+          }
+          /** @type {string|number|Node|(string|Node)[]} */
+          let substitution = getSubstitution({key: ky, arg, substs});
 
-        substitution = checkLocalVars({
-          substitution, ky, arg, processSubsts: replace
-        });
+          substitution = checkLocalVars({
+            substitution, ky, arg, processSubsts: replace
+          });
 
-        returnsDOM = returnsDOM ||
-          (substitution && typeof substitution === 'object' &&
-          'nodeType' in substitution);
-        usedKeys.push(ky);
-        return esc + substitution;
-      });
+          returnsDOM = returnsDOM ||
+            (substitution !== null && typeof substitution === 'object' &&
+            'nodeType' in substitution);
+          usedKeys.push(ky);
+          return esc + substitution;
+        }
+      );
     };
     const ret = replace({str: string});
     if (!returnsDOM) {
@@ -179,9 +305,12 @@ export const defaultInsertNodes = ({
   }
 
   recursiveLocalCount = 1;
+
+  /** @type {ProcessSubstitutions} */
   const processSubstitutions = ({
     str, substs = substitutions, formatter = regularFormatter
   }) => {
+    /** @type {(string|Node)[]} */
     const nodes = [];
 
     // Copy to ensure we are resetting index on each instance (manually
@@ -189,6 +318,9 @@ export const defaultInsertNodes = ({
     // uses the same regex copy)
     const regex = new RegExp(formattingRegex, 'gu');
 
+    /**
+     * @param {...(string|Node)} args
+     */
     const push = (...args) => {
       nodes.push(...args);
     };
@@ -205,6 +337,7 @@ export const defaultInsertNodes = ({
             push(esc);
           }
 
+          /** @type {string|number|Node|(string|Node)[]} */
           let substitution = getSubstitution({key: ky, arg, substs});
           substitution = checkLocalVars({
             substitution, ky, arg, processSubsts: processSubstitutions
@@ -219,7 +352,8 @@ export const defaultInsertNodes = ({
           ) {
             push(substitution.cloneNode(true));
           } else {
-            push(substitution);
+            // Why no number here?
+            push(/** @type {string} */ (substitution));
           }
         }
         usedKeys.push(ky);

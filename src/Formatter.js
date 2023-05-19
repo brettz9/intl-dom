@@ -9,13 +9,14 @@ export class Formatter {
 }
 
 /**
- * @param {PlainObject} cfg
+ * @param {object} cfg
  * @param {string} cfg.key
- * @param {LocaleBody} cfg.body
+ * @param {import('./getMessageForKeyByStyle.js').LocaleBody} cfg.body
  * @param {string} cfg.type
  * @param {"richNested"|"rich"|"plain"|
- *   "plainNested"|MessageStyleCallback} cfg.messageStyle
- * @returns {string|Element}
+ *   "plainNested"|import('./getMessageForKeyByStyle.js').
+ *   MessageStyleCallback} [cfg.messageStyle="richNested"]
+ * @returns {string}
  */
 const getSubstitution = ({key, body, type, messageStyle = 'richNested'}) => {
   const messageForKey = getMessageForKeyByStyle({messageStyle});
@@ -33,7 +34,7 @@ const getSubstitution = ({key, body, type, messageStyle = 'richNested'}) => {
  */
 export class LocalFormatter extends Formatter {
   /**
-   * @param {LocalObject} locals
+   * @param {import('./getMessageForKeyByStyle.js').LocalObject} locals
    */
   constructor (locals) {
     super();
@@ -54,10 +55,29 @@ export class LocalFormatter extends Formatter {
    */
   isMatch (key) {
     const components = key.slice(1).split('.');
+    /** @type {import('./getMessageForKeyByStyle.js').LocaleBody} */
     let parent = this.locals;
-    return this.constructor.isMatchingKey(key) && components.every((cmpt) => {
+    return /** @type {typeof LocalFormatter} */ (
+      this.constructor
+    ).isMatchingKey(key) && components.every((cmpt) => {
       const result = cmpt in parent;
-      parent = parent[cmpt];
+      parent =
+        /**
+         * @type {import('./defaultLocaleResolver.js').
+         *     RichNestedLocaleStringBodyObject|
+         *   import('./defaultLocaleResolver.js').
+         *     PlainNestedLocaleStringBodyObject|
+         *   import('./defaultLocaleResolver.js').RichLocaleStringSubObject
+         * }
+         */ (
+          /**
+           * @type {import('./defaultLocaleResolver.js').
+           *     RichNestedLocaleStringBodyObject|
+           *   import('./defaultLocaleResolver.js').
+           *     PlainNestedLocaleStringBodyObject
+           * }
+           */ (parent)[cmpt]
+        );
       return result;
     });
   }
@@ -75,7 +95,8 @@ export class LocalFormatter extends Formatter {
  */
 export class RegularFormatter extends Formatter {
   /**
-   * @param {SubstitutionObject} substitutions
+   * @param {import('./defaultLocaleResolver.js').SubstitutionObject
+   * } substitutions
    */
   constructor (substitutions) {
     super();
@@ -86,7 +107,9 @@ export class RegularFormatter extends Formatter {
    * @returns {boolean}
    */
   isMatch (key) {
-    return this.constructor.isMatchingKey(key) && key in this.substitutions;
+    return /** @type {typeof RegularFormatter} */ (
+      this.constructor
+    ).isMatchingKey(key) && key in this.substitutions;
   }
   /**
    * @param {string} key
@@ -102,8 +125,10 @@ export class RegularFormatter extends Formatter {
  */
 export class SwitchFormatter extends Formatter {
   /**
-   * @param {Switches} switches
-   * @param {SubstitutionObject} substitutions
+   * @param {import('./defaultLocaleResolver.js').Switches} switches
+   * @param {object} cfg
+   * @param {import('./defaultLocaleResolver.js').
+   *   SubstitutionObject} cfg.substitutions
    */
   constructor (switches, {substitutions}) {
     super();
@@ -113,22 +138,27 @@ export class SwitchFormatter extends Formatter {
 
   /**
    * @param {string} key
-   * @param {PlainObject} cfg
+   * @param {object} cfg
    * @param {string} cfg.locale
-   * @param {string[]} cfg.usedKeys
+   * @param {(string|undefined)[]} cfg.usedKeys
    * @param {string} cfg.arg
-   * @param {MissingSuppliedFormattersCallback} cfg.missingSuppliedFormatters
+   * @param {import('./getDOMForLocaleString.js').
+   *   MissingSuppliedFormattersCallback} cfg.missingSuppliedFormatters
    * @returns {string}
    */
   getSubstitution (key, {locale, usedKeys, arg, missingSuppliedFormatters}) {
-    const ky = this.constructor.getKey(key).slice(1);
+    const ky = /** @type {typeof SwitchFormatter} */ (
+      this.constructor
+    ).getKey(key).slice(1);
     // Expression might not actually use formatter, e.g., for singular,
     //  the conditional might just write out "one"
 
     const [objKey, body, keySegment] = this.getMatch(ky);
     usedKeys.push(keySegment);
 
-    let type, opts;
+    let type;
+    /** @type {string} */
+    let opts;
     if (objKey && objKey.includes('|')) {
       [, type, opts] = objKey.split('|');
     }
@@ -146,6 +176,11 @@ export class SwitchFormatter extends Formatter {
     }
     */
 
+    /**
+     * @param {number} value
+     * @param {Intl.NumberFormatOptions|undefined} [defaultOptions]
+     * @returns {string}
+     */
     const getNumberFormat = (value, defaultOptions) => {
       const numberOpts = parseJSONExtra(opts);
       return new Intl.NumberFormat(locale, {
@@ -153,14 +188,20 @@ export class SwitchFormatter extends Formatter {
       }).format(value);
     };
 
+    /**
+     * @param {number} value
+     * @param {Intl.PluralRulesOptions|undefined} [defaultOptions]
+     * @returns {Intl.LDMLPluralRule}
+     */
     const getPluralFormat = (value, defaultOptions) => {
       const pluralOpts = parseJSONExtra(opts);
       return new Intl.PluralRules(locale, {
         ...defaultOptions, ...pluralOpts
       }).select(value);
     };
-
-    const formatterValue = this.substitutions[keySegment];
+    const formatterValue = this.substitutions[
+      /** @type {string} */ (keySegment)
+    ];
 
     let match = formatterValue;
     if (typeof formatterValue === 'number') {
@@ -179,7 +220,15 @@ export class SwitchFormatter extends Formatter {
       const singleKey = Object.keys(formatterValue)[0];
       if (['number', 'plural'].includes(singleKey)) {
         const {value, options} = getFormatterInfo({
-          object: formatterValue[singleKey]
+          object:
+          /**
+           * @type {import('./defaultLocaleResolver.js').NumberInfo|
+           *   import('./defaultLocaleResolver.js').PluralInfo}
+           */
+          // @ts-expect-error Ok
+          (formatterValue)[
+            /** @type {"number"|"plural"} */ (singleKey)
+          ]
         });
         if (!type) {
           type = singleKey.toUpperCase();
@@ -195,10 +244,18 @@ export class SwitchFormatter extends Formatter {
         // eslint-disable-next-line default-case
         switch (type) {
         case 'NUMBER':
-          match = getNumberFormat(value, options);
+          match = getNumberFormat(
+            /** @type {number} */ (value),
+            /** @type {Intl.NumberFormatOptions} */
+            (options)
+          );
           break;
         case 'PLURAL':
-          match = getPluralFormat(value, options);
+          match = getPluralFormat(
+            /** @type {number} */ (value),
+            /** @type {Intl.PluralRulesOptions} */
+            (options)
+          );
           break;
         }
       }
@@ -208,6 +265,10 @@ export class SwitchFormatter extends Formatter {
     //  up the likes of `0.0`
     const messageStyle = 'richNested';
 
+    /**
+     * @param {string} s
+     * @returns {string}
+     */
     const preventNesting = (s) => {
       return s.replace(/\\/gu, '\\\\').replace(/\./gu, '\\.');
     };
@@ -215,14 +276,18 @@ export class SwitchFormatter extends Formatter {
     try {
       return getSubstitution({
         messageStyle,
-        key: match ? preventNesting(match) : arg,
+        key: match ? preventNesting(/** @type {string} */ (match)) : arg,
         body,
         type: 'switch'
       });
     } catch (err) {
       try {
         return getSubstitution({
-          messageStyle, key: '*' + preventNesting(match), body, type: 'switch'
+          messageStyle,
+          key: '*' +
+            preventNesting(/** @type {string} */ (match)),
+          body,
+          type: 'switch'
         });
       } catch (error) {
         const k = Object.keys(body).find(
@@ -243,16 +308,25 @@ export class SwitchFormatter extends Formatter {
    * @returns {boolean}
    */
   isMatch (key) {
-    return key && this.constructor.isMatchingKey(key) &&
-      Boolean(this.getMatch(key.slice(1)).length);
+    return Boolean(
+      key && /** @type {typeof SwitchFormatter} */ (
+        this.constructor
+      ).isMatchingKey(key) &&
+        this.getMatch(key.slice(1)).length
+    );
   }
 
   /**
-  * @typedef {GenericArray} SwitchMatch
-  * @property {string} 0 objKey
-  * @property {LocaleBody} 1 body
-  * @property {string} 2 keySegment
+  * @typedef {[
+  *   objKey?: string,
+  *   body?: import('./getMessageForKeyByStyle.js').LocaleBody,
+  *   keySegment?: string
+  * ]} SwitchMatch
   */
+
+  /**
+   * @typedef {number} Integer
+   */
 
   /**
    * @param {string} ky
@@ -260,21 +334,38 @@ export class SwitchFormatter extends Formatter {
    */
   getMatch (ky) {
     const ks = ky.split('.');
-    return ks.reduce((obj, k, i) => {
-      if (i < ks.length - 1) {
-        if (!(k in obj)) {
-          throw new Error(`Switch key "${k}" not found (from "~${ky}")`);
+    const returnValue = /** @type {unknown} */ (ks.reduce(
+      /**
+       * @param {import('./defaultLocaleResolver.js').SwitchArrays|
+       *   import('./defaultLocaleResolver.js').SwitchArray} obj
+       * @param {string} k
+       * @param {Integer} i
+       * @throws {Error}
+       * @returns {SwitchMatch|
+       *   import('./defaultLocaleResolver.js').SwitchCaseArray|
+       *   import('./defaultLocaleResolver.js').SwitchArray}
+       */
+      // @ts-expect-error It works
+      (obj, k, i) => {
+        if (i < ks.length - 1) {
+          if (!(k in obj)) {
+            throw new Error(`Switch key "${k}" not found (from "~${ky}")`);
+          }
+          return obj[k];
         }
-        return obj[k];
-      }
-      // Todo: Should throw on encountering duplicate fundamental keys (even
-      //  if there are different arguments, that should not be allowed)
-      const ret = Object.entries(obj).find(([switchKey]) => {
-        return k === this.constructor.getKey(switchKey);
-      });
+        // Todo: Should throw on encountering duplicate fundamental keys (even
+        //  if there are different arguments, that should not be allowed)
+        const ret = Object.entries(obj).find(([switchKey]) => {
+          return k === /** @type {typeof SwitchFormatter} */ (
+            this.constructor
+          ).getKey(switchKey);
+        });
 
-      return ret ? [...ret, k] : [];
-    }, this.switches);
+        return ret ? [...ret, k] : [];
+      }, this.switches
+    ));
+
+    return /** @type {SwitchMatch} */ (returnValue);
   }
 
   /**
@@ -290,6 +381,6 @@ export class SwitchFormatter extends Formatter {
    */
   static getKey (key) {
     const match = key.match(/^[^|]*/u);
-    return match && match[0];
+    return /** @type {string} */ (match && match[0]);
   }
 }

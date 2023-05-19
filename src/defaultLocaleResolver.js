@@ -1,90 +1,199 @@
 /**
-* @callback SubstitutionCallback
-* @param {PlainObject} cfg
-* @param {string} cfg.arg By default, accepts the third portion of the
+* `arg` - By default, accepts the third portion of the
 *   `formattingRegex` within `insertNodes`, i.e., to allow the locale to
 *   supply arguments back to the calling script.
-* @param {string} cfg.key The substitution key
+* `key` - The substitution key.
+* @callback SubstitutionCallback
+* @param {{
+*   arg: string,
+*   key: string
+* }} cfg
 * @returns {string|Element} The replacement text or element
 */
 
 /**
  * May have additional properties if supplying options to an underlying
  * formatter.
- * @typedef {GenericArray} ValueArray
- * @property {string|Node|number|Date} 0 The main value
- * @property {PlainObject} [1] The options related to the main value
- * @property {PlainObject} [2] Any additional options
-*/
+ * The first value is the main value.
+ * The second are the options related to the main value.
+ * The third are any additional options.
+ * @typedef {[string|number|Date, object?, object?]} ValueArray
+ */
 
 /**
-* @typedef {PlainObject} RelativeTimeInfo
-* @property {ValueArray} relative
-*/
+ * @typedef {number} Integer
+ */
 
 /**
-* @typedef {PlainObject} ListInfo
-* @property {ValueArray} list
-*/
+ * @typedef {[
+ *   string[],
+ *   (((item: string, i: Integer) => Element)|object)?,
+ *   object?,
+ *   object?
+ * ]} ListValueArray
+ */
 
 /**
-* @typedef {PlainObject} NumberInfo
-* @property {ValueArray} number
-*/
+ * @typedef {[
+ *   Date|number, Date|number, Intl.DateTimeFormatOptions|undefined
+ * ]} DateRangeValueArray
+ */
 
 /**
-* @typedef {PlainObject} DateInfo
-* @property {ValueArray} date
-*/
+ * @typedef {[number, Intl.RelativeTimeFormatUnit, object?]} RelativeValueArray
+ */
 
 /**
-* @typedef {Object<string, string>} PlainLocaleStringBodyObject
-*/
+ * @typedef {object} RelativeTimeInfo
+ * @property {RelativeValueArray} relative
+ */
 
 /**
-* @typedef {PlainObject} SwitchCaseInfo
-* @property {boolean} [default=false] Whether this conditional is the default
-*/
+ * @typedef {object} ListInfo
+ * @property {ListValueArray} list
+ */
 
 /**
-* @typedef {GenericArray} SwitchCase
-* @property {string} 0 The type
-* @property {string} 1 The message
-* @property {SwitchCaseInfo} [2] Info about the switch case
-*/
+ * @typedef {object} NumberInfo
+ * @property {ValueArray|number} number
+ */
 
 /**
-* @typedef {PlainObject<string, SwitchCase>} Switch
-*/
+ * @typedef {object} DateInfo
+ * @property {ValueArray} date
+ */
 
 /**
-* @typedef {PlainObject<{string, Switch}>} Switches
-*/
+ * @typedef {object} DateTimeInfo
+ * @property {ValueArray} datetime
+ */
 
 /**
-* @typedef {PlainObject} LocaleStringSubObject
-* @property {string} [message] The locale message with any formatting
-*   place-holders; defaults to use of any single conditional
-* @property {string} [description] A description to add translators
-* @property {Switches} [switches] Conditionals
-*/
+ * @typedef {object} DateRangeInfo
+ * @property {DateRangeValueArray} dateRange
+ */
 
 /**
-* @typedef {PlainObject<string, LocaleStringSubObject>} LocaleStringBodyObject
-*/
+ * @typedef {object} DatetimeRangeInfo
+ * @property {DateRangeValueArray} datetimeRange
+ */
+
+/**
+ * @typedef {object} RegionInfo
+ * @property {ValueArray} region
+ */
+
+/**
+ * @typedef {object} LanguageInfo
+ * @property {ValueArray} language
+ */
+
+/**
+ * @typedef {object} ScriptInfo
+ * @property {ValueArray} script
+ */
+
+/**
+ * @typedef {object} CurrencyInfo
+ * @property {ValueArray} currency
+ */
+
+/**
+ * @typedef {object} PluralInfo
+ * @property {ValueArray} plural
+ */
+
+/**
+ * @typedef {{[key: string]: string}} PlainLocaleStringBodyObject
+ */
+
+/**
+ * @typedef {{
+ *   [key: string]: string|PlainNestedLocaleStringBodyObject
+ * }} PlainNestedLocaleStringBodyObject
+ */
+
+/**
+ * @typedef {object} SwitchCaseInfo
+ * @property {boolean} [default=false] Whether this conditional is the default
+ */
+
+/**
+ * Contains the type, the message, and optional info about the switch case.
+ * @typedef {[string, string, SwitchCaseInfo?]} SwitchCaseArray
+ */
+
+/**
+ * @typedef {Object<string, SwitchCaseArray>} SwitchArray
+ */
+
+/**
+ * @typedef {Object<string, SwitchArray>} SwitchArrays
+ */
+
+/**
+ * @typedef {object} SwitchCase
+ * @property {string} message The locale message with any formatting
+ *   place-holders; defaults to use of any single conditional
+ * @property {string} [description] A description to add for translators
+ */
+
+/**
+ * @typedef {Object<string, SwitchCase>} Switch
+ */
+
+/**
+ * @typedef {Object<string, Switch>} Switches
+ */
+
+/**
+ * @typedef {object} RichLocaleStringSubObject
+ * @property {string} message The locale message with any formatting
+ *   place-holders; defaults to use of any single conditional
+ * @property {string} [description] A description to add for translators
+ * @property {Switches} [switches] Conditionals
+ */
+
+/**
+ * @typedef {{
+ *   [key: string]: RichLocaleStringSubObject
+ * }} RichLocaleStringBodyObject
+ */
+
+/**
+ * @typedef {{
+ *   [key: string]: RichLocaleStringSubObject|RichNestedLocaleStringBodyObject
+ * }} RichNestedLocaleStringBodyObject
+ */
 
 /**
  * Takes a base path and locale and gives a URL.
  * @callback LocaleResolver
  * @param {string} localesBasePath (Trailing slash optional)
  * @param {string} locale BCP-47 language string
- * @returns {string} URL of the locale file to be fetched
-*/
+ * @returns {string|false} URL of the locale file to be fetched
+ */
 
 /**
-* @typedef {PlainObject<string, string|Element|
-* SubstitutionCallback>} SubstitutionObject
-*/
+ * @typedef {[
+ *   Date|number, Date|number, (Intl.DateTimeFormatOptions|undefined)?
+ * ]} DateRange
+ */
+
+/**
+ * @typedef {string|string[]|number|Date|DateRange|
+ *     Element|Node|SubstitutionCallback|
+ *     NumberInfo|PluralInfo|CurrencyInfo|LanguageInfo|ScriptInfo|
+ *     DatetimeRangeInfo|DateRangeInfo|RegionInfo|DateTimeInfo|DateInfo|
+ *     ListInfo|RelativeTimeInfo
+ * } SubstitutionObjectValue
+ */
+
+/**
+ * @typedef {{
+ *   [key: string]: SubstitutionObjectValue
+ * }} SubstitutionObject
+ */
 
 /**
  * @type {LocaleResolver}

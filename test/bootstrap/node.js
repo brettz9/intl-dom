@@ -24,19 +24,23 @@ import chai from 'chai';
 import chaiDOM from 'chai-dom';
 import chaiAsPromised from 'chai-as-promised';
 // eslint-disable-next-line import/order -- Group chai plugins together
-import fragmentHtml from '../browser/vendor/fragmentHtml.js';
+import fragmentHtml from '../browser/vendor/fragmentHtml/fragmentHtml.js';
 
 import {JSDOM} from 'jsdom';
 import fileFetch from 'file-fetch';
+
+// @ts-expect-error Need to add types for json-6
 import jsonExtra from 'json-6';
 
 import {setFetch, setDocument} from '../../src/shared.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+// @ts-expect-error Need to add types for json-6
 global.jsonExtra = jsonExtra;
 
 // Override to ensure we're testing with polyfill
+// @ts-expect-error Needed for testing
 Intl.PluralRules = PluralRules;
 
 chai.use(chaiDOM);
@@ -50,14 +54,20 @@ const {document: doc} = (new JSDOM()).window;
 setDocument(doc);
 setFetch(fileFetch);
 
-global.document = doc;
+globalThis.document = doc;
 
-global.setNavigatorLanguages = (languages) => {
+/**
+ * @param {false|string[]} languages
+ * @returns {void}
+ */
+globalThis.setNavigatorLanguages = (languages) => {
   if (languages === false) {
-    delete global.navigator;
+    // @ts-expect-error Needed for testing
+    delete globalThis.navigator;
     return;
   }
-  global.navigator = {
+  // @ts-expect-error Just for testing
+  globalThis.navigator = {
     languages
   };
 };

@@ -1,10 +1,36 @@
 import {parseJSONExtra} from './utils.js';
 import {sortList} from './collation.js';
 
+/**
+ * @typedef {number} Integer
+ */
+
+/**
+ * @param {{
+ *   object: import('./defaultLocaleResolver.js').DateRangeValueArray|
+ *     import('./defaultLocaleResolver.js').ListValueArray|
+ *     import('./defaultLocaleResolver.js').RelativeValueArray|
+ *     import('./defaultLocaleResolver.js').ValueArray
+ * }} cfg
+ * @returns {{
+ *   value: number|string|string[]|Date,
+ *   options?: Intl.NumberFormatOptions|Intl.PluralRulesOptions|
+ *     string|Date|number,
+ *   extraOpts?: object,
+ *   callback?: (item: string, i: Integer) => Element
+ * }}
+ */
 export const getFormatterInfo = ({object}) => {
   if (Array.isArray(object)) {
     if (typeof object[1] === 'function') {
-      const [value, callback, options, extraOpts] = object;
+      const [
+        value, callback, options, extraOpts
+      ] =
+        /**
+         * @type {[
+         *   string[], (item: string, i: Integer) => Element, object, object
+         * ]}
+         */ (object);
       return {value, callback, options, extraOpts};
     }
     const [value, options, extraOpts] = object;
@@ -13,19 +39,20 @@ export const getFormatterInfo = ({object}) => {
   return {value: object};
 };
 
-/* eslint-disable max-len */
 /**
  * Callback to give replacement text based on a substitution value.
- * @callback AllSubstitutionCallback
- * @param {PlainObject} cfg
- * @param {string|Node|number|Date|RelativeTimeInfo|ListInfo|NumberInfo|DateInfo} cfg.value Contains
- *   the value returned by the individual substitution
- * @param {string} cfg.arg See `cfg.arg` of {@link SubstitutionCallback}.
- * @param {string} cfg.key The substitution key Not currently in use
- * @param {string} cfg.locale The locale
- * @returns {string|Element} The replacement text or element
+ *
+ * `value` - contains the value returned by the individual substitution.
+ * `arg` - See `cfg.arg` of {@link SubstitutionCallback}.
+ * `key` - The substitution key Not currently in use
+ * `locale` - The locale.
+ * @typedef {(info: {
+ *   value: import('./defaultLocaleResolver.js').SubstitutionObjectValue
+ *   arg?: string,
+ *   key?: string,
+ *   locale?: string
+ * }) => string|Node} AllSubstitutionCallback
 */
-/* eslint-enable max-len */
 
 /**
  * @type {AllSubstitutionCallback}
@@ -39,9 +66,24 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
     return value;
   }
 
+  /** @type {object|string|Date|number|undefined} */
   let opts;
 
-  const applyArgs = ({type, options = opts, checkArgOptions = false}) => {
+  /**
+   * @param {{
+   *   type: string,
+   *   options?: object,
+   *   checkArgOptions?: boolean;
+   * }} cfg
+   * @returns {object|undefined}
+   */
+  const applyArgs = ({
+    type,
+    options = /** @type {object|undefined} */ (
+      opts
+    ),
+    checkArgOptions = false
+  }) => {
     if (typeof arg === 'string') {
       let [userType, extraArgs, argOptions] = arg.split('|');
       // Alias
@@ -74,49 +116,100 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
       'list', 'plural'
     ].includes(singleKey)) {
       let extraOpts, callback;
+      /**
+       * @typedef {any} AnyValue
+       */
+
+      const obj = /** @type {unknown} */ (
+        /** @type {AnyValue} */
+        (value)[
+          /**
+            * @type {"number"|"date"|"datetime"|"dateRange"|
+            *   "datetimeRange"|"relative"|"region"|"language"|
+            *   "script"|"currency"|"list"|"plural"}
+            */
+          (singleKey)
+        ]
+      );
+
       ({
         value, options: opts, extraOpts, callback
-      } = getFormatterInfo({object: value[singleKey]}));
+      } = getFormatterInfo({
+        object:
+          /**
+           * @type {import('./defaultLocaleResolver.js').DateRangeValueArray|
+           *   import('./defaultLocaleResolver.js').ListValueArray|
+           *   import('./defaultLocaleResolver.js').RelativeValueArray|
+           *   import('./defaultLocaleResolver.js').ValueArray
+           * }
+           */
+          (obj)
+      }));
 
       switch (singleKey) {
       case 'date': case 'datetime':
         expectsDatetime = true;
         break;
-      case 'dateRange': case 'datetimeRange':
-        return new Intl.DateTimeFormat(
+      case 'dateRange': case 'datetimeRange': {
+        const dtf = new Intl.DateTimeFormat(
           locale,
           applyArgs({type: 'DATERANGE', options: extraOpts})
-        ).formatRange(...[value, opts].map((val) => {
-          return typeof val === 'number' ? new Date(val) : val;
-        }));
-      case 'region': case 'language': case 'script': case 'currency':
-        return new Intl.DisplayNames(
-          locale, {
+        );
+
+        return dtf.formatRange(
+          ...(
+          /** @type {[Date, Date]} */
+            ([
+              /** @type {number|Date} */
+              (value),
+              /** @type {Date} */
+              (opts)
+            ].map((val) => {
+              return typeof val === 'number' ? new Date(val) : val;
+            }))
+          )
+        );
+      } case 'region': case 'language': case 'script': case 'currency':
+        return /** @type {string} */ (new Intl.DisplayNames(
+          locale,
+          {
             ...applyArgs({type: singleKey.toUpperCase()}),
             type: singleKey
           }
-        ).of(value);
+        ).of(/** @type {string} */ (value)));
       case 'relative':
         // The second argument actually contains the primary options, so swap
-        [extraOpts, opts] = [opts, extraOpts];
+        // eslint-disable-next-line max-len -- Long
+        [extraOpts, opts] = /** @type {[Intl.RelativeTimeFormatUnit, object?]} */ (
+          [opts, extraOpts]
+        );
         return new Intl.RelativeTimeFormat(
           locale, applyArgs({type: 'RELATIVE'})
-        ).format(value, extraOpts);
+        ).format(/** @type {number} */ (value), extraOpts);
 
       // ListFormat (with Collator)
       case 'list':
         if (callback) {
           return sortList(
-            locale, value, callback,
+            /** @type {string} */ (locale),
+            /** @type {string[]} */
+            (value),
+            callback,
             applyArgs({type: 'LIST'}),
             applyArgs({
               type: 'LIST', options: extraOpts, checkArgOptions: true
             })
           );
         }
-        return sortList(locale, value, applyArgs({type: 'LIST'}), applyArgs({
-          type: 'LIST', options: extraOpts, checkArgOptions: true
-        }));
+        return sortList(
+          /** @type {string} */ (locale),
+          /** @type {string[]} */
+          (value),
+          applyArgs({type: 'LIST'}),
+          applyArgs({
+            type: 'LIST', options: extraOpts, checkArgOptions: true
+          })
+        );
       default:
         // Let `number` and `date` types drop through so their options
         //  can be applied
@@ -132,11 +225,14 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
   ) {
     if (
       typeof value === 'number' &&
-      (expectsDatetime || (/^DATE(?:TIME)(?:\||$)/u).test(arg))
+      (expectsDatetime || (/^DATE(?:TIME)(?:\||$)/u).test(
+        /** @type {string} */ (arg)
+      ))
     ) {
       value = new Date(value);
     }
-    if (typeof value === 'object' && typeof value.getTime === 'function') {
+    if (typeof value === 'object' && 'getTime' in value &&
+        typeof value.getTime === 'function') {
       return new Intl.DateTimeFormat(
         locale,
         applyArgs({type: 'DATETIME'})
@@ -146,13 +242,18 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
 
   // Date range
   if (Array.isArray(value)) {
-    const extraOpts = value[2];
+    const extraOpts = /** @type {Intl.DateTimeFormatOptions|undefined} */ (
+      value[2]
+    );
     return new Intl.DateTimeFormat(
       locale,
       applyArgs({type: 'DATERANGE', options: extraOpts})
-    ).formatRange(...value.slice(0, 2).map((val) => {
-      return typeof val === 'number' ? new Date(val) : val;
-    }));
+    ).formatRange(...(
+      /** @type {[Date, Date]} */
+      (value.slice(0, 2).map((val) => {
+        return typeof val === 'number' ? new Date(val) : val;
+      }))
+    ));
   }
 
   // Numbers

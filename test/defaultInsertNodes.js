@@ -1,3 +1,5 @@
+// eslint-disable-next-line no-shadow -- Needed
+import {expect} from 'chai';
 import {
   defaultInsertNodes
 // } from '../dist/index.esm.min.js';
@@ -9,6 +11,7 @@ describe('defaultInsertNodes', function () {
     function () {
       expect(() => {
         defaultInsertNodes({
+          // @ts-expect-error Testing bad arguments
           maximumLocalNestingDepth: 'not a number'
         });
       }).to.throw(TypeError, '`maximumLocalNestingDepth` must be a number.');
@@ -26,7 +29,7 @@ describe('defaultInsertNodes', function () {
         //
       },
       missingSuppliedFormatters () {
-        //
+        return false;
       },
       switches: {
         bananas: {

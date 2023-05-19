@@ -1,3 +1,5 @@
+// eslint-disable-next-line no-shadow -- Needed
+import {expect} from 'chai';
 import {setExpectedData} from './utils/utils.js';
 import {
   i18n
@@ -83,6 +85,7 @@ describe('i18n', function () {
       'should throw with empty argument', async function () {
         const _ = await i18n();
         expect(() => {
+          // @ts-expect-error Testing bad argument
           _();
         }).to.throw(
           TypeError,
@@ -101,7 +104,7 @@ describe('i18n', function () {
           }
         });
         expect(() => {
-          _({});
+          _('abc', {});
         }).to.not.throw();
       }
     );
@@ -131,7 +134,11 @@ describe('i18n', function () {
           messageStyle: 'richNested'
         });
         expect(() => {
-          _(['key', null]);
+          _([
+            'key',
+            // @ts-expect-error Testing bad argument
+            null
+          ]);
         }).to.throw(
           TypeError,
           '`key` is expected to be a string (or array of strings ' +
@@ -143,7 +150,10 @@ describe('i18n', function () {
       'should throw with non-string key', async function () {
         const _ = await i18n();
         expect(() => {
-          _(null);
+          _(
+            // @ts-expect-error Testing bad argument
+            null
+          );
         }).to.throw(
           TypeError,
           '`key` is expected to be a string (or array of strings ' +
@@ -498,7 +508,11 @@ describe('i18n', function () {
       const _ = await i18n({
         locales: ['yy'],
         allSubstitutions ({value, arg, key}) {
-          return arg === 'UPPER' ? value.toUpperCase() : value;
+          return arg === 'UPPER'
+            ? /** @type {string} */ (
+              value
+            ).toUpperCase()
+            : /** @type {string} */ (value);
         }
       });
       const string = _('key', {
@@ -516,7 +530,9 @@ describe('i18n', function () {
       const _ = await i18n({
         locales: ['yy'],
         allSubstitutions ({value, arg, key}) {
-          return arg === 'UPPER' ? value.toUpperCase() : value;
+          return arg === 'UPPER'
+            ? /** @type {string} */ (value).toUpperCase()
+            : /** @type {string} */ (value);
         }
       });
       const frag = _('key', {
@@ -1675,13 +1691,22 @@ describe('i18n', function () {
     async function () {
       const _ = await i18n({
         locales: ['yy'],
-        allSubstitutions: [({value, arg, key}) => {
-          return arg === 'UPPER' ? value.toUpperCase() : value;
-        }, ({value, arg, key}) => {
-          return arg === 'UPPER'
-            ? '<strong>' + value.toUpperCase() + '</strong>'
-            : value;
-        }]
+        allSubstitutions: [
+          ({value, arg, key}) => {
+            return arg === 'UPPER'
+              ? /** @type {string} */ (
+                value
+              ).toUpperCase()
+              : /** @type {string} */ (value);
+          },
+          ({value, arg, key}) => {
+            return arg === 'UPPER'
+              ? '<strong>' + /** @type {string} */ (
+                value
+              ).toUpperCase() + '</strong>'
+              : /** @type {string} */ (value);
+          }
+        ]
       });
       const string = _('key', {
         substitution1: 'sub1',

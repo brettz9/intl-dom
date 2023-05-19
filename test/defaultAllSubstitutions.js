@@ -1,3 +1,5 @@
+// eslint-disable-next-line no-shadow -- Needed
+import {expect} from 'chai';
 import {
   defaultAllSubstitutions
 // } from '../dist/index.esm.min.js';
@@ -6,7 +8,10 @@ import {
 describe('defaultAllSubstitutions', function () {
   it('should throw with a bad formatter', function () {
     expect(() => {
-      defaultAllSubstitutions({});
+      defaultAllSubstitutions(
+        // @ts-expect-error Testing bad argument
+        {}
+      );
     }).to.throw(TypeError, 'Unknown formatter');
   });
   it('should return the supplied value if a string', function () {
@@ -14,9 +19,9 @@ describe('defaultAllSubstitutions', function () {
     expect(str).to.equal('str');
   });
   it('should return the supplied value if a Node', function () {
-    const node = defaultAllSubstitutions({
+    const node = /** @type {Node} */ (defaultAllSubstitutions({
       value: document.createTextNode('str')
-    });
+    }));
     expect(node.nodeValue).to.equal('str');
   });
   it('should perform number processing', function () {

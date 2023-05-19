@@ -1,3 +1,5 @@
+// eslint-disable-next-line no-shadow -- Needed
+import {expect} from 'chai';
 import {
   defaultLocaleResolver
 // } from '../dist/index.esm.min.js';
@@ -7,7 +9,11 @@ describe('defaultLocaleResolver', function () {
   it('should throw upon a non-string `localesBasePath`', function () {
     expect(() => {
       const nonStringLocale = null;
-      defaultLocaleResolver('/ok/base/path', nonStringLocale);
+      defaultLocaleResolver(
+        '/ok/base/path',
+        // @ts-expect-error Testing bad argument
+        nonStringLocale
+      );
     }).to.throw(
       TypeError,
       '`defaultLocaleResolver` expects a string `locale`.'
@@ -17,7 +23,11 @@ describe('defaultLocaleResolver', function () {
     expect(() => {
       const nonStringBasePath = null;
       const okLocale = 'en';
-      defaultLocaleResolver(nonStringBasePath, okLocale);
+      defaultLocaleResolver(
+        // @ts-expect-error Testing bad argument
+        nonStringBasePath,
+        okLocale
+      );
     }).to.throw(
       TypeError,
       '`defaultLocaleResolver` expects a string `localesBasePath`.'

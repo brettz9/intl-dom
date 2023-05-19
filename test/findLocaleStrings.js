@@ -1,3 +1,5 @@
+// eslint-disable-next-line no-shadow -- Needed
+import {expect} from 'chai';
 import {setExpectedData} from './utils/utils.js';
 import {
   findLocaleStrings,
@@ -17,10 +19,10 @@ describe('findLocaleStrings', function () {
   describe('intlDomLocale', function () {
     beforeEach(() => {
       setNavigatorLanguages(false);
-      global.intlDomLocale = 'zh-Hans';
+      globalThis.intlDomLocale = 'zh-Hans';
     });
     afterEach(() => {
-      delete global.intlDomLocale;
+      delete globalThis.intlDomLocale;
     });
     it(
       'should return locale object with no `locales`, no navigator, empty ' +
@@ -140,7 +142,10 @@ describe('findLocaleStrings', function () {
     'should reject with bad locale argument and no fallbacks',
     function () {
       return expect(findLocaleStrings({
-        locales: [null],
+        locales: [
+          // @ts-expect-error Testing bad argument
+          null
+        ],
         defaultLocales: []
       })).to.be.rejectedWith(Error, /No matching locale found for/u);
     }
@@ -210,6 +215,7 @@ describe('findLocaleStrings', function () {
     return expect(
       findLocaleStrings({
         locales: ['en-US'],
+        // @ts-expect-error Testing bad argument
         localeMatcher: 'nonexistingCustomMatcherName'
       })
     ).to.be.rejectedWith(
@@ -288,7 +294,7 @@ describe('getMatchingLocale', function () {
       const result = getMatchingLocale({
         locale: 'en-US',
         locales: ['en'],
-        localeResolver: defaultLocaleMatcher
+        localeMatcher: defaultLocaleMatcher
       });
       expect(result).to.equal('en');
     }

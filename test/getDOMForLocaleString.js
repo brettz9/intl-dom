@@ -1,3 +1,5 @@
+// eslint-disable-next-line no-shadow -- Needed
+import {expect} from 'chai';
 import {
   getDOMForLocaleString
 // } from '../dist/index.esm.min.js';
@@ -6,7 +8,10 @@ import {
 describe('getDOMForLocaleString', function () {
   it('should throw with bad arguments', function () {
     expect(() => {
-      getDOMForLocaleString();
+      getDOMForLocaleString(
+        // @ts-expect-error Testing bad argument
+        {}
+      );
     }).to.throw(
       TypeError,
       'An options object with a `string` property set to a string must ' +
@@ -15,6 +20,7 @@ describe('getDOMForLocaleString', function () {
 
     expect(() => {
       getDOMForLocaleString({
+        // @ts-expect-error Testing bad argument
         string: null
       });
     }).to.throw(

@@ -1,4 +1,3 @@
-/* globals performance */
 import {processRegex} from './utils.js';
 import {getDocument} from './shared.js';
 
@@ -25,6 +24,13 @@ function generateUUID () { //  Adapted from original: public domain/MIT: http://
   });
 }
 
+/**
+ *
+ * @param {string} locale
+ * @param {string[]} arrayOfItems
+ * @param {Intl.CollatorOptions|undefined} options
+ * @returns {string[]}
+ */
 export const sort = (locale, arrayOfItems, options) => {
   return arrayOfItems.sort(new Intl.Collator(
     locale,
@@ -32,12 +38,27 @@ export const sort = (locale, arrayOfItems, options) => {
   ).compare);
 };
 
+/**
+ *
+ * @param {string} locale
+ * @param {string[]} arrayOfItems
+ * @param {Intl.ListFormatOptions|undefined} [options]
+ * @returns {string}
+ */
 export const list = (locale, arrayOfItems, options) => {
   return new Intl.ListFormat(
     locale, options
   ).format(arrayOfItems);
 };
 
+/**
+ *
+ * @param {string} locale
+ * @param {string[]} arrayOfItems
+ * @param {Intl.ListFormatOptions|undefined} [listOptions]
+ * @param {Intl.CollatorOptions|undefined} [collationOptions]
+ * @returns {string}
+ */
 export const sortListSimple = (
   locale, arrayOfItems, listOptions, collationOptions
 ) => {
@@ -45,11 +66,27 @@ export const sortListSimple = (
   return list(locale, arrayOfItems, listOptions);
 };
 
+/**
+ * @typedef {number} Integer
+ */
+
+/**
+ *
+ * @param {string} locale
+ * @param {string[]} arrayOfItems
+ * @param {((str: string, idx: Integer) => any)|
+ *   Intl.ListFormatOptions|undefined} map
+ * @param {Intl.ListFormatOptions|undefined} [listOptions]
+ * @param {Intl.CollatorOptions|undefined} [collationOptions]
+ * @returns {DocumentFragment|string}
+ */
 export const sortList = (
   locale, arrayOfItems, map, listOptions, collationOptions
 ) => {
   if (typeof map !== 'function') {
-    return sortListSimple(locale, arrayOfItems, map, listOptions);
+    return sortListSimple(
+      locale, /** @type {string[]} */ (arrayOfItems), map, listOptions
+    );
   }
   sort(locale, arrayOfItems, collationOptions);
 
@@ -58,23 +95,31 @@ export const sortList = (
   const placeholderArray = [...arrayOfItems].map(
     (_, i) => `<<${randomId}${i}>>`
   );
+
+  /** @type {(string|Node)[]} */
   const nodes = [];
-  const push = (...args) => {
-    nodes.push(...args);
+
+  /**
+   * @param {string} arg
+   * @returns {void}
+   */
+  const push = (arg) => {
+    nodes.push(arg);
   };
 
   processRegex(
     // // eslint-disable-next-line prefer-named-capture-group
     new RegExp(`<<${randomId}(\\d)>>`, 'gu'),
-    list(locale, placeholderArray, listOptions), {
+    list(locale, placeholderArray, listOptions),
+    {
       betweenMatches: push,
       afterMatch: push,
       onMatch (_, idx) {
-        push(map(arrayOfItems[idx], idx));
+        push(map(arrayOfItems[Number(idx)], Number(idx)));
       }
     }
   );
-  const _doc = getDocument();
+  const _doc = /** @type {Document} */ (getDocument());
   const container = _doc.createDocumentFragment();
   container.append(...nodes);
   return container;

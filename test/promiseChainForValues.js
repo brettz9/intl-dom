@@ -1,3 +1,5 @@
+// eslint-disable-next-line no-shadow -- Needed
+import {expect} from 'chai';
 import {
   promiseChainForValues
 // } from '../dist/index.esm.min.js';
@@ -7,16 +9,24 @@ import {
 describe('promiseChainForValues', function () {
   it('should throw with bad arguments', function () {
     expect(() => {
-      promiseChainForValues('nonArrayValues', () => {
-        // Empty
-      });
+      promiseChainForValues(
+        // @ts-expect-error Testing bad values
+        'nonArrayValues',
+        () => {
+          // Empty
+        }
+      );
     }).to.throw(
       TypeError,
       'The `values` argument to `promiseChainForValues` must be an array.'
     );
 
     expect(() => {
-      promiseChainForValues(['ok'], 'notAFunction');
+      promiseChainForValues(
+        ['ok'],
+        // @ts-expect-error Testing bad values
+        'notAFunction'
+      );
     }).to.throw(
       TypeError,
       'The `errBack` argument to `promiseChainForValues` must be a function.'
@@ -42,6 +52,7 @@ describe('promiseChainForValues', function () {
       return new Promise(function (resolve, reject) {
         if (v === 'a') {
           reject(new Error('missing'));
+          return;
         }
         setTimeout(() => {
           resolve(v);
@@ -60,6 +71,7 @@ describe('promiseChainForValues', function () {
         return new Promise(function (resolve, reject) {
           if (v === 'a' || v === 'b') {
             reject(new Error('missing'));
+            return;
           }
           setTimeout(() => {
             resolve(v);

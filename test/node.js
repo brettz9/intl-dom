@@ -1,4 +1,6 @@
 import {dirname} from 'path';
+// eslint-disable-next-line no-shadow -- Needed
+import {expect} from 'chai';
 import nodeFetch from 'node-fetch';
 import findMatchingLocaleServer from '../node/findMatchingLocaleServer.js';
 

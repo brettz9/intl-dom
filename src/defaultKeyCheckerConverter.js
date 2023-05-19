@@ -3,7 +3,9 @@
  * @param {string|string[]} key By default may be an array (if the type ends
  *   with "Nested") or a string, but a non-default validator may do otherwise.
  * @param {"plain"|"plainNested"|"rich"|
- *   "richNested"|MessageStyleCallback} messageStyle
+ *   "richNested"|
+ *   import('./getMessageForKeyByStyle.js').MessageStyleCallback
+ * } messageStyle
  * @throws {TypeError}
  * @returns {string} The converted (or unconverted) key
  */

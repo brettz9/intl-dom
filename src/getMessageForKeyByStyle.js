@@ -7,26 +7,34 @@ import {unescapeBackslashes, processRegex} from './utils.js';
 /**
  * May also contain language code and direction, translator name and
  * contact, etc., but no defaults currently apply besides reserving `locals`
- * @typedef {PlainObject} LocaleHead
- * @property {LocalObject} locals
+ * @typedef {object} LocaleHead
+ * @property {LocalObject} [locals]
+ * @property {import('./defaultLocaleResolver.js').Switches} [switches]
 */
 
 /**
-* @typedef {LocaleStringBodyObject|
-* PlainLocaleStringBodyObject|PlainObject} LocaleBody
-*/
+ * @typedef {import('./defaultLocaleResolver.js').
+ *   RichNestedLocaleStringBodyObject|
+ *   import('./defaultLocaleResolver.js').RichLocaleStringBodyObject|
+ *   import('./defaultLocaleResolver.js').PlainLocaleStringBodyObject|
+ *   import('./defaultLocaleResolver.js').PlainNestedLocaleStringBodyObject|
+ *   object
+ * } LocaleBody
+ */
 
 /**
-* @typedef {PlainObject} LocaleObject
+* @typedef {object} LocaleObject
 * @property {LocaleHead} [head]
 * @property {LocaleBody} body
 */
 
 /**
-* @typedef {PlainObject} MessageStyleCallbackResult
-* @property {string} value Regardless of message style, will contain the
-*   string result
-* @property {LocaleStringSubObject} [info] Full info on the localized item
+* @typedef {object} MessageStyleCallbackResult
+* @property {string} value Regardless of message style, will contain
+*    the string result
+* @property {import(
+*  './defaultLocaleResolver.js'
+*  ).RichLocaleStringSubObject} [info] Full info on the localized item
 *   (for rich message styles only)
 */
 
@@ -40,7 +48,7 @@ import {unescapeBackslashes, processRegex} from './utils.js';
 
 /* eslint-disable max-len */
 /**
- * @param {PlainObject} [cfg]
+ * @param {object} [cfg]
  * @param {"richNested"|"rich"|"plain"|"plainNested"|MessageStyleCallback} [cfg.messageStyle="richNested"]
  * @returns {MessageStyleCallback}
  */
@@ -52,10 +60,26 @@ export const getMessageForKeyByStyle = ({
     ? messageStyle
     : (messageStyle === 'richNested'
       ? (mainObj, key) => {
-        const obj = mainObj && typeof mainObj === 'object' && mainObj.body;
+        const obj =
+          /**
+           * @type {import('./defaultLocaleResolver.js').
+           *   RichNestedLocaleStringBodyObject
+           * }
+           */ (
+            mainObj && typeof mainObj === 'object' && mainObj.body
+          );
+
+        /**
+         * @type {string[]}
+         */
         const keys = [];
         // eslint-disable-next-line prefer-named-capture-group
         const possiblyEscapedCharPattern = /(\\*)\./gu;
+
+        /**
+         * @param {string} val
+         * @returns {void}
+         */
         const mergeWithPreviousOrStart = (val) => {
           if (!keys.length) {
             keys[0] = '';
@@ -78,6 +102,13 @@ export const getMessageForKeyByStyle = ({
           return unescapeBackslashes(ky);
         });
 
+        /**
+         * @type {false|{
+         *   value: string|undefined,
+         *   info: import('./defaultLocaleResolver.js').
+         *     RichLocaleStringSubObject
+         * }}
+         */
         let ret = false;
         let currObj = obj;
         keysUnescaped.some((ky, i, kys) => {
@@ -86,18 +117,27 @@ export const getMessageForKeyByStyle = ({
           }
           if (
             // If specified key is too deep, we should fail
-            i === kys.length - 1 &&
-            ky in currObj && currObj[ky] && typeof currObj[ky] === 'object' &&
+            i === kys.length - 1 && ky in currObj &&
+            currObj[ky] && typeof currObj[ky] === 'object' &&
             'message' in currObj[ky] &&
             // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
             typeof currObj[ky].message === 'string'
           ) {
             ret = {
-              value: currObj[ky].message,
-              info: currObj[ky]
+              value: /** @type {string} */ (currObj[ky].message),
+              info:
+              /**
+               * @type {import('./defaultLocaleResolver.js').
+               *   RichLocaleStringSubObject}
+               */ (currObj[ky])
             };
           }
-          currObj = currObj[ky];
+          currObj =
+            /**
+             * @type {import('./defaultLocaleResolver.js').
+             *   RichNestedLocaleStringBodyObject
+             * }
+             */ (currObj[ky]);
 
           return false;
         });
@@ -105,7 +145,12 @@ export const getMessageForKeyByStyle = ({
       }
       : (messageStyle === 'rich'
         ? (mainObj, key) => {
-          const obj = mainObj && typeof mainObj === 'object' && mainObj.body;
+          const obj =
+            /**
+             * @type {import('./defaultLocaleResolver.js').
+             *   RichLocaleStringBodyObject
+             * }
+             */ (mainObj && typeof mainObj === 'object' && mainObj.body);
           if (
             obj && typeof obj === 'object' &&
             key in obj && obj[key] && typeof obj[key] === 'object' &&
@@ -122,7 +167,14 @@ export const getMessageForKeyByStyle = ({
         }
         : (messageStyle === 'plain'
           ? (mainObj, key) => {
-            const obj = mainObj && typeof mainObj === 'object' && mainObj.body;
+            const obj =
+              /**
+               * @type {import('./defaultLocaleResolver.js').
+               *   PlainLocaleStringBodyObject
+               * }
+               */ (
+                mainObj && typeof mainObj === 'object' && mainObj.body
+              );
             if (
               obj && typeof obj === 'object' &&
               key in obj && obj[key] && typeof obj[key] === 'string'
@@ -135,18 +187,33 @@ export const getMessageForKeyByStyle = ({
           }
           : (messageStyle === 'plainNested'
             ? (mainObj, key) => {
-              const obj = mainObj && typeof mainObj === 'object' &&
-                mainObj.body;
+              const obj =
+                /**
+                 * @type {import('./defaultLocaleResolver.js').
+                 *   PlainNestedLocaleStringBodyObject
+                 * }
+                 */ (
+                  mainObj && typeof mainObj === 'object' && mainObj.body
+                );
               if (obj && typeof obj === 'object') {
                 // Should really be counting that it is an odd number
                 //  of backslashes only
                 const keys = key.split(/(?<!\\)\./u);
-                const value = keys.reduce((o, k) => {
-                  if (o && o[k]) {
-                    return o[k];
-                  }
-                  return null;
-                }, obj);
+                const value = keys.reduce(
+                  /**
+                   * @param {null|string|import('./defaultLocaleResolver.js').
+                   *   PlainNestedLocaleStringBodyObject} o
+                   * @param {string} k
+                   * @returns {null|string|import('./defaultLocaleResolver.js').
+                   *   PlainNestedLocaleStringBodyObject}
+                   */
+                  (o, k) => {
+                    if (o && typeof o === 'object' && o[k]) {
+                      return o[k];
+                    }
+                    return null;
+                  }, obj
+                );
                 if (value && typeof value === 'string') {
                   return {value};
                 }

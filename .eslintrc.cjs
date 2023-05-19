@@ -47,7 +47,6 @@ module.exports = {
     ],
     files: ['test/*.js'],
     globals: {
-      expect: true,
       setNavigatorLanguages: true
     },
     env: {

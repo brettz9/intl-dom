@@ -28,19 +28,19 @@ export const defaultLocaleMatcher = (locale) => {
 };
 
 /**
- * @param {PlainObject} cfg
+ * @param {object} cfg
  * @param {string} cfg.locale
  * @param {string[]} cfg.locales
- * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleMatcher]
+ * @param {LocaleMatcher} [cfg.localeMatcher=defaultLocaleMatcher]
  * @returns {string|false}
  */
 export const getMatchingLocale = ({
-  locale, locales, localeResolver = defaultLocaleMatcher
+  locale, locales, localeMatcher = defaultLocaleMatcher
 }) => {
   try {
     while (!locales.includes(locale)) {
       // Catch as `defaultLocaleMatcher` will throw if no hyphen found
-      locale = localeResolver(locale);
+      locale = localeMatcher(locale);
     }
   } catch (err) {
     return false;
@@ -49,20 +49,30 @@ export const getMatchingLocale = ({
 };
 
 /**
-* @typedef {PlainObject} LocaleObjectInfo
-* @property {LocaleObject} strings The successfully retrieved locale strings
-* @property {string} locale The successfully resolved locale
-*/
+ * @typedef {object} LocaleObjectInfo
+ * @property {import('./getMessageForKeyByStyle.js').
+ *   LocaleObject} strings The successfully retrieved locale strings
+ * @property {string} locale The successfully resolved locale
+ */
 
 /**
- * @callback LocaleStringFinder
- * @param {PlainObject} [cfg={}]
- * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
- * @param {string[]} [cfg.defaultLocales=["en-US"]]
- * @param {string} [cfg.localesBasePath="."]
- * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
- * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher]
- * @returns {Promise<LocaleObjectInfo>}
+ * @typedef {{
+ *   locales?: string[],
+ *   defaultLocales?: string[],
+ *   localesBasePath?: string,
+ *   localeResolver?: import('./defaultLocaleResolver.js').LocaleResolver,
+ *   localeMatcher?: "lookup"|LocaleMatcher
+ * }} LocaleStringArgs
+ */
+
+/**
+ * `locales` - BCP-47 language strings. Defaults to `navigator.languages`.
+ * `defaultLocales` - Defaults to ["en-US"].
+ * `localesBasePath` - Defaults to `.`.
+ * `localeResolver` - Defaults to `defaultLocaleResolver`.
+ * @typedef {(
+ *   cfg?: LocaleStringArgs
+ * ) => Promise<LocaleObjectInfo>} LocaleStringFinder
  */
 
 /**
@@ -76,20 +86,19 @@ export const findLocaleStrings = ({
   localesBasePath,
   localeMatcher
 } = {}) => {
-  return _findLocale({
+  return /** @type {Promise<LocaleObjectInfo>} */ (_findLocale({
     locales, defaultLocales, localeResolver, localesBasePath, localeMatcher
-  });
+  }));
 };
 
 /**
- * @callback LocaleFinder
- * @param {PlainObject} [cfg={}]
- * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
- * @param {string[]} [cfg.defaultLocales=["en-US"]]
- * @param {string} [cfg.localesBasePath="."]
- * @param {LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
- * @param {"lookup"|LocaleMatcher} [cfg.localeMatcher]
- * @returns {Promise<string>} Resolves to the successfully resolved locale
+ * Resolves to the successfully resolved locale.
+ * `locales` - BCP-47 language strings. Defaults to `navigator.languages`.
+ * `defaultLocales` - Defaults to ["en-US"].
+ * `localesBasePath` - Defaults to `.`.
+ * `localeResolver` - Defaults to `defaultLocaleResolver`.
+ * `localeMatcher`.
+ * @typedef {(cfg?: LocaleStringArgs) => Promise<string>} LocaleFinder
  */
 
 /**
@@ -103,14 +112,18 @@ export const findLocale = ({
   localesBasePath,
   localeMatcher
 } = {}) => {
-  return _findLocale({
+  return /** @type {Promise<string>} */ (_findLocale({
     locales, defaultLocales, localeResolver, localesBasePath, localeMatcher,
     headOnly: true
-  });
+  }));
 };
 
 /**
- * @type {LocaleStringFinder|LocaleFinder} Also has a `headOnly` boolean
+ * @type {(
+ *   cfg: LocaleStringArgs & {
+ *     headOnly?: boolean
+ *   }
+ * ) => Promise<string|LocaleObjectInfo>} Also has a `headOnly` boolean
  *  property to determine whether to make a simple HEAD and resolve to
  *  the locale rather than locale and contents
  */
@@ -128,7 +141,7 @@ const _findLocale = async ({
    * @callback getLocale
    * @throws {SyntaxError|TypeError|Error}
    * @param {string} locale
-   * @returns {Promise<LocaleObjectInfo>}
+   * @returns {Promise<LocaleObjectInfo|string>}
    */
   async function getLocale (locale) {
     if (typeof locale !== 'string') {
@@ -141,7 +154,7 @@ const _findLocale = async ({
       );
     }
     try {
-      const _fetch = getFetch();
+      const _fetch = /** @type {import('./shared.js').Fetch} */ (getFetch());
       const resp = await (headOnly
         ? _fetch(url, {
           method: 'HEAD'
@@ -164,10 +177,12 @@ const _findLocale = async ({
         strings
       };
     } catch (err) {
-      if (err.name === 'SyntaxError') {
+      if (/** @type {Error} */ (err).name === 'SyntaxError') {
         throw err;
       }
-      const newLocale = await localeMatcher(locale);
+      const newLocale = await /** @type {LocaleMatcher} */ (
+        localeMatcher
+      )(locale);
       return getLocale(newLocale);
     }
   }

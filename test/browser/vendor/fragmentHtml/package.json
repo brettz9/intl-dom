@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "name": "fragmenthtml",
+  "type": "module",
+  "types": "./index.d.ts",
+  "main": "./fragmentHtml.js"
+}

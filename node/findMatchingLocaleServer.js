@@ -8,11 +8,17 @@ export {setFetch, getFetch} from '../src/shared.js';
 setFetch(fileFetch);
 
 /**
- * @param {PlainObject} cfg
+ * @typedef {number} Integer
+ */
+
+/**
+ * @param {object} cfg
  * @param {string} cfg.basePath
  * @param {Integer} [cfg.port=3005]
- * @param {Integer} [cfg.wrap]
- * @returns {void}
+ * @param {(value: any) => string} [cfg.wrap]
+ * @returns {http.Server<
+ *   typeof http.IncomingMessage, typeof http.ServerResponse
+ * >}
  */
 function findMatchingLocaleServer ({basePath, wrap, port = 3005}) {
   const wrapResult = wrap || JSON.stringify;
