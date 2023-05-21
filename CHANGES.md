@@ -1,5 +1,9 @@
 # intl-dom CHANGES
 
+## 0.18.0
+
+- BREAKING: feat: Add TS typings
+
 ## 0.17.0
 
 - BREAKING: feat: `defaults` must now be encapsulated in a `body`, allowing
