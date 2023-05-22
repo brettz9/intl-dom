@@ -1,5 +1,10 @@
 # intl-dom CHANGES
 
+## 0.18.1
+
+- feat: export `Sort`, `List`, `SortList`, and
+   `I18NCallback` types
+
 ## 0.18.0
 
 - BREAKING: feat: Add TS typings
