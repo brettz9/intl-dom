@@ -1,5 +1,9 @@
 # intl-dom CHANGES
 
+## 0.19.0
+
+- fix: Make `I18NCallback` type generic
+
 ## 0.18.1
 
 - feat: export `Sort`, `List`, `SortList`, and

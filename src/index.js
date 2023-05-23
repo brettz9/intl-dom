@@ -47,13 +47,14 @@
 *     throwOnMissingSuppliedFormatters?: boolean,
 *     throwOnExtraSuppliedFormatters?: boolean
 *   }
-* ) => string|DocumentFragment|Text) & {
+* ) => T) & {
 *   resolvedLocale: string,
 *   strings: import('./getMessageForKeyByStyle.js').LocaleObject,
 *   sort: Sort,
 *   sortList: SortList,
 *   list: List
-* }} I18NCallback
+* }} I18NCallback<T>
+* @template [T=string|DocumentFragment|Text]
 */
 
 // UTILITIES
