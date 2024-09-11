@@ -1,5 +1,10 @@
 # intl-dom CHANGES
 
+## 0.20.0
+
+- fix: revert to `file-fetch` 1.6.1 for allowing working where global `URL`
+  is overwritten (as currently needed in `typeson-registry`)
+
 ## 0.19.0
 
 - fix: Make `I18NCallback` type generic

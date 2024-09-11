@@ -1,6 +1,6 @@
 {
   "name": "intl-dom",
-  "version": "0.19.0",
+  "version": "0.20.0",
   "description": "Internationalization allowing interspersing of DOM elements among the localized strings",
   "type": "module",
   "main": "./dist/index.umd.js",
@@ -16,7 +16,7 @@
     "license-badge": "license-badger --corrections --uncategorizedLicenseTemplate \"\\${license} (\\${name} (\\${version}))\" --filteredTypes=nonempty --textTemplate \"License types\n(project, deps, and bundled devDeps)\" --packageJson --production badges/licenses-badge.svg",
     "license-badge-dev": "license-badger --corrections --filteredTypes=nonempty --textTemplate \"License types\n(all devDeps)\" --allDevelopment badges/licenses-badge-dev.svg",
     "license-badges": "npm run license-badge && npm run license-badge-dev",
-    "prepublishOnly": "npm run license-badges",
+    "prepublishOnly": "echo 'skipping npm run license-badges for now for time required'",
     "filesize-badge": "filesize-badger --filesizeFormat=\"{}\" --file=\"dist/index.umd.js\" badges/filesize-badge.svg",
     "eslint": "eslint --ext=js,md,html .",
     "lint": "npm run eslint",
@@ -66,7 +66,7 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
-    "file-fetch": "^1.7.0",
+    "file-fetch": "1.6.1",
     "json-6": "^1.1.4"
   },
   "devDependencies": {
