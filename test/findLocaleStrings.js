@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-shadow -- Needed
 import {expect} from 'chai';
 import {setExpectedData} from './utils/utils.js';
 import {
@@ -170,7 +169,7 @@ describe('findLocaleStrings', function () {
     function () {
       return expect(findLocaleStrings({
         locales: ['en-US'],
-        localeResolver (localesBasePath, locale) {
+        localeResolver (/* localesBasePath, locale */) {
           return false;
         }
       })).to.be.rejectedWith(Error, /No matching locale found for/u);
@@ -225,7 +224,6 @@ describe('findLocaleStrings', function () {
   });
 });
 
-// eslint-disable-next-line mocha/max-top-level-suites
 describe('defaultLocaleMatcher', function () {
   it(
     'should strip the final hyphen content when a hyphen is present',

@@ -15,12 +15,12 @@ function generateUUID () { //  Adapted from original: public domain/MIT: http://
   ) {
     d += performance.now(); // use high-precision timer if available
   }
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/gu, function (c) {
-    /* eslint-disable no-bitwise */
-    const r = Math.trunc((d + Math.random() * 16) % 16);
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replaceAll(/[xy]/gu, function (c) {
+    /* eslint-disable no-bitwise, sonarjs/pseudo-random -- Convenient */
+    const r = Math.trunc((d + (Math.random() * 16)) % 16);
     d = Math.floor(d / 16);
-    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-    /* eslint-enable no-bitwise */
+    return (c === 'x' ? r : ((r & 0x3) | 0x8)).toString(16);
+    /* eslint-enable no-bitwise, sonarjs/pseudo-random -- Convenient */
   });
 }
 

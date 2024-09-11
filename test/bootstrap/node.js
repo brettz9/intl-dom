@@ -19,11 +19,10 @@ import 'intl-list-format';
 import 'intl-list-format/locale-data/en-US.js';
 
 // Testing
-// eslint-disable-next-line no-shadow -- Not a test file here
-import chai from 'chai';
+import * as chai from 'chai';
 import chaiDOM from 'chai-dom';
 import chaiAsPromised from 'chai-as-promised';
-// eslint-disable-next-line import/order -- Group chai plugins together
+// // eslint-disable-next-line import/order -- Group chai plugins together
 import fragmentHtml from '../browser/vendor/fragmentHtml/fragmentHtml.js';
 
 import {JSDOM} from 'jsdom';
@@ -62,6 +61,8 @@ globalThis.document = doc;
  */
 globalThis.setNavigatorLanguages = (languages) => {
   if (languages === false) {
+    // eslint-disable-next-line @stylistic/max-len -- Long
+    /* eslint-disable n/no-unsupported-features/node-builtins -- Polyfill for testing */
     // @ts-expect-error Needed for testing
     delete globalThis.navigator;
     return;
@@ -70,6 +71,8 @@ globalThis.setNavigatorLanguages = (languages) => {
   globalThis.navigator = {
     languages
   };
+  // eslint-disable-next-line @stylistic/max-len -- Long
+  /* eslint-enable n/no-unsupported-features/node-builtins -- Polyfill for testing */
 };
 
 setTimeout(() => {

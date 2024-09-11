@@ -9,9 +9,10 @@
     "emitDeclarationOnly": true,
     "declaration": true,
     "declarationMap": true,
+    "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
-    "target": "es6",
+    "target": "ES2018",
     "outDir": "dist"
   },
   "include": ["src/**/*.js", "typings/intlDomLocale.d.ts"],

@@ -14,19 +14,21 @@
         <!-- For ESM: https://github.com/mochajs/mocha/issues/3006 -->
         <script src="../../node_modules/mocha/mocha.js"></script>
 
-        <!-- For ESM: To support in 5.0; release 4.3.0 to be done
-           first: https://github.com/chaijs/chai/pull/1266 -->
-        <script src="../../node_modules/chai/chai.js"></script>
-
-        <script src="../../node_modules/chai-dom/chai-dom.js"></script>
-
-        <!-- Maintainer wouldn't change source to ESM, so would need to make own -->
-        <script src="vendor/chai-as-promised.js"></script>
         <!-- <script src="../../node_modules/sinon/pkg/sinon-no-sourcemaps.js"></script> -->
 
-        <script type="module">
-        /* globals chai, chaiAsPromised */
+        <script type="importmap">
+          {
+            "imports": {
+              "chai": "../../node_modules/chai/chai.js",
+              "check-error": "./vendor/check-error/index.js"
+            }
+          }
+        </script>
 
+        <script type="module">
+        import * as chai from 'chai';
+        // eslint-disable-next-line @stylistic/max-len -- Long
+        import chaiAsPromised from '../../node_modules/chai-as-promised/lib/chai-as-promised.js';
         // Needed for Firefox (not Chrome)
         // import '../../node_modules/@formatjs/intl-displaynames/polyfill.js';
         import './vendor/formatjs-intl-displaynames-polyfill.js';
@@ -45,9 +47,16 @@
         //  see https://github.com/standard-things/esm/issues/839
         import jsonExtra from '../../node_modules/json-6/dist/index.mjs';
 
+        window.expect = chai.expect;
+        window.describe = mocha.describe;
+        window.chai = chai;
+
+        // eslint-disable-next-line @stylistic/max-len -- Long
+        // eslint-disable-next-line escompat/no-top-level-await, escompat/no-dynamic-imports -- Just test file
+        await import('../../node_modules/chai-dom/chai-dom.js');
+
         window.jsonExtra = jsonExtra;
 
-        window.expect = chai.expect;
         chai.use(chaiAsPromised);
         chai.use(fragmentHtml);
         mocha.setup('bdd');
@@ -63,7 +72,13 @@
             return;
           }
           if (typeof navigator === 'undefined') {
-            window.navigator = {};
+            window.navigator = {
+              credentials: {
+                create () {
+                  // Firefox was giving console errors without it
+                }
+              }
+            };
           }
           Object.defineProperty(
             window.navigator,

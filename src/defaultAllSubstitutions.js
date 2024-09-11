@@ -57,7 +57,7 @@ export const getFormatterInfo = ({object}) => {
 /**
  * @type {AllSubstitutionCallback}
  */
-export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
+export const defaultAllSubstitutions = ({value, arg, /* , key */ locale}) => {
   // Strings or DOM Nodes
   if (
     typeof value === 'string' || (value && typeof value === 'object' &&
@@ -85,6 +85,7 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
     checkArgOptions = false
   }) => {
     if (typeof arg === 'string') {
+      // eslint-disable-next-line prefer-const -- Convenient
       let [userType, extraArgs, argOptions] = arg.split('|');
       // Alias
       if (userType === 'DATE') {
@@ -179,7 +180,7 @@ export const defaultAllSubstitutions = ({value, arg, key, locale}) => {
         ).of(/** @type {string} */ (value)));
       case 'relative':
         // The second argument actually contains the primary options, so swap
-        // eslint-disable-next-line max-len -- Long
+        // eslint-disable-next-line @stylistic/max-len -- Long
         [extraOpts, opts] = /** @type {[Intl.RelativeTimeFormatUnit, object?]} */ (
           [opts, extraOpts]
         );

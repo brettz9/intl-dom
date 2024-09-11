@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+/* eslint-disable @stylistic/max-len -- Long */
 export const setExpectedData = function () {
   this.expectedEnUS = {
     head: {
@@ -124,7 +124,7 @@ export const setExpectedData = function () {
           message: 'a local value'
         },
         aLocalVarWithEscape: {
-          message: '\\{-aLocalVar} \\\\\\\\\\{-aLocalVar} \\\\{-nested.local}'
+          message: String.raw`\{-aLocalVar} \\\\\{-aLocalVar} \\{-nested.local}`
         },
         aParameterizedLocalVar: {
           message: '{adjective1} and {adjective2} day; {subst}'

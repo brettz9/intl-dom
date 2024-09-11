@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-shadow -- Needed
 import {expect} from 'chai';
 import {setExpectedData} from './utils/utils.js';
 import {

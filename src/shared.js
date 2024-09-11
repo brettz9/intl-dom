@@ -1,4 +1,4 @@
-/* globals fetch, document */
+/* globals document -- Polyglot variable */
 
 /**
  * @typedef {(

@@ -65,7 +65,7 @@ export type LocaleObjectInfo = {
     /**
      * The successfully retrieved locale strings
      */
-    strings: import('./getMessageForKeyByStyle.js').LocaleObject;
+    strings: import("./getMessageForKeyByStyle.js").LocaleObject;
     /**
      * The successfully resolved locale
      */
@@ -75,7 +75,7 @@ export type LocaleStringArgs = {
     locales?: string[];
     defaultLocales?: string[];
     localesBasePath?: string;
-    localeResolver?: import('./defaultLocaleResolver.js').LocaleResolver;
+    localeResolver?: import("./defaultLocaleResolver.js").LocaleResolver;
     localeMatcher?: "lookup" | LocaleMatcher;
 };
 /**

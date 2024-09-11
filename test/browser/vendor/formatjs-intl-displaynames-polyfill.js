@@ -385,9 +385,9 @@ exports.CanonicalizeTimeZoneName = void 0;
  * @param tz
  */
 function CanonicalizeTimeZoneName(tz, _a) {
-    var tzData = _a.tzData, uppercaseLinks = _a.uppercaseLinks;
+    var zoneNames = _a.zoneNames, uppercaseLinks = _a.uppercaseLinks;
     var uppercasedTz = tz.toUpperCase();
-    var uppercasedZones = Object.keys(tzData).reduce(function (all, z) {
+    var uppercasedZones = zoneNames.reduce(function (all, z) {
         all[z.toUpperCase()] = z;
         return all;
     }, {});
@@ -421,15 +421,23 @@ exports.CoerceOptionsToObject = CoerceOptionsToObject;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DefaultNumberOption = void 0;
-function DefaultNumberOption(val, min, max, fallback) {
-    if (val !== undefined) {
-        val = Number(val);
-        if (isNaN(val) || val < min || val > max) {
-            throw new RangeError("".concat(val, " is outside of range [").concat(min, ", ").concat(max, "]"));
-        }
-        return Math.floor(val);
+/**
+ * https://tc39.es/ecma402/#sec-defaultnumberoption
+ * @param val
+ * @param min
+ * @param max
+ * @param fallback
+ */
+function DefaultNumberOption(inputVal, min, max, fallback) {
+    if (inputVal === undefined) {
+        // @ts-expect-error
+        return fallback;
     }
-    return fallback;
+    var val = Number(inputVal);
+    if (isNaN(val) || val < min || val > max) {
+        throw new RangeError("".concat(val, " is outside of range [").concat(min, ", ").concat(max, "]"));
+    }
+    return Math.floor(val);
 }
 exports.DefaultNumberOption = DefaultNumberOption;
 
@@ -448,7 +456,6 @@ exports.GetNumberOption = void 0;
 var DefaultNumberOption_1 = require("./DefaultNumberOption");
 function GetNumberOption(options, property, minimum, maximum, fallback) {
     var val = options[property];
-    // @ts-expect-error
     return (0, DefaultNumberOption_1.DefaultNumberOption)(val, minimum, maximum, fallback);
 }
 exports.GetNumberOption = GetNumberOption;
@@ -627,13 +634,11 @@ exports.IsValidTimeZoneName = void 0;
  * @param implDetails implementation details
  */
 function IsValidTimeZoneName(tz, _a) {
-    var tzData = _a.tzData, uppercaseLinks = _a.uppercaseLinks;
+    var zoneNamesFromData = _a.zoneNamesFromData, uppercaseLinks = _a.uppercaseLinks;
     var uppercasedTz = tz.toUpperCase();
     var zoneNames = new Set();
     var linkNames = new Set();
-    Object.keys(tzData)
-        .map(function (z) { return z.toUpperCase(); })
-        .forEach(function (z) { return zoneNames.add(z); });
+    zoneNamesFromData.map(function (z) { return z.toUpperCase(); }).forEach(function (z) { return zoneNames.add(z); });
     Object.keys(uppercaseLinks).forEach(function (linkName) {
         linkNames.add(linkName.toUpperCase());
         zoneNames.add(uppercaseLinks[linkName].toUpperCase());
@@ -1047,16 +1052,16 @@ exports.GetUnsignedRoundingMode = GetUnsignedRoundingMode;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InitializeNumberFormat = void 0;
-var CanonicalizeLocaleList_1 = require("../CanonicalizeLocaleList");
-var GetOption_1 = require("../GetOption");
 var intl_localematcher_1 = require("@formatjs/intl-localematcher");
-var SetNumberFormatUnitOptions_1 = require("./SetNumberFormatUnitOptions");
-var CurrencyDigits_1 = require("./CurrencyDigits");
-var SetNumberFormatDigitOptions_1 = require("./SetNumberFormatDigitOptions");
-var utils_1 = require("../utils");
+var CanonicalizeLocaleList_1 = require("../CanonicalizeLocaleList");
 var CoerceOptionsToObject_1 = require("../CoerceOptionsToObject");
 var GetNumberOption_1 = require("../GetNumberOption");
+var GetOption_1 = require("../GetOption");
 var GetStringOrBooleanOption_1 = require("../GetStringOrBooleanOption");
+var utils_1 = require("../utils");
+var CurrencyDigits_1 = require("./CurrencyDigits");
+var SetNumberFormatDigitOptions_1 = require("./SetNumberFormatDigitOptions");
+var SetNumberFormatUnitOptions_1 = require("./SetNumberFormatUnitOptions");
 var VALID_ROUND_INCREMENT_VALUES = [
     1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000,
 ];
@@ -1079,7 +1084,7 @@ function InitializeNumberFormat(nf, locales, opts, _a) {
         throw RangeError("Invalid numberingSystems: ".concat(numberingSystem));
     }
     opt.nu = numberingSystem;
-    var r = (0, intl_localematcher_1.ResolveLocale)(availableLocales, requestedLocales, opt, 
+    var r = (0, intl_localematcher_1.ResolveLocale)(Array.from(availableLocales), requestedLocales, opt, 
     // [[RelevantExtensionKeys]] slot, which is a constant
     ['nu'], localeData, getDefaultLocale);
     var dataLocaleData = localeData[r.dataLocale];
@@ -1144,7 +1149,7 @@ function InitializeNumberFormat(nf, locales, opts, _a) {
 }
 exports.InitializeNumberFormat = InitializeNumberFormat;
 
-},{"../CanonicalizeLocaleList":2,"../CoerceOptionsToObject":4,"../GetNumberOption":6,"../GetOption":7,"../GetStringOrBooleanOption":9,"../utils":45,"./CurrencyDigits":18,"./SetNumberFormatDigitOptions":28,"./SetNumberFormatUnitOptions":29,"@formatjs/intl-localematcher":59}],26:[function(require,module,exports){
+},{"../CanonicalizeLocaleList":2,"../CoerceOptionsToObject":4,"../GetNumberOption":6,"../GetOption":7,"../GetStringOrBooleanOption":9,"../utils":45,"./CurrencyDigits":18,"./SetNumberFormatDigitOptions":28,"./SetNumberFormatUnitOptions":29,"@formatjs/intl-localematcher":61}],26:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PartitionNumberPattern = void 0;
@@ -1231,7 +1236,7 @@ function PartitionNumberPattern(numberFormat, x, _a) {
 }
 exports.PartitionNumberPattern = PartitionNumberPattern;
 
-},{"../262":1,"./ComputeExponent":16,"./FormatNumericToString":23,"./format_to_parts":33,"tslib":60}],27:[function(require,module,exports){
+},{"../262":1,"./ComputeExponent":16,"./FormatNumericToString":23,"./format_to_parts":33,"tslib":62}],27:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PartitionNumberRangePattern = void 0;
@@ -1273,8 +1278,8 @@ exports.PartitionNumberRangePattern = PartitionNumberRangePattern;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SetNumberFormatDigitOptions = void 0;
-var GetNumberOption_1 = require("../GetNumberOption");
 var DefaultNumberOption_1 = require("../DefaultNumberOption");
+var GetNumberOption_1 = require("../GetNumberOption");
 var GetOption_1 = require("../GetOption");
 /**
  * https://tc39.es/ecma402/#sec-setnfdigitoptions
@@ -1311,11 +1316,10 @@ function SetNumberFormatDigitOptions(internalSlots, opts, mnfdDefault, mxfdDefau
     }
     if (needFd) {
         if (hasFd) {
-            // @ts-expect-error
             mnfd = (0, DefaultNumberOption_1.DefaultNumberOption)(mnfd, 0, 20, undefined);
-            // @ts-expect-error
             mxfd = (0, DefaultNumberOption_1.DefaultNumberOption)(mxfd, 0, 20, undefined);
             if (mnfd === undefined) {
+                // @ts-expect-error
                 mnfd = Math.min(mnfdDefault, mxfd);
             }
             else if (mxfd === undefined) {
@@ -1542,14 +1546,795 @@ exports.ToRawPrecision = ToRawPrecision;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.digitMapping = void 0;
-exports.digitMapping = { "adlm": ["𞥐", "𞥑", "𞥒", "𞥓", "𞥔", "𞥕", "𞥖", "𞥗", "𞥘", "𞥙"], "ahom": ["𑜰", "𑜱", "𑜲", "𑜳", "𑜴", "𑜵", "𑜶", "𑜷", "𑜸", "𑜹"], "arab": ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"], "arabext": ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"], "bali": ["᭐", "᭑", "᭒", "᭓", "᭔", "᭕", "᭖", "᭗", "᭘", "᭙"], "beng": ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"], "bhks": ["𑱐", "𑱑", "𑱒", "𑱓", "𑱔", "𑱕", "𑱖", "𑱗", "𑱘", "𑱙"], "brah": ["𑁦", "𑁧", "𑁨", "𑁩", "𑁪", "𑁫", "𑁬", "𑁭", "𑁮", "𑁯"], "cakm": ["𑄶", "𑄷", "𑄸", "𑄹", "𑄺", "𑄻", "𑄼", "𑄽", "𑄾", "𑄿"], "cham": ["꩐", "꩑", "꩒", "꩓", "꩔", "꩕", "꩖", "꩗", "꩘", "꩙"], "deva": ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"], "diak": ["𑥐", "𑥑", "𑥒", "𑥓", "𑥔", "𑥕", "𑥖", "𑥗", "𑥘", "𑥙"], "fullwide": ["０", "１", "２", "３", "４", "５", "６", "７", "８", "９"], "gong": ["𑶠", "𑶡", "𑶢", "𑶣", "𑶤", "𑶥", "𑶦", "𑶧", "𑶨", "𑶩"], "gonm": ["𑵐", "𑵑", "𑵒", "𑵓", "𑵔", "𑵕", "𑵖", "𑵗", "𑵘", "𑵙"], "gujr": ["૦", "૧", "૨", "૩", "૪", "૫", "૬", "૭", "૮", "૯"], "guru": ["੦", "੧", "੨", "੩", "੪", "੫", "੬", "੭", "੮", "੯"], "hanidec": ["〇", "一", "二", "三", "四", "五", "六", "七", "八", "九"], "hmng": ["𖭐", "𖭑", "𖭒", "𖭓", "𖭔", "𖭕", "𖭖", "𖭗", "𖭘", "𖭙"], "hmnp": ["𞅀", "𞅁", "𞅂", "𞅃", "𞅄", "𞅅", "𞅆", "𞅇", "𞅈", "𞅉"], "java": ["꧐", "꧑", "꧒", "꧓", "꧔", "꧕", "꧖", "꧗", "꧘", "꧙"], "kali": ["꤀", "꤁", "꤂", "꤃", "꤄", "꤅", "꤆", "꤇", "꤈", "꤉"], "khmr": ["០", "១", "២", "៣", "៤", "៥", "៦", "៧", "៨", "៩"], "knda": ["೦", "೧", "೨", "೩", "೪", "೫", "೬", "೭", "೮", "೯"], "lana": ["᪀", "᪁", "᪂", "᪃", "᪄", "᪅", "᪆", "᪇", "᪈", "᪉"], "lanatham": ["᪐", "᪑", "᪒", "᪓", "᪔", "᪕", "᪖", "᪗", "᪘", "᪙"], "laoo": ["໐", "໑", "໒", "໓", "໔", "໕", "໖", "໗", "໘", "໙"], "lepc": ["᪐", "᪑", "᪒", "᪓", "᪔", "᪕", "᪖", "᪗", "᪘", "᪙"], "limb": ["᥆", "᥇", "᥈", "᥉", "᥊", "᥋", "᥌", "᥍", "᥎", "᥏"], "mathbold": ["𝟎", "𝟏", "𝟐", "𝟑", "𝟒", "𝟓", "𝟔", "𝟕", "𝟖", "𝟗"], "mathdbl": ["𝟘", "𝟙", "𝟚", "𝟛", "𝟜", "𝟝", "𝟞", "𝟟", "𝟠", "𝟡"], "mathmono": ["𝟶", "𝟷", "𝟸", "𝟹", "𝟺", "𝟻", "𝟼", "𝟽", "𝟾", "𝟿"], "mathsanb": ["𝟬", "𝟭", "𝟮", "𝟯", "𝟰", "𝟱", "𝟲", "𝟳", "𝟴", "𝟵"], "mathsans": ["𝟢", "𝟣", "𝟤", "𝟥", "𝟦", "𝟧", "𝟨", "𝟩", "𝟪", "𝟫"], "mlym": ["൦", "൧", "൨", "൩", "൪", "൫", "൬", "൭", "൮", "൯"], "modi": ["𑙐", "𑙑", "𑙒", "𑙓", "𑙔", "𑙕", "𑙖", "𑙗", "𑙘", "𑙙"], "mong": ["᠐", "᠑", "᠒", "᠓", "᠔", "᠕", "᠖", "᠗", "᠘", "᠙"], "mroo": ["𖩠", "𖩡", "𖩢", "𖩣", "𖩤", "𖩥", "𖩦", "𖩧", "𖩨", "𖩩"], "mtei": ["꯰", "꯱", "꯲", "꯳", "꯴", "꯵", "꯶", "꯷", "꯸", "꯹"], "mymr": ["၀", "၁", "၂", "၃", "၄", "၅", "၆", "၇", "၈", "၉"], "mymrshan": ["႐", "႑", "႒", "႓", "႔", "႕", "႖", "႗", "႘", "႙"], "mymrtlng": ["꧰", "꧱", "꧲", "꧳", "꧴", "꧵", "꧶", "꧷", "꧸", "꧹"], "newa": ["𑑐", "𑑑", "𑑒", "𑑓", "𑑔", "𑑕", "𑑖", "𑑗", "𑑘", "𑑙"], "nkoo": ["߀", "߁", "߂", "߃", "߄", "߅", "߆", "߇", "߈", "߉"], "olck": ["᱐", "᱑", "᱒", "᱓", "᱔", "᱕", "᱖", "᱗", "᱘", "᱙"], "orya": ["୦", "୧", "୨", "୩", "୪", "୫", "୬", "୭", "୮", "୯"], "osma": ["𐒠", "𐒡", "𐒢", "𐒣", "𐒤", "𐒥", "𐒦", "𐒧", "𐒨", "𐒩"], "rohg": ["𐴰", "𐴱", "𐴲", "𐴳", "𐴴", "𐴵", "𐴶", "𐴷", "𐴸", "𐴹"], "saur": ["꣐", "꣑", "꣒", "꣓", "꣔", "꣕", "꣖", "꣗", "꣘", "꣙"], "segment": ["🯰", "🯱", "🯲", "🯳", "🯴", "🯵", "🯶", "🯷", "🯸", "🯹"], "shrd": ["𑇐", "𑇑", "𑇒", "𑇓", "𑇔", "𑇕", "𑇖", "𑇗", "𑇘", "𑇙"], "sind": ["𑋰", "𑋱", "𑋲", "𑋳", "𑋴", "𑋵", "𑋶", "𑋷", "𑋸", "𑋹"], "sinh": ["෦", "෧", "෨", "෩", "෪", "෫", "෬", "෭", "෮", "෯"], "sora": ["𑃰", "𑃱", "𑃲", "𑃳", "𑃴", "𑃵", "𑃶", "𑃷", "𑃸", "𑃹"], "sund": ["᮰", "᮱", "᮲", "᮳", "᮴", "᮵", "᮶", "᮷", "᮸", "᮹"], "takr": ["𑛀", "𑛁", "𑛂", "𑛃", "𑛄", "𑛅", "𑛆", "𑛇", "𑛈", "𑛉"], "talu": ["᧐", "᧑", "᧒", "᧓", "᧔", "᧕", "᧖", "᧗", "᧘", "᧙"], "tamldec": ["௦", "௧", "௨", "௩", "௪", "௫", "௬", "௭", "௮", "௯"], "telu": ["౦", "౧", "౨", "౩", "౪", "౫", "౬", "౭", "౮", "౯"], "thai": ["๐", "๑", "๒", "๓", "๔", "๕", "๖", "๗", "๘", "๙"], "tibt": ["༠", "༡", "༢", "༣", "༤", "༥", "༦", "༧", "༨", "༩"], "tirh": ["𑓐", "𑓑", "𑓒", "𑓓", "𑓔", "𑓕", "𑓖", "𑓗", "𑓘", "𑓙"], "vaii": ["ᘠ", "ᘡ", "ᘢ", "ᘣ", "ᘤ", "ᘥ", "ᘦ", "ᘧ", "ᘨ", "ᘩ"], "wara": ["𑣠", "𑣡", "𑣢", "𑣣", "𑣤", "𑣥", "𑣦", "𑣧", "𑣨", "𑣩"], "wcho": ["𞋰", "𞋱", "𞋲", "𞋳", "𞋴", "𞋵", "𞋶", "𞋷", "𞋸", "𞋹"] };
+exports.digitMapping = {
+    "adlm": [
+        "𞥐",
+        "𞥑",
+        "𞥒",
+        "𞥓",
+        "𞥔",
+        "𞥕",
+        "𞥖",
+        "𞥗",
+        "𞥘",
+        "𞥙"
+    ],
+    "ahom": [
+        "𑜰",
+        "𑜱",
+        "𑜲",
+        "𑜳",
+        "𑜴",
+        "𑜵",
+        "𑜶",
+        "𑜷",
+        "𑜸",
+        "𑜹"
+    ],
+    "arab": [
+        "٠",
+        "١",
+        "٢",
+        "٣",
+        "٤",
+        "٥",
+        "٦",
+        "٧",
+        "٨",
+        "٩"
+    ],
+    "arabext": [
+        "۰",
+        "۱",
+        "۲",
+        "۳",
+        "۴",
+        "۵",
+        "۶",
+        "۷",
+        "۸",
+        "۹"
+    ],
+    "bali": [
+        "᭐",
+        "᭑",
+        "᭒",
+        "᭓",
+        "᭔",
+        "᭕",
+        "᭖",
+        "᭗",
+        "᭘",
+        "᭙"
+    ],
+    "beng": [
+        "০",
+        "১",
+        "২",
+        "৩",
+        "৪",
+        "৫",
+        "৬",
+        "৭",
+        "৮",
+        "৯"
+    ],
+    "bhks": [
+        "𑱐",
+        "𑱑",
+        "𑱒",
+        "𑱓",
+        "𑱔",
+        "𑱕",
+        "𑱖",
+        "𑱗",
+        "𑱘",
+        "𑱙"
+    ],
+    "brah": [
+        "𑁦",
+        "𑁧",
+        "𑁨",
+        "𑁩",
+        "𑁪",
+        "𑁫",
+        "𑁬",
+        "𑁭",
+        "𑁮",
+        "𑁯"
+    ],
+    "cakm": [
+        "𑄶",
+        "𑄷",
+        "𑄸",
+        "𑄹",
+        "𑄺",
+        "𑄻",
+        "𑄼",
+        "𑄽",
+        "𑄾",
+        "𑄿"
+    ],
+    "cham": [
+        "꩐",
+        "꩑",
+        "꩒",
+        "꩓",
+        "꩔",
+        "꩕",
+        "꩖",
+        "꩗",
+        "꩘",
+        "꩙"
+    ],
+    "deva": [
+        "०",
+        "१",
+        "२",
+        "३",
+        "४",
+        "५",
+        "६",
+        "७",
+        "८",
+        "९"
+    ],
+    "diak": [
+        "𑥐",
+        "𑥑",
+        "𑥒",
+        "𑥓",
+        "𑥔",
+        "𑥕",
+        "𑥖",
+        "𑥗",
+        "𑥘",
+        "𑥙"
+    ],
+    "fullwide": [
+        "０",
+        "１",
+        "２",
+        "３",
+        "４",
+        "５",
+        "６",
+        "７",
+        "８",
+        "９"
+    ],
+    "gong": [
+        "𑶠",
+        "𑶡",
+        "𑶢",
+        "𑶣",
+        "𑶤",
+        "𑶥",
+        "𑶦",
+        "𑶧",
+        "𑶨",
+        "𑶩"
+    ],
+    "gonm": [
+        "𑵐",
+        "𑵑",
+        "𑵒",
+        "𑵓",
+        "𑵔",
+        "𑵕",
+        "𑵖",
+        "𑵗",
+        "𑵘",
+        "𑵙"
+    ],
+    "gujr": [
+        "૦",
+        "૧",
+        "૨",
+        "૩",
+        "૪",
+        "૫",
+        "૬",
+        "૭",
+        "૮",
+        "૯"
+    ],
+    "guru": [
+        "੦",
+        "੧",
+        "੨",
+        "੩",
+        "੪",
+        "੫",
+        "੬",
+        "੭",
+        "੮",
+        "੯"
+    ],
+    "hanidec": [
+        "〇",
+        "一",
+        "二",
+        "三",
+        "四",
+        "五",
+        "六",
+        "七",
+        "八",
+        "九"
+    ],
+    "hmng": [
+        "𖭐",
+        "𖭑",
+        "𖭒",
+        "𖭓",
+        "𖭔",
+        "𖭕",
+        "𖭖",
+        "𖭗",
+        "𖭘",
+        "𖭙"
+    ],
+    "hmnp": [
+        "𞅀",
+        "𞅁",
+        "𞅂",
+        "𞅃",
+        "𞅄",
+        "𞅅",
+        "𞅆",
+        "𞅇",
+        "𞅈",
+        "𞅉"
+    ],
+    "java": [
+        "꧐",
+        "꧑",
+        "꧒",
+        "꧓",
+        "꧔",
+        "꧕",
+        "꧖",
+        "꧗",
+        "꧘",
+        "꧙"
+    ],
+    "kali": [
+        "꤀",
+        "꤁",
+        "꤂",
+        "꤃",
+        "꤄",
+        "꤅",
+        "꤆",
+        "꤇",
+        "꤈",
+        "꤉"
+    ],
+    "khmr": [
+        "០",
+        "១",
+        "២",
+        "៣",
+        "៤",
+        "៥",
+        "៦",
+        "៧",
+        "៨",
+        "៩"
+    ],
+    "knda": [
+        "೦",
+        "೧",
+        "೨",
+        "೩",
+        "೪",
+        "೫",
+        "೬",
+        "೭",
+        "೮",
+        "೯"
+    ],
+    "lana": [
+        "᪀",
+        "᪁",
+        "᪂",
+        "᪃",
+        "᪄",
+        "᪅",
+        "᪆",
+        "᪇",
+        "᪈",
+        "᪉"
+    ],
+    "lanatham": [
+        "᪐",
+        "᪑",
+        "᪒",
+        "᪓",
+        "᪔",
+        "᪕",
+        "᪖",
+        "᪗",
+        "᪘",
+        "᪙"
+    ],
+    "laoo": [
+        "໐",
+        "໑",
+        "໒",
+        "໓",
+        "໔",
+        "໕",
+        "໖",
+        "໗",
+        "໘",
+        "໙"
+    ],
+    "lepc": [
+        "᪐",
+        "᪑",
+        "᪒",
+        "᪓",
+        "᪔",
+        "᪕",
+        "᪖",
+        "᪗",
+        "᪘",
+        "᪙"
+    ],
+    "limb": [
+        "᥆",
+        "᥇",
+        "᥈",
+        "᥉",
+        "᥊",
+        "᥋",
+        "᥌",
+        "᥍",
+        "᥎",
+        "᥏"
+    ],
+    "mathbold": [
+        "𝟎",
+        "𝟏",
+        "𝟐",
+        "𝟑",
+        "𝟒",
+        "𝟓",
+        "𝟔",
+        "𝟕",
+        "𝟖",
+        "𝟗"
+    ],
+    "mathdbl": [
+        "𝟘",
+        "𝟙",
+        "𝟚",
+        "𝟛",
+        "𝟜",
+        "𝟝",
+        "𝟞",
+        "𝟟",
+        "𝟠",
+        "𝟡"
+    ],
+    "mathmono": [
+        "𝟶",
+        "𝟷",
+        "𝟸",
+        "𝟹",
+        "𝟺",
+        "𝟻",
+        "𝟼",
+        "𝟽",
+        "𝟾",
+        "𝟿"
+    ],
+    "mathsanb": [
+        "𝟬",
+        "𝟭",
+        "𝟮",
+        "𝟯",
+        "𝟰",
+        "𝟱",
+        "𝟲",
+        "𝟳",
+        "𝟴",
+        "𝟵"
+    ],
+    "mathsans": [
+        "𝟢",
+        "𝟣",
+        "𝟤",
+        "𝟥",
+        "𝟦",
+        "𝟧",
+        "𝟨",
+        "𝟩",
+        "𝟪",
+        "𝟫"
+    ],
+    "mlym": [
+        "൦",
+        "൧",
+        "൨",
+        "൩",
+        "൪",
+        "൫",
+        "൬",
+        "൭",
+        "൮",
+        "൯"
+    ],
+    "modi": [
+        "𑙐",
+        "𑙑",
+        "𑙒",
+        "𑙓",
+        "𑙔",
+        "𑙕",
+        "𑙖",
+        "𑙗",
+        "𑙘",
+        "𑙙"
+    ],
+    "mong": [
+        "᠐",
+        "᠑",
+        "᠒",
+        "᠓",
+        "᠔",
+        "᠕",
+        "᠖",
+        "᠗",
+        "᠘",
+        "᠙"
+    ],
+    "mroo": [
+        "𖩠",
+        "𖩡",
+        "𖩢",
+        "𖩣",
+        "𖩤",
+        "𖩥",
+        "𖩦",
+        "𖩧",
+        "𖩨",
+        "𖩩"
+    ],
+    "mtei": [
+        "꯰",
+        "꯱",
+        "꯲",
+        "꯳",
+        "꯴",
+        "꯵",
+        "꯶",
+        "꯷",
+        "꯸",
+        "꯹"
+    ],
+    "mymr": [
+        "၀",
+        "၁",
+        "၂",
+        "၃",
+        "၄",
+        "၅",
+        "၆",
+        "၇",
+        "၈",
+        "၉"
+    ],
+    "mymrshan": [
+        "႐",
+        "႑",
+        "႒",
+        "႓",
+        "႔",
+        "႕",
+        "႖",
+        "႗",
+        "႘",
+        "႙"
+    ],
+    "mymrtlng": [
+        "꧰",
+        "꧱",
+        "꧲",
+        "꧳",
+        "꧴",
+        "꧵",
+        "꧶",
+        "꧷",
+        "꧸",
+        "꧹"
+    ],
+    "newa": [
+        "𑑐",
+        "𑑑",
+        "𑑒",
+        "𑑓",
+        "𑑔",
+        "𑑕",
+        "𑑖",
+        "𑑗",
+        "𑑘",
+        "𑑙"
+    ],
+    "nkoo": [
+        "߀",
+        "߁",
+        "߂",
+        "߃",
+        "߄",
+        "߅",
+        "߆",
+        "߇",
+        "߈",
+        "߉"
+    ],
+    "olck": [
+        "᱐",
+        "᱑",
+        "᱒",
+        "᱓",
+        "᱔",
+        "᱕",
+        "᱖",
+        "᱗",
+        "᱘",
+        "᱙"
+    ],
+    "orya": [
+        "୦",
+        "୧",
+        "୨",
+        "୩",
+        "୪",
+        "୫",
+        "୬",
+        "୭",
+        "୮",
+        "୯"
+    ],
+    "osma": [
+        "𐒠",
+        "𐒡",
+        "𐒢",
+        "𐒣",
+        "𐒤",
+        "𐒥",
+        "𐒦",
+        "𐒧",
+        "𐒨",
+        "𐒩"
+    ],
+    "rohg": [
+        "𐴰",
+        "𐴱",
+        "𐴲",
+        "𐴳",
+        "𐴴",
+        "𐴵",
+        "𐴶",
+        "𐴷",
+        "𐴸",
+        "𐴹"
+    ],
+    "saur": [
+        "꣐",
+        "꣑",
+        "꣒",
+        "꣓",
+        "꣔",
+        "꣕",
+        "꣖",
+        "꣗",
+        "꣘",
+        "꣙"
+    ],
+    "segment": [
+        "🯰",
+        "🯱",
+        "🯲",
+        "🯳",
+        "🯴",
+        "🯵",
+        "🯶",
+        "🯷",
+        "🯸",
+        "🯹"
+    ],
+    "shrd": [
+        "𑇐",
+        "𑇑",
+        "𑇒",
+        "𑇓",
+        "𑇔",
+        "𑇕",
+        "𑇖",
+        "𑇗",
+        "𑇘",
+        "𑇙"
+    ],
+    "sind": [
+        "𑋰",
+        "𑋱",
+        "𑋲",
+        "𑋳",
+        "𑋴",
+        "𑋵",
+        "𑋶",
+        "𑋷",
+        "𑋸",
+        "𑋹"
+    ],
+    "sinh": [
+        "෦",
+        "෧",
+        "෨",
+        "෩",
+        "෪",
+        "෫",
+        "෬",
+        "෭",
+        "෮",
+        "෯"
+    ],
+    "sora": [
+        "𑃰",
+        "𑃱",
+        "𑃲",
+        "𑃳",
+        "𑃴",
+        "𑃵",
+        "𑃶",
+        "𑃷",
+        "𑃸",
+        "𑃹"
+    ],
+    "sund": [
+        "᮰",
+        "᮱",
+        "᮲",
+        "᮳",
+        "᮴",
+        "᮵",
+        "᮶",
+        "᮷",
+        "᮸",
+        "᮹"
+    ],
+    "takr": [
+        "𑛀",
+        "𑛁",
+        "𑛂",
+        "𑛃",
+        "𑛄",
+        "𑛅",
+        "𑛆",
+        "𑛇",
+        "𑛈",
+        "𑛉"
+    ],
+    "talu": [
+        "᧐",
+        "᧑",
+        "᧒",
+        "᧓",
+        "᧔",
+        "᧕",
+        "᧖",
+        "᧗",
+        "᧘",
+        "᧙"
+    ],
+    "tamldec": [
+        "௦",
+        "௧",
+        "௨",
+        "௩",
+        "௪",
+        "௫",
+        "௬",
+        "௭",
+        "௮",
+        "௯"
+    ],
+    "telu": [
+        "౦",
+        "౧",
+        "౨",
+        "౩",
+        "౪",
+        "౫",
+        "౬",
+        "౭",
+        "౮",
+        "౯"
+    ],
+    "thai": [
+        "๐",
+        "๑",
+        "๒",
+        "๓",
+        "๔",
+        "๕",
+        "๖",
+        "๗",
+        "๘",
+        "๙"
+    ],
+    "tibt": [
+        "༠",
+        "༡",
+        "༢",
+        "༣",
+        "༤",
+        "༥",
+        "༦",
+        "༧",
+        "༨",
+        "༩"
+    ],
+    "tirh": [
+        "𑓐",
+        "𑓑",
+        "𑓒",
+        "𑓓",
+        "𑓔",
+        "𑓕",
+        "𑓖",
+        "𑓗",
+        "𑓘",
+        "𑓙"
+    ],
+    "vaii": [
+        "ᘠ",
+        "ᘡ",
+        "ᘢ",
+        "ᘣ",
+        "ᘤ",
+        "ᘥ",
+        "ᘦ",
+        "ᘧ",
+        "ᘨ",
+        "ᘩ"
+    ],
+    "wara": [
+        "𑣠",
+        "𑣡",
+        "𑣢",
+        "𑣣",
+        "𑣤",
+        "𑣥",
+        "𑣦",
+        "𑣧",
+        "𑣨",
+        "𑣩"
+    ],
+    "wcho": [
+        "𞋰",
+        "𞋱",
+        "𞋲",
+        "𞋳",
+        "𞋴",
+        "𞋵",
+        "𞋶",
+        "𞋷",
+        "𞋸",
+        "𞋹"
+    ]
+};
 
 },{}],33:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var regex_generated_1 = require("../regex.generated");
 var ToRawFixed_1 = require("./ToRawFixed");
 var digit_mapping_generated_1 = require("./digit-mapping.generated");
-var regex_generated_1 = require("../regex.generated");
 // This is from: unicode-12.1.0/General_Category/Symbol/regex.js
 // IE11 does not support unicode flag, otherwise this is just /\p{S}/u.
 // /^\p{S}/u
@@ -1666,7 +2451,7 @@ function formatToParts(numberResult, data, pl, options) {
                 // We only need to handle scientific and engineering notation here.
                 numberParts.push.apply(numberParts, paritionNumberIntoParts(symbols, numberResult, notation, exponent, numberingSystem, 
                 // If compact number pattern exists, do not insert group separators.
-                !compactNumberPattern && Boolean(options.useGrouping), decimalNumberPattern));
+                !compactNumberPattern && Boolean(options.useGrouping), decimalNumberPattern, style));
                 break;
             }
             case '-':
@@ -1809,7 +2594,7 @@ function paritionNumberIntoParts(symbols, numberResult, notation, exponent, numb
  * A typical value looks like "#,##0.00" (primary group size is 3).
  * Some locales like Hindi has secondary group size of 2 (e.g. "#,##,##0.00").
  */
-decimalNumberPattern) {
+decimalNumberPattern, style) {
     var result = [];
     // eslint-disable-next-line prefer-const
     var n = numberResult.formattedString, x = numberResult.roundedNumber;
@@ -1842,7 +2627,11 @@ decimalNumberPattern) {
     //   NumberFormat('de', {notation: 'compact', compactDisplay: 'short'}).format(1234) //=> "1234"
     //   NumberFormat('de').format(1234) //=> "1.234"
     if (useGrouping && (notation !== 'compact' || x >= 10000)) {
-        var groupSepSymbol = symbols.group;
+        // a. Let groupSepSymbol be the implementation-, locale-, and numbering system-dependent (ILND) String representing the grouping separator.
+        // For currency we should use `currencyGroup` instead of generic `group`
+        var groupSepSymbol = style === 'currency' && symbols.currencyGroup != null
+            ? symbols.currencyGroup
+            : symbols.group;
         var groups = [];
         // > There may be two different grouping sizes: The primary grouping size used for the least
         // > significant integer group, and the secondary grouping size used for more significant groups.
@@ -1886,7 +2675,10 @@ decimalNumberPattern) {
     }
     // #endregion
     if (fraction !== undefined) {
-        result.push({ type: 'decimal', value: symbols.decimal }, { type: 'fraction', value: fraction });
+        var decimalSepSymbol = style === 'currency' && symbols.currencyDecimal != null
+            ? symbols.currencyDecimal
+            : symbols.decimal;
+        result.push({ type: 'decimal', value: decimalSepSymbol }, { type: 'fraction', value: fraction });
     }
     if ((notation === 'scientific' || notation === 'engineering') &&
         isFinite(x)) {
@@ -2015,9 +2807,9 @@ exports.PartitionPattern = PartitionPattern;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SupportedLocales = void 0;
+var intl_localematcher_1 = require("@formatjs/intl-localematcher");
 var _262_1 = require("./262");
 var GetOption_1 = require("./GetOption");
-var intl_localematcher_1 = require("@formatjs/intl-localematcher");
 /**
  * https://tc39.es/ecma402/#sec-supportedlocales
  * @param availableLocales
@@ -2031,13 +2823,13 @@ function SupportedLocales(availableLocales, requestedLocales, options) {
         matcher = (0, GetOption_1.GetOption)(options, 'localeMatcher', 'string', ['lookup', 'best fit'], 'best fit');
     }
     if (matcher === 'best fit') {
-        return (0, intl_localematcher_1.LookupSupportedLocales)(availableLocales, requestedLocales);
+        return (0, intl_localematcher_1.LookupSupportedLocales)(Array.from(availableLocales), requestedLocales);
     }
-    return (0, intl_localematcher_1.LookupSupportedLocales)(availableLocales, requestedLocales);
+    return (0, intl_localematcher_1.LookupSupportedLocales)(Array.from(availableLocales), requestedLocales);
 }
 exports.SupportedLocales = SupportedLocales;
 
-},{"./262":1,"./GetOption":7,"@formatjs/intl-localematcher":59}],36:[function(require,module,exports){
+},{"./262":1,"./GetOption":7,"@formatjs/intl-localematcher":61}],36:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isMissingLocaleDataError = void 0;
@@ -2056,10 +2848,10 @@ function isMissingLocaleDataError(e) {
 }
 exports.isMissingLocaleDataError = isMissingLocaleDataError;
 
-},{"tslib":60}],37:[function(require,module,exports){
+},{"tslib":62}],37:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.invariant = exports.isMissingLocaleDataError = exports.defineProperty = exports.getMagnitude = exports.setMultiInternalSlots = exports.setInternalSlot = exports.isLiteralPart = exports.getMultiInternalSlots = exports.getInternalSlot = exports._formatToParts = void 0;
+exports.invariant = exports.isMissingLocaleDataError = exports.setMultiInternalSlots = exports.setInternalSlot = exports.isLiteralPart = exports.getMultiInternalSlots = exports.getMagnitude = exports.getInternalSlot = exports.defineProperty = exports.createDataProperty = exports._formatToParts = void 0;
 var tslib_1 = require("tslib");
 tslib_1.__exportStar(require("./CanonicalizeLocaleList"), exports);
 tslib_1.__exportStar(require("./CanonicalizeTimeZoneName"), exports);
@@ -2095,26 +2887,27 @@ Object.defineProperty(exports, "_formatToParts", { enumerable: true, get: functi
 tslib_1.__exportStar(require("./PartitionPattern"), exports);
 tslib_1.__exportStar(require("./SupportedLocales"), exports);
 var utils_1 = require("./utils");
+Object.defineProperty(exports, "createDataProperty", { enumerable: true, get: function () { return utils_1.createDataProperty; } });
+Object.defineProperty(exports, "defineProperty", { enumerable: true, get: function () { return utils_1.defineProperty; } });
 Object.defineProperty(exports, "getInternalSlot", { enumerable: true, get: function () { return utils_1.getInternalSlot; } });
+Object.defineProperty(exports, "getMagnitude", { enumerable: true, get: function () { return utils_1.getMagnitude; } });
 Object.defineProperty(exports, "getMultiInternalSlots", { enumerable: true, get: function () { return utils_1.getMultiInternalSlots; } });
 Object.defineProperty(exports, "isLiteralPart", { enumerable: true, get: function () { return utils_1.isLiteralPart; } });
 Object.defineProperty(exports, "setInternalSlot", { enumerable: true, get: function () { return utils_1.setInternalSlot; } });
 Object.defineProperty(exports, "setMultiInternalSlots", { enumerable: true, get: function () { return utils_1.setMultiInternalSlots; } });
-Object.defineProperty(exports, "getMagnitude", { enumerable: true, get: function () { return utils_1.getMagnitude; } });
-Object.defineProperty(exports, "defineProperty", { enumerable: true, get: function () { return utils_1.defineProperty; } });
+tslib_1.__exportStar(require("./262"), exports);
 var data_1 = require("./data");
 Object.defineProperty(exports, "isMissingLocaleDataError", { enumerable: true, get: function () { return data_1.isMissingLocaleDataError; } });
-tslib_1.__exportStar(require("./types/relative-time"), exports);
 tslib_1.__exportStar(require("./types/date-time"), exports);
-tslib_1.__exportStar(require("./types/list"), exports);
-tslib_1.__exportStar(require("./types/plural-rules"), exports);
-tslib_1.__exportStar(require("./types/number"), exports);
 tslib_1.__exportStar(require("./types/displaynames"), exports);
+tslib_1.__exportStar(require("./types/list"), exports);
+tslib_1.__exportStar(require("./types/number"), exports);
+tslib_1.__exportStar(require("./types/plural-rules"), exports);
+tslib_1.__exportStar(require("./types/relative-time"), exports);
 var utils_2 = require("./utils");
 Object.defineProperty(exports, "invariant", { enumerable: true, get: function () { return utils_2.invariant; } });
-tslib_1.__exportStar(require("./262"), exports);
 
-},{"./262":1,"./CanonicalizeLocaleList":2,"./CanonicalizeTimeZoneName":3,"./CoerceOptionsToObject":4,"./GetNumberOption":6,"./GetOption":7,"./GetOptionsObject":8,"./GetStringOrBooleanOption":9,"./IsSanctionedSimpleUnitIdentifier":10,"./IsValidTimeZoneName":11,"./IsWellFormedCurrencyCode":12,"./IsWellFormedUnitIdentifier":13,"./NumberFormat/ApplyUnsignedRoundingMode":14,"./NumberFormat/CollapseNumberRange":15,"./NumberFormat/ComputeExponent":16,"./NumberFormat/ComputeExponentForMagnitude":17,"./NumberFormat/CurrencyDigits":18,"./NumberFormat/FormatApproximately":19,"./NumberFormat/FormatNumericRange":20,"./NumberFormat/FormatNumericRangeToParts":21,"./NumberFormat/FormatNumericToParts":22,"./NumberFormat/FormatNumericToString":23,"./NumberFormat/GetUnsignedRoundingMode":24,"./NumberFormat/InitializeNumberFormat":25,"./NumberFormat/PartitionNumberPattern":26,"./NumberFormat/PartitionNumberRangePattern":27,"./NumberFormat/SetNumberFormatDigitOptions":28,"./NumberFormat/SetNumberFormatUnitOptions":29,"./NumberFormat/ToRawFixed":30,"./NumberFormat/ToRawPrecision":31,"./NumberFormat/format_to_parts":33,"./PartitionPattern":34,"./SupportedLocales":35,"./data":36,"./types/date-time":39,"./types/displaynames":40,"./types/list":41,"./types/number":42,"./types/plural-rules":43,"./types/relative-time":44,"./utils":45,"tslib":60}],38:[function(require,module,exports){
+},{"./262":1,"./CanonicalizeLocaleList":2,"./CanonicalizeTimeZoneName":3,"./CoerceOptionsToObject":4,"./GetNumberOption":6,"./GetOption":7,"./GetOptionsObject":8,"./GetStringOrBooleanOption":9,"./IsSanctionedSimpleUnitIdentifier":10,"./IsValidTimeZoneName":11,"./IsWellFormedCurrencyCode":12,"./IsWellFormedUnitIdentifier":13,"./NumberFormat/ApplyUnsignedRoundingMode":14,"./NumberFormat/CollapseNumberRange":15,"./NumberFormat/ComputeExponent":16,"./NumberFormat/ComputeExponentForMagnitude":17,"./NumberFormat/CurrencyDigits":18,"./NumberFormat/FormatApproximately":19,"./NumberFormat/FormatNumericRange":20,"./NumberFormat/FormatNumericRangeToParts":21,"./NumberFormat/FormatNumericToParts":22,"./NumberFormat/FormatNumericToString":23,"./NumberFormat/GetUnsignedRoundingMode":24,"./NumberFormat/InitializeNumberFormat":25,"./NumberFormat/PartitionNumberPattern":26,"./NumberFormat/PartitionNumberRangePattern":27,"./NumberFormat/SetNumberFormatDigitOptions":28,"./NumberFormat/SetNumberFormatUnitOptions":29,"./NumberFormat/ToRawFixed":30,"./NumberFormat/ToRawPrecision":31,"./NumberFormat/format_to_parts":33,"./PartitionPattern":34,"./SupportedLocales":35,"./data":36,"./types/date-time":39,"./types/displaynames":40,"./types/list":41,"./types/number":42,"./types/plural-rules":43,"./types/relative-time":44,"./utils":45,"tslib":62}],38:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.S_UNICODE_REGEX = void 0;
@@ -2130,7 +2923,7 @@ var RangePatternType;
     RangePatternType["startRange"] = "startRange";
     RangePatternType["shared"] = "shared";
     RangePatternType["endRange"] = "endRange";
-})(RangePatternType = exports.RangePatternType || (exports.RangePatternType = {}));
+})(RangePatternType || (exports.RangePatternType = RangePatternType = {}));
 
 },{}],40:[function(require,module,exports){
 "use strict";
@@ -2147,7 +2940,7 @@ arguments[4][40][0].apply(exports,arguments)
 },{"dup":40}],45:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.invariant = exports.UNICODE_EXTENSION_SEQUENCE_REGEX = exports.defineProperty = exports.isLiteralPart = exports.getMultiInternalSlots = exports.getInternalSlot = exports.setMultiInternalSlots = exports.setInternalSlot = exports.repeat = exports.getMagnitude = void 0;
+exports.invariant = exports.UNICODE_EXTENSION_SEQUENCE_REGEX = exports.createDataProperty = exports.defineProperty = exports.isLiteralPart = exports.getMultiInternalSlots = exports.getInternalSlot = exports.setMultiInternalSlots = exports.setInternalSlot = exports.repeat = exports.getMagnitude = void 0;
 /**
  * Cannot do Math.log(x) / Math.log(10) bc if IEEE floating point issue
  * @param x number
@@ -2227,6 +3020,21 @@ function defineProperty(target, name, _a) {
     });
 }
 exports.defineProperty = defineProperty;
+/**
+ * 7.3.5 CreateDataProperty
+ * @param target
+ * @param name
+ * @param value
+ */
+function createDataProperty(target, name, value) {
+    Object.defineProperty(target, name, {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: value,
+    });
+}
+exports.createDataProperty = createDataProperty;
 exports.UNICODE_EXTENSION_SEQUENCE_REGEX = /-u(?:-[0-9a-z]{2,8})+/gi;
 function invariant(condition, message, Err) {
     if (Err === void 0) { Err = Error; }
@@ -2334,7 +3142,7 @@ var DisplayNames = /** @class */ (function () {
         var localeData = DisplayNames.localeData;
         var matcher = (0, ecma402_abstract_1.GetOption)(options, 'localeMatcher', 'string', ['lookup', 'best fit'], 'best fit');
         opt.localeMatcher = matcher;
-        var r = (0, intl_localematcher_1.ResolveLocale)(DisplayNames.availableLocales, requestedLocales, opt, [], // there is no relevantExtensionKeys
+        var r = (0, intl_localematcher_1.ResolveLocale)(Array.from(DisplayNames.availableLocales), requestedLocales, opt, [], // there is no relevantExtensionKeys
         DisplayNames.localeData, DisplayNames.getDefaultLocale);
         var style = (0, ecma402_abstract_1.GetOption)(options, 'style', 'string', ['narrow', 'short', 'long'], 'long');
         setSlot(this, 'style', style);
@@ -2528,7 +3336,7 @@ function getNameForTypeLanguage(languageDisplay, localeData, style, canonicalCod
     }
 }
 
-},{"./abstract/CanonicalCodeForDisplayNames":46,"./abstract/IsValidDateTimeFieldCode":47,"@formatjs/ecma402-abstract":37,"@formatjs/intl-localematcher":59,"tslib":60}],49:[function(require,module,exports){
+},{"./abstract/CanonicalCodeForDisplayNames":46,"./abstract/IsValidDateTimeFieldCode":47,"@formatjs/ecma402-abstract":37,"@formatjs/intl-localematcher":61,"tslib":62}],49:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.shouldPolyfill = exports._shouldPolyfillWithoutLocale = void 0;
@@ -2583,7 +3391,7 @@ function shouldPolyfill(locale) {
 }
 exports.shouldPolyfill = shouldPolyfill;
 
-},{"./supported-locales.generated":50,"@formatjs/intl-localematcher":59}],50:[function(require,module,exports){
+},{"./supported-locales.generated":50,"@formatjs/intl-localematcher":61}],50:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.supportedLocales = void 0;
@@ -2601,7 +3409,7 @@ exports.BestAvailableLocale = void 0;
 function BestAvailableLocale(availableLocales, locale) {
     var candidate = locale;
     while (true) {
-        if (availableLocales.has(candidate)) {
+        if (availableLocales.indexOf(candidate) > -1) {
             return candidate;
         }
         var pos = candidate.lastIndexOf('-');
@@ -2620,7 +3428,6 @@ exports.BestAvailableLocale = BestAvailableLocale;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BestFitMatcher = void 0;
-var BestAvailableLocale_1 = require("./BestAvailableLocale");
 var utils_1 = require("./utils");
 /**
  * https://tc39.es/ecma402/#sec-bestfitmatcher
@@ -2629,68 +3436,39 @@ var utils_1 = require("./utils");
  * @param getDefaultLocale
  */
 function BestFitMatcher(availableLocales, requestedLocales, getDefaultLocale) {
-    var minimizedAvailableLocaleMap = {};
-    var availableLocaleMap = {};
-    var canonicalizedLocaleMap = {};
-    var minimizedAvailableLocales = new Set();
-    availableLocales.forEach(function (locale) {
-        var minimizedLocale = new Intl.Locale(locale)
-            .minimize()
-            .toString();
-        var canonicalizedLocale = Intl.getCanonicalLocales(locale)[0] || locale;
-        minimizedAvailableLocaleMap[minimizedLocale] = locale;
-        availableLocaleMap[locale] = locale;
-        canonicalizedLocaleMap[canonicalizedLocale] = locale;
-        minimizedAvailableLocales.add(minimizedLocale);
-        minimizedAvailableLocales.add(locale);
-        minimizedAvailableLocales.add(canonicalizedLocale);
-    });
     var foundLocale;
-    for (var _i = 0, requestedLocales_1 = requestedLocales; _i < requestedLocales_1.length; _i++) {
-        var l = requestedLocales_1[_i];
-        if (foundLocale) {
-            break;
-        }
+    var extension;
+    var noExtensionLocales = [];
+    var noExtensionLocaleMap = requestedLocales.reduce(function (all, l) {
         var noExtensionLocale = l.replace(utils_1.UNICODE_EXTENSION_SEQUENCE_REGEX, '');
-        if (availableLocales.has(noExtensionLocale)) {
-            foundLocale = noExtensionLocale;
-            break;
-        }
-        if (minimizedAvailableLocales.has(noExtensionLocale)) {
-            foundLocale = noExtensionLocale;
-            break;
-        }
-        var locale = new Intl.Locale(noExtensionLocale);
-        var maximizedRequestedLocale = locale.maximize().toString();
-        var minimizedRequestedLocale = locale.minimize().toString();
-        // Check minimized locale
-        if (minimizedAvailableLocales.has(minimizedRequestedLocale)) {
-            foundLocale = minimizedRequestedLocale;
-            break;
-        }
-        // Lookup algo on maximized locale
-        foundLocale = (0, BestAvailableLocale_1.BestAvailableLocale)(minimizedAvailableLocales, maximizedRequestedLocale);
+        noExtensionLocales.push(noExtensionLocale);
+        all[noExtensionLocale] = l;
+        return all;
+    }, {});
+    var result = (0, utils_1.findBestMatch)(noExtensionLocales, availableLocales);
+    if (result.matchedSupportedLocale && result.matchedDesiredLocale) {
+        foundLocale = result.matchedSupportedLocale;
+        extension =
+            noExtensionLocaleMap[result.matchedDesiredLocale].slice(result.matchedDesiredLocale.length) || undefined;
     }
     if (!foundLocale) {
         return { locale: getDefaultLocale() };
     }
     return {
-        locale: availableLocaleMap[foundLocale] ||
-            canonicalizedLocaleMap[foundLocale] ||
-            minimizedAvailableLocaleMap[foundLocale] ||
-            foundLocale,
+        locale: foundLocale,
+        extension: extension,
     };
 }
 exports.BestFitMatcher = BestFitMatcher;
 
-},{"./BestAvailableLocale":51,"./utils":58}],53:[function(require,module,exports){
+},{"./utils":60}],53:[function(require,module,exports){
 arguments[4][2][0].apply(exports,arguments)
 },{"dup":2}],54:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LookupMatcher = void 0;
-var utils_1 = require("./utils");
 var BestAvailableLocale_1 = require("./BestAvailableLocale");
+var utils_1 = require("./utils");
 /**
  * https://tc39.es/ecma402/#sec-lookupmatcher
  * @param availableLocales
@@ -2706,7 +3484,7 @@ function LookupMatcher(availableLocales, requestedLocales, getDefaultLocale) {
         if (availableLocale) {
             result.locale = availableLocale;
             if (locale !== noExtensionLocale) {
-                result.extension = locale.slice(noExtensionLocale.length + 1, locale.length);
+                result.extension = locale.slice(noExtensionLocale.length, locale.length);
             }
             return result;
         }
@@ -2716,12 +3494,12 @@ function LookupMatcher(availableLocales, requestedLocales, getDefaultLocale) {
 }
 exports.LookupMatcher = LookupMatcher;
 
-},{"./BestAvailableLocale":51,"./utils":58}],55:[function(require,module,exports){
+},{"./BestAvailableLocale":51,"./utils":60}],55:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LookupSupportedLocales = void 0;
-var utils_1 = require("./utils");
 var BestAvailableLocale_1 = require("./BestAvailableLocale");
+var utils_1 = require("./utils");
 /**
  * https://tc39.es/ecma402/#sec-lookupsupportedlocales
  * @param availableLocales
@@ -2741,14 +3519,14 @@ function LookupSupportedLocales(availableLocales, requestedLocales) {
 }
 exports.LookupSupportedLocales = LookupSupportedLocales;
 
-},{"./BestAvailableLocale":51,"./utils":58}],56:[function(require,module,exports){
+},{"./BestAvailableLocale":51,"./utils":60}],56:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResolveLocale = void 0;
-var LookupMatcher_1 = require("./LookupMatcher");
 var BestFitMatcher_1 = require("./BestFitMatcher");
-var utils_1 = require("./utils");
+var LookupMatcher_1 = require("./LookupMatcher");
 var UnicodeExtensionValue_1 = require("./UnicodeExtensionValue");
+var utils_1 = require("./utils");
 /**
  * https://tc39.es/ecma402/#sec-resolvelocale
  */
@@ -2756,10 +3534,10 @@ function ResolveLocale(availableLocales, requestedLocales, options, relevantExte
     var matcher = options.localeMatcher;
     var r;
     if (matcher === 'lookup') {
-        r = (0, LookupMatcher_1.LookupMatcher)(availableLocales, requestedLocales, getDefaultLocale);
+        r = (0, LookupMatcher_1.LookupMatcher)(Array.from(availableLocales), requestedLocales, getDefaultLocale);
     }
     else {
-        r = (0, BestFitMatcher_1.BestFitMatcher)(availableLocales, requestedLocales, getDefaultLocale);
+        r = (0, BestFitMatcher_1.BestFitMatcher)(Array.from(availableLocales), requestedLocales, getDefaultLocale);
     }
     var foundLocale = r.locale;
     var result = { locale: '', dataLocale: foundLocale };
@@ -2821,7 +3599,7 @@ function ResolveLocale(availableLocales, requestedLocales, options, relevantExte
 }
 exports.ResolveLocale = ResolveLocale;
 
-},{"./BestFitMatcher":52,"./LookupMatcher":54,"./UnicodeExtensionValue":57,"./utils":58}],57:[function(require,module,exports){
+},{"./BestFitMatcher":52,"./LookupMatcher":54,"./UnicodeExtensionValue":57,"./utils":60}],57:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UnicodeExtensionValue = void 0;
@@ -2873,10 +3651,3977 @@ function UnicodeExtensionValue(extension, key) {
 }
 exports.UnicodeExtensionValue = UnicodeExtensionValue;
 
-},{"./utils":58}],58:[function(require,module,exports){
+},{"./utils":60}],58:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.invariant = exports.UNICODE_EXTENSION_SEQUENCE_REGEX = void 0;
+exports.data = void 0;
+exports.data = {
+    supplemental: {
+        languageMatching: {
+            'written-new': [
+                {
+                    paradigmLocales: {
+                        _locales: 'en en_GB es es_419 pt_BR pt_PT',
+                    },
+                },
+                {
+                    $enUS: {
+                        _value: 'AS+CA+GU+MH+MP+PH+PR+UM+US+VI',
+                    },
+                },
+                {
+                    $cnsar: {
+                        _value: 'HK+MO',
+                    },
+                },
+                {
+                    $americas: {
+                        _value: '019',
+                    },
+                },
+                {
+                    $maghreb: {
+                        _value: 'MA+DZ+TN+LY+MR+EH',
+                    },
+                },
+                {
+                    no: {
+                        _desired: 'nb',
+                        _distance: '1',
+                    },
+                },
+                {
+                    bs: {
+                        _desired: 'hr',
+                        _distance: '4',
+                    },
+                },
+                {
+                    bs: {
+                        _desired: 'sh',
+                        _distance: '4',
+                    },
+                },
+                {
+                    hr: {
+                        _desired: 'sh',
+                        _distance: '4',
+                    },
+                },
+                {
+                    sr: {
+                        _desired: 'sh',
+                        _distance: '4',
+                    },
+                },
+                {
+                    aa: {
+                        _desired: 'ssy',
+                        _distance: '4',
+                    },
+                },
+                {
+                    de: {
+                        _desired: 'gsw',
+                        _distance: '4',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    de: {
+                        _desired: 'lb',
+                        _distance: '4',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    no: {
+                        _desired: 'da',
+                        _distance: '8',
+                    },
+                },
+                {
+                    nb: {
+                        _desired: 'da',
+                        _distance: '8',
+                    },
+                },
+                {
+                    ru: {
+                        _desired: 'ab',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'ach',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    nl: {
+                        _desired: 'af',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'ak',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'am',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    es: {
+                        _desired: 'ay',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ru: {
+                        _desired: 'az',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ur: {
+                        _desired: 'bal',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ru: {
+                        _desired: 'be',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'bem',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    hi: {
+                        _desired: 'bh',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'bn',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    zh: {
+                        _desired: 'bo',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    fr: {
+                        _desired: 'br',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    es: {
+                        _desired: 'ca',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    fil: {
+                        _desired: 'ceb',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'chr',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'ckb',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    fr: {
+                        _desired: 'co',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    fr: {
+                        _desired: 'crs',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    sk: {
+                        _desired: 'cs',
+                        _distance: '20',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'cy',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'ee',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'eo',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    es: {
+                        _desired: 'eu',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    da: {
+                        _desired: 'fo',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    nl: {
+                        _desired: 'fy',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'ga',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'gaa',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'gd',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    es: {
+                        _desired: 'gl',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    es: {
+                        _desired: 'gn',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    hi: {
+                        _desired: 'gu',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'ha',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'haw',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    fr: {
+                        _desired: 'ht',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ru: {
+                        _desired: 'hy',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'ia',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'ig',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'is',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    id: {
+                        _desired: 'jv',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'ka',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    fr: {
+                        _desired: 'kg',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ru: {
+                        _desired: 'kk',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'km',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'kn',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'kri',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    tr: {
+                        _desired: 'ku',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ru: {
+                        _desired: 'ky',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    it: {
+                        _desired: 'la',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'lg',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    fr: {
+                        _desired: 'ln',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'lo',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'loz',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    fr: {
+                        _desired: 'lua',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    hi: {
+                        _desired: 'mai',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'mfe',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    fr: {
+                        _desired: 'mg',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'mi',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'ml',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ru: {
+                        _desired: 'mn',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    hi: {
+                        _desired: 'mr',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    id: {
+                        _desired: 'ms',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'mt',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'my',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'ne',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    nb: {
+                        _desired: 'nn',
+                        _distance: '20',
+                    },
+                },
+                {
+                    no: {
+                        _desired: 'nn',
+                        _distance: '20',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'nso',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'ny',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'nyn',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    fr: {
+                        _desired: 'oc',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'om',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'or',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'pa',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'pcm',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'ps',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    es: {
+                        _desired: 'qu',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    de: {
+                        _desired: 'rm',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'rn',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    fr: {
+                        _desired: 'rw',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    hi: {
+                        _desired: 'sa',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'sd',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'si',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'sn',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'so',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'sq',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'st',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    id: {
+                        _desired: 'su',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'sw',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'ta',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'te',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ru: {
+                        _desired: 'tg',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'ti',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ru: {
+                        _desired: 'tk',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'tlh',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'tn',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'to',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ru: {
+                        _desired: 'tt',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'tum',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    zh: {
+                        _desired: 'ug',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ru: {
+                        _desired: 'uk',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'ur',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ru: {
+                        _desired: 'uz',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    fr: {
+                        _desired: 'wo',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'xh',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'yi',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'yo',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    zh: {
+                        _desired: 'za',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    en: {
+                        _desired: 'zu',
+                        _distance: '30',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'aao',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'abh',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'abv',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'acm',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'acq',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'acw',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'acx',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'acy',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'adf',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'aeb',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'aec',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'afb',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'ajp',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'apc',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'apd',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'arq',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'ars',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'ary',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'arz',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'auz',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'avl',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'ayh',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'ayl',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'ayn',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'ayp',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'bbz',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'pga',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'shu',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ar: {
+                        _desired: 'ssh',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    az: {
+                        _desired: 'azb',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    et: {
+                        _desired: 'vro',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ff: {
+                        _desired: 'ffm',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ff: {
+                        _desired: 'fub',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ff: {
+                        _desired: 'fue',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ff: {
+                        _desired: 'fuf',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ff: {
+                        _desired: 'fuh',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ff: {
+                        _desired: 'fui',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ff: {
+                        _desired: 'fuq',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ff: {
+                        _desired: 'fuv',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    gn: {
+                        _desired: 'gnw',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    gn: {
+                        _desired: 'gui',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    gn: {
+                        _desired: 'gun',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    gn: {
+                        _desired: 'nhd',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    iu: {
+                        _desired: 'ikt',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    kln: {
+                        _desired: 'enb',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    kln: {
+                        _desired: 'eyo',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    kln: {
+                        _desired: 'niq',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    kln: {
+                        _desired: 'oki',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    kln: {
+                        _desired: 'pko',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    kln: {
+                        _desired: 'sgc',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    kln: {
+                        _desired: 'tec',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    kln: {
+                        _desired: 'tuy',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    kok: {
+                        _desired: 'gom',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    kpe: {
+                        _desired: 'gkp',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    luy: {
+                        _desired: 'ida',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    luy: {
+                        _desired: 'lkb',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    luy: {
+                        _desired: 'lko',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    luy: {
+                        _desired: 'lks',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    luy: {
+                        _desired: 'lri',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    luy: {
+                        _desired: 'lrm',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    luy: {
+                        _desired: 'lsm',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    luy: {
+                        _desired: 'lto',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    luy: {
+                        _desired: 'lts',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    luy: {
+                        _desired: 'lwg',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    luy: {
+                        _desired: 'nle',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    luy: {
+                        _desired: 'nyd',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    luy: {
+                        _desired: 'rag',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    lv: {
+                        _desired: 'ltg',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    mg: {
+                        _desired: 'bhr',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    mg: {
+                        _desired: 'bjq',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    mg: {
+                        _desired: 'bmm',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    mg: {
+                        _desired: 'bzc',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    mg: {
+                        _desired: 'msh',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    mg: {
+                        _desired: 'skg',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    mg: {
+                        _desired: 'tdx',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    mg: {
+                        _desired: 'tkg',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    mg: {
+                        _desired: 'txy',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    mg: {
+                        _desired: 'xmv',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    mg: {
+                        _desired: 'xmw',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    mn: {
+                        _desired: 'mvf',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'bjn',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'btj',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'bve',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'bvu',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'coa',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'dup',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'hji',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'id',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'jak',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'jax',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'kvb',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'kvr',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'kxd',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'lce',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'lcf',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'liw',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'max',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'meo',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'mfa',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'mfb',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'min',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'mqg',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'msi',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'mui',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'orn',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'ors',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'pel',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'pse',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'tmw',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'urk',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'vkk',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'vkt',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'xmm',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'zlm',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ms: {
+                        _desired: 'zmi',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ne: {
+                        _desired: 'dty',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    om: {
+                        _desired: 'gax',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    om: {
+                        _desired: 'hae',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    om: {
+                        _desired: 'orc',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    or: {
+                        _desired: 'spv',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ps: {
+                        _desired: 'pbt',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    ps: {
+                        _desired: 'pst',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qub',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qud',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'quf',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qug',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'quh',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'quk',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qul',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qup',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qur',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qus',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'quw',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qux',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'quy',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qva',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qvc',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qve',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qvh',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qvi',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qvj',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qvl',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qvm',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qvn',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qvo',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qvp',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qvs',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qvw',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qvz',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qwa',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qwc',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qwh',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qws',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qxa',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qxc',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qxh',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qxl',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qxn',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qxo',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qxp',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qxr',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qxt',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qxu',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    qu: {
+                        _desired: 'qxw',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    sc: {
+                        _desired: 'sdc',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    sc: {
+                        _desired: 'sdn',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    sc: {
+                        _desired: 'sro',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    sq: {
+                        _desired: 'aae',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    sq: {
+                        _desired: 'aat',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    sq: {
+                        _desired: 'aln',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    syr: {
+                        _desired: 'aii',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    uz: {
+                        _desired: 'uzs',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    yi: {
+                        _desired: 'yih',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    zh: {
+                        _desired: 'cdo',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    zh: {
+                        _desired: 'cjy',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    zh: {
+                        _desired: 'cpx',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    zh: {
+                        _desired: 'czh',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    zh: {
+                        _desired: 'czo',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    zh: {
+                        _desired: 'gan',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    zh: {
+                        _desired: 'hak',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    zh: {
+                        _desired: 'hsn',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    zh: {
+                        _desired: 'lzh',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    zh: {
+                        _desired: 'mnp',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    zh: {
+                        _desired: 'nan',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    zh: {
+                        _desired: 'wuu',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    zh: {
+                        _desired: 'yue',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    '*': {
+                        _desired: '*',
+                        _distance: '80',
+                    },
+                },
+                {
+                    'en-Latn': {
+                        _desired: 'am-Ethi',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'ru-Cyrl': {
+                        _desired: 'az-Latn',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'en-Latn': {
+                        _desired: 'bn-Beng',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'zh-Hans': {
+                        _desired: 'bo-Tibt',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'ru-Cyrl': {
+                        _desired: 'hy-Armn',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'en-Latn': {
+                        _desired: 'ka-Geor',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'en-Latn': {
+                        _desired: 'km-Khmr',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'en-Latn': {
+                        _desired: 'kn-Knda',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'en-Latn': {
+                        _desired: 'lo-Laoo',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'en-Latn': {
+                        _desired: 'ml-Mlym',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'en-Latn': {
+                        _desired: 'my-Mymr',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'en-Latn': {
+                        _desired: 'ne-Deva',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'en-Latn': {
+                        _desired: 'or-Orya',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'en-Latn': {
+                        _desired: 'pa-Guru',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'en-Latn': {
+                        _desired: 'ps-Arab',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'en-Latn': {
+                        _desired: 'sd-Arab',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'en-Latn': {
+                        _desired: 'si-Sinh',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'en-Latn': {
+                        _desired: 'ta-Taml',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'en-Latn': {
+                        _desired: 'te-Telu',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'en-Latn': {
+                        _desired: 'ti-Ethi',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'ru-Cyrl': {
+                        _desired: 'tk-Latn',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'en-Latn': {
+                        _desired: 'ur-Arab',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'ru-Cyrl': {
+                        _desired: 'uz-Latn',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'en-Latn': {
+                        _desired: 'yi-Hebr',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'sr-Cyrl': {
+                        _desired: 'sr-Latn',
+                        _distance: '5',
+                    },
+                },
+                {
+                    'zh-Hans': {
+                        _desired: 'za-Latn',
+                        _distance: '10',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'zh-Hans': {
+                        _desired: 'zh-Hani',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'zh-Hant': {
+                        _desired: 'zh-Hani',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'ar-Arab': {
+                        _desired: 'ar-Latn',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'bn-Beng': {
+                        _desired: 'bn-Latn',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'gu-Gujr': {
+                        _desired: 'gu-Latn',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'hi-Deva': {
+                        _desired: 'hi-Latn',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'kn-Knda': {
+                        _desired: 'kn-Latn',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'ml-Mlym': {
+                        _desired: 'ml-Latn',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'mr-Deva': {
+                        _desired: 'mr-Latn',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'ta-Taml': {
+                        _desired: 'ta-Latn',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'te-Telu': {
+                        _desired: 'te-Latn',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'zh-Hans': {
+                        _desired: 'zh-Latn',
+                        _distance: '20',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'ja-Jpan': {
+                        _desired: 'ja-Latn',
+                        _distance: '5',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'ja-Jpan': {
+                        _desired: 'ja-Hani',
+                        _distance: '5',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'ja-Jpan': {
+                        _desired: 'ja-Hira',
+                        _distance: '5',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'ja-Jpan': {
+                        _desired: 'ja-Kana',
+                        _distance: '5',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'ja-Jpan': {
+                        _desired: 'ja-Hrkt',
+                        _distance: '5',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'ja-Hrkt': {
+                        _desired: 'ja-Hira',
+                        _distance: '5',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'ja-Hrkt': {
+                        _desired: 'ja-Kana',
+                        _distance: '5',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'ko-Kore': {
+                        _desired: 'ko-Hani',
+                        _distance: '5',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'ko-Kore': {
+                        _desired: 'ko-Hang',
+                        _distance: '5',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'ko-Kore': {
+                        _desired: 'ko-Jamo',
+                        _distance: '5',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    'ko-Hang': {
+                        _desired: 'ko-Jamo',
+                        _distance: '5',
+                        _oneway: 'true',
+                    },
+                },
+                {
+                    '*-*': {
+                        _desired: '*-*',
+                        _distance: '50',
+                    },
+                },
+                {
+                    'ar-*-$maghreb': {
+                        _desired: 'ar-*-$maghreb',
+                        _distance: '4',
+                    },
+                },
+                {
+                    'ar-*-$!maghreb': {
+                        _desired: 'ar-*-$!maghreb',
+                        _distance: '4',
+                    },
+                },
+                {
+                    'ar-*-*': {
+                        _desired: 'ar-*-*',
+                        _distance: '5',
+                    },
+                },
+                {
+                    'en-*-$enUS': {
+                        _desired: 'en-*-$enUS',
+                        _distance: '4',
+                    },
+                },
+                {
+                    'en-*-GB': {
+                        _desired: 'en-*-$!enUS',
+                        _distance: '3',
+                    },
+                },
+                {
+                    'en-*-$!enUS': {
+                        _desired: 'en-*-$!enUS',
+                        _distance: '4',
+                    },
+                },
+                {
+                    'en-*-*': {
+                        _desired: 'en-*-*',
+                        _distance: '5',
+                    },
+                },
+                {
+                    'es-*-$americas': {
+                        _desired: 'es-*-$americas',
+                        _distance: '4',
+                    },
+                },
+                {
+                    'es-*-$!americas': {
+                        _desired: 'es-*-$!americas',
+                        _distance: '4',
+                    },
+                },
+                {
+                    'es-*-*': {
+                        _desired: 'es-*-*',
+                        _distance: '5',
+                    },
+                },
+                {
+                    'pt-*-$americas': {
+                        _desired: 'pt-*-$americas',
+                        _distance: '4',
+                    },
+                },
+                {
+                    'pt-*-$!americas': {
+                        _desired: 'pt-*-$!americas',
+                        _distance: '4',
+                    },
+                },
+                {
+                    'pt-*-*': {
+                        _desired: 'pt-*-*',
+                        _distance: '5',
+                    },
+                },
+                {
+                    'zh-Hant-$cnsar': {
+                        _desired: 'zh-Hant-$cnsar',
+                        _distance: '4',
+                    },
+                },
+                {
+                    'zh-Hant-$!cnsar': {
+                        _desired: 'zh-Hant-$!cnsar',
+                        _distance: '4',
+                    },
+                },
+                {
+                    'zh-Hant-*': {
+                        _desired: 'zh-Hant-*',
+                        _distance: '5',
+                    },
+                },
+                {
+                    '*-*-*': {
+                        _desired: '*-*-*',
+                        _distance: '4',
+                    },
+                },
+            ],
+        },
+    },
+};
+
+},{}],59:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.regions = void 0;
+// This file is generated from regions-gen.ts
+exports.regions = {
+    "001": [
+        "001",
+        "001-status-grouping",
+        "002",
+        "005",
+        "009",
+        "011",
+        "013",
+        "014",
+        "015",
+        "017",
+        "018",
+        "019",
+        "021",
+        "029",
+        "030",
+        "034",
+        "035",
+        "039",
+        "053",
+        "054",
+        "057",
+        "061",
+        "142",
+        "143",
+        "145",
+        "150",
+        "151",
+        "154",
+        "155",
+        "AC",
+        "AD",
+        "AE",
+        "AF",
+        "AG",
+        "AI",
+        "AL",
+        "AM",
+        "AO",
+        "AQ",
+        "AR",
+        "AS",
+        "AT",
+        "AU",
+        "AW",
+        "AX",
+        "AZ",
+        "BA",
+        "BB",
+        "BD",
+        "BE",
+        "BF",
+        "BG",
+        "BH",
+        "BI",
+        "BJ",
+        "BL",
+        "BM",
+        "BN",
+        "BO",
+        "BQ",
+        "BR",
+        "BS",
+        "BT",
+        "BV",
+        "BW",
+        "BY",
+        "BZ",
+        "CA",
+        "CC",
+        "CD",
+        "CF",
+        "CG",
+        "CH",
+        "CI",
+        "CK",
+        "CL",
+        "CM",
+        "CN",
+        "CO",
+        "CP",
+        "CQ",
+        "CR",
+        "CU",
+        "CV",
+        "CW",
+        "CX",
+        "CY",
+        "CZ",
+        "DE",
+        "DG",
+        "DJ",
+        "DK",
+        "DM",
+        "DO",
+        "DZ",
+        "EA",
+        "EC",
+        "EE",
+        "EG",
+        "EH",
+        "ER",
+        "ES",
+        "ET",
+        "EU",
+        "EZ",
+        "FI",
+        "FJ",
+        "FK",
+        "FM",
+        "FO",
+        "FR",
+        "GA",
+        "GB",
+        "GD",
+        "GE",
+        "GF",
+        "GG",
+        "GH",
+        "GI",
+        "GL",
+        "GM",
+        "GN",
+        "GP",
+        "GQ",
+        "GR",
+        "GS",
+        "GT",
+        "GU",
+        "GW",
+        "GY",
+        "HK",
+        "HM",
+        "HN",
+        "HR",
+        "HT",
+        "HU",
+        "IC",
+        "ID",
+        "IE",
+        "IL",
+        "IM",
+        "IN",
+        "IO",
+        "IQ",
+        "IR",
+        "IS",
+        "IT",
+        "JE",
+        "JM",
+        "JO",
+        "JP",
+        "KE",
+        "KG",
+        "KH",
+        "KI",
+        "KM",
+        "KN",
+        "KP",
+        "KR",
+        "KW",
+        "KY",
+        "KZ",
+        "LA",
+        "LB",
+        "LC",
+        "LI",
+        "LK",
+        "LR",
+        "LS",
+        "LT",
+        "LU",
+        "LV",
+        "LY",
+        "MA",
+        "MC",
+        "MD",
+        "ME",
+        "MF",
+        "MG",
+        "MH",
+        "MK",
+        "ML",
+        "MM",
+        "MN",
+        "MO",
+        "MP",
+        "MQ",
+        "MR",
+        "MS",
+        "MT",
+        "MU",
+        "MV",
+        "MW",
+        "MX",
+        "MY",
+        "MZ",
+        "NA",
+        "NC",
+        "NE",
+        "NF",
+        "NG",
+        "NI",
+        "NL",
+        "NO",
+        "NP",
+        "NR",
+        "NU",
+        "NZ",
+        "OM",
+        "PA",
+        "PE",
+        "PF",
+        "PG",
+        "PH",
+        "PK",
+        "PL",
+        "PM",
+        "PN",
+        "PR",
+        "PS",
+        "PT",
+        "PW",
+        "PY",
+        "QA",
+        "QO",
+        "RE",
+        "RO",
+        "RS",
+        "RU",
+        "RW",
+        "SA",
+        "SB",
+        "SC",
+        "SD",
+        "SE",
+        "SG",
+        "SH",
+        "SI",
+        "SJ",
+        "SK",
+        "SL",
+        "SM",
+        "SN",
+        "SO",
+        "SR",
+        "SS",
+        "ST",
+        "SV",
+        "SX",
+        "SY",
+        "SZ",
+        "TA",
+        "TC",
+        "TD",
+        "TF",
+        "TG",
+        "TH",
+        "TJ",
+        "TK",
+        "TL",
+        "TM",
+        "TN",
+        "TO",
+        "TR",
+        "TT",
+        "TV",
+        "TW",
+        "TZ",
+        "UA",
+        "UG",
+        "UM",
+        "UN",
+        "US",
+        "UY",
+        "UZ",
+        "VA",
+        "VC",
+        "VE",
+        "VG",
+        "VI",
+        "VN",
+        "VU",
+        "WF",
+        "WS",
+        "XK",
+        "YE",
+        "YT",
+        "ZA",
+        "ZM",
+        "ZW"
+    ],
+    "002": [
+        "002",
+        "002-status-grouping",
+        "011",
+        "014",
+        "015",
+        "017",
+        "018",
+        "202",
+        "AO",
+        "BF",
+        "BI",
+        "BJ",
+        "BW",
+        "CD",
+        "CF",
+        "CG",
+        "CI",
+        "CM",
+        "CV",
+        "DJ",
+        "DZ",
+        "EA",
+        "EG",
+        "EH",
+        "ER",
+        "ET",
+        "GA",
+        "GH",
+        "GM",
+        "GN",
+        "GQ",
+        "GW",
+        "IC",
+        "IO",
+        "KE",
+        "KM",
+        "LR",
+        "LS",
+        "LY",
+        "MA",
+        "MG",
+        "ML",
+        "MR",
+        "MU",
+        "MW",
+        "MZ",
+        "NA",
+        "NE",
+        "NG",
+        "RE",
+        "RW",
+        "SC",
+        "SD",
+        "SH",
+        "SL",
+        "SN",
+        "SO",
+        "SS",
+        "ST",
+        "SZ",
+        "TD",
+        "TF",
+        "TG",
+        "TN",
+        "TZ",
+        "UG",
+        "YT",
+        "ZA",
+        "ZM",
+        "ZW"
+    ],
+    "003": [
+        "003",
+        "013",
+        "021",
+        "029",
+        "AG",
+        "AI",
+        "AW",
+        "BB",
+        "BL",
+        "BM",
+        "BQ",
+        "BS",
+        "BZ",
+        "CA",
+        "CR",
+        "CU",
+        "CW",
+        "DM",
+        "DO",
+        "GD",
+        "GL",
+        "GP",
+        "GT",
+        "HN",
+        "HT",
+        "JM",
+        "KN",
+        "KY",
+        "LC",
+        "MF",
+        "MQ",
+        "MS",
+        "MX",
+        "NI",
+        "PA",
+        "PM",
+        "PR",
+        "SV",
+        "SX",
+        "TC",
+        "TT",
+        "US",
+        "VC",
+        "VG",
+        "VI"
+    ],
+    "005": [
+        "005",
+        "AR",
+        "BO",
+        "BR",
+        "BV",
+        "CL",
+        "CO",
+        "EC",
+        "FK",
+        "GF",
+        "GS",
+        "GY",
+        "PE",
+        "PY",
+        "SR",
+        "UY",
+        "VE"
+    ],
+    "009": [
+        "009",
+        "053",
+        "054",
+        "057",
+        "061",
+        "AC",
+        "AQ",
+        "AS",
+        "AU",
+        "CC",
+        "CK",
+        "CP",
+        "CX",
+        "DG",
+        "FJ",
+        "FM",
+        "GU",
+        "HM",
+        "KI",
+        "MH",
+        "MP",
+        "NC",
+        "NF",
+        "NR",
+        "NU",
+        "NZ",
+        "PF",
+        "PG",
+        "PN",
+        "PW",
+        "QO",
+        "SB",
+        "TA",
+        "TK",
+        "TO",
+        "TV",
+        "UM",
+        "VU",
+        "WF",
+        "WS"
+    ],
+    "011": [
+        "011",
+        "BF",
+        "BJ",
+        "CI",
+        "CV",
+        "GH",
+        "GM",
+        "GN",
+        "GW",
+        "LR",
+        "ML",
+        "MR",
+        "NE",
+        "NG",
+        "SH",
+        "SL",
+        "SN",
+        "TG"
+    ],
+    "013": [
+        "013",
+        "BZ",
+        "CR",
+        "GT",
+        "HN",
+        "MX",
+        "NI",
+        "PA",
+        "SV"
+    ],
+    "014": [
+        "014",
+        "BI",
+        "DJ",
+        "ER",
+        "ET",
+        "IO",
+        "KE",
+        "KM",
+        "MG",
+        "MU",
+        "MW",
+        "MZ",
+        "RE",
+        "RW",
+        "SC",
+        "SO",
+        "SS",
+        "TF",
+        "TZ",
+        "UG",
+        "YT",
+        "ZM",
+        "ZW"
+    ],
+    "015": [
+        "015",
+        "DZ",
+        "EA",
+        "EG",
+        "EH",
+        "IC",
+        "LY",
+        "MA",
+        "SD",
+        "TN"
+    ],
+    "017": [
+        "017",
+        "AO",
+        "CD",
+        "CF",
+        "CG",
+        "CM",
+        "GA",
+        "GQ",
+        "ST",
+        "TD"
+    ],
+    "018": [
+        "018",
+        "BW",
+        "LS",
+        "NA",
+        "SZ",
+        "ZA"
+    ],
+    "019": [
+        "003",
+        "005",
+        "013",
+        "019",
+        "019-status-grouping",
+        "021",
+        "029",
+        "419",
+        "AG",
+        "AI",
+        "AR",
+        "AW",
+        "BB",
+        "BL",
+        "BM",
+        "BO",
+        "BQ",
+        "BR",
+        "BS",
+        "BV",
+        "BZ",
+        "CA",
+        "CL",
+        "CO",
+        "CR",
+        "CU",
+        "CW",
+        "DM",
+        "DO",
+        "EC",
+        "FK",
+        "GD",
+        "GF",
+        "GL",
+        "GP",
+        "GS",
+        "GT",
+        "GY",
+        "HN",
+        "HT",
+        "JM",
+        "KN",
+        "KY",
+        "LC",
+        "MF",
+        "MQ",
+        "MS",
+        "MX",
+        "NI",
+        "PA",
+        "PE",
+        "PM",
+        "PR",
+        "PY",
+        "SR",
+        "SV",
+        "SX",
+        "TC",
+        "TT",
+        "US",
+        "UY",
+        "VC",
+        "VE",
+        "VG",
+        "VI"
+    ],
+    "021": [
+        "021",
+        "BM",
+        "CA",
+        "GL",
+        "PM",
+        "US"
+    ],
+    "029": [
+        "029",
+        "AG",
+        "AI",
+        "AW",
+        "BB",
+        "BL",
+        "BQ",
+        "BS",
+        "CU",
+        "CW",
+        "DM",
+        "DO",
+        "GD",
+        "GP",
+        "HT",
+        "JM",
+        "KN",
+        "KY",
+        "LC",
+        "MF",
+        "MQ",
+        "MS",
+        "PR",
+        "SX",
+        "TC",
+        "TT",
+        "VC",
+        "VG",
+        "VI"
+    ],
+    "030": [
+        "030",
+        "CN",
+        "HK",
+        "JP",
+        "KP",
+        "KR",
+        "MN",
+        "MO",
+        "TW"
+    ],
+    "034": [
+        "034",
+        "AF",
+        "BD",
+        "BT",
+        "IN",
+        "IR",
+        "LK",
+        "MV",
+        "NP",
+        "PK"
+    ],
+    "035": [
+        "035",
+        "BN",
+        "ID",
+        "KH",
+        "LA",
+        "MM",
+        "MY",
+        "PH",
+        "SG",
+        "TH",
+        "TL",
+        "VN"
+    ],
+    "039": [
+        "039",
+        "AD",
+        "AL",
+        "BA",
+        "ES",
+        "GI",
+        "GR",
+        "HR",
+        "IT",
+        "ME",
+        "MK",
+        "MT",
+        "PT",
+        "RS",
+        "SI",
+        "SM",
+        "VA",
+        "XK"
+    ],
+    "053": [
+        "053",
+        "AU",
+        "CC",
+        "CX",
+        "HM",
+        "NF",
+        "NZ"
+    ],
+    "054": [
+        "054",
+        "FJ",
+        "NC",
+        "PG",
+        "SB",
+        "VU"
+    ],
+    "057": [
+        "057",
+        "FM",
+        "GU",
+        "KI",
+        "MH",
+        "MP",
+        "NR",
+        "PW",
+        "UM"
+    ],
+    "061": [
+        "061",
+        "AS",
+        "CK",
+        "NU",
+        "PF",
+        "PN",
+        "TK",
+        "TO",
+        "TV",
+        "WF",
+        "WS"
+    ],
+    "142": [
+        "030",
+        "034",
+        "035",
+        "142",
+        "143",
+        "145",
+        "AE",
+        "AF",
+        "AM",
+        "AZ",
+        "BD",
+        "BH",
+        "BN",
+        "BT",
+        "CN",
+        "CY",
+        "GE",
+        "HK",
+        "ID",
+        "IL",
+        "IN",
+        "IQ",
+        "IR",
+        "JO",
+        "JP",
+        "KG",
+        "KH",
+        "KP",
+        "KR",
+        "KW",
+        "KZ",
+        "LA",
+        "LB",
+        "LK",
+        "MM",
+        "MN",
+        "MO",
+        "MV",
+        "MY",
+        "NP",
+        "OM",
+        "PH",
+        "PK",
+        "PS",
+        "QA",
+        "SA",
+        "SG",
+        "SY",
+        "TH",
+        "TJ",
+        "TL",
+        "TM",
+        "TR",
+        "TW",
+        "UZ",
+        "VN",
+        "YE"
+    ],
+    "143": [
+        "143",
+        "KG",
+        "KZ",
+        "TJ",
+        "TM",
+        "UZ"
+    ],
+    "145": [
+        "145",
+        "AE",
+        "AM",
+        "AZ",
+        "BH",
+        "CY",
+        "GE",
+        "IL",
+        "IQ",
+        "JO",
+        "KW",
+        "LB",
+        "OM",
+        "PS",
+        "QA",
+        "SA",
+        "SY",
+        "TR",
+        "YE"
+    ],
+    "150": [
+        "039",
+        "150",
+        "151",
+        "154",
+        "155",
+        "AD",
+        "AL",
+        "AT",
+        "AX",
+        "BA",
+        "BE",
+        "BG",
+        "BY",
+        "CH",
+        "CQ",
+        "CZ",
+        "DE",
+        "DK",
+        "EE",
+        "ES",
+        "FI",
+        "FO",
+        "FR",
+        "GB",
+        "GG",
+        "GI",
+        "GR",
+        "HR",
+        "HU",
+        "IE",
+        "IM",
+        "IS",
+        "IT",
+        "JE",
+        "LI",
+        "LT",
+        "LU",
+        "LV",
+        "MC",
+        "MD",
+        "ME",
+        "MK",
+        "MT",
+        "NL",
+        "NO",
+        "PL",
+        "PT",
+        "RO",
+        "RS",
+        "RU",
+        "SE",
+        "SI",
+        "SJ",
+        "SK",
+        "SM",
+        "UA",
+        "VA",
+        "XK"
+    ],
+    "151": [
+        "151",
+        "BG",
+        "BY",
+        "CZ",
+        "HU",
+        "MD",
+        "PL",
+        "RO",
+        "RU",
+        "SK",
+        "UA"
+    ],
+    "154": [
+        "154",
+        "AX",
+        "CQ",
+        "DK",
+        "EE",
+        "FI",
+        "FO",
+        "GB",
+        "GG",
+        "IE",
+        "IM",
+        "IS",
+        "JE",
+        "LT",
+        "LV",
+        "NO",
+        "SE",
+        "SJ"
+    ],
+    "155": [
+        "155",
+        "AT",
+        "BE",
+        "CH",
+        "DE",
+        "FR",
+        "LI",
+        "LU",
+        "MC",
+        "NL"
+    ],
+    "202": [
+        "011",
+        "014",
+        "017",
+        "018",
+        "202",
+        "AO",
+        "BF",
+        "BI",
+        "BJ",
+        "BW",
+        "CD",
+        "CF",
+        "CG",
+        "CI",
+        "CM",
+        "CV",
+        "DJ",
+        "ER",
+        "ET",
+        "GA",
+        "GH",
+        "GM",
+        "GN",
+        "GQ",
+        "GW",
+        "IO",
+        "KE",
+        "KM",
+        "LR",
+        "LS",
+        "MG",
+        "ML",
+        "MR",
+        "MU",
+        "MW",
+        "MZ",
+        "NA",
+        "NE",
+        "NG",
+        "RE",
+        "RW",
+        "SC",
+        "SH",
+        "SL",
+        "SN",
+        "SO",
+        "SS",
+        "ST",
+        "SZ",
+        "TD",
+        "TF",
+        "TG",
+        "TZ",
+        "UG",
+        "YT",
+        "ZA",
+        "ZM",
+        "ZW"
+    ],
+    "419": [
+        "005",
+        "013",
+        "029",
+        "419",
+        "AG",
+        "AI",
+        "AR",
+        "AW",
+        "BB",
+        "BL",
+        "BO",
+        "BQ",
+        "BR",
+        "BS",
+        "BV",
+        "BZ",
+        "CL",
+        "CO",
+        "CR",
+        "CU",
+        "CW",
+        "DM",
+        "DO",
+        "EC",
+        "FK",
+        "GD",
+        "GF",
+        "GP",
+        "GS",
+        "GT",
+        "GY",
+        "HN",
+        "HT",
+        "JM",
+        "KN",
+        "KY",
+        "LC",
+        "MF",
+        "MQ",
+        "MS",
+        "MX",
+        "NI",
+        "PA",
+        "PE",
+        "PR",
+        "PY",
+        "SR",
+        "SV",
+        "SX",
+        "TC",
+        "TT",
+        "UY",
+        "VC",
+        "VE",
+        "VG",
+        "VI"
+    ],
+    "EU": [
+        "AT",
+        "BE",
+        "BG",
+        "CY",
+        "CZ",
+        "DE",
+        "DK",
+        "EE",
+        "ES",
+        "EU",
+        "FI",
+        "FR",
+        "GR",
+        "HR",
+        "HU",
+        "IE",
+        "IT",
+        "LT",
+        "LU",
+        "LV",
+        "MT",
+        "NL",
+        "PL",
+        "PT",
+        "RO",
+        "SE",
+        "SI",
+        "SK"
+    ],
+    "EZ": [
+        "AT",
+        "BE",
+        "CY",
+        "DE",
+        "EE",
+        "ES",
+        "EZ",
+        "FI",
+        "FR",
+        "GR",
+        "IE",
+        "IT",
+        "LT",
+        "LU",
+        "LV",
+        "MT",
+        "NL",
+        "PT",
+        "SI",
+        "SK"
+    ],
+    "QO": [
+        "AC",
+        "AQ",
+        "CP",
+        "DG",
+        "QO",
+        "TA"
+    ],
+    "UN": [
+        "AD",
+        "AE",
+        "AF",
+        "AG",
+        "AL",
+        "AM",
+        "AO",
+        "AR",
+        "AT",
+        "AU",
+        "AZ",
+        "BA",
+        "BB",
+        "BD",
+        "BE",
+        "BF",
+        "BG",
+        "BH",
+        "BI",
+        "BJ",
+        "BN",
+        "BO",
+        "BR",
+        "BS",
+        "BT",
+        "BW",
+        "BY",
+        "BZ",
+        "CA",
+        "CD",
+        "CF",
+        "CG",
+        "CH",
+        "CI",
+        "CL",
+        "CM",
+        "CN",
+        "CO",
+        "CR",
+        "CU",
+        "CV",
+        "CY",
+        "CZ",
+        "DE",
+        "DJ",
+        "DK",
+        "DM",
+        "DO",
+        "DZ",
+        "EC",
+        "EE",
+        "EG",
+        "ER",
+        "ES",
+        "ET",
+        "FI",
+        "FJ",
+        "FM",
+        "FR",
+        "GA",
+        "GB",
+        "GD",
+        "GE",
+        "GH",
+        "GM",
+        "GN",
+        "GQ",
+        "GR",
+        "GT",
+        "GW",
+        "GY",
+        "HN",
+        "HR",
+        "HT",
+        "HU",
+        "ID",
+        "IE",
+        "IL",
+        "IN",
+        "IQ",
+        "IR",
+        "IS",
+        "IT",
+        "JM",
+        "JO",
+        "JP",
+        "KE",
+        "KG",
+        "KH",
+        "KI",
+        "KM",
+        "KN",
+        "KP",
+        "KR",
+        "KW",
+        "KZ",
+        "LA",
+        "LB",
+        "LC",
+        "LI",
+        "LK",
+        "LR",
+        "LS",
+        "LT",
+        "LU",
+        "LV",
+        "LY",
+        "MA",
+        "MC",
+        "MD",
+        "ME",
+        "MG",
+        "MH",
+        "MK",
+        "ML",
+        "MM",
+        "MN",
+        "MR",
+        "MT",
+        "MU",
+        "MV",
+        "MW",
+        "MX",
+        "MY",
+        "MZ",
+        "NA",
+        "NE",
+        "NG",
+        "NI",
+        "NL",
+        "NO",
+        "NP",
+        "NR",
+        "NZ",
+        "OM",
+        "PA",
+        "PE",
+        "PG",
+        "PH",
+        "PK",
+        "PL",
+        "PT",
+        "PW",
+        "PY",
+        "QA",
+        "RO",
+        "RS",
+        "RU",
+        "RW",
+        "SA",
+        "SB",
+        "SC",
+        "SD",
+        "SE",
+        "SG",
+        "SI",
+        "SK",
+        "SL",
+        "SM",
+        "SN",
+        "SO",
+        "SR",
+        "SS",
+        "ST",
+        "SV",
+        "SY",
+        "SZ",
+        "TD",
+        "TG",
+        "TH",
+        "TJ",
+        "TL",
+        "TM",
+        "TN",
+        "TO",
+        "TR",
+        "TT",
+        "TV",
+        "TZ",
+        "UA",
+        "UG",
+        "UN",
+        "US",
+        "UY",
+        "UZ",
+        "VC",
+        "VE",
+        "VN",
+        "VU",
+        "WS",
+        "YE",
+        "ZA",
+        "ZM",
+        "ZW"
+    ]
+};
+
+},{}],60:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.findBestMatch = exports.findMatchingDistance = exports.invariant = exports.UNICODE_EXTENSION_SEQUENCE_REGEX = void 0;
+var tslib_1 = require("tslib");
+var languageMatching_1 = require("./languageMatching");
+var regions_generated_1 = require("./regions.generated");
 exports.UNICODE_EXTENSION_SEQUENCE_REGEX = /-u(?:-[0-9a-z]{2,8})+/gi;
 function invariant(condition, message, Err) {
     if (Err === void 0) { Err = Error; }
@@ -2885,19 +7630,172 @@ function invariant(condition, message, Err) {
     }
 }
 exports.invariant = invariant;
+// This is effectively 2 languages in 2 different regions in the same cluster
+var DEFAULT_MATCHING_THRESHOLD = 838;
+var PROCESSED_DATA;
+function processData() {
+    var _a, _b;
+    if (!PROCESSED_DATA) {
+        var paradigmLocales = (_b = (_a = languageMatching_1.data.supplemental.languageMatching['written-new'][0]) === null || _a === void 0 ? void 0 : _a.paradigmLocales) === null || _b === void 0 ? void 0 : _b._locales.split(' ');
+        var matchVariables = languageMatching_1.data.supplemental.languageMatching['written-new'].slice(1, 5);
+        var data = languageMatching_1.data.supplemental.languageMatching['written-new'].slice(5);
+        var matches = data.map(function (d) {
+            var key = Object.keys(d)[0];
+            var value = d[key];
+            return {
+                supported: key,
+                desired: value._desired,
+                distance: +value._distance,
+                oneway: value.oneway === 'true' ? true : false,
+            };
+        }, {});
+        PROCESSED_DATA = {
+            matches: matches,
+            matchVariables: matchVariables.reduce(function (all, d) {
+                var key = Object.keys(d)[0];
+                var value = d[key];
+                all[key.slice(1)] = value._value.split('+');
+                return all;
+            }, {}),
+            paradigmLocales: tslib_1.__spreadArray(tslib_1.__spreadArray([], paradigmLocales, true), paradigmLocales.map(function (l) {
+                return new Intl.Locale(l.replace(/_/g, '-')).maximize().toString();
+            }), true),
+        };
+    }
+    return PROCESSED_DATA;
+}
+function isMatched(locale, languageMatchInfoLocale, matchVariables) {
+    var _a = languageMatchInfoLocale.split('-'), language = _a[0], script = _a[1], region = _a[2];
+    var matches = true;
+    if (region && region[0] === '$') {
+        var shouldInclude = region[1] !== '!';
+        var matchRegions = shouldInclude
+            ? matchVariables[region.slice(1)]
+            : matchVariables[region.slice(2)];
+        var expandedMatchedRegions = matchRegions
+            .map(function (r) { return regions_generated_1.regions[r] || [r]; })
+            .reduce(function (all, list) { return tslib_1.__spreadArray(tslib_1.__spreadArray([], all, true), list, true); }, []);
+        matches && (matches = !(expandedMatchedRegions.indexOf(locale.region || '') > 1 !=
+            shouldInclude));
+    }
+    else {
+        matches && (matches = locale.region
+            ? region === '*' || region === locale.region
+            : true);
+    }
+    matches && (matches = locale.script ? script === '*' || script === locale.script : true);
+    matches && (matches = locale.language
+        ? language === '*' || language === locale.language
+        : true);
+    return matches;
+}
+function serializeLSR(lsr) {
+    return [lsr.language, lsr.script, lsr.region].filter(Boolean).join('-');
+}
+function findMatchingDistanceForLSR(desired, supported, data) {
+    for (var _i = 0, _a = data.matches; _i < _a.length; _i++) {
+        var d = _a[_i];
+        var matches = isMatched(desired, d.desired, data.matchVariables) &&
+            isMatched(supported, d.supported, data.matchVariables);
+        if (!d.oneway && !matches) {
+            matches =
+                isMatched(desired, d.supported, data.matchVariables) &&
+                    isMatched(supported, d.desired, data.matchVariables);
+        }
+        if (matches) {
+            var distance = d.distance * 10;
+            if (data.paradigmLocales.indexOf(serializeLSR(desired)) > -1 !=
+                data.paradigmLocales.indexOf(serializeLSR(supported)) > -1) {
+                return distance - 1;
+            }
+            return distance;
+        }
+    }
+    throw new Error('No matching distance found');
+}
+function findMatchingDistance(desired, supported) {
+    var desiredLocale = new Intl.Locale(desired).maximize();
+    var supportedLocale = new Intl.Locale(supported).maximize();
+    var desiredLSR = {
+        language: desiredLocale.language,
+        script: desiredLocale.script || '',
+        region: desiredLocale.region || '',
+    };
+    var supportedLSR = {
+        language: supportedLocale.language,
+        script: supportedLocale.script || '',
+        region: supportedLocale.region || '',
+    };
+    var matchingDistance = 0;
+    var data = processData();
+    if (desiredLSR.language !== supportedLSR.language) {
+        matchingDistance += findMatchingDistanceForLSR({
+            language: desiredLocale.language,
+            script: '',
+            region: '',
+        }, {
+            language: supportedLocale.language,
+            script: '',
+            region: '',
+        }, data);
+    }
+    if (desiredLSR.script !== supportedLSR.script) {
+        matchingDistance += findMatchingDistanceForLSR({
+            language: desiredLocale.language,
+            script: desiredLSR.script,
+            region: '',
+        }, {
+            language: supportedLocale.language,
+            script: desiredLSR.script,
+            region: '',
+        }, data);
+    }
+    if (desiredLSR.region !== supportedLSR.region) {
+        matchingDistance += findMatchingDistanceForLSR(desiredLSR, supportedLSR, data);
+    }
+    return matchingDistance;
+}
+exports.findMatchingDistance = findMatchingDistance;
+function findBestMatch(requestedLocales, supportedLocales, threshold) {
+    if (threshold === void 0) { threshold = DEFAULT_MATCHING_THRESHOLD; }
+    var lowestDistance = Infinity;
+    var result = {
+        matchedDesiredLocale: '',
+        distances: {},
+    };
+    requestedLocales.forEach(function (desired, i) {
+        if (!result.distances[desired]) {
+            result.distances[desired] = {};
+        }
+        supportedLocales.forEach(function (supported) {
+            // Add some weight to the distance based on the order of the supported locales
+            // Add penalty for the order of the requested locales, which currently is 0 since ECMA-402
+            // doesn't really have room for weighted locales like `en; q=0.1`
+            var distance = findMatchingDistance(desired, supported) + 0 + i * 40;
+            result.distances[desired][supported] = distance;
+            if (distance < lowestDistance) {
+                lowestDistance = distance;
+                result.matchedDesiredLocale = desired;
+                result.matchedSupportedLocale = supported;
+            }
+        });
+    });
+    if (lowestDistance >= threshold) {
+        result.matchedDesiredLocale = undefined;
+        result.matchedSupportedLocale = undefined;
+    }
+    return result;
+}
+exports.findBestMatch = findBestMatch;
 
-},{}],59:[function(require,module,exports){
+},{"./languageMatching":58,"./regions.generated":59,"tslib":62}],61:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ResolveLocale = exports.LookupSupportedLocales = exports.match = void 0;
 var CanonicalizeLocaleList_1 = require("./abstract/CanonicalizeLocaleList");
 var ResolveLocale_1 = require("./abstract/ResolveLocale");
 function match(requestedLocales, availableLocales, defaultLocale, opts) {
-    var locales = availableLocales.reduce(function (all, l) {
-        all.add(l);
-        return all;
-    }, new Set());
-    return (0, ResolveLocale_1.ResolveLocale)(locales, (0, CanonicalizeLocaleList_1.CanonicalizeLocaleList)(requestedLocales), {
+    return (0, ResolveLocale_1.ResolveLocale)(availableLocales, (0, CanonicalizeLocaleList_1.CanonicalizeLocaleList)(requestedLocales), {
         localeMatcher: (opts === null || opts === void 0 ? void 0 : opts.algorithm) || 'best fit',
     }, [], {}, function () { return defaultLocale; }).locale;
 }
@@ -2907,7 +7805,7 @@ Object.defineProperty(exports, "LookupSupportedLocales", { enumerable: true, get
 var ResolveLocale_2 = require("./abstract/ResolveLocale");
 Object.defineProperty(exports, "ResolveLocale", { enumerable: true, get: function () { return ResolveLocale_2.ResolveLocale; } });
 
-},{"./abstract/CanonicalizeLocaleList":53,"./abstract/LookupSupportedLocales":55,"./abstract/ResolveLocale":56}],60:[function(require,module,exports){
+},{"./abstract/CanonicalizeLocaleList":53,"./abstract/LookupSupportedLocales":55,"./abstract/ResolveLocale":56}],62:[function(require,module,exports){
 (function (global){(function (){
 /******************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -3281,7 +8179,7 @@ var __createBinding;
 });
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],61:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var _1 = require("./");
@@ -3295,5 +8193,5 @@ if ((0, should_polyfill_1.shouldPolyfill)()) {
     });
 }
 
-},{"./":48,"./should-polyfill":49}]},{},[61])(61)
+},{"./":48,"./should-polyfill":49}]},{},[63])(63)
 });

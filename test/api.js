@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-shadow -- Needed
 import {expect} from 'chai';
 import {
   Formatter, LocalFormatter, RegularFormatter, SwitchFormatter,
@@ -48,7 +47,7 @@ describe('API', function () {
   it('should throw with bad `processRegex` arguments', function () {
     expect(() => {
       processRegex(/test/u, 'string', {
-        onMatch (..._args) {
+        onMatch (/* ..._args */) {
           //
         }
       });
@@ -58,10 +57,10 @@ describe('API', function () {
 
     expect(() => {
       processRegex(/test/u, 'string', {
-        betweenMatches (_str) {
+        betweenMatches (/* _str */) {
           //
         },
-        onMatch (...args) {
+        onMatch (/* ...args */) {
           //
         }
       });

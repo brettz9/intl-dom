@@ -108,8 +108,7 @@ export const defaultInsertNodes = ({
     {substitutions}
   );
 
-  // eslint-disable-next-line max-len
-  // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
+  // eslint-disable-next-line prefer-named-capture-group -- Convenient for now
   const formattingRegex = /(\\*)\{((?:[^}]|\\\})*?)(?:(\|)([^}]*))?\}/gu;
   if (allSubstitutions) {
     allSubstitutions = Array.isArray(allSubstitutions)
@@ -258,7 +257,7 @@ export const defaultInsertNodes = ({
       str, substs = substitutions,
       formatter = regularFormatter
     }) => {
-      return str.replace(
+      return str.replaceAll(
         formattingRegex,
         /**
          * @param {string} _

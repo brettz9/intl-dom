@@ -72,13 +72,13 @@ export const defaultInsertNodes: InsertNodesCallback;
 export type Integer = number;
 export type Replace = (cfg: {
     str: string;
-    substs?: import('./defaultLocaleResolver.js').SubstitutionObject;
-    formatter?: import('./Formatter.js').RegularFormatter | import('./Formatter.js').LocalFormatter | import('./Formatter.js').SwitchFormatter;
+    substs?: import("./defaultLocaleResolver.js").SubstitutionObject;
+    formatter?: import("./Formatter.js").RegularFormatter | import("./Formatter.js").LocalFormatter | import("./Formatter.js").SwitchFormatter;
 }) => string;
 export type ProcessSubstitutions = (cfg: {
     str: string;
-    substs?: import('./defaultLocaleResolver.js').SubstitutionObject;
-    formatter?: import('./Formatter.js').RegularFormatter | import('./Formatter.js').LocalFormatter | import('./Formatter.js').SwitchFormatter;
+    substs?: import("./defaultLocaleResolver.js").SubstitutionObject;
+    formatter?: import("./Formatter.js").RegularFormatter | import("./Formatter.js").LocalFormatter | import("./Formatter.js").SwitchFormatter;
 }) => (string | Node)[];
 /**
  * Callback to return a string or array of nodes and strings based on
@@ -108,13 +108,13 @@ export type InsertNodesCallback = (cfg: {
     string: string;
     dom?: boolean;
     usedKeys: string[];
-    substitutions: import('./defaultLocaleResolver.js').SubstitutionObject;
-    allSubstitutions?: (import('./defaultAllSubstitutions.js').AllSubstitutionCallback | import('./defaultAllSubstitutions.js').AllSubstitutionCallback[]) | null;
+    substitutions: import("./defaultLocaleResolver.js").SubstitutionObject;
+    allSubstitutions?: (import("./defaultAllSubstitutions.js").AllSubstitutionCallback | import("./defaultAllSubstitutions.js").AllSubstitutionCallback[]) | null;
     locale: string | undefined;
-    locals?: import('./getMessageForKeyByStyle.js').LocalObject | undefined;
-    switches: import('./defaultLocaleResolver.js').Switches | undefined;
+    locals?: import("./getMessageForKeyByStyle.js").LocalObject | undefined;
+    switches: import("./defaultLocaleResolver.js").Switches | undefined;
     maximumLocalNestingDepth?: Integer;
-    missingSuppliedFormatters: import('./getDOMForLocaleString.js').MissingSuppliedFormattersCallback;
-    checkExtraSuppliedFormatters: import('./getDOMForLocaleString.js').CheckExtraSuppliedFormattersCallback;
+    missingSuppliedFormatters: import("./getDOMForLocaleString.js").MissingSuppliedFormattersCallback;
+    checkExtraSuppliedFormatters: import("./getDOMForLocaleString.js").CheckExtraSuppliedFormattersCallback;
 }) => string | (Node | string)[];
 //# sourceMappingURL=defaultInsertNodes.d.ts.map

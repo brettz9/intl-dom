@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-shadow -- Needed
 import {expect} from 'chai';
 import {
   defaultLocaleResolver
@@ -40,7 +39,7 @@ describe('defaultLocaleResolver', function () {
       '\\',
       'some.in.middle',
       'path/inside',
-      'or\\backslashes'
+      String.raw`or\backslashes`
     ].forEach((localeWithBadCharacters) => {
       expect(() => {
         const okBasePath = '/base/path';

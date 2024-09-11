@@ -14,7 +14,7 @@ setFetch(fileFetch);
 /**
  * @param {object} cfg
  * @param {string} cfg.basePath
- * @param {Integer} [cfg.port=3005]
+ * @param {Integer} [cfg.port]
  * @param {(value: any) => string} [cfg.wrap]
  * @returns {http.Server<
  *   typeof http.IncomingMessage, typeof http.ServerResponse

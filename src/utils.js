@@ -21,7 +21,7 @@ export const setJSONExtra = (__jsonExtra) => {
  * @returns {string}
  */
 export const unescapeBackslashes = (str) => {
-  return str.replace(/\\+/gu, (esc) => {
+  return str.replaceAll(/\\+/gu, (esc) => {
     return esc.slice(0, esc.length / 2);
   });
 };

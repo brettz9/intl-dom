@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-shadow -- Needed
 import {expect} from 'chai';
 import {setExpectedData} from './utils/utils.js';
 import {
@@ -119,7 +118,7 @@ describe('getMessageForKeyByStyle', function () {
          *   MessageStyleCallbackResult
          * }
          */ (
-          func(localeObj, 'key.that.has\\.dot')
+          func(localeObj, String.raw`key.that.has\.dot`)
         ).info
       ).to.deep.equal(
         this.expectedRichNestedStyleObject.body.key.that['has.dot']
@@ -130,7 +129,7 @@ describe('getMessageForKeyByStyle', function () {
          *   MessageStyleCallbackResult
          * }
          */ (
-          func(localeObj, 'key.that.has\\.dot\\.at\\.end\\.')
+          func(localeObj, String.raw`key.that.has\.dot\.at\.end\.`)
         ).info
       ).to.deep.equal(
         this.expectedRichNestedStyleObject.body.key.that['has.dot.at.end.']
@@ -141,7 +140,7 @@ describe('getMessageForKeyByStyle', function () {
          *   MessageStyleCallbackResult
          * }
          */ (
-          func(localeObj, 'key.that.has\\.\\.double-dots')
+          func(localeObj, String.raw`key.that.has\.\.double-dots`)
         ).info
       ).to.deep.equal(
         this.expectedRichNestedStyleObject.body.key.that['has..double-dots']
@@ -152,7 +151,7 @@ describe('getMessageForKeyByStyle', function () {
          *   MessageStyleCallbackResult
          * }
          */ (
-          func(localeObj, 'key.that.has\\\\.backslashes')
+          func(localeObj, String.raw`key.that.has\\.backslashes`)
         ).info
       ).to.deep.equal(
         this.expectedRichNestedStyleObject.body.key.that[
@@ -165,11 +164,11 @@ describe('getMessageForKeyByStyle', function () {
          *   MessageStyleCallbackResult
          * }
          */ (
-          func(localeObj, 'key.that.has\\\\\\.backslashesWithDot')
+          func(localeObj, String.raw`key.that.has\\\.backslashesWithDot`)
         ).info
       ).to.deep.equal(
         this.expectedRichNestedStyleObject.body.key.that[
-          'has\\.backslashesWithDot'
+          String.raw`has\.backslashesWithDot`
         ]
       ).and.to.be.an('object');
 

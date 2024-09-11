@@ -27,23 +27,23 @@ import {defaultKeyCheckerConverter} from './defaultKeyCheckerConverter.js';
  * @param {string} cfg.resolvedLocale
  * @param {"richNested"|"rich"|"plain"|"plainNested"|
  *   import('./getMessageForKeyByStyle.js').
- *     MessageStyleCallback} [cfg.messageStyle="richNested"]
+ *     MessageStyleCallback} [cfg.messageStyle]
  * @param {?import('./defaultAllSubstitutions.js').AllSubstitutionCallback|
  *   import('./defaultAllSubstitutions.js').
  *     AllSubstitutionCallback[]} [cfg.allSubstitutions]
  * @param {import('./defaultInsertNodes.js').
- *   InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
+ *   InsertNodesCallback} [cfg.insertNodes]
  * @param {import('./defaultKeyCheckerConverter.js').
  *   KeyCheckerConverterCallback} [cfg.keyCheckerConverter]
  * @param {false|null|undefined|
  *   import('./getMessageForKeyByStyle.js').LocaleObject} [cfg.defaults]
  * @param {false|import('./defaultLocaleResolver.js').
- *   SubstitutionObject} [cfg.substitutions={}]
- * @param {Integer} [cfg.maximumLocalNestingDepth=3]
- * @param {boolean} [cfg.dom=false]
- * @param {boolean} [cfg.forceNodeReturn=false]
- * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
- * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
+ *   SubstitutionObject} [cfg.substitutions]
+ * @param {Integer} [cfg.maximumLocalNestingDepth]
+ * @param {boolean} [cfg.dom]
+ * @param {boolean} [cfg.forceNodeReturn]
+ * @param {boolean} [cfg.throwOnMissingSuppliedFormatters]
+ * @param {boolean} [cfg.throwOnExtraSuppliedFormatters]
  * @returns {I18NCallback} Rejects if no suitable locale is found.
  */
 export const i18nServer = function i18nServer ({
@@ -136,36 +136,36 @@ export const i18nServer = function i18nServer ({
  */
 
 /**
- * @param {object} [cfg={}]
- * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
- * @param {string[]} [cfg.defaultLocales=["en-US"]]
+ * @param {object} [cfg]
+ * @param {string[]} [cfg.locales] BCP-47 language strings
+ * @param {string[]} [cfg.defaultLocales]
  * @param {import('./findLocaleStrings.js').
- *   LocaleStringFinder} [cfg.localeStringFinder=findLocaleStrings]
- * @param {string} [cfg.localesBasePath="."]
+ *   LocaleStringFinder} [cfg.localeStringFinder]
+ * @param {string} [cfg.localesBasePath]
  * @param {import('./defaultLocaleResolver.js').
- *   LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
+ *   LocaleResolver} [cfg.localeResolver]
  * @param {"lookup"|import('./findLocaleStrings.js').
- *   LocaleMatcher} [cfg.localeMatcher="lookup"]
+ *   LocaleMatcher} [cfg.localeMatcher]
  * @param {"richNested"|"rich"|"plain"|"plainNested"|
  *   import('./getMessageForKeyByStyle.js').
- *     MessageStyleCallback} [cfg.messageStyle="richNested"]
+ *     MessageStyleCallback} [cfg.messageStyle]
  * @param {?(import('./defaultAllSubstitutions.js').AllSubstitutionCallback|
  *   import('./defaultAllSubstitutions.js').
  *     AllSubstitutionCallback[])} [cfg.allSubstitutions]
  * @param {import('./defaultInsertNodes.js').
- *   InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
+ *   InsertNodesCallback} [cfg.insertNodes]
  * @param {import('./defaultKeyCheckerConverter.js').
  *   KeyCheckerConverterCallback} [cfg.keyCheckerConverter]
  * @param {false|null|undefined|
  *   import('./getMessageForKeyByStyle.js').LocaleObject} [cfg.defaults]
  * @param {false|
  *   import('./defaultLocaleResolver.js').
- *     SubstitutionObject} [cfg.substitutions={}]
- * @param {Integer} [cfg.maximumLocalNestingDepth=3]
- * @param {boolean} [cfg.dom=false]
- * @param {boolean} [cfg.forceNodeReturn=false]
- * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
- * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
+ *     SubstitutionObject} [cfg.substitutions]
+ * @param {Integer} [cfg.maximumLocalNestingDepth]
+ * @param {boolean} [cfg.dom]
+ * @param {boolean} [cfg.forceNodeReturn]
+ * @param {boolean} [cfg.throwOnMissingSuppliedFormatters]
+ * @param {boolean} [cfg.throwOnExtraSuppliedFormatters]
  * @returns {Promise<I18NCallback>} Rejects if no suitable locale is found.
  */
 export const i18n = async function i18n ({

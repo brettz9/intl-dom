@@ -15,7 +15,7 @@ export class LocalFormatter extends Formatter {
     /**
      * @param {import('./getMessageForKeyByStyle.js').LocalObject} locals
      */
-    constructor(locals: import('./getMessageForKeyByStyle.js').LocalObject);
+    constructor(locals: import("./getMessageForKeyByStyle.js").LocalObject);
     locals: import("./getMessageForKeyByStyle.js").LocaleBody;
     /**
      * @param {string} key
@@ -41,7 +41,7 @@ export class RegularFormatter extends Formatter {
      * @param {import('./defaultLocaleResolver.js').SubstitutionObject
      * } substitutions
      */
-    constructor(substitutions: import('./defaultLocaleResolver.js').SubstitutionObject);
+    constructor(substitutions: import("./defaultLocaleResolver.js").SubstitutionObject);
     substitutions: import("./defaultLocaleResolver.js").SubstitutionObject;
     /**
      * @param {string} key
@@ -69,8 +69,8 @@ export class SwitchFormatter extends Formatter {
      * @param {import('./defaultLocaleResolver.js').
      *   SubstitutionObject} cfg.substitutions
      */
-    constructor(switches: import('./defaultLocaleResolver.js').Switches, { substitutions }: {
-        substitutions: import('./defaultLocaleResolver.js').SubstitutionObject;
+    constructor(switches: import("./defaultLocaleResolver.js").Switches, { substitutions }: {
+        substitutions: import("./defaultLocaleResolver.js").SubstitutionObject;
     });
     switches: {
         [x: string]: {
@@ -92,7 +92,7 @@ export class SwitchFormatter extends Formatter {
         locale: string;
         usedKeys: (string | undefined)[];
         arg: string;
-        missingSuppliedFormatters: import('./getDOMForLocaleString.js').MissingSuppliedFormattersCallback;
+        missingSuppliedFormatters: import("./getDOMForLocaleString.js").MissingSuppliedFormattersCallback;
     }): string;
     /**
      * @param {string} key

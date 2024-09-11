@@ -15,7 +15,7 @@
  * @param {Array<any>} values Array of values
  * @param {PromiseChainErrback} errBack Accepts an item of the array as its
  *   single argument
- * @param {string} [errorMessage="Reached end of values array."]
+ * @param {string} [errorMessage]
  * @returns {Promise<any>} Either resolves to a value derived from an item in
  *  the array or rejects if all items reject
  * @example
@@ -52,9 +52,10 @@ export const promiseChainForValues = (
     while (true) {
       const value = values.shift();
       try {
-        // eslint-disable-next-line no-await-in-loop
+        // eslint-disable-next-line no-await-in-loop -- Ok?
         ret = await p;
         break;
+      // eslint-disable-next-line no-unused-vars -- Ok
       } catch (err) {
         if (breaking) {
           throw new Error(errorMessage);

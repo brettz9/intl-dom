@@ -12,16 +12,16 @@ export type List = (arrayOfItems: string[], options?: Intl.ListFormatOptions | u
 /**
  * <T>
  */
-export type I18NCallback<T = string | Text | DocumentFragment> = ((key: string | string[], substitutions?: false | null | undefined | import('./defaultLocaleResolver.js').SubstitutionObject, cfg?: {
-    allSubstitutions?: (import('./defaultAllSubstitutions.js').AllSubstitutionCallback | import('./defaultAllSubstitutions.js').AllSubstitutionCallback[]) | null;
-    defaults?: false | null | undefined | import('./getMessageForKeyByStyle.js').LocaleObject;
+export type I18NCallback<T = string | DocumentFragment | Text> = ((key: string | string[], substitutions?: false | null | undefined | import("./defaultLocaleResolver.js").SubstitutionObject, cfg?: {
+    allSubstitutions?: (import("./defaultAllSubstitutions.js").AllSubstitutionCallback | import("./defaultAllSubstitutions.js").AllSubstitutionCallback[]) | null;
+    defaults?: false | null | undefined | import("./getMessageForKeyByStyle.js").LocaleObject;
     dom?: boolean;
     forceNodeReturn?: boolean;
     throwOnMissingSuppliedFormatters?: boolean;
     throwOnExtraSuppliedFormatters?: boolean;
 }) => T) & {
     resolvedLocale: string;
-    strings: import('./getMessageForKeyByStyle.js').LocaleObject;
+    strings: import("./getMessageForKeyByStyle.js").LocaleObject;
     sort: Sort;
     sortList: SortList;
     list: List;

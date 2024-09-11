@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-shadow -- Needed
+/* globals document -- Simulated browser or browser testing */
 import {expect} from 'chai';
 import {
   defaultAllSubstitutions

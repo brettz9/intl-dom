@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-shadow -- Needed
+/* globals document -- Browser or simulating browser testing */
 import {expect} from 'chai';
 import {
   getDOMForLocaleString
@@ -99,7 +99,7 @@ describe('getDOMForLocaleString', function () {
       const string = getDOMForLocaleString({
         string: 'simple {msg|UPPER} {msg}',
         substitutions: {
-          msg ({arg, key}) {
+          msg ({arg /* , key */}) {
             return arg === 'UPPER' ? 'MESSAGE' : 'message';
           }
         }
@@ -114,7 +114,7 @@ describe('getDOMForLocaleString', function () {
       const frag = getDOMForLocaleString({
         string: 'simple {msg|UPPER} {msg}',
         substitutions: {
-          msg ({arg, key}) {
+          msg ({arg /* , key */}) {
             if (arg === 'UPPER') {
               const b = document.createElement('b');
               b.textContent = 'MESSAGE';
@@ -140,7 +140,7 @@ describe('getDOMForLocaleString', function () {
         string: 'simple {msg|UPPER} {msg}',
         allSubstitutions: null,
         substitutions: {
-          msg ({arg, key}) {
+          msg ({arg /* , key */}) {
             if (arg === 'UPPER') {
               const b = document.createElement('b');
               b.textContent = 'MESSAGE';
@@ -162,18 +162,22 @@ describe('getDOMForLocaleString', function () {
     'should return string with substitutions and custom `insertNodes`',
     function () {
       const str = getDOMForLocaleString({
-        // eslint-disable-next-line no-template-curly-in-string
+        // eslint-disable-next-line @stylistic/max-len -- Long
+        // eslint-disable-next-line no-template-curly-in-string -- We use for templating
         string: 'simple ${msg}',
         insertNodes ({string, substitutions}) {
           // See `defaultInsertNodes` for a more robust implementation
           //   to emulate
-          // eslint-disable-next-line max-len
-          // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
+          // eslint-disable-next-line @stylistic/max-len -- Long
+          // eslint-disable-next-line prefer-named-capture-group -- Convenient for now
           const formattingRegex = /(\\*)\$\{([^}]*?)(?:\|([^}]*))?\}/gu;
-          return string.replace(formattingRegex, (_, esc, ky, arg) => {
-            const substitution = substitutions[ky];
-            return esc + substitution;
-          });
+          return string.replaceAll(
+            formattingRegex,
+            (_, esc, ky /* , arg */) => {
+              const substitution = substitutions[ky];
+              return esc + substitution;
+            }
+          );
         },
         substitutions: {
           msg: 'message'
@@ -187,7 +191,7 @@ describe('getDOMForLocaleString', function () {
     'should return string with escaped brackets',
     function () {
       const str = getDOMForLocaleString({
-        string: 'simple \\{msg}'
+        string: String.raw`simple \{msg}`
       });
       expect(str).to.equal('simple {msg}');
     }
@@ -197,12 +201,12 @@ describe('getDOMForLocaleString', function () {
     'should return string with escaped backslash sequence',
     function () {
       const str = getDOMForLocaleString({
-        string: 'simple \\\\{msg}',
+        string: String.raw`simple \\{msg}`,
         substitutions: {
           msg: 'message'
         }
       });
-      expect(str).to.equal('simple \\message');
+      expect(str).to.equal(String.raw`simple \message`);
     }
   );
 
@@ -210,7 +214,7 @@ describe('getDOMForLocaleString', function () {
     'should return fragment with escaped brackets',
     function () {
       const frag = getDOMForLocaleString({
-        string: 'simple \\{msg} {frag}',
+        string: String.raw`simple \{msg} {frag}`,
         substitutions: {
           frag: document.createElement('br')
         }
@@ -223,13 +227,13 @@ describe('getDOMForLocaleString', function () {
     'should return fragment with escaped backslash sequence',
     function () {
       const frag = getDOMForLocaleString({
-        string: 'simple \\\\{msg} {frag}',
+        string: String.raw`simple \\{msg} {frag}`,
         substitutions: {
           msg: 'message',
           frag: document.createElement('br')
         }
       });
-      expect(frag).to.have.fragmentHtml('simple \\message <br>');
+      expect(frag).to.have.fragmentHtml(String.raw`simple \message <br>`);
     }
   );
 

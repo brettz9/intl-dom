@@ -3,10 +3,10 @@ export function unescapeBackslashes(str: string): string;
 export function parseJSONExtra(args: string): AnyValue;
 export function processRegex(regex: RegExp, str: string, { onMatch, extra, betweenMatches, afterMatch, escapeAtOne }: {
     onMatch: (...arg0: string[]) => void;
-    extra?: BetweenMatches | AfterMatch | EscapeAtOne | undefined;
-    betweenMatches?: BetweenMatches | undefined;
-    afterMatch?: AfterMatch | undefined;
-    escapeAtOne?: EscapeAtOne | undefined;
+    extra?: BetweenMatches | AfterMatch | EscapeAtOne;
+    betweenMatches?: BetweenMatches;
+    afterMatch?: AfterMatch;
+    escapeAtOne?: EscapeAtOne;
 }): void;
 export type JSON6 = any;
 export type AnyValue = any;

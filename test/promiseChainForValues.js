@@ -1,11 +1,10 @@
-// eslint-disable-next-line no-shadow -- Needed
 import {expect} from 'chai';
 import {
   promiseChainForValues
 // } from '../dist/index.esm.min.js';
 } from '../src/index.js';
 
-/* eslint-disable promise/avoid-new */
+/* eslint-disable promise/avoid-new -- `setTimeout` Promise API yet? */
 describe('promiseChainForValues', function () {
   it('should throw with bad arguments', function () {
     expect(() => {
@@ -36,7 +35,7 @@ describe('promiseChainForValues', function () {
     let errbackCount = 0;
     const val = await promiseChainForValues(['a', 'b', 'c'], (v) => {
       errbackCount++;
-      return new Promise(function (resolve, reject) {
+      return new Promise(function (resolve) {
         setTimeout(() => {
           resolve(v);
         }, 100);
@@ -83,4 +82,4 @@ describe('promiseChainForValues', function () {
     }
   );
 });
-/* eslint-enable promise/avoid-new */
+/* eslint-enable promise/avoid-new -- `setTimeout` Promise API yet? */

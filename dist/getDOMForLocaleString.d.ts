@@ -17,12 +17,12 @@ export function getDOMForLocaleString({ string, locale, locals, switches, maximu
     throwOnExtraSuppliedFormatters?: boolean | undefined;
 }): string | Text | DocumentFragment;
 export type Integer = number;
-export type CheckExtraSuppliedFormattersCallback = (substs: import('./defaultLocaleResolver.js').SubstitutionObject | {
-    substitutions: import('./defaultLocaleResolver.js').SubstitutionObject;
+export type CheckExtraSuppliedFormattersCallback = (substs: import("./defaultLocaleResolver.js").SubstitutionObject | {
+    substitutions: import("./defaultLocaleResolver.js").SubstitutionObject;
 }) => any;
 export type MissingSuppliedFormattersCallback = (cfg: {
     key: string;
-    formatter: import('./Formatter.js').LocalFormatter | import('./Formatter.js').RegularFormatter | import('./Formatter.js').SwitchFormatter;
+    formatter: import("./Formatter.js").LocalFormatter | import("./Formatter.js").RegularFormatter | import("./Formatter.js").SwitchFormatter;
 }) => boolean;
 export { setDocument, getDocument } from "./shared.js";
 //# sourceMappingURL=getDOMForLocaleString.d.ts.map

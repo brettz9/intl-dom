@@ -15,7 +15,7 @@ export class Formatter {
  * @param {string} cfg.type
  * @param {"richNested"|"rich"|"plain"|
  *   "plainNested"|import('./getMessageForKeyByStyle.js').
- *   MessageStyleCallback} [cfg.messageStyle="richNested"]
+ *   MessageStyleCallback} [cfg.messageStyle]
  * @returns {string}
  */
 const getSubstitution = ({key, body, type, messageStyle = 'richNested'}) => {
@@ -167,7 +167,7 @@ export class SwitchFormatter extends Formatter {
         key,
         formatter: this
       });
-      return '\\{' + key + '}';
+      return String.raw`\{` + key + '}';
     }
 
     /*
@@ -241,7 +241,7 @@ export class SwitchFormatter extends Formatter {
             }"; instead found "${singleKey}".`
           );
         }
-        // eslint-disable-next-line default-case
+        // eslint-disable-next-line default-case -- Just two cases
         switch (type) {
         case 'NUMBER':
           match = getNumberFormat(
@@ -270,7 +270,7 @@ export class SwitchFormatter extends Formatter {
      * @returns {string}
      */
     const preventNesting = (s) => {
-      return s.replace(/\\/gu, '\\\\').replace(/\./gu, '\\.');
+      return s.replaceAll('\\', '\\\\').replaceAll('.', String.raw`\.`);
     };
 
     try {
@@ -280,6 +280,7 @@ export class SwitchFormatter extends Formatter {
         body,
         type: 'switch'
       });
+    // eslint-disable-next-line no-unused-vars -- Ok
     } catch (err) {
       try {
         return getSubstitution({
@@ -289,6 +290,7 @@ export class SwitchFormatter extends Formatter {
           body,
           type: 'switch'
         });
+      // eslint-disable-next-line no-unused-vars -- Ok
       } catch (error) {
         const k = Object.keys(body).find(
           (switchKey) => switchKey.startsWith('*')

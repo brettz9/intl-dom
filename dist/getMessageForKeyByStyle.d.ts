@@ -14,7 +14,7 @@ export type LocaleHead = {
         };
     } | undefined;
 };
-export type LocaleBody = import('./defaultLocaleResolver.js').RichNestedLocaleStringBodyObject | import('./defaultLocaleResolver.js').RichLocaleStringBodyObject | import('./defaultLocaleResolver.js').PlainLocaleStringBodyObject | import('./defaultLocaleResolver.js').PlainNestedLocaleStringBodyObject | object;
+export type LocaleBody = import("./defaultLocaleResolver.js").RichNestedLocaleStringBodyObject | import("./defaultLocaleResolver.js").RichLocaleStringBodyObject | import("./defaultLocaleResolver.js").PlainLocaleStringBodyObject | import("./defaultLocaleResolver.js").PlainNestedLocaleStringBodyObject | object;
 export type LocaleObject = {
     head?: LocaleHead | undefined;
     body: LocaleBody;

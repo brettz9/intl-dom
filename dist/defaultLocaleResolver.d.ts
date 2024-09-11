@@ -184,12 +184,8 @@ export type SubstitutionCallback = (cfg: {
  */
 export type ValueArray = [string | number | Date, object?, object?];
 export type Integer = number;
-export type ListValueArray = [string[], (object | ((item: string, i: Integer) => Element) | undefined)?, (object | undefined)?, (object | undefined)?];
-export type DateRangeValueArray = [
-    Date | number,
-    Date | number,
-    Intl.DateTimeFormatOptions | undefined
-];
+export type ListValueArray = [string[], (((item: string, i: Integer) => Element) | object)?, object?, object?];
+export type DateRangeValueArray = [Date | number, Date | number, Intl.DateTimeFormatOptions | undefined];
 export type RelativeValueArray = [number, Intl.RelativeTimeFormatUnit, object?];
 export type RelativeTimeInfo = {
     relative: RelativeValueArray;
@@ -244,7 +240,7 @@ export type SwitchCaseInfo = {
  */
 export type SwitchCaseArray = [string, string, SwitchCaseInfo?];
 export type SwitchArray = {
-    [x: string]: [string, string, (SwitchCaseInfo | undefined)?];
+    [x: string]: SwitchCaseArray;
 };
 export type SwitchArrays = {
     [x: string]: SwitchArray;
@@ -295,12 +291,8 @@ export type RichNestedLocaleStringBodyObject = {
  * Takes a base path and locale and gives a URL.
  */
 export type LocaleResolver = (localesBasePath: string, locale: string) => string | false;
-export type DateRange = [
-    Date | number,
-    Date | number,
-    (Intl.DateTimeFormatOptions | undefined)?
-];
-export type SubstitutionObjectValue = string | string[] | number | Date | [number | Date, number | Date, (Intl.DateTimeFormatOptions | undefined)?] | Element | Node | SubstitutionCallback | NumberInfo | PluralInfo | CurrencyInfo | LanguageInfo | ScriptInfo | DatetimeRangeInfo | DateRangeInfo | RegionInfo | DateTimeInfo | DateInfo | ListInfo | RelativeTimeInfo;
+export type DateRange = [Date | number, Date | number, (Intl.DateTimeFormatOptions | undefined)?];
+export type SubstitutionObjectValue = string | string[] | number | Date | DateRange | Element | Node | SubstitutionCallback | NumberInfo | PluralInfo | CurrencyInfo | LanguageInfo | ScriptInfo | DatetimeRangeInfo | DateRangeInfo | RegionInfo | DateTimeInfo | DateInfo | ListInfo | RelativeTimeInfo;
 export type SubstitutionObject = {
     [key: string]: SubstitutionObjectValue;
 };

@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-shadow -- Needed
+/* globals document -- Browser or simulating browser */
 import {expect} from 'chai';
 import {setExpectedData} from './utils/utils.js';
 import {
@@ -507,7 +507,7 @@ describe('i18n', function () {
     async function () {
       const _ = await i18n({
         locales: ['yy'],
-        allSubstitutions ({value, arg, key}) {
+        allSubstitutions ({value, arg /* , key */}) {
           return arg === 'UPPER'
             ? /** @type {string} */ (
               value
@@ -529,7 +529,7 @@ describe('i18n', function () {
     async function () {
       const _ = await i18n({
         locales: ['yy'],
-        allSubstitutions ({value, arg, key}) {
+        allSubstitutions ({value, arg /* , key */}) {
           return arg === 'UPPER'
             ? /** @type {string} */ (value).toUpperCase()
             : /** @type {string} */ (value);
@@ -829,7 +829,7 @@ describe('i18n', function () {
           expect(string).to.equal(
             'It is between December 27, 2000, 7 PM – December 27, 2001, 11 PM.'
           );
-        } catch (err) {
+        } catch {
           // Firefox using polyfill (or Node now)
           expect(string).to.equal(
             'It is between December 27, 2000 at 7 PM – December 27, 2001 at ' +
@@ -864,7 +864,7 @@ describe('i18n', function () {
           expect(string).to.equal(
             'It is between December 27, 2000, 7 PM – December 27, 2001, 11 PM.'
           );
-        } catch (err) {
+        } catch {
           // Firefox using polyfill (or Node now)
           expect(string).to.equal(
             'It is between December 27, 2000 at 7 PM – December 27, 2001 at ' +
@@ -897,7 +897,7 @@ describe('i18n', function () {
           expect(string).to.equal(
             'It is between December 27, 2000, 7 PM – December 27, 2001, 11 PM.'
           );
-        } catch (err) {
+        } catch {
           // Firefox using polyfill (or Node now)
           expect(string).to.equal(
             'It is between December 27, 2000 at 7 PM – December 27, 2001 at ' +
@@ -1300,7 +1300,7 @@ describe('i18n', function () {
         expect(string).to.equal(
           'Can Joe speak English (US)?' // Node Polyfill or Firefox
         );
-      } catch (err) {
+      } catch {
         expect(string).to.equal(
           'Can Joe speak US English?' // Chrome
         );
@@ -1322,7 +1322,7 @@ describe('i18n', function () {
         expect(string).to.equal(
           'Can Joe speak English (United States)?' // Node Polyfill
         );
-      } catch (err) {
+      } catch {
         expect(string).to.equal(
           'Can Joe speak American English?' // Chrome
         );
@@ -1692,14 +1692,14 @@ describe('i18n', function () {
       const _ = await i18n({
         locales: ['yy'],
         allSubstitutions: [
-          ({value, arg, key}) => {
+          ({value, arg /* , key */}) => {
             return arg === 'UPPER'
               ? /** @type {string} */ (
                 value
               ).toUpperCase()
               : /** @type {string} */ (value);
           },
-          ({value, arg, key}) => {
+          ({value, arg /* , key */}) => {
             return arg === 'UPPER'
               ? '<strong>' + /** @type {string} */ (
                 value
@@ -2044,8 +2044,8 @@ describe('i18n', function () {
         escaped: 'escaped'
       });
       expect(string).to.equal(
-        'Here is an escaped expression {-aLocalVar} \\\\{-aLocalVar} ' +
-          '\\a local value here too'
+        String.raw`Here is an escaped expression {-aLocalVar} \\{-aLocalVar} ` +
+          String.raw`\a local value here too`
       );
     }
   );
@@ -2061,8 +2061,9 @@ describe('i18n', function () {
         escaped: b
       });
       expect(frag).to.have.fragmentHtml(
-        'Here is an <b>escaped</b> expression {-aLocalVar} \\\\{-aLocalVar} ' +
-          '\\a local value here too'
+        // eslint-disable-next-line @stylistic/max-len -- Long
+        String.raw`Here is an <b>escaped</b> expression {-aLocalVar} \\{-aLocalVar} ` +
+          String.raw`\a local value here too`
       );
     }
   );

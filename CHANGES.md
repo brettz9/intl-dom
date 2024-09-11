@@ -1,5 +1,9 @@
 # intl-dom CHANGES
 
+## ?
+
+- chore: update devDeps and lint (note: need transpiler for capturing groups)
+
 ## 0.20.0
 
 - fix: revert to `file-fetch` 1.6.1 for allowing working where global `URL`

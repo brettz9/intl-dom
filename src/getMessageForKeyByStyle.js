@@ -46,14 +46,14 @@ import {unescapeBackslashes, processRegex} from './utils.js';
 * @returns {false|MessageStyleCallbackResult} If `false`, will resort to default
 */
 
-/* eslint-disable max-len */
+/* eslint-disable @stylistic/max-len -- Long */
 /**
  * @param {object} [cfg]
- * @param {"richNested"|"rich"|"plain"|"plainNested"|MessageStyleCallback} [cfg.messageStyle="richNested"]
+ * @param {"richNested"|"rich"|"plain"|"plainNested"|MessageStyleCallback} [cfg.messageStyle]
  * @returns {MessageStyleCallback}
  */
 export const getMessageForKeyByStyle = ({
-  /* eslint-enable max-len */
+  /* eslint-enable @stylistic/max-len -- Long */
   messageStyle = 'richNested'
 } = {}) => {
   return typeof messageStyle === 'function'
@@ -73,7 +73,8 @@ export const getMessageForKeyByStyle = ({
          * @type {string[]}
          */
         const keys = [];
-        // eslint-disable-next-line prefer-named-capture-group
+        // eslint-disable-next-line @stylistic/max-len -- Long
+        // eslint-disable-next-line prefer-named-capture-group -- Convenient for now
         const possiblyEscapedCharPattern = /(\\*)\./gu;
 
         /**

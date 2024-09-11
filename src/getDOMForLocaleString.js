@@ -36,18 +36,18 @@ export {setDocument, getDocument} from './shared.js';
  *   for use by configuring formatters
  * @param {import('./getMessageForKeyByStyle.js').LocalObject} [cfg.locals]
  * @param {import('./defaultLocaleResolver.js').Switches} [cfg.switches]
- * @param {Integer} [cfg.maximumLocalNestingDepth=3]
+ * @param {Integer} [cfg.maximumLocalNestingDepth]
  * @param {?(import('./defaultAllSubstitutions.js').AllSubstitutionCallback|
  *   import('./defaultAllSubstitutions.js').AllSubstitutionCallback[])
- * } [cfg.allSubstitutions=[defaultAllSubstitutions]]
+ * } [cfg.allSubstitutions]
  * @param {import('./defaultInsertNodes.js').InsertNodesCallback
- * } [cfg.insertNodes=defaultInsertNodes]
+ * } [cfg.insertNodes]
  * @param {false|import('./defaultLocaleResolver.js').SubstitutionObject
- * } [cfg.substitutions=false]
- * @param {boolean} [cfg.dom=false]
- * @param {boolean} [cfg.forceNodeReturn=false]
- * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
- * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
+ * } [cfg.substitutions]
+ * @param {boolean} [cfg.dom]
+ * @param {boolean} [cfg.forceNodeReturn]
+ * @param {boolean} [cfg.throwOnMissingSuppliedFormatters]
+ * @param {boolean} [cfg.throwOnExtraSuppliedFormatters]
  * @returns {string|Text|DocumentFragment}
  */
 export const getDOMForLocaleString = ({
@@ -55,6 +55,7 @@ export const getDOMForLocaleString = ({
   locale,
   locals,
   switches,
+  // eslint-disable-next-line no-unused-vars -- Not currently used
   maximumLocalNestingDepth,
   allSubstitutions = [
     defaultAllSubstitutions

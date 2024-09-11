@@ -1,4 +1,4 @@
-/* globals intlDomLocale */
+/* globals intlDomLocale -- Allow global setting */
 
 import {defaultLocaleResolver} from './defaultLocaleResolver.js';
 import {promiseChainForValues} from './promiseChainForValues.js';
@@ -31,7 +31,7 @@ export const defaultLocaleMatcher = (locale) => {
  * @param {object} cfg
  * @param {string} cfg.locale
  * @param {string[]} cfg.locales
- * @param {LocaleMatcher} [cfg.localeMatcher=defaultLocaleMatcher]
+ * @param {LocaleMatcher} [cfg.localeMatcher]
  * @returns {string|false}
  */
 export const getMatchingLocale = ({
@@ -42,6 +42,7 @@ export const getMatchingLocale = ({
       // Catch as `defaultLocaleMatcher` will throw if no hyphen found
       locale = localeMatcher(locale);
     }
+  // eslint-disable-next-line no-unused-vars -- Ok
   } catch (err) {
     return false;
   }

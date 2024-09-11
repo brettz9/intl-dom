@@ -1,1 +1,1 @@
-{"version":3,"file":"promiseChainForValues.d.ts","sourceRoot":"","sources":["../src/promiseChainForValues.js"],"names":[],"mappings":"AAgCO,8CAlBI,MAAM,GAAG,CAAC,WACV,mBAAmB,sCAGjB,QAAQ,GAAG,CAAC,CAqDxB;0CAtEoB,GAAG,KAAK,QAAQ,GAAG,CAAC,GAAC,GAAG"}
+{"version":3,"file":"promiseChainForValues.d.ts","sourceRoot":"","sources":["../src/promiseChainForValues.js"],"names":[],"mappings":"AAgCO,8CAlBI,KAAK,CAAC,GAAG,CAAC,WACV,mBAAmB,sCAGjB,OAAO,CAAC,GAAG,CAAC,CAsDxB;kCAvEY,CAAC,KAAK,EAAE,GAAG,KAAK,OAAO,CAAC,GAAG,CAAC,GAAC,GAAG"}

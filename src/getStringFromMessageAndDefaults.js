@@ -9,7 +9,7 @@ import {getMessageForKeyByStyle} from './getMessageForKeyByStyle.js';
  * } [cfg.defaults]
  * @param {"richNested"|"rich"|"plain"|"plainNested"|
  *   import('./getMessageForKeyByStyle.js').MessageStyleCallback
- * } [cfg.messageStyle="richNested"]
+ * } [cfg.messageStyle]
  * @param {import('./getMessageForKeyByStyle.js').
  *   MessageStyleCallback
  * } [cfg.messageForKey] Defaults to getting `MessageStyleCallback` based

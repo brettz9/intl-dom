@@ -21,9 +21,8 @@ export function defaultKeyCheckerConverter (key, messageStyle) {
     typeof messageStyle === 'string' && messageStyle.endsWith('Nested')
   ) {
     return key.map((k) => {
-      return k
-        .replace(/(?<backslashes>\\+)/gu, '\\$<backslashes>')
-        .replace(/\./gu, '\\.');
+      return k.replaceAll(/(?<backslashes>\\+)/gu, String.raw`\$<backslashes>`).
+        replaceAll('.', String.raw`\.`);
     }).join('.');
   }
   if (typeof key !== 'string') {

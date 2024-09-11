@@ -4,261 +4,227 @@
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.IntlDom = {}));
 })(this, (function (exports) { 'use strict';
 
-  function _iterableToArrayLimit(arr, i) {
-    var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"];
-    if (null != _i) {
-      var _s,
-        _e,
-        _x,
-        _r,
-        _arr = [],
-        _n = !0,
-        _d = !1;
-      try {
-        if (_x = (_i = _i.call(arr)).next, 0 === i) {
-          if (Object(_i) !== _i) return;
-          _n = !1;
-        } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0);
-      } catch (err) {
-        _d = !0, _e = err;
-      } finally {
-        try {
-          if (!_n && null != _i.return && (_r = _i.return(), Object(_r) !== _r)) return;
-        } finally {
-          if (_d) throw _e;
-        }
-      }
-      return _arr;
+  function _arrayLikeToArray(r, a) {
+    (null == a || a > r.length) && (a = r.length);
+    for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e];
+    return n;
+  }
+  function _arrayWithHoles(r) {
+    if (Array.isArray(r)) return r;
+  }
+  function _arrayWithoutHoles(r) {
+    if (Array.isArray(r)) return _arrayLikeToArray(r);
+  }
+  function _assertThisInitialized(e) {
+    if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return e;
+  }
+  function _callSuper(t, o, e) {
+    return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, [], _getPrototypeOf(t).constructor) : o.apply(t, e));
+  }
+  function _classCallCheck(a, n) {
+    if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function");
+  }
+  function _defineProperties(e, r) {
+    for (var t = 0; t < r.length; t++) {
+      var o = r[t];
+      o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o);
     }
   }
-  function ownKeys(object, enumerableOnly) {
-    var keys = Object.keys(object);
-    if (Object.getOwnPropertySymbols) {
-      var symbols = Object.getOwnPropertySymbols(object);
-      enumerableOnly && (symbols = symbols.filter(function (sym) {
-        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-      })), keys.push.apply(keys, symbols);
-    }
-    return keys;
+  function _createClass(e, r, t) {
+    return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", {
+      writable: !1
+    }), e;
   }
-  function _objectSpread2(target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = null != arguments[i] ? arguments[i] : {};
-      i % 2 ? ownKeys(Object(source), !0).forEach(function (key) {
-        _defineProperty(target, key, source[key]);
-      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) {
-        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-      });
-    }
-    return target;
+  function _defineProperty(e, r, t) {
+    return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
+      value: t,
+      enumerable: !0,
+      configurable: !0,
+      writable: !0
+    }) : e[r] = t, e;
   }
-  function _typeof(obj) {
-    "@babel/helpers - typeof";
-
-    return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) {
-      return typeof obj;
-    } : function (obj) {
-      return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-    }, _typeof(obj);
+  function _getPrototypeOf(t) {
+    return _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (t) {
+      return t.__proto__ || Object.getPrototypeOf(t);
+    }, _getPrototypeOf(t);
   }
-  function _wrapRegExp() {
-    _wrapRegExp = function (re, groups) {
-      return new BabelRegExp(re, void 0, groups);
-    };
-    var _super = RegExp.prototype,
-      _groups = new WeakMap();
-    function BabelRegExp(re, flags, groups) {
-      var _this = new RegExp(re, flags);
-      return _groups.set(_this, groups || _groups.get(re)), _setPrototypeOf(_this, BabelRegExp.prototype);
-    }
-    function buildGroups(result, re) {
-      var g = _groups.get(re);
-      return Object.keys(g).reduce(function (groups, name) {
-        var i = g[name];
-        if ("number" == typeof i) groups[name] = result[i];else {
-          for (var k = 0; void 0 === result[i[k]] && k + 1 < i.length;) k++;
-          groups[name] = result[i[k]];
-        }
-        return groups;
-      }, Object.create(null));
-    }
-    return _inherits(BabelRegExp, RegExp), BabelRegExp.prototype.exec = function (str) {
-      var result = _super.exec.call(this, str);
-      if (result) {
-        result.groups = buildGroups(result, this);
-        var indices = result.indices;
-        indices && (indices.groups = buildGroups(indices, this));
-      }
-      return result;
-    }, BabelRegExp.prototype[Symbol.replace] = function (str, substitution) {
-      if ("string" == typeof substitution) {
-        var groups = _groups.get(this);
-        return _super[Symbol.replace].call(this, str, substitution.replace(/\$<([^>]+)>/g, function (_, name) {
-          var group = groups[name];
-          return "$" + (Array.isArray(group) ? group.join("$") : group);
-        }));
-      }
-      if ("function" == typeof substitution) {
-        var _this = this;
-        return _super[Symbol.replace].call(this, str, function () {
-          var args = arguments;
-          return "object" != typeof args[args.length - 1] && (args = [].slice.call(args)).push(buildGroups(args, _this)), substitution.apply(this, args);
-        });
-      }
-      return _super[Symbol.replace].call(this, str, substitution);
-    }, _wrapRegExp.apply(this, arguments);
-  }
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-  function _defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];
-      descriptor.enumerable = descriptor.enumerable || false;
-      descriptor.configurable = true;
-      if ("value" in descriptor) descriptor.writable = true;
-      Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor);
-    }
-  }
-  function _createClass(Constructor, protoProps, staticProps) {
-    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-    if (staticProps) _defineProperties(Constructor, staticProps);
-    Object.defineProperty(Constructor, "prototype", {
-      writable: false
-    });
-    return Constructor;
-  }
-  function _defineProperty(obj, key, value) {
-    key = _toPropertyKey(key);
-    if (key in obj) {
-      Object.defineProperty(obj, key, {
-        value: value,
-        enumerable: true,
-        configurable: true,
-        writable: true
-      });
-    } else {
-      obj[key] = value;
-    }
-    return obj;
-  }
-  function _inherits(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-      throw new TypeError("Super expression must either be null or a function");
-    }
-    subClass.prototype = Object.create(superClass && superClass.prototype, {
+  function _inherits(t, e) {
+    if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function");
+    t.prototype = Object.create(e && e.prototype, {
       constructor: {
-        value: subClass,
-        writable: true,
-        configurable: true
+        value: t,
+        writable: !0,
+        configurable: !0
       }
-    });
-    Object.defineProperty(subClass, "prototype", {
-      writable: false
-    });
-    if (superClass) _setPrototypeOf(subClass, superClass);
-  }
-  function _getPrototypeOf(o) {
-    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) {
-      return o.__proto__ || Object.getPrototypeOf(o);
-    };
-    return _getPrototypeOf(o);
-  }
-  function _setPrototypeOf(o, p) {
-    _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) {
-      o.__proto__ = p;
-      return o;
-    };
-    return _setPrototypeOf(o, p);
+    }), Object.defineProperty(t, "prototype", {
+      writable: !1
+    }), e && _setPrototypeOf(t, e);
   }
   function _isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
     try {
-      Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
+      var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+    } catch (t) {}
+    return (_isNativeReflectConstruct = function () {
+      return !!t;
+    })();
   }
-  function _assertThisInitialized(self) {
-    if (self === void 0) {
-      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }
-    return self;
+  function _iterableToArray(r) {
+    if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r);
   }
-  function _possibleConstructorReturn(self, call) {
-    if (call && (typeof call === "object" || typeof call === "function")) {
-      return call;
-    } else if (call !== void 0) {
-      throw new TypeError("Derived constructors may only return object or undefined");
-    }
-    return _assertThisInitialized(self);
-  }
-  function _createSuper(Derived) {
-    var hasNativeReflectConstruct = _isNativeReflectConstruct();
-    return function _createSuperInternal() {
-      var Super = _getPrototypeOf(Derived),
-        result;
-      if (hasNativeReflectConstruct) {
-        var NewTarget = _getPrototypeOf(this).constructor;
-        result = Reflect.construct(Super, arguments, NewTarget);
-      } else {
-        result = Super.apply(this, arguments);
+  function _iterableToArrayLimit(r, l) {
+    var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
+    if (null != t) {
+      var e,
+        n,
+        i,
+        u,
+        a = [],
+        f = !0,
+        o = !1;
+      try {
+        if (i = (t = t.call(r)).next, 0 === l) {
+          if (Object(t) !== t) return;
+          f = !1;
+        } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0);
+      } catch (r) {
+        o = !0, n = r;
+      } finally {
+        try {
+          if (!f && null != t.return && (u = t.return(), Object(u) !== u)) return;
+        } finally {
+          if (o) throw n;
+        }
       }
-      return _possibleConstructorReturn(this, result);
-    };
-  }
-  function _slicedToArray(arr, i) {
-    return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
-  }
-  function _toConsumableArray(arr) {
-    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
-  }
-  function _arrayWithoutHoles(arr) {
-    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
-  }
-  function _arrayWithHoles(arr) {
-    if (Array.isArray(arr)) return arr;
-  }
-  function _iterableToArray(iter) {
-    if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
-  }
-  function _unsupportedIterableToArray(o, minLen) {
-    if (!o) return;
-    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-    var n = Object.prototype.toString.call(o).slice(8, -1);
-    if (n === "Object" && o.constructor) n = o.constructor.name;
-    if (n === "Map" || n === "Set") return Array.from(o);
-    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
-  }
-  function _arrayLikeToArray(arr, len) {
-    if (len == null || len > arr.length) len = arr.length;
-    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
-    return arr2;
-  }
-  function _nonIterableSpread() {
-    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+      return a;
+    }
   }
   function _nonIterableRest() {
     throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
-  function _toPrimitive(input, hint) {
-    if (typeof input !== "object" || input === null) return input;
-    var prim = input[Symbol.toPrimitive];
-    if (prim !== undefined) {
-      var res = prim.call(input, hint || "default");
-      if (typeof res !== "object") return res;
+  function _nonIterableSpread() {
+    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+  function ownKeys(e, r) {
+    var t = Object.keys(e);
+    if (Object.getOwnPropertySymbols) {
+      var o = Object.getOwnPropertySymbols(e);
+      r && (o = o.filter(function (r) {
+        return Object.getOwnPropertyDescriptor(e, r).enumerable;
+      })), t.push.apply(t, o);
+    }
+    return t;
+  }
+  function _objectSpread2(e) {
+    for (var r = 1; r < arguments.length; r++) {
+      var t = null != arguments[r] ? arguments[r] : {};
+      r % 2 ? ownKeys(Object(t), !0).forEach(function (r) {
+        _defineProperty(e, r, t[r]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) {
+        Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r));
+      });
+    }
+    return e;
+  }
+  function _possibleConstructorReturn(t, e) {
+    if (e && ("object" == typeof e || "function" == typeof e)) return e;
+    if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined");
+    return _assertThisInitialized(t);
+  }
+  function _setPrototypeOf(t, e) {
+    return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) {
+      return t.__proto__ = e, t;
+    }, _setPrototypeOf(t, e);
+  }
+  function _slicedToArray(r, e) {
+    return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest();
+  }
+  function _taggedTemplateLiteral(e, t) {
+    return t || (t = e.slice(0)), Object.freeze(Object.defineProperties(e, {
+      raw: {
+        value: Object.freeze(t)
+      }
+    }));
+  }
+  function _toConsumableArray(r) {
+    return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread();
+  }
+  function _toPrimitive(t, r) {
+    if ("object" != typeof t || !t) return t;
+    var e = t[Symbol.toPrimitive];
+    if (void 0 !== e) {
+      var i = e.call(t, r || "default");
+      if ("object" != typeof i) return i;
       throw new TypeError("@@toPrimitive must return a primitive value.");
     }
-    return (hint === "string" ? String : Number)(input);
+    return ("string" === r ? String : Number)(t);
   }
-  function _toPropertyKey(arg) {
-    var key = _toPrimitive(arg, "string");
-    return typeof key === "symbol" ? key : String(key);
+  function _toPropertyKey(t) {
+    var i = _toPrimitive(t, "string");
+    return "symbol" == typeof i ? i : i + "";
+  }
+  function _typeof(o) {
+    "@babel/helpers - typeof";
+
+    return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) {
+      return typeof o;
+    } : function (o) {
+      return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
+    }, _typeof(o);
+  }
+  function _unsupportedIterableToArray(r, a) {
+    if (r) {
+      if ("string" == typeof r) return _arrayLikeToArray(r, a);
+      var t = {}.toString.call(r).slice(8, -1);
+      return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0;
+    }
+  }
+  function _wrapRegExp() {
+    _wrapRegExp = function (e, r) {
+      return new BabelRegExp(e, void 0, r);
+    };
+    var e = RegExp.prototype,
+      r = new WeakMap();
+    function BabelRegExp(e, t, p) {
+      var o = RegExp(e, t);
+      return r.set(o, p || r.get(e)), _setPrototypeOf(o, BabelRegExp.prototype);
+    }
+    function buildGroups(e, t) {
+      var p = r.get(t);
+      return Object.keys(p).reduce(function (r, t) {
+        var o = p[t];
+        if ("number" == typeof o) r[t] = e[o];else {
+          for (var i = 0; void 0 === e[o[i]] && i + 1 < o.length;) i++;
+          r[t] = e[o[i]];
+        }
+        return r;
+      }, Object.create(null));
+    }
+    return _inherits(BabelRegExp, RegExp), BabelRegExp.prototype.exec = function (r) {
+      var t = e.exec.call(this, r);
+      if (t) {
+        t.groups = buildGroups(t, this);
+        var p = t.indices;
+        p && (p.groups = buildGroups(p, this));
+      }
+      return t;
+    }, BabelRegExp.prototype[Symbol.replace] = function (t, p) {
+      if ("string" == typeof p) {
+        var o = r.get(this);
+        return e[Symbol.replace].call(this, t, p.replace(/\$<([^>]+)>/g, function (e, r) {
+          var t = o[r];
+          return "$" + (Array.isArray(t) ? t.join("$") : t);
+        }));
+      }
+      if ("function" == typeof p) {
+        var i = this;
+        return e[Symbol.replace].call(this, t, function () {
+          var e = arguments;
+          return "object" != typeof e[e.length - 1] && (e = [].slice.call(e)).push(buildGroups(e, i)), p.apply(this, e);
+        });
+      }
+      return e[Symbol.replace].call(this, t, p);
+    }, _wrapRegExp.apply(this, arguments);
   }
 
   // We want it to work in the browser, so commenting out
@@ -284,7 +250,7 @@
    * @returns {string}
    */
   var unescapeBackslashes = function unescapeBackslashes(str) {
-    return str.replace(/\\+/g, function (esc) {
+    return str.replaceAll(/\\+/g, function (esc) {
       return esc.slice(0, esc.length / 2);
     });
   };
@@ -375,7 +341,7 @@
     }
   };
 
-  /* globals fetch, document */
+  /* globals document -- Polyglot variable */
 
   /**
    * @typedef {(
@@ -433,13 +399,12 @@
     if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
       d += performance.now(); // use high-precision timer if available
     }
-
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      /* eslint-disable no-bitwise */
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replaceAll(/[xy]/g, function (c) {
+      /* eslint-disable no-bitwise, sonarjs/pseudo-random -- Convenient */
       var r = Math.trunc((d + Math.random() * 16) % 16);
       d = Math.floor(d / 16);
       return (c === 'x' ? r : r & 0x3 | 0x8).toString(16);
-      /* eslint-enable no-bitwise */
+      /* eslint-enable no-bitwise, sonarjs/pseudo-random -- Convenient */
     });
   }
 
@@ -603,9 +568,8 @@
    */
   var defaultAllSubstitutions = function defaultAllSubstitutions(_ref2) {
     var value = _ref2.value,
-      arg = _ref2.arg;
-      _ref2.key;
-      var locale = _ref2.locale;
+      arg = _ref2.arg,
+      locale = _ref2.locale;
     // Strings or DOM Nodes
     if (typeof value === 'string' || value && _typeof(value) === 'object' && 'nodeType' in value) {
       return value;
@@ -625,11 +589,12 @@
     var applyArgs = function applyArgs(_ref3) {
       var type = _ref3.type,
         _ref3$options = _ref3.options,
-        options = _ref3$options === void 0 ? /** @type {object|undefined} */
-        opts : _ref3$options,
+        options = _ref3$options === void 0 ? (/** @type {object|undefined} */
+        opts) : _ref3$options,
         _ref3$checkArgOptions = _ref3.checkArgOptions,
         checkArgOptions = _ref3$checkArgOptions === void 0 ? false : _ref3$checkArgOptions;
       if (typeof arg === 'string') {
+        // eslint-disable-next-line prefer-const -- Convenient
         var _arg$split = arg.split('|'),
           _arg$split2 = _slicedToArray(_arg$split, 3),
           userType = _arg$split2[0],
@@ -661,15 +626,15 @@
 
         var obj = /** @type {unknown} */
         /** @type {AnyValue} */
-        value[
+        value[(
         /**
           * @type {"number"|"date"|"datetime"|"dateRange"|
           *   "datetimeRange"|"relative"|"region"|"language"|
           *   "script"|"currency"|"list"|"plural"}
           */
-        singleKey];
+        singleKey)];
         var _getFormatterInfo = getFormatterInfo({
-          object:
+          object: (
           /**
            * @type {import('./defaultLocaleResolver.js').DateRangeValueArray|
            *   import('./defaultLocaleResolver.js').ListValueArray|
@@ -677,7 +642,7 @@
            *   import('./defaultLocaleResolver.js').ValueArray
            * }
            */
-          obj
+          obj)
         });
         value = _getFormatterInfo.value;
         opts = _getFormatterInfo.options;
@@ -695,10 +660,10 @@
                 type: 'DATERANGE',
                 options: extraOpts
               }));
-              return dtf.formatRange.apply(dtf, _toConsumableArray( /** @type {[Date, Date]} */
-              [/** @type {number|Date} */
-              value, /** @type {Date} */
-              opts].map(function (val) {
+              return dtf.formatRange.apply(dtf, _toConsumableArray(/** @type {[Date, Date]} */
+              [(/** @type {number|Date} */
+              value), (/** @type {Date} */
+              opts)].map(function (val) {
                 return typeof val === 'number' ? new Date(val) : val;
               })));
             }
@@ -706,27 +671,26 @@
           case 'language':
           case 'script':
           case 'currency':
-            return (/** @type {string} */new Intl.DisplayNames(locale, _objectSpread2(_objectSpread2({}, applyArgs({
-                type: singleKey.toUpperCase()
-              })), {}, {
-                type: singleKey
-              })).of( /** @type {string} */value)
-            );
+            return /** @type {string} */new Intl.DisplayNames(locale, _objectSpread2(_objectSpread2({}, applyArgs({
+              type: singleKey.toUpperCase()
+            })), {}, {
+              type: singleKey
+            })).of(/** @type {string} */value);
           case 'relative':
             // The second argument actually contains the primary options, so swap
-            // eslint-disable-next-line max-len -- Long
+            // eslint-disable-next-line @stylistic/max-len -- Long
             var _ref4 = /** @type {[Intl.RelativeTimeFormatUnit, object?]} */
             [opts, extraOpts];
             extraOpts = _ref4[0];
             opts = _ref4[1];
             return new Intl.RelativeTimeFormat(locale, applyArgs({
               type: 'RELATIVE'
-            })).format( /** @type {number} */value, extraOpts);
+            })).format(/** @type {number} */value, extraOpts);
 
           // ListFormat (with Collator)
           case 'list':
             if (callback) {
-              return sortList( /** @type {string} */locale, /** @type {string[]} */
+              return sortList(/** @type {string} */locale, /** @type {string[]} */
               value, callback, applyArgs({
                 type: 'LIST'
               }), applyArgs({
@@ -735,7 +699,7 @@
                 checkArgOptions: true
               }));
             }
-            return sortList( /** @type {string} */locale, /** @type {string[]} */
+            return sortList(/** @type {string} */locale, /** @type {string[]} */
             value, applyArgs({
               type: 'LIST'
             }), applyArgs({
@@ -749,7 +713,7 @@
 
     // Dates
     if (value) {
-      if (typeof value === 'number' && (expectsDatetime || /^DATE(?:TIME)(?:\||$)/.test( /** @type {string} */arg))) {
+      if (typeof value === 'number' && (expectsDatetime || /^DATE(?:TIME)(?:\||$)/.test(/** @type {string} */arg))) {
         value = new Date(value);
       }
       if (_typeof(value) === 'object' && 'getTime' in value && typeof value.getTime === 'function') {
@@ -767,7 +731,7 @@
       return (_Intl$DateTimeFormat = new Intl.DateTimeFormat(locale, applyArgs({
         type: 'DATERANGE',
         options: _extraOpts2
-      }))).formatRange.apply(_Intl$DateTimeFormat, _toConsumableArray( /** @type {[Date, Date]} */
+      }))).formatRange.apply(_Intl$DateTimeFormat, _toConsumableArray(/** @type {[Date, Date]} */
       value.slice(0, 2).map(function (val) {
         return typeof val === 'number' ? new Date(val) : val;
       })));
@@ -784,6 +748,8 @@
     throw new TypeError('Unknown formatter');
   };
 
+  var _templateObject$1, _templateObject2$1;
+
   /**
    * Base class for formatting.
    */
@@ -798,7 +764,7 @@
    * @param {string} cfg.type
    * @param {"richNested"|"rich"|"plain"|
    *   "plainNested"|import('./getMessageForKeyByStyle.js').
-   *   MessageStyleCallback} [cfg.messageStyle="richNested"]
+   *   MessageStyleCallback} [cfg.messageStyle]
    * @returns {string}
    */
   var _getSubstitution = function getSubstitution(_ref) {
@@ -825,15 +791,13 @@
    * Formatter for local variables.
    */
   var LocalFormatter = /*#__PURE__*/function (_Formatter) {
-    _inherits(LocalFormatter, _Formatter);
-    var _super = _createSuper(LocalFormatter);
     /**
      * @param {import('./getMessageForKeyByStyle.js').LocalObject} locals
      */
     function LocalFormatter(locals) {
       var _this;
       _classCallCheck(this, LocalFormatter);
-      _this = _super.call(this);
+      _this = _callSuper(this, LocalFormatter);
       _this.locals = locals;
       return _this;
     }
@@ -841,7 +805,8 @@
      * @param {string} key
      * @returns {string|Element}
      */
-    _createClass(LocalFormatter, [{
+    _inherits(LocalFormatter, _Formatter);
+    return _createClass(LocalFormatter, [{
       key: "getSubstitution",
       value: function getSubstitution(key) {
         return _getSubstitution({
@@ -860,28 +825,27 @@
         var components = key.slice(1).split('.');
         /** @type {import('./getMessageForKeyByStyle.js').LocaleBody} */
         var parent = this.locals;
-        return (/** @type {typeof LocalFormatter} */this.constructor.isMatchingKey(key) && components.every(function (cmpt) {
-            var result = (cmpt in parent);
-            parent =
-            /**
-             * @type {import('./defaultLocaleResolver.js').
-             *     RichNestedLocaleStringBodyObject|
-             *   import('./defaultLocaleResolver.js').
-             *     PlainNestedLocaleStringBodyObject|
-             *   import('./defaultLocaleResolver.js').RichLocaleStringSubObject
-             * }
-             */
-            /**
-             * @type {import('./defaultLocaleResolver.js').
-             *     RichNestedLocaleStringBodyObject|
-             *   import('./defaultLocaleResolver.js').
-             *     PlainNestedLocaleStringBodyObject
-             * }
-             */
-            parent[cmpt];
-            return result;
-          })
-        );
+        return /** @type {typeof LocalFormatter} */this.constructor.isMatchingKey(key) && components.every(function (cmpt) {
+          var result = cmpt in parent;
+          parent =
+          /**
+           * @type {import('./defaultLocaleResolver.js').
+           *     RichNestedLocaleStringBodyObject|
+           *   import('./defaultLocaleResolver.js').
+           *     PlainNestedLocaleStringBodyObject|
+           *   import('./defaultLocaleResolver.js').RichLocaleStringSubObject
+           * }
+           */
+          /**
+           * @type {import('./defaultLocaleResolver.js').
+           *     RichNestedLocaleStringBodyObject|
+           *   import('./defaultLocaleResolver.js').
+           *     PlainNestedLocaleStringBodyObject
+           * }
+           */
+          parent[cmpt];
+          return result;
+        });
       }
       /**
        * @param {string} key
@@ -893,15 +857,12 @@
         return key.startsWith('-');
       }
     }]);
-    return LocalFormatter;
   }(Formatter);
 
   /**
    * Formatter for regular variables.
    */
   var RegularFormatter = /*#__PURE__*/function (_Formatter2) {
-    _inherits(RegularFormatter, _Formatter2);
-    var _super2 = _createSuper(RegularFormatter);
     /**
      * @param {import('./defaultLocaleResolver.js').SubstitutionObject
      * } substitutions
@@ -909,7 +870,7 @@
     function RegularFormatter(substitutions) {
       var _this2;
       _classCallCheck(this, RegularFormatter);
-      _this2 = _super2.call(this);
+      _this2 = _callSuper(this, RegularFormatter);
       _this2.substitutions = substitutions;
       return _this2;
     }
@@ -917,11 +878,11 @@
      * @param {string} key
      * @returns {boolean}
      */
-    _createClass(RegularFormatter, [{
+    _inherits(RegularFormatter, _Formatter2);
+    return _createClass(RegularFormatter, [{
       key: "isMatch",
       value: function isMatch(key) {
-        return (/** @type {typeof RegularFormatter} */this.constructor.isMatchingKey(key) && key in this.substitutions
-        );
+        return /** @type {typeof RegularFormatter} */this.constructor.isMatchingKey(key) && key in this.substitutions;
       }
       /**
        * @param {string} key
@@ -933,15 +894,12 @@
         return /^[0-9A-Z_a-z]/.test(key);
       }
     }]);
-    return RegularFormatter;
   }(Formatter);
 
   /**
    * Formatter for switch variables.
    */
   var SwitchFormatter = /*#__PURE__*/function (_Formatter3) {
-    _inherits(SwitchFormatter, _Formatter3);
-    var _super3 = _createSuper(SwitchFormatter);
     /**
      * @param {import('./defaultLocaleResolver.js').Switches} switches
      * @param {object} cfg
@@ -952,7 +910,7 @@
       var _this3;
       var substitutions = _ref2.substitutions;
       _classCallCheck(this, SwitchFormatter);
-      _this3 = _super3.call(this);
+      _this3 = _callSuper(this, SwitchFormatter);
       _this3.switches = switches;
       _this3.substitutions = substitutions;
       return _this3;
@@ -968,7 +926,8 @@
      *   MissingSuppliedFormattersCallback} cfg.missingSuppliedFormatters
      * @returns {string}
      */
-    _createClass(SwitchFormatter, [{
+    _inherits(SwitchFormatter, _Formatter3);
+    return _createClass(SwitchFormatter, [{
       key: "getSubstitution",
       value: function getSubstitution(key, _ref3) {
         var locale = _ref3.locale,
@@ -999,7 +958,7 @@
             key: key,
             formatter: this
           });
-          return '\\{' + key + '}';
+          return String.raw(_templateObject$1 || (_templateObject$1 = _taggedTemplateLiteral(["{"], ["\\{"]))) + key + '}';
         }
 
         /*
@@ -1027,7 +986,7 @@
           var pluralOpts = parseJSONExtra(opts);
           return new Intl.PluralRules(locale, _objectSpread2(_objectSpread2({}, defaultOptions), pluralOpts)).select(value);
         };
-        var formatterValue = this.substitutions[/** @type {string} */keySegment];
+        var formatterValue = this.substitutions[(/** @type {string} */keySegment)];
         var match = formatterValue;
         if (typeof formatterValue === 'number') {
           switch (type) {
@@ -1051,7 +1010,7 @@
                  *   import('./defaultLocaleResolver.js').PluralInfo}
                  */
                 // @ts-expect-error Ok
-                formatterValue[/** @type {"number"|"plural"} */singleKey]
+                formatterValue[(/** @type {"number"|"plural"} */singleKey)]
               }),
               value = _getFormatterInfo.value,
               options = _getFormatterInfo.options;
@@ -1062,14 +1021,14 @@
             if (!typeMatches) {
               throw new TypeError("Expecting type \"".concat(type.toLowerCase(), "\"; instead found \"").concat(singleKey, "\"."));
             }
-            // eslint-disable-next-line default-case
+            // eslint-disable-next-line default-case -- Just two cases
             switch (type) {
               case 'NUMBER':
-                match = getNumberFormat( /** @type {number} */value, /** @type {Intl.NumberFormatOptions} */
+                match = getNumberFormat(/** @type {number} */value, /** @type {Intl.NumberFormatOptions} */
                 options);
                 break;
               case 'PLURAL':
-                match = getPluralFormat( /** @type {number} */value, /** @type {Intl.PluralRulesOptions} */
+                match = getPluralFormat(/** @type {number} */value, /** @type {Intl.PluralRulesOptions} */
                 options);
                 break;
             }
@@ -1085,23 +1044,25 @@
          * @returns {string}
          */
         var preventNesting = function preventNesting(s) {
-          return s.replace(/\\/g, '\\\\').replace(/\./g, '\\.');
+          return s.replaceAll('\\', '\\\\').replaceAll('.', String.raw(_templateObject2$1 || (_templateObject2$1 = _taggedTemplateLiteral(["."], ["\\."]))));
         };
         try {
           return _getSubstitution({
             messageStyle: messageStyle,
-            key: match ? preventNesting( /** @type {string} */match) : arg,
+            key: match ? preventNesting(/** @type {string} */match) : arg,
             body: body,
             type: 'switch'
           });
+          // eslint-disable-next-line no-unused-vars -- Ok
         } catch (err) {
           try {
             return _getSubstitution({
               messageStyle: messageStyle,
-              key: '*' + preventNesting( /** @type {string} */match),
+              key: '*' + preventNesting(/** @type {string} */match),
               body: body,
               type: 'switch'
             });
+            // eslint-disable-next-line no-unused-vars -- Ok
           } catch (error) {
             var k = Object.keys(body).find(function (switchKey) {
               return switchKey.startsWith('*');
@@ -1178,8 +1139,7 @@
           });
           return ret ? [].concat(_toConsumableArray(ret), [k]) : [];
         }, this.switches);
-        return (/** @type {SwitchMatch} */returnValue
-        );
+        return /** @type {SwitchMatch} */returnValue;
       }
 
       /**
@@ -1199,11 +1159,9 @@
       key: "getKey",
       value: function getKey(key) {
         var match = key.match(/^(?:[\0-\{\}-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*/);
-        return (/** @type {string} */match && match[0]
-        );
+        return /** @type {string} */match && match[0];
       }
     }]);
-    return SwitchFormatter;
   }(Formatter);
 
   /**
@@ -1223,7 +1181,7 @@
    * @param {Array<any>} values Array of values
    * @param {PromiseChainErrback} errBack Accepts an item of the array as its
    *   single argument
-   * @param {string} [errorMessage="Reached end of values array."]
+   * @param {string} [errorMessage]
    * @returns {Promise<any>} Either resolves to a value derived from an item in
    *  the array or rejects if all items reject
    * @example
@@ -1240,9 +1198,6 @@
    */
 
   function _await$2(value, then, direct) {
-    if (direct) {
-      return then ? then(value) : value;
-    }
     if (!value || !value.then) {
       value = Promise.resolve(value);
     }
@@ -1346,13 +1301,7 @@
           break;
         }
       }
-      if (update) {
-        var updateValue = update();
-        if (updateValue && updateValue.then && !_isSettledPact(updateValue)) {
-          stage = 2;
-          break;
-        }
-      }
+      var updateValue; 
     }
     var pact = new _Pact();
     var reject = _settle.bind(null, pact, 2);
@@ -1361,13 +1310,6 @@
     function _resumeAfterBody(value) {
       result = value;
       do {
-        if (update) {
-          updateValue = update();
-          if (updateValue && updateValue.then && !_isSettledPact(updateValue)) {
-            updateValue.then(_resumeAfterUpdate).then(void 0, reject);
-            return;
-          }
-        }
         shouldContinue = test();
         if (!shouldContinue || _isSettledPact(shouldContinue) && !shouldContinue.v) {
           _settle(pact, 1, result);
@@ -1442,9 +1384,10 @@
       }, void 0, function () {
         var value = values.shift();
         return _catch$1(function () {
-          // eslint-disable-next-line no-await-in-loop
+          // eslint-disable-next-line no-await-in-loop -- Ok?
           return _await$2(p, function (_p) {
             ret = _p;
+            // eslint-disable-next-line no-unused-vars -- Ok
             _interrupt = true;
           });
         }, function () {
@@ -1778,15 +1721,14 @@
       });
     };
     addFunctionKeys();
-    var localFormatter = new LocalFormatter( /** @type {import('./getMessageForKeyByStyle.js').LocalObject} */locals);
+    var localFormatter = new LocalFormatter(/** @type {import('./getMessageForKeyByStyle.js').LocalObject} */locals);
     var regularFormatter = new RegularFormatter(substitutions);
-    var switchFormatter = new SwitchFormatter( /** @type {import('./defaultLocaleResolver.js').Switches} */
+    var switchFormatter = new SwitchFormatter(/** @type {import('./defaultLocaleResolver.js').Switches} */
     switches, {
       substitutions: substitutions
     });
 
-    // eslint-disable-next-line max-len
-    // eslint-disable-next-line prefer-named-capture-group, unicorn/no-unsafe-regex
+    // eslint-disable-next-line prefer-named-capture-group -- Convenient for now
     var formattingRegex = /(\\*)\{((?:(?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])|\\\})*?)(?:(\|)((?:[\0-\|~-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*))?\}/g;
     if (allSubstitutions) {
       allSubstitutions = Array.isArray(allSubstitutions) ? allSubstitutions : [allSubstitutions];
@@ -1820,7 +1762,7 @@
       switchFormatter.constructor.isMatchingKey(key)) {
         substitution = switchFormatter.getSubstitution(key, {
           // eslint-disable-next-line object-shorthand -- TS casting
-          locale: /** @type {string} */locale,
+          locale: (/** @type {string} */locale),
           usedKeys: usedKeys,
           arg: arg,
           missingSuppliedFormatters: missingSuppliedFormatters
@@ -1870,8 +1812,7 @@
       }
 
       // Change this and return type if other substitutions possible
-      return (/** @type {string|Node} */substitution
-      );
+      return /** @type {string|Node} */substitution;
     };
     var recursiveLocalCount = 1;
     /**
@@ -1894,7 +1835,7 @@
         if (recursiveLocalCount++ > maximumLocalNestingDepth) {
           throw new TypeError('Too much recursion in local variables.');
         }
-        if ( /** @type {typeof import('./Formatter.js').LocalFormatter} */localFormatter.constructor.isMatchingKey(ky)) {
+        if (/** @type {typeof import('./Formatter.js').LocalFormatter} */localFormatter.constructor.isMatchingKey(ky)) {
           var extraSubsts = substitutions;
           var localFormatters;
           if (arg) {
@@ -1911,7 +1852,7 @@
               substitutions: localFormatters
             });
           }
-        } else if ( /** @type {typeof import('./Formatter.js').SwitchFormatter} */
+        } else if (/** @type {typeof import('./Formatter.js').SwitchFormatter} */
         switchFormatter.constructor.isMatchingKey(ky)) {
           subst = processSubsts({
             str: substitution
@@ -1927,13 +1868,13 @@
       var returnsDOM = false;
 
       /** @type {Replace} */
-      var replace = function replace(_ref6) {
+      var _replace = function replace(_ref6) {
         var str = _ref6.str,
           _ref6$substs = _ref6.substs,
           substs = _ref6$substs === void 0 ? substitutions : _ref6$substs,
           _ref6$formatter = _ref6.formatter,
           formatter = _ref6$formatter === void 0 ? regularFormatter : _ref6$formatter;
-        return str.replace(formattingRegex,
+        return str.replaceAll(formattingRegex,
         /**
          * @param {string} _
          * @param {string} esc
@@ -1962,14 +1903,14 @@
             substitution: substitution,
             ky: ky,
             arg: arg,
-            processSubsts: replace
+            processSubsts: _replace
           });
           returnsDOM = returnsDOM || substitution !== null && _typeof(substitution) === 'object' && 'nodeType' in substitution;
           usedKeys.push(ky);
           return esc + substitution;
         });
       };
-      var ret = replace({
+      var ret = _replace({
         str: string
       });
       if (!returnsDOM) {
@@ -1986,7 +1927,7 @@
     recursiveLocalCount = 1;
 
     /** @type {ProcessSubstitutions} */
-    var processSubstitutions = function processSubstitutions(_ref7) {
+    var _processSubstitutions = function processSubstitutions(_ref7) {
       var str = _ref7.str,
         _ref7$substs = _ref7.substs,
         substs = _ref7$substs === void 0 ? substitutions : _ref7$substs,
@@ -2029,7 +1970,7 @@
               substitution: substitution,
               ky: ky,
               arg: arg,
-              processSubsts: processSubstitutions
+              processSubsts: _processSubstitutions
             });
             if (Array.isArray(substitution)) {
               push.apply(void 0, _toConsumableArray(substitution));
@@ -2040,7 +1981,7 @@
               push(substitution.cloneNode(true));
             } else {
               // Why no number here?
-              push( /** @type {string} */substitution);
+              push(/** @type {string} */substitution);
             }
           }
           usedKeys.push(ky);
@@ -2048,7 +1989,7 @@
       });
       return nodes;
     };
-    var nodes = processSubstitutions({
+    var nodes = _processSubstitutions({
       str: string
     });
     checkExtraSuppliedFormatters({
@@ -2063,6 +2004,7 @@
     });
   };
 
+  var _templateObject, _templateObject2;
   /**
    * @callback KeyCheckerConverterCallback
    * @param {string|string[]} key By default may be an array (if the type ends
@@ -2083,9 +2025,9 @@
       return typeof k === 'string';
     }) && typeof messageStyle === 'string' && messageStyle.endsWith('Nested')) {
       return key.map(function (k) {
-        return k.replace( /*#__PURE__*/_wrapRegExp(/(\\+)/g, {
+        return k.replaceAll(/*#__PURE__*/_wrapRegExp(/(\\+)/g, {
           backslashes: 1
-        }), '\\$<backslashes>').replace(/\./g, '\\.');
+        }), String.raw(_templateObject || (_templateObject = _taggedTemplateLiteral(["$<backslashes>"], ["\\$<backslashes>"])))).replaceAll('.', String.raw(_templateObject2 || (_templateObject2 = _taggedTemplateLiteral(["."], ["\\."]))));
       }).join('.');
     }
     if (typeof key !== 'string') {
@@ -2140,10 +2082,10 @@
   * @returns {false|MessageStyleCallbackResult} If `false`, will resort to default
   */
 
-  /* eslint-disable max-len */
+  /* eslint-disable @stylistic/max-len -- Long */
   /**
    * @param {object} [cfg]
-   * @param {"richNested"|"rich"|"plain"|"plainNested"|MessageStyleCallback} [cfg.messageStyle="richNested"]
+   * @param {"richNested"|"rich"|"plain"|"plainNested"|MessageStyleCallback} [cfg.messageStyle]
    * @returns {MessageStyleCallback}
    */
   var getMessageForKeyByStyle = function getMessageForKeyByStyle() {
@@ -2163,7 +2105,8 @@
        * @type {string[]}
        */
       var keys = [];
-      // eslint-disable-next-line prefer-named-capture-group
+      // eslint-disable-next-line @stylistic/max-len -- Long
+      // eslint-disable-next-line prefer-named-capture-group -- Convenient for now
       var possiblyEscapedCharPattern = /(\\*)\./g;
 
       /**
@@ -2211,13 +2154,13 @@
         // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
         typeof currObj[ky].message === 'string') {
           ret = {
-            value: /** @type {string} */currObj[ky].message,
-            info:
+            value: (/** @type {string} */currObj[ky].message),
+            info: (
             /**
              * @type {import('./defaultLocaleResolver.js').
              *   RichLocaleStringSubObject}
              */
-            currObj[ky]
+            currObj[ky])
           };
         }
         currObj =
@@ -2308,7 +2251,7 @@
    * } [cfg.defaults]
    * @param {"richNested"|"rich"|"plain"|"plainNested"|
    *   import('./getMessageForKeyByStyle.js').MessageStyleCallback
-   * } [cfg.messageStyle="richNested"]
+   * } [cfg.messageStyle]
    * @param {import('./getMessageForKeyByStyle.js').
    *   MessageStyleCallback
    * } [cfg.messageForKey] Defaults to getting `MessageStyleCallback` based
@@ -2377,18 +2320,18 @@
    *   for use by configuring formatters
    * @param {import('./getMessageForKeyByStyle.js').LocalObject} [cfg.locals]
    * @param {import('./defaultLocaleResolver.js').Switches} [cfg.switches]
-   * @param {Integer} [cfg.maximumLocalNestingDepth=3]
+   * @param {Integer} [cfg.maximumLocalNestingDepth]
    * @param {?(import('./defaultAllSubstitutions.js').AllSubstitutionCallback|
    *   import('./defaultAllSubstitutions.js').AllSubstitutionCallback[])
-   * } [cfg.allSubstitutions=[defaultAllSubstitutions]]
+   * } [cfg.allSubstitutions]
    * @param {import('./defaultInsertNodes.js').InsertNodesCallback
-   * } [cfg.insertNodes=defaultInsertNodes]
+   * } [cfg.insertNodes]
    * @param {false|import('./defaultLocaleResolver.js').SubstitutionObject
-   * } [cfg.substitutions=false]
-   * @param {boolean} [cfg.dom=false]
-   * @param {boolean} [cfg.forceNodeReturn=false]
-   * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
-   * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
+   * } [cfg.substitutions]
+   * @param {boolean} [cfg.dom]
+   * @param {boolean} [cfg.forceNodeReturn]
+   * @param {boolean} [cfg.throwOnMissingSuppliedFormatters]
+   * @param {boolean} [cfg.throwOnExtraSuppliedFormatters]
    * @returns {string|Text|DocumentFragment}
    */
   var getDOMForLocaleString = function getDOMForLocaleString(_ref) {
@@ -2490,9 +2433,6 @@
   };
 
   function _await$1(value, then, direct) {
-    if (direct) {
-      return then ? then(value) : value;
-    }
     if (!value || !value.then) {
       value = Promise.resolve(value);
     }
@@ -2546,7 +2486,7 @@
    * @param {object} cfg
    * @param {string} cfg.locale
    * @param {string[]} cfg.locales
-   * @param {LocaleMatcher} [cfg.localeMatcher=defaultLocaleMatcher]
+   * @param {LocaleMatcher} [cfg.localeMatcher]
    * @returns {string|false}
    */
   var getMatchingLocale = function getMatchingLocale(_ref) {
@@ -2559,6 +2499,7 @@
         // Catch as `defaultLocaleMatcher` will throw if no hyphen found
         locale = localeMatcher(locale);
       }
+      // eslint-disable-next-line no-unused-vars -- Ok
     } catch (err) {
       return false;
     }
@@ -2603,14 +2544,13 @@
       localeResolver = _ref2.localeResolver,
       localesBasePath = _ref2.localesBasePath,
       localeMatcher = _ref2.localeMatcher;
-    return (/** @type {Promise<LocaleObjectInfo>} */_findLocale({
-        locales: locales,
-        defaultLocales: defaultLocales,
-        localeResolver: localeResolver,
-        localesBasePath: localesBasePath,
-        localeMatcher: localeMatcher
-      })
-    );
+    return /** @type {Promise<LocaleObjectInfo>} */_findLocale({
+      locales: locales,
+      defaultLocales: defaultLocales,
+      localeResolver: localeResolver,
+      localesBasePath: localesBasePath,
+      localeMatcher: localeMatcher
+    });
   };
 
   /**
@@ -2634,15 +2574,14 @@
       localeResolver = _ref3.localeResolver,
       localesBasePath = _ref3.localesBasePath,
       localeMatcher = _ref3.localeMatcher;
-    return (/** @type {Promise<string>} */_findLocale({
-        locales: locales,
-        defaultLocales: defaultLocales,
-        localeResolver: localeResolver,
-        localesBasePath: localesBasePath,
-        localeMatcher: localeMatcher,
-        headOnly: true
-      })
-    );
+    return /** @type {Promise<string>} */_findLocale({
+      locales: locales,
+      defaultLocales: defaultLocales,
+      localeResolver: localeResolver,
+      localesBasePath: localesBasePath,
+      localeMatcher: localeMatcher,
+      headOnly: true
+    });
   };
 
   /**
@@ -2688,10 +2627,10 @@
           });
         });
       }, function (err) {
-        if ( /** @type {Error} */err.name === 'SyntaxError') {
+        if (/** @type {Error} */err.name === 'SyntaxError') {
           throw err;
         }
-        return _await$1( /** @type {LocaleMatcher} */localeMatcher(locale), getLocale);
+        return _await$1(/** @type {LocaleMatcher} */localeMatcher(locale), getLocale);
       });
     });
     var _ref4$locales = _ref4.locales,
@@ -2734,30 +2673,27 @@
    * @param {string} cfg.resolvedLocale
    * @param {"richNested"|"rich"|"plain"|"plainNested"|
    *   import('./getMessageForKeyByStyle.js').
-   *     MessageStyleCallback} [cfg.messageStyle="richNested"]
+   *     MessageStyleCallback} [cfg.messageStyle]
    * @param {?import('./defaultAllSubstitutions.js').AllSubstitutionCallback|
    *   import('./defaultAllSubstitutions.js').
    *     AllSubstitutionCallback[]} [cfg.allSubstitutions]
    * @param {import('./defaultInsertNodes.js').
-   *   InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
+   *   InsertNodesCallback} [cfg.insertNodes]
    * @param {import('./defaultKeyCheckerConverter.js').
    *   KeyCheckerConverterCallback} [cfg.keyCheckerConverter]
    * @param {false|null|undefined|
    *   import('./getMessageForKeyByStyle.js').LocaleObject} [cfg.defaults]
    * @param {false|import('./defaultLocaleResolver.js').
-   *   SubstitutionObject} [cfg.substitutions={}]
-   * @param {Integer} [cfg.maximumLocalNestingDepth=3]
-   * @param {boolean} [cfg.dom=false]
-   * @param {boolean} [cfg.forceNodeReturn=false]
-   * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
-   * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
+   *   SubstitutionObject} [cfg.substitutions]
+   * @param {Integer} [cfg.maximumLocalNestingDepth]
+   * @param {boolean} [cfg.dom]
+   * @param {boolean} [cfg.forceNodeReturn]
+   * @param {boolean} [cfg.throwOnMissingSuppliedFormatters]
+   * @param {boolean} [cfg.throwOnExtraSuppliedFormatters]
    * @returns {I18NCallback} Rejects if no suitable locale is found.
    */
 
   function _await(value, then, direct) {
-    if (direct) {
-      return then ? then(value) : value;
-    }
     if (!value || !value.then) {
       value = Promise.resolve(value);
     }
@@ -2769,36 +2705,36 @@
    */
 
   /**
-   * @param {object} [cfg={}]
-   * @param {string[]} [cfg.locales=navigator.languages] BCP-47 language strings
-   * @param {string[]} [cfg.defaultLocales=["en-US"]]
+   * @param {object} [cfg]
+   * @param {string[]} [cfg.locales] BCP-47 language strings
+   * @param {string[]} [cfg.defaultLocales]
    * @param {import('./findLocaleStrings.js').
-   *   LocaleStringFinder} [cfg.localeStringFinder=findLocaleStrings]
-   * @param {string} [cfg.localesBasePath="."]
+   *   LocaleStringFinder} [cfg.localeStringFinder]
+   * @param {string} [cfg.localesBasePath]
    * @param {import('./defaultLocaleResolver.js').
-   *   LocaleResolver} [cfg.localeResolver=defaultLocaleResolver]
+   *   LocaleResolver} [cfg.localeResolver]
    * @param {"lookup"|import('./findLocaleStrings.js').
-   *   LocaleMatcher} [cfg.localeMatcher="lookup"]
+   *   LocaleMatcher} [cfg.localeMatcher]
    * @param {"richNested"|"rich"|"plain"|"plainNested"|
    *   import('./getMessageForKeyByStyle.js').
-   *     MessageStyleCallback} [cfg.messageStyle="richNested"]
+   *     MessageStyleCallback} [cfg.messageStyle]
    * @param {?(import('./defaultAllSubstitutions.js').AllSubstitutionCallback|
    *   import('./defaultAllSubstitutions.js').
    *     AllSubstitutionCallback[])} [cfg.allSubstitutions]
    * @param {import('./defaultInsertNodes.js').
-   *   InsertNodesCallback} [cfg.insertNodes=defaultInsertNodes]
+   *   InsertNodesCallback} [cfg.insertNodes]
    * @param {import('./defaultKeyCheckerConverter.js').
    *   KeyCheckerConverterCallback} [cfg.keyCheckerConverter]
    * @param {false|null|undefined|
    *   import('./getMessageForKeyByStyle.js').LocaleObject} [cfg.defaults]
    * @param {false|
    *   import('./defaultLocaleResolver.js').
-   *     SubstitutionObject} [cfg.substitutions={}]
-   * @param {Integer} [cfg.maximumLocalNestingDepth=3]
-   * @param {boolean} [cfg.dom=false]
-   * @param {boolean} [cfg.forceNodeReturn=false]
-   * @param {boolean} [cfg.throwOnMissingSuppliedFormatters=true]
-   * @param {boolean} [cfg.throwOnExtraSuppliedFormatters=true]
+   *     SubstitutionObject} [cfg.substitutions]
+   * @param {Integer} [cfg.maximumLocalNestingDepth]
+   * @param {boolean} [cfg.dom]
+   * @param {boolean} [cfg.forceNodeReturn]
+   * @param {boolean} [cfg.throwOnMissingSuppliedFormatters]
+   * @param {boolean} [cfg.throwOnExtraSuppliedFormatters]
    * @returns {Promise<I18NCallback>} Rejects if no suitable locale is found.
    */
 

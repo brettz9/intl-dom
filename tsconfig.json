@@ -8,11 +8,12 @@
     "noEmit": true,
     "declaration": true,
     "declarationMap": true,
+    "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
-    "target": "es6",
+    "target": "ES2018",
     "outDir": "dist"
   },
   "include": ["src/**/*.js", "typings/intlDomLocale.d.ts", "test/**/*.js"],
-  "exclude": ["node_modules", "test/browser/vendor/chai-as-promised.js", "test/browser/vendor/formatjs-intl-datetimeformat-polyfill.js", "test/browser/vendor/formatjs-intl-displaynames-polyfill.js"]
+  "exclude": ["node_modules", "test/browser/vendor/chai-dom/chai-dom.js", "test/browser/vendor/check-error/index.js", "test/browser/vendor/formatjs-intl-datetimeformat-polyfill.js", "test/browser/vendor/formatjs-intl-displaynames-polyfill.js"]
 }
