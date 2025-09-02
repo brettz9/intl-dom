@@ -243,7 +243,9 @@ export type SwitchArray = {
     [x: string]: SwitchCaseArray;
 };
 export type SwitchArrays = {
-    [x: string]: SwitchArray;
+    [x: string]: {
+        [x: string]: SwitchCaseArray;
+    };
 };
 export type SwitchCase = {
     /**
@@ -260,7 +262,9 @@ export type Switch = {
     [x: string]: SwitchCase;
 };
 export type Switches = {
-    [x: string]: Switch;
+    [x: string]: {
+        [x: string]: SwitchCase;
+    };
 };
 export type RichLocaleStringSubObject = {
     /**

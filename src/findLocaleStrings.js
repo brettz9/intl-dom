@@ -42,7 +42,6 @@ export const getMatchingLocale = ({
       // Catch as `defaultLocaleMatcher` will throw if no hyphen found
       locale = localeMatcher(locale);
     }
-  // eslint-disable-next-line no-unused-vars -- Ok
   } catch (err) {
     return false;
   }

@@ -280,7 +280,6 @@ export class SwitchFormatter extends Formatter {
         body,
         type: 'switch'
       });
-    // eslint-disable-next-line no-unused-vars -- Ok
     } catch (err) {
       try {
         return getSubstitution({
@@ -290,7 +289,6 @@ export class SwitchFormatter extends Formatter {
           body,
           type: 'switch'
         });
-      // eslint-disable-next-line no-unused-vars -- Ok
       } catch (error) {
         const k = Object.keys(body).find(
           (switchKey) => switchKey.startsWith('*')

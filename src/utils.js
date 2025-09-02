@@ -6,7 +6,8 @@
  * @typedef {any} JSON6
  */
 
-// @ts-expect-error Need typing for JSON6
+// Don't use ts-expect-error here, as result differs by tsconfig
+// @ts-ignore Need typing for JSON6
 let _jsonExtra = globalThis.jsonExtra;
 
 /**

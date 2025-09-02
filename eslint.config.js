@@ -10,6 +10,7 @@ export default [
       '.idea',
       'dist',
       'coverage',
+      'test/browser/vendor/**/*.js',
       'test/browser/vendor/*.js',
       '!test/browser/vendor/fragmentHtml.js'
     ]
@@ -91,6 +92,7 @@ export default [
       'import/no-commonjs': 0,
       'unicorn/no-unsafe-regex': 0,
       'prefer-named-capture-group': 0,
+      'sonarjs/no-internal-api-use': 0,
 
       // Disable until https://github.com/gajus/eslint-plugin-jsdoc/issues/211
       indent: 0
@@ -99,7 +101,8 @@ export default [
   {
     files: ['test/browser/index.html'],
     rules: {
-      'import/unambiguous': 0
+      'import/unambiguous': 0,
+      'sonarjs/no-internal-api-use': 0
     }
   },
   {

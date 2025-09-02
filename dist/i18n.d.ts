@@ -31,7 +31,7 @@ export function i18n({ locales, defaultLocales, localeStringFinder, localesBaseP
     forceNodeReturn?: boolean | undefined;
     throwOnMissingSuppliedFormatters?: boolean | undefined;
     throwOnExtraSuppliedFormatters?: boolean | undefined;
-} | undefined): Promise<I18NCallback>;
+}): Promise<I18NCallback>;
 export type Sort = import("./index.js").Sort;
 export type SortList = import("./index.js").SortList;
 export type List = import("./index.js").List;

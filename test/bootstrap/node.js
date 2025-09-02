@@ -35,8 +35,7 @@ import {setFetch, setDocument} from '../../src/shared.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// @ts-expect-error Need to add types for json-6
-global.jsonExtra = jsonExtra;
+globalThis.jsonExtra = jsonExtra;
 
 // Override to ensure we're testing with polyfill
 // @ts-expect-error Needed for testing
@@ -67,10 +66,14 @@ globalThis.setNavigatorLanguages = (languages) => {
     delete globalThis.navigator;
     return;
   }
-  // @ts-expect-error Just for testing
-  globalThis.navigator = {
-    languages
-  };
+  if (!globalThis.navigator) {
+    // @ts-expect-error Just for testing
+    globalThis.navigator = {};
+  }
+  if (!globalThis.navigator.languages) {
+    // @ts-expect-error Just for testing
+    globalThis.navigator.languages = languages;
+  }
   // eslint-disable-next-line @stylistic/max-len -- Long
   /* eslint-enable n/no-unsupported-features/node-builtins -- Polyfill for testing */
 };

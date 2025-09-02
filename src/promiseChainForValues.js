@@ -55,7 +55,6 @@ export const promiseChainForValues = (
         // eslint-disable-next-line no-await-in-loop -- Ok?
         ret = await p;
         break;
-      // eslint-disable-next-line no-unused-vars -- Ok
       } catch (err) {
         if (breaking) {
           throw new Error(errorMessage);

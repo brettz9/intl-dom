@@ -1,6 +1,6 @@
 export function getMessageForKeyByStyle({ messageStyle }?: {
     messageStyle?: MessageStyleCallback | "richNested" | "rich" | "plain" | "plainNested" | undefined;
-} | undefined): MessageStyleCallback;
+}): MessageStyleCallback;
 export type LocalObject = LocaleBody;
 /**
  * May also contain language code and direction, translator name and

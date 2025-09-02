@@ -22,20 +22,20 @@ function _classCallCheck(a, n) {
 function _defineProperties(e, r) {
   for (var t = 0; t < r.length; t++) {
     var o = r[t];
-    o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o);
+    o.enumerable = o.enumerable || false, o.configurable = true, "value" in o && (o.writable = true), Object.defineProperty(e, _toPropertyKey(o.key), o);
   }
 }
 function _createClass(e, r, t) {
   return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", {
-    writable: !1
+    writable: false
   }), e;
 }
 function _defineProperty(e, r, t) {
   return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
     value: t,
-    enumerable: !0,
-    configurable: !0,
-    writable: !0
+    enumerable: true,
+    configurable: true,
+    writable: true
   }) : e[r] = t, e;
 }
 function _getPrototypeOf(t) {
@@ -48,11 +48,11 @@ function _inherits(t, e) {
   t.prototype = Object.create(e && e.prototype, {
     constructor: {
       value: t,
-      writable: !0,
-      configurable: !0
+      writable: true,
+      configurable: true
     }
   }), Object.defineProperty(t, "prototype", {
-    writable: !1
+    writable: false
   }), e && _setPrototypeOf(t, e);
 }
 function _isNativeReflectConstruct() {
@@ -74,15 +74,15 @@ function _iterableToArrayLimit(r, l) {
       i,
       u,
       a = [],
-      f = !0,
-      o = !1;
+      f = true,
+      o = false;
     try {
       if (i = (t = t.call(r)).next, 0 === l) {
         if (Object(t) !== t) return;
         f = !1;
       } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0);
     } catch (r) {
-      o = !0, n = r;
+      o = true, n = r;
     } finally {
       try {
         if (!f && null != t.return && (u = t.return(), Object(u) !== u)) return;
@@ -112,7 +112,7 @@ function ownKeys(e, r) {
 function _objectSpread2(e) {
   for (var r = 1; r < arguments.length; r++) {
     var t = null != arguments[r] ? arguments[r] : {};
-    r % 2 ? ownKeys(Object(t), !0).forEach(function (r) {
+    r % 2 ? ownKeys(Object(t), true).forEach(function (r) {
       _defineProperty(e, r, t[r]);
     }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) {
       Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r));
@@ -147,7 +147,7 @@ function _toPrimitive(t, r) {
   if ("object" != typeof t || !t) return t;
   var e = t[Symbol.toPrimitive];
   if (void 0 !== e) {
-    var i = e.call(t, r || "default");
+    var i = e.call(t, r);
     if ("object" != typeof i) return i;
     throw new TypeError("@@toPrimitive must return a primitive value.");
   }
@@ -205,9 +205,10 @@ function _wrapRegExp() {
   }, BabelRegExp.prototype[Symbol.replace] = function (t, p) {
     if ("string" == typeof p) {
       var o = r.get(this);
-      return e[Symbol.replace].call(this, t, p.replace(/\$<([^>]+)>/g, function (e, r) {
-        var t = o[r];
-        return "$" + (Array.isArray(t) ? t.join("$") : t);
+      return e[Symbol.replace].call(this, t, p.replace(/\$<([^>]+)(>|$)/g, function (e, r, t) {
+        if ("" === t) return e;
+        var p = o[r];
+        return Array.isArray(p) ? "$" + p.join("$") : "number" == typeof p ? "$" + p : "";
       }));
     }
     if ("function" == typeof p) {
@@ -229,7 +230,8 @@ function _wrapRegExp() {
  * @typedef {any} JSON6
  */
 
-// @ts-expect-error Need typing for JSON6
+// Don't use ts-expect-error here, as result differs by tsconfig
+// @ts-ignore Need typing for JSON6
 var _jsonExtra = globalThis.jsonExtra;
 
 /**
@@ -1047,7 +1049,6 @@ var SwitchFormatter = /*#__PURE__*/function (_Formatter3) {
           body: body,
           type: 'switch'
         });
-        // eslint-disable-next-line no-unused-vars -- Ok
       } catch (err) {
         try {
           return _getSubstitution({
@@ -1056,7 +1057,6 @@ var SwitchFormatter = /*#__PURE__*/function (_Formatter3) {
             body: body,
             type: 'switch'
           });
-          // eslint-disable-next-line no-unused-vars -- Ok
         } catch (error) {
           var k = Object.keys(body).find(function (switchKey) {
             return switchKey.startsWith('*');
@@ -1381,7 +1381,6 @@ var promiseChainForValues = function promiseChainForValues(values, errBack) {
         // eslint-disable-next-line no-await-in-loop -- Ok?
         return _await$2(p, function (_p) {
           ret = _p;
-          // eslint-disable-next-line no-unused-vars -- Ok
           _interrupt = true;
         });
       }, function () {
@@ -1800,7 +1799,6 @@ var defaultInsertNodes = function defaultInsertNodes(_ref) {
       substitution = defaultAllSubstitutions({
         value: substitution,
         arg: arg,
-        key: key,
         locale: locale
       });
     }
@@ -2473,7 +2471,7 @@ var defaultLocaleMatcher = function defaultLocaleMatcher(locale) {
   // Try without hyphen, i.e., the "lookup" algorithm:
   // See https://tools.ietf.org/html/rfc4647#section-3.4 and
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl
-  return locale.replace(/\x2D(?:[\0-,\.-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*$/, '');
+  return locale.replace(/-(?:[\0-,\.-\uD7FF\uE000-\uFFFF]|[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])*$/, '');
 };
 
 /**
@@ -2493,7 +2491,6 @@ var getMatchingLocale = function getMatchingLocale(_ref) {
       // Catch as `defaultLocaleMatcher` will throw if no hyphen found
       locale = localeMatcher(locale);
     }
-    // eslint-disable-next-line no-unused-vars -- Ok
   } catch (err) {
     return false;
   }

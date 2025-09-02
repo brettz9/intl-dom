@@ -17,7 +17,6 @@ import {
 describe('API', function () {
   it('should export utility classes', function () {
     setJSONExtra(
-      // @ts-expect-error Need to get types for JSON6
       globalThis.jsonExtra
     );
 
