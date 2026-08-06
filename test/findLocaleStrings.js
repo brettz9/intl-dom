@@ -18,6 +18,8 @@ describe('findLocaleStrings', function () {
   describe('intlDomLocale', function () {
     beforeEach(() => {
       setNavigatorLanguages(false);
+      // eslint-disable-next-line @stylistic/max-len -- Long
+      // eslint-disable-next-line unicorn/no-global-object-property-assignment -- Necessary
       globalThis.intlDomLocale = 'zh-Hans';
     });
     afterEach(() => {
@@ -136,7 +138,7 @@ describe('findLocaleStrings', function () {
     return expect(findLocaleStrings({
       locales: ['xy'],
       defaultLocales: []
-    })).to.be.rejectedWith(Error, /No matching locale found for/u);
+    })).to.be.rejectedWith(Error, /No matching locale found for/v);
   });
 
   it(
@@ -148,7 +150,7 @@ describe('findLocaleStrings', function () {
           null
         ],
         defaultLocales: []
-      })).to.be.rejectedWith(Error, /No matching locale found for/u);
+      })).to.be.rejectedWith(Error, /No matching locale found for/v);
     }
   );
 
@@ -174,7 +176,7 @@ describe('findLocaleStrings', function () {
         localeResolver (/* localesBasePath, locale */) {
           return false;
         }
-      })).to.be.rejectedWith(Error, /No matching locale found for/u);
+      })).to.be.rejectedWith(Error, /No matching locale found for/v);
     }
   );
 

@@ -170,7 +170,7 @@ describe('getDOMForLocaleString', function () {
           //   to emulate
           // eslint-disable-next-line @stylistic/max-len -- Long
           // eslint-disable-next-line prefer-named-capture-group -- Convenient for now
-          const formattingRegex = /(\\*)\$\{([^}]*?)(?:\|([^}]*))?\}/gu;
+          const formattingRegex = /(\\*)\$\{([^\}]*?)(?:\|([^\}]*))?\}/gv;
           return string.replaceAll(
             formattingRegex,
             (_, esc, ky /* , arg */) => {
@@ -489,7 +489,7 @@ describe('getDOMForLocaleString', function () {
 
   it('should return DOM with DOM substitution', function () {
     const elem = document.createElement('a');
-    elem.href = 'http://example.com';
+    elem.href = 'https://example.com';
     elem.textContent = 'message';
 
     const frag = getDOMForLocaleString({
@@ -501,14 +501,14 @@ describe('getDOMForLocaleString', function () {
     expect(frag).to.have.text('simple message');
     expect(frag).to.contain(elem);
 
-    expect(frag).to.have.fragmentHtml('simple <a href="http://example.com">message</a>');
+    expect(frag).to.have.fragmentHtml('simple <a href="https://example.com">message</a>');
   });
 
   it(
     'should return DOM with DOM substitution (multiple substitutions)',
     function () {
       const elem = document.createElement('a');
-      elem.href = 'http://example.com';
+      elem.href = 'https://example.com';
       elem.textContent = 'message';
 
       const simpElem = document.createElement('span');
@@ -525,7 +525,7 @@ describe('getDOMForLocaleString', function () {
       expect(frag).to.contain(elem);
       expect(frag).to.contain(simpElem);
 
-      expect(frag).to.have.fragmentHtml('<span>simple</span> <a href="http://example.com">message</a>');
+      expect(frag).to.have.fragmentHtml('<span>simple</span> <a href="https://example.com">message</a>');
     }
   );
 

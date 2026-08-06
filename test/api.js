@@ -45,7 +45,7 @@ describe('API', function () {
 
   it('should throw with bad `processRegex` arguments', function () {
     expect(() => {
-      processRegex(/test/u, 'string', {
+      processRegex(/test/v, 'string', {
         onMatch (/* ..._args */) {
           //
         }
@@ -55,7 +55,7 @@ describe('API', function () {
     );
 
     expect(() => {
-      processRegex(/test/u, 'string', {
+      processRegex(/test/v, 'string', {
         betweenMatches (/* _str */) {
           //
         },

@@ -109,7 +109,7 @@ export const defaultInsertNodes = ({
   );
 
   // eslint-disable-next-line prefer-named-capture-group -- Convenient for now
-  const formattingRegex = /(\\*)\{((?:[^}]|\\\})*?)(?:(\|)([^}]*))?\}/gu;
+  const formattingRegex = /(\\*)\{((?:[^\}]|\\\})*?)(?:(\|)([^\}]*))?\}/gv;
   if (allSubstitutions) {
     allSubstitutions = Array.isArray(allSubstitutions)
       ? allSubstitutions
@@ -141,7 +141,7 @@ export const defaultInsertNodes = ({
        */ (switchFormatter.constructor).isMatchingKey(key)
     ) {
       substitution = switchFormatter.getSubstitution(key, {
-        // eslint-disable-next-line object-shorthand -- TS casting
+
         locale: /** @type {string} */ (locale),
         usedKeys,
         arg,
@@ -182,7 +182,7 @@ export const defaultInsertNodes = ({
             });
           }, substitution
         ));
-    } else if (arg && (/^(?:NUMBER|DATE(?:TIME|RANGE|TIMERANGE)?|REGION|LANGUAGE|SCRIPT|CURRENCY|RELATIVE|LIST)(?:\||$)/u).test(arg)) {
+    } else if (arg && (/^(?:NUMBER|DATE(?:TIME|RANGE|TIMERANGE)?|REGION|LANGUAGE|SCRIPT|CURRENCY|RELATIVE|LIST)(?:\||$)/v).test(arg)) {
       substitution = defaultAllSubstitutions({
         value: substitution, arg, key, locale
       });
@@ -284,8 +284,8 @@ export const defaultInsertNodes = ({
             substitution, ky, arg, processSubsts: replace
           });
 
-          returnsDOM = returnsDOM ||
-            (substitution !== null && typeof substitution === 'object' &&
+          returnsDOM ||= (substitution !== null &&
+            typeof substitution === 'object' &&
             'nodeType' in substitution);
           usedKeys.push(ky);
           return esc + substitution;
@@ -315,7 +315,7 @@ export const defaultInsertNodes = ({
     // Copy to ensure we are resetting index on each instance (manually
     // resetting on `formattingRegex` is problematic with recursion that
     // uses the same regex copy)
-    const regex = new RegExp(formattingRegex, 'gu');
+    const regex = new RegExp(formattingRegex, 'gv');
 
     /**
      * @param {...(string|Node)} args

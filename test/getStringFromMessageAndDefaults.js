@@ -96,7 +96,7 @@ describe('getStringFromMessageAndDefaults', function () {
             body: {}
           },
           messageForKey (defaults, key) {
-            return key in defaults.body
+            return Object.hasOwn(defaults.body, key)
               ? {
                 value: String(
                   /**
@@ -224,7 +224,7 @@ describe('getStringFromMessageAndDefaults', function () {
           }
         },
         messageForKey (defaults, key) {
-          return key in defaults.body
+          return Object.hasOwn(defaults.body, key)
             ? {
               value: String(
                 /**

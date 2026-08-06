@@ -21,6 +21,7 @@ export default [
     languageOptions: {
       parser, // import.meta.url
       parserOptions: {
+        ecmaVersion: 'latest',
         requireConfigFile: false
       }
     },

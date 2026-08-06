@@ -1,5 +1,5 @@
 /* globals document -- Polyglot variable */
-
+/* eslint-disable unicorn/no-top-level-assignment-in-function -- Necessary */
 /**
  * @typedef {(
  *   input: RequestInfo|URL, init?: RequestInit

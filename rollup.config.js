@@ -55,15 +55,5 @@ export default [
     plugins: [
       commonjs()
     ]
-  },
-  {
-    input: './node_modules/check-error/index.js',
-    output: {
-      format: 'esm',
-      file: './test/browser/vendor/check-error/index.js'
-    },
-    plugins: [
-      commonjs()
-    ]
   }
 ];

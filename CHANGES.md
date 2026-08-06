@@ -1,7 +1,11 @@
 # intl-dom CHANGES
 
-## ?
+## 0.21.0
 
+BREAKING CHANGES:
+- Bump engines to 22
+
+- fix(types): use nodenext
 - chore: update devDeps and lint (note: need transpiler for capturing groups)
 
 ## 0.20.0

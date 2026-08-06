@@ -1,3 +1,5 @@
+/* eslint-disable unicorn/no-global-object-property-assignment --
+    Bootstrapping */
 // We avoid the main file (polyfill) for pluralrules as it does not detect
 // full support for `minimumFractionDigits` and reverts on Node 10 to its
 // default incomplete support;
@@ -70,9 +72,9 @@ globalThis.setNavigatorLanguages = (languages) => {
     // @ts-expect-error Just for testing
     globalThis.navigator = {};
   }
-  if (!globalThis.navigator.languages) {
+  if (!navigator.languages) {
     // @ts-expect-error Just for testing
-    globalThis.navigator.languages = languages;
+    navigator.languages = languages;
   }
   // eslint-disable-next-line @stylistic/max-len -- Long
   /* eslint-enable n/no-unsupported-features/node-builtins -- Polyfill for testing */

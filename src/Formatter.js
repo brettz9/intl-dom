@@ -34,6 +34,14 @@ const getSubstitution = ({key, body, type, messageStyle = 'richNested'}) => {
  */
 export class LocalFormatter extends Formatter {
   /**
+   * @param {string} key
+   * @returns {boolean}
+   */
+  static isMatchingKey (key) {
+    return key.startsWith('-');
+  }
+
+  /**
    * @param {import('./getMessageForKeyByStyle.js').LocalObject} locals
    */
   constructor (locals) {
@@ -60,7 +68,7 @@ export class LocalFormatter extends Formatter {
     return /** @type {typeof LocalFormatter} */ (
       this.constructor
     ).isMatchingKey(key) && components.every((cmpt) => {
-      const result = cmpt in parent;
+      const result = Object.hasOwn(parent, cmpt);
       parent =
         /**
          * @type {import('./defaultLocaleResolver.js').
@@ -81,19 +89,20 @@ export class LocalFormatter extends Formatter {
       return result;
     });
   }
-  /**
-   * @param {string} key
-   * @returns {boolean}
-   */
-  static isMatchingKey (key) {
-    return key.startsWith('-');
-  }
 }
 
 /**
  * Formatter for regular variables.
  */
 export class RegularFormatter extends Formatter {
+  /**
+   * @param {string} key
+   * @returns {boolean}
+   */
+  static isMatchingKey (key) {
+    return (/^\w/v).test(key);
+  }
+
   /**
    * @param {import('./defaultLocaleResolver.js').SubstitutionObject
    * } substitutions
@@ -109,14 +118,7 @@ export class RegularFormatter extends Formatter {
   isMatch (key) {
     return /** @type {typeof RegularFormatter} */ (
       this.constructor
-    ).isMatchingKey(key) && key in this.substitutions;
-  }
-  /**
-   * @param {string} key
-   * @returns {boolean}
-   */
-  static isMatchingKey (key) {
-    return (/^\w/u).test(key);
+    ).isMatchingKey(key) && Object.hasOwn(this.substitutions, key);
   }
 }
 
@@ -124,6 +126,22 @@ export class RegularFormatter extends Formatter {
  * Formatter for switch variables.
  */
 export class SwitchFormatter extends Formatter {
+  /**
+   * @param {string} key
+   * @returns {boolean}
+   */
+  static isMatchingKey (key) {
+    return key.startsWith('~');
+  }
+  /**
+   * @param {string} key
+   * @returns {string}
+   */
+  static getKey (key) {
+    const match = key.match(/^[^\|]*/v);
+    return /** @type {string} */ (match && match[0]);
+  }
+
   /**
    * @param {import('./defaultLocaleResolver.js').Switches} switches
    * @param {object} cfg
@@ -160,7 +178,7 @@ export class SwitchFormatter extends Formatter {
     /** @type {string} */
     let opts;
     if (objKey && objKey.includes('|')) {
-      [, type, opts] = objKey.split('|');
+      [, type, opts] = objKey.split('|', 3);
     }
     if (!body) {
       missingSuppliedFormatters({
@@ -294,7 +312,9 @@ export class SwitchFormatter extends Formatter {
           (switchKey) => switchKey.startsWith('*')
         );
         if (!k) {
-          throw new Error(`No defaults found for switch ${ky}`);
+          throw new Error(`No defaults found for switch ${ky}`, {
+            cause: error
+          });
         }
         return getSubstitution({
           messageStyle, key: preventNesting(k), body, type: 'switch'
@@ -348,7 +368,7 @@ export class SwitchFormatter extends Formatter {
       // @ts-expect-error It works
       (obj, k, i) => {
         if (i < ks.length - 1) {
-          if (!(k in obj)) {
+          if (!(Object.hasOwn(obj, k))) {
             throw new Error(`Switch key "${k}" not found (from "~${ky}")`);
           }
           return obj[k];
@@ -366,21 +386,5 @@ export class SwitchFormatter extends Formatter {
     ));
 
     return /** @type {SwitchMatch} */ (returnValue);
-  }
-
-  /**
-   * @param {string} key
-   * @returns {boolean}
-   */
-  static isMatchingKey (key) {
-    return key.startsWith('~');
-  }
-  /**
-   * @param {string} key
-   * @returns {string}
-   */
-  static getKey (key) {
-    const match = key.match(/^[^|]*/u);
-    return /** @type {string} */ (match && match[0]);
   }
 }

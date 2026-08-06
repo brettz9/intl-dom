@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
-    "lib": ["es2022", "DOM"],
-    "moduleResolution": "node",
-    "module": "ESNext",
+    "lib": ["es2024", "DOM"],
+    "types": ["mocha", "chai"],
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
     "allowJs": true,
     "checkJs": true,
     "noEmit": true,
@@ -11,9 +12,9 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
-    "target": "ES2018",
+    "target": "es2024",
     "outDir": "dist"
   },
   "include": ["src/**/*.js", "typings/intlDomLocale.d.ts", "test/**/*.js"],
-  "exclude": ["node_modules", "test/browser/vendor/chai-dom/chai-dom.js", "test/browser/vendor/check-error/index.js", "test/browser/vendor/formatjs-intl-datetimeformat-polyfill.js", "test/browser/vendor/formatjs-intl-displaynames-polyfill.js"]
+  "exclude": ["node_modules", "test/browser/vendor/chai-dom/chai-dom.js", "test/browser/vendor/formatjs-intl-datetimeformat-polyfill.js", "test/browser/vendor/formatjs-intl-displaynames-polyfill.js"]
 }

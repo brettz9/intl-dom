@@ -190,7 +190,7 @@ describe('getMessageForKeyByStyle', function () {
             /**
              * @type {import('../src/defaultLocaleResolver.js').
              *   PlainLocaleStringBodyObject}
-             */ (obj.body)[key]
+             */ Object.hasOwn((obj.body), key)
           ) {
             return {
               value: /**

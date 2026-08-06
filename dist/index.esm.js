@@ -13,6 +13,31 @@ function _assertThisInitialized(e) {
   if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
   return e;
 }
+function asyncGeneratorStep(n, t, e, r, o, a, c) {
+  try {
+    var i = n[a](c),
+      u = i.value;
+  } catch (n) {
+    return void e(n);
+  }
+  i.done ? t(u) : Promise.resolve(u).then(r, o);
+}
+function _asyncToGenerator(n) {
+  return function () {
+    var t = this,
+      e = arguments;
+    return new Promise(function (r, o) {
+      var a = n.apply(t, e);
+      function _next(n) {
+        asyncGeneratorStep(a, r, o, _next, _throw, "next", n);
+      }
+      function _throw(n) {
+        asyncGeneratorStep(a, r, o, _next, _throw, "throw", n);
+      }
+      _next(void 0);
+    });
+  };
+}
 function _callSuper(t, o, e) {
   return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, [], _getPrototypeOf(t).constructor) : o.apply(t, e));
 }
@@ -125,6 +150,114 @@ function _possibleConstructorReturn(t, e) {
   if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined");
   return _assertThisInitialized(t);
 }
+function _regenerator() {
+  /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */
+  var e,
+    t,
+    r = "function" == typeof Symbol ? Symbol : {},
+    n = r.iterator || "@@iterator",
+    o = r.toStringTag || "@@toStringTag";
+  function i(r, n, o, i) {
+    var c = n && n.prototype instanceof Generator ? n : Generator,
+      u = Object.create(c.prototype);
+    return _regeneratorDefine(u, "_invoke", function (r, n, o) {
+      var i,
+        c,
+        u,
+        f = 0,
+        p = o || [],
+        y = false,
+        G = {
+          p: 0,
+          n: 0,
+          v: e,
+          a: d,
+          f: d.bind(e, 4),
+          d: function (t, r) {
+            return i = t, c = 0, u = e, G.n = r, a;
+          }
+        };
+      function d(r, n) {
+        for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) {
+          var o,
+            i = p[t],
+            d = G.p,
+            l = i[2];
+          r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0));
+        }
+        if (o || r > 1) return a;
+        throw y = true, n;
+      }
+      return function (o, p, l) {
+        if (f > 1) throw TypeError("Generator is already running");
+        for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) {
+          i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u);
+          try {
+            if (f = 2, i) {
+              if (c || (o = "next"), t = i[o]) {
+                if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object");
+                if (!t.done) return t;
+                u = t.value, c < 2 && (c = 0);
+              } else 1 === c && (t = i.return) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1);
+              i = e;
+            } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break;
+          } catch (t) {
+            i = e, c = 1, u = t;
+          } finally {
+            f = 1;
+          }
+        }
+        return {
+          value: t,
+          done: y
+        };
+      };
+    }(r, o, i), true), u;
+  }
+  var a = {};
+  function Generator() {}
+  function GeneratorFunction() {}
+  function GeneratorFunctionPrototype() {}
+  t = Object.getPrototypeOf;
+  var c = [][n] ? t(t([][n]())) : (_regeneratorDefine(t = {}, n, function () {
+      return this;
+    }), t),
+    u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c);
+  function f(e) {
+    return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e;
+  }
+  return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine(u), _regeneratorDefine(u, o, "Generator"), _regeneratorDefine(u, n, function () {
+    return this;
+  }), _regeneratorDefine(u, "toString", function () {
+    return "[object Generator]";
+  }), (_regenerator = function () {
+    return {
+      w: i,
+      m: f
+    };
+  })();
+}
+function _regeneratorDefine(e, r, n, t) {
+  var i = Object.defineProperty;
+  try {
+    i({}, "", {});
+  } catch (e) {
+    i = 0;
+  }
+  _regeneratorDefine = function (e, r, n, t) {
+    function o(r, n) {
+      _regeneratorDefine(e, r, function (e) {
+        return this._invoke(r, n, e);
+      });
+    }
+    r ? i ? i(e, r, {
+      value: n,
+      enumerable: !t,
+      configurable: !t,
+      writable: !t
+    }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2));
+  }, _regeneratorDefine(e, r, n, t);
+}
 function _setPrototypeOf(t, e) {
   return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) {
     return t.__proto__ = e, t;
@@ -222,13 +355,19 @@ function _wrapRegExp() {
   }, _wrapRegExp.apply(this, arguments);
 }
 
+/* eslint-disable unicorn/no-top-level-assignment-in-function -- Temporary */
 // We want it to work in the browser, so commenting out
 // import jsonExtra from 'json5';
 // import jsonExtra from 'json-6';
 
+/* eslint-disable jsdoc/reject-any-type -- Ok */
 /**
  * @typedef {any} JSON6
  */
+/**
+ * @typedef {any} AnyValue
+ */
+/* eslint-enable jsdoc/reject-any-type -- Ok */
 
 // Don't use ts-expect-error here, as result differs by tsconfig
 // @ts-ignore Need typing for JSON6
@@ -250,10 +389,6 @@ var unescapeBackslashes = function unescapeBackslashes(str) {
     return esc.slice(0, esc.length / 2);
   });
 };
-
-/**
- * @typedef {any} AnyValue
- */
 
 /**
  * @param {string} args
@@ -303,8 +438,6 @@ var processRegex = function processRegex(regex, str, _ref) {
     betweenMatches = _ref.betweenMatches,
     afterMatch = _ref.afterMatch,
     escapeAtOne = _ref.escapeAtOne;
-  var match;
-  var previousIndex = 0;
   if (extra) {
     betweenMatches = extra;
     afterMatch = extra;
@@ -313,6 +446,8 @@ var processRegex = function processRegex(regex, str, _ref) {
   if (!betweenMatches || !afterMatch) {
     throw new Error('You must have `extra` or `betweenMatches` and `afterMatch` arguments.');
   }
+  var match;
+  var previousIndex = 0;
   while ((match = regex.exec(str)) !== null) {
     var _match = match,
       _match2 = _slicedToArray(_match, 2),
@@ -338,7 +473,7 @@ var processRegex = function processRegex(regex, str, _ref) {
 };
 
 /* globals document -- Polyglot variable */
-
+/* eslint-disable unicorn/no-top-level-assignment-in-function -- Necessary */
 /**
  * @typedef {(
  *   input: RequestInfo|URL, init?: RequestInit
@@ -384,12 +519,14 @@ var getDocument = function getDocument() {
   return _doc;
 };
 
+var _templateObject$2;
+
 /**
  *
  * @returns {string}
  */
 function generateUUID() {
-  //  Adapted from original: public domain/MIT: http://stackoverflow.com/a/8809472/271577
+  //  Adapted from original: public domain/MIT: https://stackoverflow.com/a/8809472/271577
   var d = Date.now();
   /* c8 ignore next 5 */
   if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
@@ -412,6 +549,7 @@ function generateUUID() {
  * @returns {string[]}
  */
 var sort = function sort(locale, arrayOfItems, options) {
+  // eslint-disable-next-line unicorn/no-array-sort -- Modifies
   return arrayOfItems.sort(new Intl.Collator(locale, options).compare);
 };
 
@@ -447,7 +585,7 @@ var sortListSimple = function sortListSimple(locale, arrayOfItems, listOptions, 
  *
  * @param {string} locale
  * @param {string[]} arrayOfItems
- * @param {((str: string, idx: Integer) => any)|
+ * @param {import('./index.js').SortListMapper|
  *   Intl.ListFormatOptions|undefined} map
  * @param {Intl.ListFormatOptions|undefined} [listOptions]
  * @param {Intl.CollatorOptions|undefined} [collationOptions]
@@ -475,7 +613,7 @@ var sortList = function sortList(locale, arrayOfItems, map, listOptions, collati
   };
   processRegex(
   // // eslint-disable-next-line prefer-named-capture-group
-  new RegExp("<<".concat(randomId, "(\\d)>>"), 'gu'), list(locale, placeholderArray, listOptions), {
+  new RegExp(String.raw(_templateObject$2 || (_templateObject$2 = _taggedTemplateLiteral(["<<", "(d)>>"], ["<<", "(\\d)>>"])), randomId), 'gv'), list(locale, placeholderArray, listOptions), {
     betweenMatches: push,
     afterMatch: push,
     onMatch: function onMatch(_, idx) {
@@ -591,7 +729,7 @@ var defaultAllSubstitutions = function defaultAllSubstitutions(_ref2) {
       checkArgOptions = _ref3$checkArgOptions === void 0 ? false : _ref3$checkArgOptions;
     if (typeof arg === 'string') {
       // eslint-disable-next-line prefer-const -- Convenient
-      var _arg$split = arg.split('|'),
+      var _arg$split = arg.split('|', 3),
         _arg$split2 = _slicedToArray(_arg$split, 3),
         userType = _arg$split2[0],
         extraArgs = _arg$split2[1],
@@ -614,19 +752,18 @@ var defaultAllSubstitutions = function defaultAllSubstitutions(_ref2) {
   var expectsDatetime = false;
   if (value && _typeof(value) === 'object' && !Array.isArray(value)) {
     var singleKey = Object.keys(value)[0];
+    /**
+     * @typedef {"number"|"date"|"datetime"|"dateRange"|
+     *   "datetimeRange"|"relative"|"region"|"language"|
+     *   "script"|"currency"|"list"|"plural"} SpecialFormat
+     */
     if (['number', 'date', 'datetime', 'dateRange', 'datetimeRange', 'relative', 'region', 'language', 'script', 'currency', 'list', 'plural'].includes(singleKey)) {
       var extraOpts, callback;
-      /**
-       * @typedef {any} AnyValue
-       */
-
       var obj = /** @type {unknown} */
-      /** @type {AnyValue} */
+      /** @type {Record<string, keyof SpecialFormat>} */
       value[(
       /**
-        * @type {"number"|"date"|"datetime"|"dateRange"|
-        *   "datetimeRange"|"relative"|"region"|"language"|
-        *   "script"|"currency"|"list"|"plural"}
+        * @type {SpecialFormat}
         */
       singleKey)];
       var _getFormatterInfo = getFormatterInfo({
@@ -822,7 +959,7 @@ var LocalFormatter = /*#__PURE__*/function (_Formatter) {
       /** @type {import('./getMessageForKeyByStyle.js').LocaleBody} */
       var parent = this.locals;
       return /** @type {typeof LocalFormatter} */this.constructor.isMatchingKey(key) && components.every(function (cmpt) {
-        var result = cmpt in parent;
+        var result = Object.hasOwn(parent, cmpt);
         parent =
         /**
          * @type {import('./defaultLocaleResolver.js').
@@ -843,13 +980,14 @@ var LocalFormatter = /*#__PURE__*/function (_Formatter) {
         return result;
       });
     }
+  }], [{
+    key: "isMatchingKey",
+    value:
     /**
      * @param {string} key
      * @returns {boolean}
      */
-  }], [{
-    key: "isMatchingKey",
-    value: function isMatchingKey(key) {
+    function isMatchingKey(key) {
       return key.startsWith('-');
     }
   }]);
@@ -878,15 +1016,16 @@ var RegularFormatter = /*#__PURE__*/function (_Formatter2) {
   return _createClass(RegularFormatter, [{
     key: "isMatch",
     value: function isMatch(key) {
-      return /** @type {typeof RegularFormatter} */this.constructor.isMatchingKey(key) && key in this.substitutions;
+      return /** @type {typeof RegularFormatter} */this.constructor.isMatchingKey(key) && Object.hasOwn(this.substitutions, key);
     }
+  }], [{
+    key: "isMatchingKey",
+    value:
     /**
      * @param {string} key
      * @returns {boolean}
      */
-  }], [{
-    key: "isMatchingKey",
-    value: function isMatchingKey(key) {
+    function isMatchingKey(key) {
       return /^[0-9A-Z_a-z]/.test(key);
     }
   }]);
@@ -944,7 +1083,7 @@ var SwitchFormatter = /*#__PURE__*/function (_Formatter3) {
       /** @type {string} */
       var opts;
       if (objKey && objKey.includes('|')) {
-        var _objKey$split = objKey.split('|');
+        var _objKey$split = objKey.split('|', 3);
         var _objKey$split2 = _slicedToArray(_objKey$split, 3);
         type = _objKey$split2[1];
         opts = _objKey$split2[2];
@@ -1062,7 +1201,9 @@ var SwitchFormatter = /*#__PURE__*/function (_Formatter3) {
             return switchKey.startsWith('*');
           });
           if (!k) {
-            throw new Error("No defaults found for switch ".concat(ky));
+            throw new Error("No defaults found for switch ".concat(ky), {
+              cause: error
+            });
           }
           return _getSubstitution({
             messageStyle: messageStyle,
@@ -1119,7 +1260,7 @@ var SwitchFormatter = /*#__PURE__*/function (_Formatter3) {
       // @ts-expect-error It works
       function (obj, k, i) {
         if (i < ks.length - 1) {
-          if (!(k in obj)) {
+          if (!Object.hasOwn(obj, k)) {
             throw new Error("Switch key \"".concat(k, "\" not found (from \"~").concat(ky, "\")"));
           }
           return obj[k];
@@ -1135,14 +1276,14 @@ var SwitchFormatter = /*#__PURE__*/function (_Formatter3) {
       }, this.switches);
       return /** @type {SwitchMatch} */returnValue;
     }
-
+  }], [{
+    key: "isMatchingKey",
+    value:
     /**
      * @param {string} key
      * @returns {boolean}
      */
-  }], [{
-    key: "isMatchingKey",
-    value: function isMatchingKey(key) {
+    function isMatchingKey(key) {
       return key.startsWith('~');
     }
     /**
@@ -1158,6 +1299,7 @@ var SwitchFormatter = /*#__PURE__*/function (_Formatter3) {
   }]);
 }(Formatter);
 
+/* eslint-disable jsdoc/reject-any-type -- Generic API */
 /**
  * @typedef {(value: any) => Promise<any>|any} PromiseChainErrback
  */
@@ -1190,175 +1332,6 @@ promiseChainForValues(['a', 'b', 'c'], (val) => {
   });
 });
  */
-
-function _await$2(value, then, direct) {
-  if (!value || !value.then) {
-    value = Promise.resolve(value);
-  }
-  return then ? value.then(then) : value;
-}
-function _catch$1(body, recover) {
-  try {
-    var result = body();
-  } catch (e) {
-    return recover(e);
-  }
-  if (result && result.then) {
-    return result.then(void 0, recover);
-  }
-  return result;
-}
-function _settle(pact, state, value) {
-  if (!pact.s) {
-    if (value instanceof _Pact) {
-      if (value.s) {
-        if (state & 1) {
-          state = value.s;
-        }
-        value = value.v;
-      } else {
-        value.o = _settle.bind(null, pact, state);
-        return;
-      }
-    }
-    if (value && value.then) {
-      value.then(_settle.bind(null, pact, state), _settle.bind(null, pact, 2));
-      return;
-    }
-    pact.s = state;
-    pact.v = value;
-    var observer = pact.o;
-    if (observer) {
-      observer(pact);
-    }
-  }
-}
-var _Pact = /*#__PURE__*/function () {
-  function _Pact() {}
-  _Pact.prototype.then = function (onFulfilled, onRejected) {
-    var result = new _Pact();
-    var state = this.s;
-    if (state) {
-      var callback = state & 1 ? onFulfilled : onRejected;
-      if (callback) {
-        try {
-          _settle(result, 1, callback(this.v));
-        } catch (e) {
-          _settle(result, 2, e);
-        }
-        return result;
-      } else {
-        return this;
-      }
-    }
-    this.o = function (_this) {
-      try {
-        var value = _this.v;
-        if (_this.s & 1) {
-          _settle(result, 1, onFulfilled ? onFulfilled(value) : value);
-        } else if (onRejected) {
-          _settle(result, 1, onRejected(value));
-        } else {
-          _settle(result, 2, value);
-        }
-      } catch (e) {
-        _settle(result, 2, e);
-      }
-    };
-    return result;
-  };
-  return _Pact;
-}();
-function _isSettledPact(thenable) {
-  return thenable instanceof _Pact && thenable.s & 1;
-}
-function _for(test, update, body) {
-  var stage;
-  for (;;) {
-    var shouldContinue = test();
-    if (_isSettledPact(shouldContinue)) {
-      shouldContinue = shouldContinue.v;
-    }
-    if (!shouldContinue) {
-      return result;
-    }
-    if (shouldContinue.then) {
-      stage = 0;
-      break;
-    }
-    var result = body();
-    if (result && result.then) {
-      if (_isSettledPact(result)) {
-        result = result.s;
-      } else {
-        stage = 1;
-        break;
-      }
-    }
-    var updateValue; 
-  }
-  var pact = new _Pact();
-  var reject = _settle.bind(null, pact, 2);
-  (stage === 0 ? shouldContinue.then(_resumeAfterTest) : stage === 1 ? result.then(_resumeAfterBody) : updateValue.then(_resumeAfterUpdate)).then(void 0, reject);
-  return pact;
-  function _resumeAfterBody(value) {
-    result = value;
-    do {
-      shouldContinue = test();
-      if (!shouldContinue || _isSettledPact(shouldContinue) && !shouldContinue.v) {
-        _settle(pact, 1, result);
-        return;
-      }
-      if (shouldContinue.then) {
-        shouldContinue.then(_resumeAfterTest).then(void 0, reject);
-        return;
-      }
-      result = body();
-      if (_isSettledPact(result)) {
-        result = result.v;
-      }
-    } while (!result || !result.then);
-    result.then(_resumeAfterBody).then(void 0, reject);
-  }
-  function _resumeAfterTest(shouldContinue) {
-    if (shouldContinue) {
-      result = body();
-      if (result && result.then) {
-        result.then(_resumeAfterBody).then(void 0, reject);
-      } else {
-        _resumeAfterBody(result);
-      }
-    } else {
-      _settle(pact, 1, result);
-    }
-  }
-  function _resumeAfterUpdate() {
-    if (shouldContinue = test()) {
-      if (shouldContinue.then) {
-        shouldContinue.then(_resumeAfterTest).then(void 0, reject);
-      } else {
-        _resumeAfterTest(shouldContinue);
-      }
-    } else {
-      _settle(pact, 1, result);
-    }
-  }
-}
-function _continue(value, then) {
-  return value && value.then ? value.then(then) : then(value);
-}
-function _async$1(f) {
-  return function () {
-    for (var args = [], i = 0; i < arguments.length; i++) {
-      args[i] = arguments[i];
-    }
-    try {
-      return Promise.resolve(f.apply(this, args));
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  };
-}
 var promiseChainForValues = function promiseChainForValues(values, errBack) {
   var errorMessage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'Reached end of values array.';
   if (!Array.isArray(values)) {
@@ -1367,37 +1340,45 @@ var promiseChainForValues = function promiseChainForValues(values, errBack) {
   if (typeof errBack !== 'function') {
     throw new TypeError('The `errBack` argument to `promiseChainForValues` must be a function.');
   }
-  return _async$1(function () {
-    var _exit = false,
-      _interrupt = false;
-    var ret;
-    var p = Promise.reject(new Error('Intentionally reject so as to begin checking chain'));
-    var breaking;
-    return _continue(_for(function () {
-      return !(_interrupt || _exit);
-    }, void 0, function () {
-      var value = values.shift();
-      return _catch$1(function () {
-        // eslint-disable-next-line no-await-in-loop -- Ok?
-        return _await$2(p, function (_p) {
-          ret = _p;
-          _interrupt = true;
-        });
-      }, function () {
-        if (breaking) {
-          throw new Error(errorMessage);
-        }
-        // We allow one more try
-        if (!values.length) {
-          breaking = true;
-        }
-        // // eslint-disable-next-line no-await-in-loop
-        p = errBack(value);
-      });
-    }), function (_result2) {
-      return ret;
-    });
-  })();
+  return _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+    var ret, p, breaking, value, _t;
+    return _regenerator().w(function (_context) {
+      while (1) switch (_context.p = _context.n) {
+        case 0:
+          p = Promise.reject(new Error('Intentionally reject so as to begin checking chain'));
+        case 1:
+          value = values.shift();
+          _context.p = 2;
+          _context.n = 3;
+          return p;
+        case 3:
+          ret = _context.v;
+          return _context.a(3, 7);
+        case 4:
+          _context.p = 4;
+          _t = _context.v;
+          if (!breaking) {
+            _context.n = 5;
+            break;
+          }
+          throw new Error(errorMessage, {
+            cause: _t
+          });
+        case 5:
+          // We allow one more try
+          if (!values.length) {
+            breaking = true;
+          }
+          // // eslint-disable-next-line no-await-in-loop
+          p = errBack(value);
+        case 6:
+          _context.n = 1;
+          break;
+        case 7:
+          return _context.a(2, ret);
+      }
+    }, _callee, null, [[2, 4]]);
+  }))();
 };
 
 /**
@@ -1754,7 +1735,6 @@ var defaultInsertNodes = function defaultInsertNodes(_ref) {
      */
     switchFormatter.constructor.isMatchingKey(key)) {
       substitution = switchFormatter.getSubstitution(key, {
-        // eslint-disable-next-line object-shorthand -- TS casting
         locale: (/** @type {string} */locale),
         usedKeys: usedKeys,
         arg: arg,
@@ -1897,7 +1877,7 @@ var defaultInsertNodes = function defaultInsertNodes(_ref) {
           arg: arg,
           processSubsts: _replace
         });
-        returnsDOM = returnsDOM || substitution !== null && _typeof(substitution) === 'object' && 'nodeType' in substitution;
+        returnsDOM || (returnsDOM = substitution !== null && _typeof(substitution) === 'object' && 'nodeType' in substitution);
         usedKeys.push(ky);
         return esc + substitution;
       });
@@ -1931,7 +1911,7 @@ var defaultInsertNodes = function defaultInsertNodes(_ref) {
     // Copy to ensure we are resetting index on each instance (manually
     // resetting on `formattingRegex` is problematic with recursion that
     // uses the same regex copy)
-    var regex = new RegExp(formattingRegex, 'gu');
+    var regex = new RegExp(formattingRegex, 'gv');
 
     /**
      * @param {...(string|Node)} args
@@ -2013,9 +1993,9 @@ var _templateObject, _templateObject2;
  * @type {KeyCheckerConverterCallback}
  */
 function defaultKeyCheckerConverter(key, messageStyle) {
-  if (Array.isArray(key) && key.every(function (k) {
+  if (typeof messageStyle === 'string' && Array.isArray(key) && key.every(function (k) {
     return typeof k === 'string';
-  }) && typeof messageStyle === 'string' && messageStyle.endsWith('Nested')) {
+  }) && messageStyle.endsWith('Nested')) {
     return key.map(function (k) {
       return k.replaceAll(/*#__PURE__*/_wrapRegExp(/(\\+)/g, {
         backslashes: 1
@@ -2136,13 +2116,16 @@ var getMessageForKeyByStyle = function getMessageForKeyByStyle() {
      */
     var ret = false;
     var currObj = obj;
+
+    // eslint-disable-next-line @stylistic/max-len -- Long
+    // eslint-disable-next-line unicorn/no-unused-array-method-return -- Shortcircuiting
     keysUnescaped.some(function (ky, i, kys) {
       if (!currObj || _typeof(currObj) !== 'object') {
         return true;
       }
       if (
       // If specified key is too deep, we should fail
-      i === kys.length - 1 && ky in currObj && currObj[ky] && _typeof(currObj[ky]) === 'object' && 'message' in currObj[ky] &&
+      i === kys.length - 1 && Object.hasOwn(currObj, ky) && currObj[ky] !== null && _typeof(currObj[ky]) === 'object' && 'message' in currObj[ky] &&
       // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
       typeof currObj[ky].message === 'string') {
         ret = {
@@ -2173,7 +2156,7 @@ var getMessageForKeyByStyle = function getMessageForKeyByStyle() {
      * }
      */
     mainObj && _typeof(mainObj) === 'object' && mainObj.body;
-    if (obj && _typeof(obj) === 'object' && key in obj && obj[key] && _typeof(obj[key]) === 'object' && 'message' in obj[key] &&
+    if (obj && _typeof(obj) === 'object' && Object.hasOwn(obj, key) && obj[key] !== null && _typeof(obj[key]) === 'object' && 'message' in obj[key] &&
     // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
     typeof obj[key].message === 'string') {
       return {
@@ -2190,7 +2173,7 @@ var getMessageForKeyByStyle = function getMessageForKeyByStyle() {
      * }
      */
     mainObj && _typeof(mainObj) === 'object' && mainObj.body;
-    if (obj && _typeof(obj) === 'object' && key in obj && obj[key] && typeof obj[key] === 'string') {
+    if (obj && _typeof(obj) === 'object' && Object.hasOwn(obj, key) && obj[key] !== null && typeof obj[key] === 'string') {
       return {
         value: obj[key]
       };
@@ -2217,6 +2200,8 @@ var getMessageForKeyByStyle = function getMessageForKeyByStyle() {
        *   PlainNestedLocaleStringBodyObject}
        */
       function (o, k) {
+        // eslint-disable-next-line @stylistic/max-len -- Long
+        // eslint-disable-next-line unicorn/no-computed-property-existence-check -- Ok
         if (o && _typeof(o) === 'object' && o[k]) {
           return o[k];
         }
@@ -2266,7 +2251,10 @@ var getStringFromMessageAndDefaults = function getStringFromMessageAndDefaults(_
   var str;
   if (typeof message === 'string') {
     str = message;
-  } else if (defaults === false || defaults === undefined || defaults === null) {
+  } else if (
+  // eslint-disable-next-line @stylistic/max-len -- Long
+  // eslint-disable-next-line unicorn/prefer-includes-over-repeated-comparisons -- TS
+  defaults === false || defaults === undefined || defaults === null) {
     str = false;
   } else if (defaults && _typeof(defaults) === 'object') {
     var msg = messageForKey(defaults, key);
@@ -2358,6 +2346,12 @@ var getDOMForLocaleString = function getDOMForLocaleString(_ref) {
     var _doc = getDocument();
     return forceNodeReturn ? /** @type {Document} */_doc.createTextNode(str) : str;
   };
+  if (!substitutions && !allSubstitutions && !throwOnMissingSuppliedFormatters) {
+    return stringOrTextNode(string);
+  }
+  if (!substitutions) {
+    substitutions = {};
+  }
 
   /** @type {string[]} */
   var usedKeys = [];
@@ -2383,13 +2377,13 @@ var getDOMForLocaleString = function getDOMForLocaleString(_ref) {
     var key = _ref3.key,
       formatter = _ref3.formatter;
     var matching = formatter.isMatch(key);
-    if (
+    if (!matching &&
     /**
      * @type {typeof import('./Formatter.js').LocalFormatter|
      *       typeof import('./Formatter.js').RegularFormatter|
      *       typeof import('./Formatter.js').SwitchFormatter}
      */
-    formatter.constructor.isMatchingKey(key) && !matching) {
+    formatter.constructor.isMatchingKey(key)) {
       if (throwOnMissingSuppliedFormatters) {
         throw new Error("Missing formatting key: ".concat(key));
       }
@@ -2397,12 +2391,6 @@ var getDOMForLocaleString = function getDOMForLocaleString(_ref) {
     }
     return false;
   };
-  if (!substitutions && !allSubstitutions && !throwOnMissingSuppliedFormatters) {
-    return stringOrTextNode(string);
-  }
-  if (!substitutions) {
-    substitutions = {};
-  }
   var nodes = insertNodes({
     string: string,
     dom: dom,
@@ -2424,46 +2412,17 @@ var getDOMForLocaleString = function getDOMForLocaleString(_ref) {
   return container;
 };
 
-function _await$1(value, then, direct) {
-  if (!value || !value.then) {
-    value = Promise.resolve(value);
-  }
-  return then ? value.then(then) : value;
-} /**
-   * Takes a locale and returns a new locale to check.
-   * @callback LocaleMatcher
-   * @param {string} locale The failed locale
-   * @throws {Error} If there are no further hyphens left to check
-   * @returns {string|Promise<string>} The new locale to check
-  */
+/**
+ * Takes a locale and returns a new locale to check.
+ * @callback LocaleMatcher
+ * @param {string} locale The failed locale
+ * @throws {Error} If there are no further hyphens left to check
+ * @returns {string|Promise<string>} The new locale to check
+*/
 
 /**
  * @type {LocaleMatcher}
  */
-
-function _async(f) {
-  return function () {
-    for (var args = [], i = 0; i < arguments.length; i++) {
-      args[i] = arguments[i];
-    }
-    try {
-      return Promise.resolve(f.apply(this, args));
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  };
-}
-function _catch(body, recover) {
-  try {
-    var result = body();
-  } catch (e) {
-    return recover(e);
-  }
-  if (result && result.then) {
-    return result.then(void 0, recover);
-  }
-  return result;
-}
 var defaultLocaleMatcher = function defaultLocaleMatcher(locale) {
   if (!locale.includes('-')) {
     throw new Error('Locale not available');
@@ -2584,65 +2543,114 @@ var findLocale = function findLocale() {
  *  property to determine whether to make a simple HEAD and resolve to
  *  the locale rather than locale and contents
  */
-var _findLocale = _async(function (_ref4) {
-  /**
-   * @callback getLocale
-   * @throws {SyntaxError|TypeError|Error}
-   * @param {string} locale
-   * @returns {Promise<LocaleObjectInfo|string>}
-   */
-  var getLocale = _async(function (locale) {
-    if (typeof locale !== 'string') {
-      throw new TypeError('Non-string locale type');
-    }
-    var url = localeResolver(localesBasePath, locale);
-    if (typeof url !== 'string') {
-      throw new TypeError('`localeResolver` expected to resolve to (URL) string.');
-    }
-    return _catch(function () {
-      var _fetch = /** @type {import('./shared.js').Fetch} */getFetch();
-      return _await$1(headOnly ? _fetch(url, {
-        method: 'HEAD'
-      }) : _fetch(url), function (resp) {
-        if (resp.status === 404) {
-          // Don't allow browser (tested in Firefox) to continue
-          //  and give `SyntaxError` with missing file or we won't be
-          //  able to try without the hyphen
-          throw new Error('Trying again');
-        }
-        return headOnly ? locale : _await$1(resp.json(), function (strings) {
-          return {
-            locale: locale,
-            strings: strings
+var _findLocale = /*#__PURE__*/function () {
+  var _findLocale2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2(_ref4) {
+    var _ref4$locales, locales, _ref4$defaultLocales, defaultLocales, _ref4$localeResolver, localeResolver, _ref4$localesBasePath, localesBasePath, _ref4$localeMatcher, localeMatcher, _ref4$headOnly, headOnly, getLocale, _getLocale;
+    return _regenerator().w(function (_context2) {
+      while (1) switch (_context2.n) {
+        case 0:
+          _getLocale = function _getLocale3() {
+            _getLocale = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(locale) {
+              var url, _fetch, resp, strings, newLocale, _t;
+              return _regenerator().w(function (_context) {
+                while (1) switch (_context.p = _context.n) {
+                  case 0:
+                    if (!(typeof locale !== 'string')) {
+                      _context.n = 1;
+                      break;
+                    }
+                    throw new TypeError('Non-string locale type');
+                  case 1:
+                    url = localeResolver(localesBasePath, locale);
+                    if (!(typeof url !== 'string')) {
+                      _context.n = 2;
+                      break;
+                    }
+                    throw new TypeError('`localeResolver` expected to resolve to (URL) string.');
+                  case 2:
+                    _context.p = 2;
+                    _fetch = /** @type {import('./shared.js').Fetch} */getFetch();
+                    _context.n = 3;
+                    return headOnly ? _fetch(url, {
+                      method: 'HEAD'
+                    }) : _fetch(url);
+                  case 3:
+                    resp = _context.v;
+                    if (!(resp.status === 404)) {
+                      _context.n = 4;
+                      break;
+                    }
+                    throw new Error('Trying again');
+                  case 4:
+                    if (!headOnly) {
+                      _context.n = 5;
+                      break;
+                    }
+                    return _context.a(2, locale);
+                  case 5:
+                    _context.n = 6;
+                    return resp.json();
+                  case 6:
+                    strings = _context.v;
+                    return _context.a(2, {
+                      locale: locale,
+                      strings: strings
+                    });
+                  case 7:
+                    _context.p = 7;
+                    _t = _context.v;
+                    if (!(/** @type {Error} */_t.name === 'SyntaxError')) {
+                      _context.n = 8;
+                      break;
+                    }
+                    throw _t;
+                  case 8:
+                    _context.n = 9;
+                    return /** @type {LocaleMatcher} */localeMatcher(locale);
+                  case 9:
+                    newLocale = _context.v;
+                    return _context.a(2, getLocale(newLocale));
+                }
+              }, _callee, null, [[2, 7]]);
+            }));
+            return _getLocale.apply(this, arguments);
           };
-        });
-      });
-    }, function (err) {
-      if (/** @type {Error} */err.name === 'SyntaxError') {
-        throw err;
+          getLocale = function _getLocale2(_x2) {
+            return _getLocale.apply(this, arguments);
+          };
+          _ref4$locales = _ref4.locales, locales = _ref4$locales === void 0 ? typeof intlDomLocale !== 'undefined' ? [intlDomLocale] : typeof navigator === 'undefined' ? [] : navigator.languages : _ref4$locales, _ref4$defaultLocales = _ref4.defaultLocales, defaultLocales = _ref4$defaultLocales === void 0 ? ['en-US'] : _ref4$defaultLocales, _ref4$localeResolver = _ref4.localeResolver, localeResolver = _ref4$localeResolver === void 0 ? defaultLocaleResolver : _ref4$localeResolver, _ref4$localesBasePath = _ref4.localesBasePath, localesBasePath = _ref4$localesBasePath === void 0 ? '.' : _ref4$localesBasePath, _ref4$localeMatcher = _ref4.localeMatcher, localeMatcher = _ref4$localeMatcher === void 0 ? 'lookup' : _ref4$localeMatcher, _ref4$headOnly = _ref4.headOnly, headOnly = _ref4$headOnly === void 0 ? false : _ref4$headOnly;
+          /**
+           * @callback getLocale
+           * @throws {SyntaxError|TypeError|Error}
+           * @param {string} locale
+           * @returns {Promise<LocaleObjectInfo|string>}
+           */
+          if (!(localeMatcher === 'lookup')) {
+            _context2.n = 1;
+            break;
+          }
+          localeMatcher = defaultLocaleMatcher;
+          _context2.n = 2;
+          break;
+        case 1:
+          if (!(typeof localeMatcher !== 'function')) {
+            _context2.n = 2;
+            break;
+          }
+          throw new TypeError('`localeMatcher` must be "lookup" or a function!');
+        case 2:
+          _context2.n = 3;
+          return promiseChainForValues([].concat(_toConsumableArray(locales), _toConsumableArray(defaultLocales)), getLocale, 'No matching locale found for ' + [].concat(_toConsumableArray(locales), _toConsumableArray(defaultLocales)).join(', '));
+        case 3:
+          return _context2.a(2, _context2.v);
       }
-      return _await$1(/** @type {LocaleMatcher} */localeMatcher(locale), getLocale);
-    });
-  });
-  var _ref4$locales = _ref4.locales,
-    locales = _ref4$locales === void 0 ? typeof intlDomLocale !== 'undefined' ? [intlDomLocale] : typeof navigator === 'undefined' ? [] : navigator.languages : _ref4$locales,
-    _ref4$defaultLocales = _ref4.defaultLocales,
-    defaultLocales = _ref4$defaultLocales === void 0 ? ['en-US'] : _ref4$defaultLocales,
-    _ref4$localeResolver = _ref4.localeResolver,
-    localeResolver = _ref4$localeResolver === void 0 ? defaultLocaleResolver : _ref4$localeResolver,
-    _ref4$localesBasePath = _ref4.localesBasePath,
-    localesBasePath = _ref4$localesBasePath === void 0 ? '.' : _ref4$localesBasePath,
-    _ref4$localeMatcher = _ref4.localeMatcher,
-    localeMatcher = _ref4$localeMatcher === void 0 ? 'lookup' : _ref4$localeMatcher,
-    _ref4$headOnly = _ref4.headOnly,
-    headOnly = _ref4$headOnly === void 0 ? false : _ref4$headOnly;
-  if (localeMatcher === 'lookup') {
-    localeMatcher = defaultLocaleMatcher;
-  } else if (typeof localeMatcher !== 'function') {
-    throw new TypeError('`localeMatcher` must be "lookup" or a function!');
+    }, _callee2);
+  }));
+  function _findLocale(_x) {
+    return _findLocale2.apply(this, arguments);
   }
-  return promiseChainForValues([].concat(_toConsumableArray(locales), _toConsumableArray(defaultLocales)), getLocale, 'No matching locale found for ' + [].concat(_toConsumableArray(locales), _toConsumableArray(defaultLocales)).join(', '));
-});
+  return _findLocale;
+}();
 
 /**
  * @typedef {import('./index.js').Sort} Sort
@@ -2683,59 +2691,6 @@ var _findLocale = _async(function (_ref4) {
  * @param {boolean} [cfg.throwOnExtraSuppliedFormatters]
  * @returns {I18NCallback} Rejects if no suitable locale is found.
  */
-
-function _await(value, then, direct) {
-  if (!value || !value.then) {
-    value = Promise.resolve(value);
-  }
-  return then ? value.then(then) : value;
-}
-
-/**
- * @typedef {number} Integer
- */
-
-/**
- * @param {object} [cfg]
- * @param {string[]} [cfg.locales] BCP-47 language strings
- * @param {string[]} [cfg.defaultLocales]
- * @param {import('./findLocaleStrings.js').
- *   LocaleStringFinder} [cfg.localeStringFinder]
- * @param {string} [cfg.localesBasePath]
- * @param {import('./defaultLocaleResolver.js').
- *   LocaleResolver} [cfg.localeResolver]
- * @param {"lookup"|import('./findLocaleStrings.js').
- *   LocaleMatcher} [cfg.localeMatcher]
- * @param {"richNested"|"rich"|"plain"|"plainNested"|
- *   import('./getMessageForKeyByStyle.js').
- *     MessageStyleCallback} [cfg.messageStyle]
- * @param {?(import('./defaultAllSubstitutions.js').AllSubstitutionCallback|
- *   import('./defaultAllSubstitutions.js').
- *     AllSubstitutionCallback[])} [cfg.allSubstitutions]
- * @param {import('./defaultInsertNodes.js').
- *   InsertNodesCallback} [cfg.insertNodes]
- * @param {import('./defaultKeyCheckerConverter.js').
- *   KeyCheckerConverterCallback} [cfg.keyCheckerConverter]
- * @param {false|null|undefined|
- *   import('./getMessageForKeyByStyle.js').LocaleObject} [cfg.defaults]
- * @param {false|
- *   import('./defaultLocaleResolver.js').
- *     SubstitutionObject} [cfg.substitutions]
- * @param {Integer} [cfg.maximumLocalNestingDepth]
- * @param {boolean} [cfg.dom]
- * @param {boolean} [cfg.forceNodeReturn]
- * @param {boolean} [cfg.throwOnMissingSuppliedFormatters]
- * @param {boolean} [cfg.throwOnExtraSuppliedFormatters]
- * @returns {Promise<I18NCallback>} Rejects if no suitable locale is found.
- */
-
-function _invoke(body, then) {
-  var result = body();
-  if (result && result.then) {
-    return result.then(then);
-  }
-  return then(result);
-}
 var i18nServer = function i18nServer(_ref) {
   var strings = _ref.strings,
     resolvedLocale = _ref.resolvedLocale,
@@ -2822,74 +2777,129 @@ var i18nServer = function i18nServer(_ref) {
   };
   return formatter;
 };
-var i18n = function i18n() {
-  var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-    locales = _ref3.locales,
-    defaultLocales = _ref3.defaultLocales,
-    _ref3$localeStringFin = _ref3.localeStringFinder,
-    localeStringFinder = _ref3$localeStringFin === void 0 ? findLocaleStrings : _ref3$localeStringFin,
-    localesBasePath = _ref3.localesBasePath,
-    localeResolver = _ref3.localeResolver,
-    localeMatcher = _ref3.localeMatcher,
-    messageStyle = _ref3.messageStyle,
-    allSubstitutions = _ref3.allSubstitutions,
-    insertNodes = _ref3.insertNodes,
-    keyCheckerConverter = _ref3.keyCheckerConverter,
-    defaults = _ref3.defaults,
-    substitutions = _ref3.substitutions,
-    maximumLocalNestingDepth = _ref3.maximumLocalNestingDepth,
-    dom = _ref3.dom,
-    forceNodeReturn = _ref3.forceNodeReturn,
-    throwOnMissingSuppliedFormatters = _ref3.throwOnMissingSuppliedFormatters,
-    throwOnExtraSuppliedFormatters = _ref3.throwOnExtraSuppliedFormatters;
-  try {
-    return _await(localeStringFinder({
-      locales: locales,
-      defaultLocales: defaultLocales,
-      localeResolver: localeResolver,
-      localesBasePath: localesBasePath,
-      localeMatcher: localeMatcher
-    }), function (_ref4) {
-      var strings = _ref4.strings,
-        resolvedLocale = _ref4.locale;
-      return _invoke(function () {
-        if (!defaults && defaultLocales) {
-          var defaultLocale;
-          return _await(localeStringFinder({
+
+/**
+ * @typedef {number} Integer
+ */
+
+/**
+ * @param {object} [cfg]
+ * @param {string[]} [cfg.locales] BCP-47 language strings
+ * @param {string[]} [cfg.defaultLocales]
+ * @param {import('./findLocaleStrings.js').
+ *   LocaleStringFinder} [cfg.localeStringFinder]
+ * @param {string} [cfg.localesBasePath]
+ * @param {import('./defaultLocaleResolver.js').
+ *   LocaleResolver} [cfg.localeResolver]
+ * @param {"lookup"|import('./findLocaleStrings.js').
+ *   LocaleMatcher} [cfg.localeMatcher]
+ * @param {"richNested"|"rich"|"plain"|"plainNested"|
+ *   import('./getMessageForKeyByStyle.js').
+ *     MessageStyleCallback} [cfg.messageStyle]
+ * @param {?(import('./defaultAllSubstitutions.js').AllSubstitutionCallback|
+ *   import('./defaultAllSubstitutions.js').
+ *     AllSubstitutionCallback[])} [cfg.allSubstitutions]
+ * @param {import('./defaultInsertNodes.js').
+ *   InsertNodesCallback} [cfg.insertNodes]
+ * @param {import('./defaultKeyCheckerConverter.js').
+ *   KeyCheckerConverterCallback} [cfg.keyCheckerConverter]
+ * @param {false|null|undefined|
+ *   import('./getMessageForKeyByStyle.js').LocaleObject} [cfg.defaults]
+ * @param {false|
+ *   import('./defaultLocaleResolver.js').
+ *     SubstitutionObject} [cfg.substitutions]
+ * @param {Integer} [cfg.maximumLocalNestingDepth]
+ * @param {boolean} [cfg.dom]
+ * @param {boolean} [cfg.forceNodeReturn]
+ * @param {boolean} [cfg.throwOnMissingSuppliedFormatters]
+ * @param {boolean} [cfg.throwOnExtraSuppliedFormatters]
+ * @returns {Promise<I18NCallback>} Rejects if no suitable locale is found.
+ */
+var i18n = /*#__PURE__*/function () {
+  var _i18n = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+    var _ref3,
+      locales,
+      defaultLocales,
+      _ref3$localeStringFin,
+      localeStringFinder,
+      localesBasePath,
+      localeResolver,
+      localeMatcher,
+      messageStyle,
+      allSubstitutions,
+      insertNodes,
+      keyCheckerConverter,
+      defaults,
+      substitutions,
+      maximumLocalNestingDepth,
+      dom,
+      forceNodeReturn,
+      throwOnMissingSuppliedFormatters,
+      throwOnExtraSuppliedFormatters,
+      _yield$localeStringFi,
+      strings,
+      resolvedLocale,
+      defaultLocale,
+      _yield$localeStringFi2,
+      _args = arguments;
+    return _regenerator().w(function (_context) {
+      while (1) switch (_context.n) {
+        case 0:
+          _ref3 = _args.length > 0 && _args[0] !== undefined ? _args[0] : {}, locales = _ref3.locales, defaultLocales = _ref3.defaultLocales, _ref3$localeStringFin = _ref3.localeStringFinder, localeStringFinder = _ref3$localeStringFin === void 0 ? findLocaleStrings : _ref3$localeStringFin, localesBasePath = _ref3.localesBasePath, localeResolver = _ref3.localeResolver, localeMatcher = _ref3.localeMatcher, messageStyle = _ref3.messageStyle, allSubstitutions = _ref3.allSubstitutions, insertNodes = _ref3.insertNodes, keyCheckerConverter = _ref3.keyCheckerConverter, defaults = _ref3.defaults, substitutions = _ref3.substitutions, maximumLocalNestingDepth = _ref3.maximumLocalNestingDepth, dom = _ref3.dom, forceNodeReturn = _ref3.forceNodeReturn, throwOnMissingSuppliedFormatters = _ref3.throwOnMissingSuppliedFormatters, throwOnExtraSuppliedFormatters = _ref3.throwOnExtraSuppliedFormatters;
+          _context.n = 1;
+          return localeStringFinder({
+            locales: locales,
+            defaultLocales: defaultLocales,
+            localeResolver: localeResolver,
+            localesBasePath: localesBasePath,
+            localeMatcher: localeMatcher
+          });
+        case 1:
+          _yield$localeStringFi = _context.v;
+          strings = _yield$localeStringFi.strings;
+          resolvedLocale = _yield$localeStringFi.locale;
+          if (!(!defaults && defaultLocales)) {
+            _context.n = 3;
+            break;
+          }
+          _context.n = 2;
+          return localeStringFinder({
             locales: defaultLocales,
             defaultLocales: [],
             localeResolver: localeResolver,
             localesBasePath: localesBasePath,
             localeMatcher: localeMatcher
-          }), function (_localeStringFinder) {
-            defaults = _localeStringFinder.strings;
-            defaultLocale = _localeStringFinder.locale;
-            if (defaultLocale === resolvedLocale) {
-              defaults = null; // No need to fall back
-            }
           });
-        }
-      }, function () {
-        return i18nServer({
-          strings: strings,
-          resolvedLocale: resolvedLocale,
-          messageStyle: messageStyle,
-          allSubstitutions: allSubstitutions,
-          insertNodes: insertNodes,
-          keyCheckerConverter: keyCheckerConverter,
-          defaults: defaults,
-          substitutions: substitutions,
-          maximumLocalNestingDepth: maximumLocalNestingDepth,
-          dom: dom,
-          forceNodeReturn: forceNodeReturn,
-          throwOnMissingSuppliedFormatters: throwOnMissingSuppliedFormatters,
-          throwOnExtraSuppliedFormatters: throwOnExtraSuppliedFormatters
-        });
-      });
-    });
-  } catch (e) {
-    return Promise.reject(e);
+        case 2:
+          _yield$localeStringFi2 = _context.v;
+          defaults = _yield$localeStringFi2.strings;
+          defaultLocale = _yield$localeStringFi2.locale;
+          if (defaultLocale === resolvedLocale) {
+            defaults = null; // No need to fall back
+          }
+        case 3:
+          return _context.a(2, i18nServer({
+            strings: strings,
+            resolvedLocale: resolvedLocale,
+            messageStyle: messageStyle,
+            allSubstitutions: allSubstitutions,
+            insertNodes: insertNodes,
+            keyCheckerConverter: keyCheckerConverter,
+            defaults: defaults,
+            substitutions: substitutions,
+            maximumLocalNestingDepth: maximumLocalNestingDepth,
+            dom: dom,
+            forceNodeReturn: forceNodeReturn,
+            throwOnMissingSuppliedFormatters: throwOnMissingSuppliedFormatters,
+            throwOnExtraSuppliedFormatters: throwOnExtraSuppliedFormatters
+          }));
+      }
+    }, _callee);
+  }));
+  function i18n() {
+    return _i18n.apply(this, arguments);
   }
-};
+  return i18n;
+}();
 
 export { Formatter, LocalFormatter, RegularFormatter, SwitchFormatter, defaultAllSubstitutions, defaultInsertNodes, defaultKeyCheckerConverter, defaultLocaleMatcher, defaultLocaleResolver, findLocale, findLocaleStrings, getDOMForLocaleString, getDocument, getFetch, getMatchingLocale, getMessageForKeyByStyle, getStringFromMessageAndDefaults, i18n, i18nServer, parseJSONExtra, processRegex, promiseChainForValues, setDocument, setFetch, setJSONExtra, unescapeBackslashes };

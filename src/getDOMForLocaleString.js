@@ -87,6 +87,16 @@ export const getDOMForLocaleString = ({
       : str;
   };
 
+  if (
+    !substitutions && !allSubstitutions &&
+    !throwOnMissingSuppliedFormatters
+  ) {
+    return stringOrTextNode(string);
+  }
+  if (!substitutions) {
+    substitutions = {};
+  }
+
   /** @type {string[]} */
   const usedKeys = [];
 
@@ -113,13 +123,14 @@ export const getDOMForLocaleString = ({
   }) => {
     const matching = formatter.isMatch(key);
     if (
+      !matching &&
       /**
        * @type {typeof import('./Formatter.js').LocalFormatter|
        *       typeof import('./Formatter.js').RegularFormatter|
        *       typeof import('./Formatter.js').SwitchFormatter}
        */ (
         formatter.constructor
-      ).isMatchingKey(key) && !matching
+      ).isMatchingKey(key)
     ) {
       if (throwOnMissingSuppliedFormatters) {
         throw new Error(`Missing formatting key: ${key}`);
@@ -128,16 +139,6 @@ export const getDOMForLocaleString = ({
     }
     return false;
   };
-
-  if (
-    !substitutions && !allSubstitutions &&
-    !throwOnMissingSuppliedFormatters
-  ) {
-    return stringOrTextNode(string);
-  }
-  if (!substitutions) {
-    substitutions = {};
-  }
 
   const nodes = insertNodes({
     string, dom, usedKeys, substitutions, allSubstitutions, locale,

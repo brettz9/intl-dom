@@ -14,14 +14,14 @@
  * @type {KeyCheckerConverterCallback}
  */
 export function defaultKeyCheckerConverter (key, messageStyle) {
-  if (Array.isArray(key) &&
+  if (typeof messageStyle === 'string' && Array.isArray(key) &&
     key.every((k) => {
       return typeof k === 'string';
     }) &&
-    typeof messageStyle === 'string' && messageStyle.endsWith('Nested')
+    messageStyle.endsWith('Nested')
   ) {
     return key.map((k) => {
-      return k.replaceAll(/(?<backslashes>\\+)/gu, String.raw`\$<backslashes>`).
+      return k.replaceAll(/(?<backslashes>\\+)/gv, String.raw`\$<backslashes>`).
         replaceAll('.', String.raw`\.`);
     }).join('.');
   }

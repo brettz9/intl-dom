@@ -19,13 +19,14 @@
         <script type="importmap">
           {
             "imports": {
-              "chai": "../../node_modules/chai/index.js",
-              "check-error": "./vendor/check-error/index.js"
+              "chai": "../../node_modules/chai/index.js"
             }
           }
         </script>
 
         <script type="module">
+        // eslint-disable-next-line @stylistic/max-len -- Long
+        /* eslint-disable unicorn/no-global-object-property-assignment -- Bootstrapping */
         import * as chai from 'chai';
         // eslint-disable-next-line @stylistic/max-len -- Long
         import chaiAsPromised from '../../node_modules/chai-as-promised/lib/chai-as-promised.js';
@@ -62,8 +63,8 @@
         mocha.setup('bdd');
 
         // Setting of `intlDomLocale`
-        if (typeof globalThis.window !== 'undefined') {
-          globalThis.window.globalThis = globalThis.window;
+        if (typeof window !== 'undefined') {
+          globalThis.globalThis = globalThis;
         }
 
         globalThis.setNavigatorLanguages = (languages) => {
@@ -81,7 +82,7 @@
             };
           }
           Object.defineProperty(
-            globalThis.navigator,
+            navigator,
             'languages',
             {value: languages, configurable: true}
           );

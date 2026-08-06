@@ -31,6 +31,8 @@ export const getStringFromMessageAndDefaults = ({
   if (typeof message === 'string') {
     str = message;
   } else if (
+    // eslint-disable-next-line @stylistic/max-len -- Long
+    // eslint-disable-next-line unicorn/prefer-includes-over-repeated-comparisons -- TS
     defaults === false || defaults === undefined || defaults === null
   ) {
     str = false;

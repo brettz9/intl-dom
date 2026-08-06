@@ -10,6 +10,119 @@
 * }} cfg
 * @returns {string|Element} The replacement text or element
 */
+export type SubstitutionCallback = (cfg: {
+    arg: string;
+    key: string;
+}) => string | Element;
+export type ValueArray = [string | number | Date, object?, object?];
+export type Integer = number;
+export type ListValueArray = [
+    string[],
+    (((item: string, i: Integer) => Element) | object)?,
+    object?,
+    object?
+];
+export type DateRangeValueArray = [
+    Date | number,
+    Date | number,
+    Intl.DateTimeFormatOptions | undefined
+];
+export type RelativeValueArray = [number, Intl.RelativeTimeFormatUnit, object?];
+export type RelativeTimeInfo = {
+    relative: RelativeValueArray;
+};
+export type ListInfo = {
+    list: ListValueArray;
+};
+export type NumberInfo = {
+    number: ValueArray | number;
+};
+export type DateInfo = {
+    date: ValueArray;
+};
+export type DateTimeInfo = {
+    datetime: ValueArray;
+};
+export type DateRangeInfo = {
+    dateRange: DateRangeValueArray;
+};
+export type DatetimeRangeInfo = {
+    datetimeRange: DateRangeValueArray;
+};
+export type RegionInfo = {
+    region: ValueArray;
+};
+export type LanguageInfo = {
+    language: ValueArray;
+};
+export type ScriptInfo = {
+    script: ValueArray;
+};
+export type CurrencyInfo = {
+    currency: ValueArray;
+};
+export type PluralInfo = {
+    plural: ValueArray;
+};
+export type PlainLocaleStringBodyObject = {
+    [key: string]: string;
+};
+export type PlainNestedLocaleStringBodyObject = {
+    [key: string]: string | PlainNestedLocaleStringBodyObject;
+};
+export type SwitchCaseInfo = {
+    /**
+     * Whether this conditional is the default
+     */
+    default?: boolean;
+};
+export type SwitchCaseArray = [string, string, SwitchCaseInfo?];
+export type SwitchArray = Object<string, SwitchCaseArray>;
+export type SwitchArrays = Object<string, SwitchArray>;
+export type SwitchCase = {
+    /**
+     * The locale message with any formatting
+     * place-holders; defaults to use of any single conditional
+     */
+    message: string;
+    /**
+     * A description to add for translators
+     */
+    description?: string;
+};
+export type Switch = Object<string, SwitchCase>;
+export type Switches = Object<string, Switch>;
+export type RichLocaleStringSubObject = {
+    /**
+     * The locale message with any formatting
+     * place-holders; defaults to use of any single conditional
+     */
+    message: string;
+    /**
+     * A description to add for translators
+     */
+    description?: string;
+    /**
+     * Conditionals
+     */
+    switches?: Switches;
+};
+export type RichLocaleStringBodyObject = {
+    [key: string]: RichLocaleStringSubObject;
+};
+export type RichNestedLocaleStringBodyObject = {
+    [key: string]: RichLocaleStringSubObject | RichNestedLocaleStringBodyObject;
+};
+export type LocaleResolver = (localesBasePath: string, locale: string) => string | false;
+export type DateRange = [
+    Date | number,
+    Date | number,
+    (Intl.DateTimeFormatOptions | undefined)?
+];
+export type SubstitutionObjectValue = string | string[] | number | Date | DateRange | Element | Node | SubstitutionCallback | NumberInfo | PluralInfo | CurrencyInfo | LanguageInfo | ScriptInfo | DatetimeRangeInfo | DateRangeInfo | RegionInfo | DateTimeInfo | DateInfo | ListInfo | RelativeTimeInfo;
+export type SubstitutionObject = {
+    [key: string]: SubstitutionObjectValue;
+};
 /**
  * May have additional properties if supplying options to an underlying
  * formatter.
@@ -164,140 +277,5 @@
 /**
  * @type {LocaleResolver}
  */
-export const defaultLocaleResolver: LocaleResolver;
-/**
- * `arg` - By default, accepts the third portion of the
- *   `formattingRegex` within `insertNodes`, i.e., to allow the locale to
- *   supply arguments back to the calling script.
- * `key` - The substitution key.
- */
-export type SubstitutionCallback = (cfg: {
-    arg: string;
-    key: string;
-}) => string | Element;
-/**
- * May have additional properties if supplying options to an underlying
- * formatter.
- * The first value is the main value.
- * The second are the options related to the main value.
- * The third are any additional options.
- */
-export type ValueArray = [string | number | Date, object?, object?];
-export type Integer = number;
-export type ListValueArray = [string[], (((item: string, i: Integer) => Element) | object)?, object?, object?];
-export type DateRangeValueArray = [Date | number, Date | number, Intl.DateTimeFormatOptions | undefined];
-export type RelativeValueArray = [number, Intl.RelativeTimeFormatUnit, object?];
-export type RelativeTimeInfo = {
-    relative: RelativeValueArray;
-};
-export type ListInfo = {
-    list: ListValueArray;
-};
-export type NumberInfo = {
-    number: ValueArray | number;
-};
-export type DateInfo = {
-    date: ValueArray;
-};
-export type DateTimeInfo = {
-    datetime: ValueArray;
-};
-export type DateRangeInfo = {
-    dateRange: DateRangeValueArray;
-};
-export type DatetimeRangeInfo = {
-    datetimeRange: DateRangeValueArray;
-};
-export type RegionInfo = {
-    region: ValueArray;
-};
-export type LanguageInfo = {
-    language: ValueArray;
-};
-export type ScriptInfo = {
-    script: ValueArray;
-};
-export type CurrencyInfo = {
-    currency: ValueArray;
-};
-export type PluralInfo = {
-    plural: ValueArray;
-};
-export type PlainLocaleStringBodyObject = {
-    [key: string]: string;
-};
-export type PlainNestedLocaleStringBodyObject = {
-    [key: string]: string | PlainNestedLocaleStringBodyObject;
-};
-export type SwitchCaseInfo = {
-    /**
-     * Whether this conditional is the default
-     */
-    default?: boolean | undefined;
-};
-/**
- * Contains the type, the message, and optional info about the switch case.
- */
-export type SwitchCaseArray = [string, string, SwitchCaseInfo?];
-export type SwitchArray = {
-    [x: string]: SwitchCaseArray;
-};
-export type SwitchArrays = {
-    [x: string]: {
-        [x: string]: SwitchCaseArray;
-    };
-};
-export type SwitchCase = {
-    /**
-     * The locale message with any formatting
-     * place-holders; defaults to use of any single conditional
-     */
-    message: string;
-    /**
-     * A description to add for translators
-     */
-    description?: string | undefined;
-};
-export type Switch = {
-    [x: string]: SwitchCase;
-};
-export type Switches = {
-    [x: string]: {
-        [x: string]: SwitchCase;
-    };
-};
-export type RichLocaleStringSubObject = {
-    /**
-     * The locale message with any formatting
-     * place-holders; defaults to use of any single conditional
-     */
-    message: string;
-    /**
-     * A description to add for translators
-     */
-    description?: string | undefined;
-    /**
-     * Conditionals
-     */
-    switches?: {
-        [x: string]: {
-            [x: string]: SwitchCase;
-        };
-    } | undefined;
-};
-export type RichLocaleStringBodyObject = {
-    [key: string]: RichLocaleStringSubObject;
-};
-export type RichNestedLocaleStringBodyObject = {
-    [key: string]: RichLocaleStringSubObject | RichNestedLocaleStringBodyObject;
-};
-/**
- * Takes a base path and locale and gives a URL.
- */
-export type LocaleResolver = (localesBasePath: string, locale: string) => string | false;
-export type DateRange = [Date | number, Date | number, (Intl.DateTimeFormatOptions | undefined)?];
-export type SubstitutionObjectValue = string | string[] | number | Date | DateRange | Element | Node | SubstitutionCallback | NumberInfo | PluralInfo | CurrencyInfo | LanguageInfo | ScriptInfo | DatetimeRangeInfo | DateRangeInfo | RegionInfo | DateTimeInfo | DateInfo | ListInfo | RelativeTimeInfo;
-export type SubstitutionObject = {
-    [key: string]: SubstitutionObjectValue;
-};
+export declare const defaultLocaleResolver: LocaleResolver;
 //# sourceMappingURL=defaultLocaleResolver.d.ts.map

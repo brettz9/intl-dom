@@ -1,10 +1,16 @@
+/* eslint-disable unicorn/no-top-level-assignment-in-function -- Temporary */
 // We want it to work in the browser, so commenting out
 // import jsonExtra from 'json5';
 // import jsonExtra from 'json-6';
 
+/* eslint-disable jsdoc/reject-any-type -- Ok */
 /**
  * @typedef {any} JSON6
  */
+/**
+ * @typedef {any} AnyValue
+ */
+/* eslint-enable jsdoc/reject-any-type -- Ok */
 
 // Don't use ts-expect-error here, as result differs by tsconfig
 // @ts-ignore Need typing for JSON6
@@ -22,14 +28,10 @@ export const setJSONExtra = (__jsonExtra) => {
  * @returns {string}
  */
 export const unescapeBackslashes = (str) => {
-  return str.replaceAll(/\\+/gu, (esc) => {
+  return str.replaceAll(/\\+/gv, (esc) => {
     return esc.slice(0, esc.length / 2);
   });
 };
-
-/**
- * @typedef {any} AnyValue
- */
 
 /**
  * @param {string} args
@@ -39,7 +41,7 @@ export const parseJSONExtra = (args) => {
   return _jsonExtra.parse(
     // Doesn't actually currently allow explicit brackets,
     //  but in case we change our regex to allow inner brackets
-    '{' + (args || '').replace(/^\{/u, '').replace(/\}$/u, '') + '}'
+    '{' + (args || '').replace(/^\{/v, '').replace(/\}$/v, '') + '}'
   );
 };
 
@@ -81,8 +83,6 @@ export const processRegex = (regex, str, {
   afterMatch,
   escapeAtOne
 }) => {
-  let match;
-  let previousIndex = 0;
   if (extra) {
     betweenMatches = extra;
     afterMatch = extra;
@@ -93,6 +93,8 @@ export const processRegex = (regex, str, {
       'You must have `extra` or `betweenMatches` and `afterMatch` arguments.'
     );
   }
+  let match;
+  let previousIndex = 0;
   while ((match = regex.exec(str)) !== null) {
     const [_, esc] = match;
     const {lastIndex} = regex;

@@ -24,7 +24,7 @@ export const defaultLocaleMatcher = (locale) => {
   // Try without hyphen, i.e., the "lookup" algorithm:
   // See https://tools.ietf.org/html/rfc4647#section-3.4 and
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl
-  return locale.replace(/-[^-]*$/u, '');
+  return locale.replace(/-[^\-]*$/v, '');
 };
 
 /**

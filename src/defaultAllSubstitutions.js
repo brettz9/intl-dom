@@ -86,7 +86,7 @@ export const defaultAllSubstitutions = ({value, arg, /* , key */ locale}) => {
   }) => {
     if (typeof arg === 'string') {
       // eslint-disable-next-line prefer-const -- Convenient
-      let [userType, extraArgs, argOptions] = arg.split('|');
+      let [userType, extraArgs, argOptions] = arg.split('|', 3);
       // Alias
       if (userType === 'DATE') {
         userType = 'DATETIME';
@@ -111,23 +111,23 @@ export const defaultAllSubstitutions = ({value, arg, /* , key */ locale}) => {
   let expectsDatetime = false;
   if (value && typeof value === 'object' && !Array.isArray(value)) {
     const singleKey = Object.keys(value)[0];
+    /**
+     * @typedef {"number"|"date"|"datetime"|"dateRange"|
+     *   "datetimeRange"|"relative"|"region"|"language"|
+     *   "script"|"currency"|"list"|"plural"} SpecialFormat
+     */
     if ([
       'number', 'date', 'datetime', 'dateRange', 'datetimeRange', 'relative',
       'region', 'language', 'script', 'currency',
       'list', 'plural'
     ].includes(singleKey)) {
       let extraOpts, callback;
-      /**
-       * @typedef {any} AnyValue
-       */
 
       const obj = /** @type {unknown} */ (
-        /** @type {AnyValue} */
+        /** @type {Record<string, keyof SpecialFormat>} */
         (value)[
           /**
-            * @type {"number"|"date"|"datetime"|"dateRange"|
-            *   "datetimeRange"|"relative"|"region"|"language"|
-            *   "script"|"currency"|"list"|"plural"}
+            * @type {SpecialFormat}
             */
           (singleKey)
         ]
@@ -226,7 +226,7 @@ export const defaultAllSubstitutions = ({value, arg, /* , key */ locale}) => {
   ) {
     if (
       typeof value === 'number' &&
-      (expectsDatetime || (/^DATE(?:TIME)(?:\||$)/u).test(
+      (expectsDatetime || (/^DATE(?:TIME)(?:\||$)/v).test(
         /** @type {string} */ (arg)
       ))
     ) {

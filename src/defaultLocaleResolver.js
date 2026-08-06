@@ -209,10 +209,10 @@ export const defaultLocaleResolver = (localesBasePath, locale) => {
       '`defaultLocaleResolver` expects a string `locale`.'
     );
   }
-  if ((/[./\\]/u).test(locale)) {
+  if ((/[.\/\\]/v).test(locale)) {
     throw new TypeError(
       'Locales cannot use file-reserved characters, `.`, `/` or `\\`'
     );
   }
-  return `${localesBasePath.replace(/\/$/u, '')}/_locales/${locale}/messages.json`;
+  return `${localesBasePath.replace(/\/$/v, '')}/_locales/${locale}/messages.json`;
 };

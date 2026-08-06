@@ -1,12 +1,13 @@
 /**
  * Base class for formatting.
  */
-export class Formatter {
+export declare class Formatter {
 }
 /**
  * Formatter for local variables.
  */
-export class LocalFormatter extends Formatter {
+export declare class LocalFormatter extends Formatter {
+    locals: import("./getMessageForKeyByStyle.js").LocaleBody;
     /**
      * @param {string} key
      * @returns {boolean}
@@ -15,8 +16,7 @@ export class LocalFormatter extends Formatter {
     /**
      * @param {import('./getMessageForKeyByStyle.js').LocalObject} locals
      */
-    constructor(locals: import("./getMessageForKeyByStyle.js").LocalObject);
-    locals: import("./getMessageForKeyByStyle.js").LocaleBody;
+    constructor(locals: import('./getMessageForKeyByStyle.js').LocalObject);
     /**
      * @param {string} key
      * @returns {string|Element}
@@ -31,7 +31,8 @@ export class LocalFormatter extends Formatter {
 /**
  * Formatter for regular variables.
  */
-export class RegularFormatter extends Formatter {
+export declare class RegularFormatter extends Formatter {
+    substitutions: import("./defaultLocaleResolver.js").SubstitutionObject;
     /**
      * @param {string} key
      * @returns {boolean}
@@ -41,18 +42,25 @@ export class RegularFormatter extends Formatter {
      * @param {import('./defaultLocaleResolver.js').SubstitutionObject
      * } substitutions
      */
-    constructor(substitutions: import("./defaultLocaleResolver.js").SubstitutionObject);
-    substitutions: import("./defaultLocaleResolver.js").SubstitutionObject;
+    constructor(substitutions: import('./defaultLocaleResolver.js').SubstitutionObject);
     /**
      * @param {string} key
      * @returns {boolean}
      */
     isMatch(key: string): boolean;
 }
+export type SwitchMatch = [
+    objKey?: string,
+    body?: import('./getMessageForKeyByStyle.js').LocaleBody,
+    keySegment?: string
+];
+export type Integer = number;
 /**
  * Formatter for switch variables.
  */
-export class SwitchFormatter extends Formatter {
+export declare class SwitchFormatter extends Formatter {
+    switches: Record<string, Record<string, import("./defaultLocaleResolver.js").SwitchCase>>;
+    substitutions: import("./defaultLocaleResolver.js").SubstitutionObject;
     /**
      * @param {string} key
      * @returns {boolean}
@@ -69,15 +77,9 @@ export class SwitchFormatter extends Formatter {
      * @param {import('./defaultLocaleResolver.js').
      *   SubstitutionObject} cfg.substitutions
      */
-    constructor(switches: import("./defaultLocaleResolver.js").Switches, { substitutions }: {
-        substitutions: import("./defaultLocaleResolver.js").SubstitutionObject;
+    constructor(switches: import('./defaultLocaleResolver.js').Switches, { substitutions }: {
+        substitutions: import('./defaultLocaleResolver.js').SubstitutionObject;
     });
-    switches: {
-        [x: string]: {
-            [x: string]: import("./defaultLocaleResolver.js").SwitchCase;
-        };
-    };
-    substitutions: import("./defaultLocaleResolver.js").SubstitutionObject;
     /**
      * @param {string} key
      * @param {object} cfg
@@ -92,7 +94,7 @@ export class SwitchFormatter extends Formatter {
         locale: string;
         usedKeys: (string | undefined)[];
         arg: string;
-        missingSuppliedFormatters: import("./getDOMForLocaleString.js").MissingSuppliedFormattersCallback;
+        missingSuppliedFormatters: import('./getDOMForLocaleString.js').MissingSuppliedFormattersCallback;
     }): string;
     /**
      * @param {string} key
@@ -113,6 +115,6 @@ export class SwitchFormatter extends Formatter {
      * @param {string} ky
      * @returns {SwitchMatch}
      */
-    getMatch(ky: string): [objKey?: string | undefined, body?: import("./getMessageForKeyByStyle.js").LocaleBody | undefined, keySegment?: string | undefined];
+    getMatch(ky: string): SwitchMatch;
 }
 //# sourceMappingURL=Formatter.d.ts.map

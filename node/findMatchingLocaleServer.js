@@ -5,6 +5,7 @@ import {setFetch} from '../src/shared.js';
 
 export {setFetch, getFetch} from '../src/shared.js';
 
+// eslint-disable-next-line unicorn/no-top-level-side-effects -- Temporary
 setFetch(fileFetch);
 
 /**
@@ -15,7 +16,7 @@ setFetch(fileFetch);
  * @param {object} cfg
  * @param {string} cfg.basePath
  * @param {Integer} [cfg.port]
- * @param {(value: any) => string} [cfg.wrap]
+ * @param {(value: string) => string} [cfg.wrap]
  * @returns {http.Server<
  *   typeof http.IncomingMessage, typeof http.ServerResponse
  * >}
@@ -28,7 +29,7 @@ function findMatchingLocaleServer ({basePath, wrap, port = 3005}) {
       res.end(wrapResult(''));
       return;
     }
-    const languages = acceptLanguage.split(';')[0].split(',');
+    const languages = acceptLanguage.split(';', 1)[0].split(',');
     const language = await findLocale({
       localesBasePath: basePath,
       locales: languages

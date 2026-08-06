@@ -1,0 +1,9 @@
+allowBuilds:
+  es5-ext: false
+  full-icu: true
+  unrs-resolver: false
+
+onlyBuiltDependencies:
+  - es5-ext
+  - full-icu
+  - unrs-resolver

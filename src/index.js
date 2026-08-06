@@ -1,13 +1,21 @@
+/* eslint-disable unicorn/no-barrel-files -- Have own typedefs */
 /**
  * @callback Sort
  * @param {string[]} arrayOfItems
  * @param {Intl.CollatorOptions|undefined} options
  * @returns {string[]}
  */
+
+/* eslint-disable jsdoc/reject-any-type -- Narrow further? */
+/**
+ * @typedef {(str: string, idx: number) => any} SortListMapper
+ */
+/* eslint-enable jsdoc/reject-any-type -- Narrow further? */
+
 /**
  * @callback SortList
  * @param {string[]} arrayOfItems
- * @param {(str: string, idx: number) => any} map
+ * @param {SortListMapper} map
  * @param {Intl.ListFormatOptions|undefined} [listOptions]
  * @param {Intl.CollatorOptions|undefined} [collationOptions]
  * @returns {string|DocumentFragment}

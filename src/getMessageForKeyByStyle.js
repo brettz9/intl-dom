@@ -75,7 +75,7 @@ export const getMessageForKeyByStyle = ({
         const keys = [];
         // eslint-disable-next-line @stylistic/max-len -- Long
         // eslint-disable-next-line prefer-named-capture-group -- Convenient for now
-        const possiblyEscapedCharPattern = /(\\*)\./gu;
+        const possiblyEscapedCharPattern = /(\\*)\./gv;
 
         /**
          * @param {string} val
@@ -112,14 +112,17 @@ export const getMessageForKeyByStyle = ({
          */
         let ret = false;
         let currObj = obj;
+
+        // eslint-disable-next-line @stylistic/max-len -- Long
+        // eslint-disable-next-line unicorn/no-unused-array-method-return -- Shortcircuiting
         keysUnescaped.some((ky, i, kys) => {
           if (!currObj || typeof currObj !== 'object') {
             return true;
           }
           if (
             // If specified key is too deep, we should fail
-            i === kys.length - 1 && ky in currObj &&
-            currObj[ky] && typeof currObj[ky] === 'object' &&
+            i === kys.length - 1 && Object.hasOwn(currObj, ky) &&
+            currObj[ky] !== null && typeof currObj[ky] === 'object' &&
             'message' in currObj[ky] &&
             // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
             typeof currObj[ky].message === 'string'
@@ -154,7 +157,8 @@ export const getMessageForKeyByStyle = ({
              */ (mainObj && typeof mainObj === 'object' && mainObj.body);
           if (
             obj && typeof obj === 'object' &&
-            key in obj && obj[key] && typeof obj[key] === 'object' &&
+            Object.hasOwn(obj, key) && obj[key] !== null &&
+            typeof obj[key] === 'object' &&
             'message' in obj[key] &&
             // NECESSARY FOR SECURITY ON UNTRUSTED LOCALES
             typeof obj[key].message === 'string'
@@ -178,7 +182,8 @@ export const getMessageForKeyByStyle = ({
               );
             if (
               obj && typeof obj === 'object' &&
-              key in obj && obj[key] && typeof obj[key] === 'string'
+              Object.hasOwn(obj, key) && obj[key] !== null &&
+              typeof obj[key] === 'string'
             ) {
               return {
                 value: obj[key]
@@ -199,7 +204,7 @@ export const getMessageForKeyByStyle = ({
               if (obj && typeof obj === 'object') {
                 // Should really be counting that it is an odd number
                 //  of backslashes only
-                const keys = key.split(/(?<!\\)\./u);
+                const keys = key.split(/(?<!\\)\./v);
                 const value = keys.reduce(
                   /**
                    * @param {null|string|import('./defaultLocaleResolver.js').
@@ -209,6 +214,8 @@ export const getMessageForKeyByStyle = ({
                    *   PlainNestedLocaleStringBodyObject}
                    */
                   (o, k) => {
+                    // eslint-disable-next-line @stylistic/max-len -- Long
+                    // eslint-disable-next-line unicorn/no-computed-property-existence-check -- Ok
                     if (o && typeof o === 'object' && o[k]) {
                       return o[k];
                     }

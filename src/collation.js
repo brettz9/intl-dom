@@ -7,7 +7,7 @@ export {setDocument, getDocument} from './shared.js';
  *
  * @returns {string}
  */
-function generateUUID () { //  Adapted from original: public domain/MIT: http://stackoverflow.com/a/8809472/271577
+function generateUUID () { //  Adapted from original: public domain/MIT: https://stackoverflow.com/a/8809472/271577
   let d = Date.now();
   /* c8 ignore next 5 */
   if (typeof performance !== 'undefined' &&
@@ -15,7 +15,7 @@ function generateUUID () { //  Adapted from original: public domain/MIT: http://
   ) {
     d += performance.now(); // use high-precision timer if available
   }
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replaceAll(/[xy]/gu, function (c) {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replaceAll(/[xy]/gv, function (c) {
     /* eslint-disable no-bitwise, sonarjs/pseudo-random -- Convenient */
     const r = Math.trunc((d + (Math.random() * 16)) % 16);
     d = Math.floor(d / 16);
@@ -32,6 +32,7 @@ function generateUUID () { //  Adapted from original: public domain/MIT: http://
  * @returns {string[]}
  */
 export const sort = (locale, arrayOfItems, options) => {
+  // eslint-disable-next-line unicorn/no-array-sort -- Modifies
   return arrayOfItems.sort(new Intl.Collator(
     locale,
     options
@@ -74,7 +75,7 @@ export const sortListSimple = (
  *
  * @param {string} locale
  * @param {string[]} arrayOfItems
- * @param {((str: string, idx: Integer) => any)|
+ * @param {import('./index.js').SortListMapper|
  *   Intl.ListFormatOptions|undefined} map
  * @param {Intl.ListFormatOptions|undefined} [listOptions]
  * @param {Intl.CollatorOptions|undefined} [collationOptions]
@@ -109,7 +110,7 @@ export const sortList = (
 
   processRegex(
     // // eslint-disable-next-line prefer-named-capture-group
-    new RegExp(`<<${randomId}(\\d)>>`, 'gu'),
+    new RegExp(String.raw`<<${randomId}(\d)>>`, 'gv'),
     list(locale, placeholderArray, listOptions),
     {
       betweenMatches: push,

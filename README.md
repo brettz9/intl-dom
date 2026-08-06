@@ -2216,7 +2216,7 @@ is set to `true`.
 
 ```js
 const elem = document.createElement('a');
-elem.href = 'http://example.com';
+elem.href = 'https://example.com';
 elem.textContent = 'message';
 
 const frag = getDOMForLocaleString({
@@ -2226,7 +2226,7 @@ const frag = getDOMForLocaleString({
   }
 });
 // Gives a fragment with content equal to:
-//   'simple <a href="http://example.com">message</a>'
+//   'simple <a href="https://example.com">message</a>'
 ```
 
 This method, as with `i18n`, may take functions as `substitutions`

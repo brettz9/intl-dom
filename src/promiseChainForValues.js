@@ -1,3 +1,4 @@
+/* eslint-disable jsdoc/reject-any-type -- Generic API */
 /**
  * @typedef {(value: any) => Promise<any>|any} PromiseChainErrback
  */
@@ -57,7 +58,9 @@ export const promiseChainForValues = (
         break;
       } catch (err) {
         if (breaking) {
-          throw new Error(errorMessage);
+          throw new Error(errorMessage, {
+            cause: err
+          });
         }
         // We allow one more try
         if (!values.length) {
