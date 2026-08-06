@@ -2711,7 +2711,7 @@ This project has been heavily inspired by
 ## To-dos
 
 - Support [Intl.DurationFormat](https://github.com/tc39/proposal-intl-duration-format)
-with [this polyfill](https://www.npmjs.com/package/intl-unofficial-duration-unit-format?activeTab=readme)?
+with [this polyfill](https://formatjs.github.io/docs/polyfills/intl-durationformat/)?
 - Support [Intl.NumberFormat.formatRange](https://github.com/tc39/proposal-intl-numberformat-v3) as it may advance
 - Change to **named capturing group for formatters**, not only for internal best
   practices but for ease on users
