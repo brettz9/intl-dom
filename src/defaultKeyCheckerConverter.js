@@ -13,7 +13,7 @@
 /**
  * @type {KeyCheckerConverterCallback}
  */
-export function defaultKeyCheckerConverter (key, messageStyle) {
+export const defaultKeyCheckerConverter = (key, messageStyle) => {
   if (typeof messageStyle === 'string' && Array.isArray(key) &&
     key.every((k) => {
       return typeof k === 'string';
@@ -32,4 +32,4 @@ export function defaultKeyCheckerConverter (key, messageStyle) {
   }
 
   return key;
-}
+};

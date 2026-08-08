@@ -124,11 +124,11 @@
  */
 
 /**
- * @typedef {Object<string, SwitchCaseArray>} SwitchArray
+ * @typedef {Record<string, SwitchCaseArray>} SwitchArray
  */
 
 /**
- * @typedef {Object<string, SwitchArray>} SwitchArrays
+ * @typedef {Record<string, SwitchArray>} SwitchArrays
  */
 
 /**
@@ -139,11 +139,15 @@
  */
 
 /**
- * @typedef {Object<string, SwitchCase>} Switch
+ * @typedef {Record<string, SwitchCase>} SwitchGroup
  */
 
 /**
- * @typedef {Object<string, Switch>} Switches
+ * @typedef {Record<string, SwitchCase|SwitchGroup>} Switch
+ */
+
+/**
+ * @typedef {Record<string, Switch>} Switches
  */
 
 /**

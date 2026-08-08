@@ -1255,16 +1255,20 @@
         var returnValue = /** @type {unknown} */ks.reduce(
         /**
          * @param {import('./defaultLocaleResolver.js').SwitchArrays|
-         *   import('./defaultLocaleResolver.js').SwitchArray} obj
+         *   import('./defaultLocaleResolver.js').SwitchArray|
+         *   import('./defaultLocaleResolver.js').SwitchCaseArray|SwitchMatch} obj
          * @param {string} k
          * @param {Integer} i
          * @throws {Error}
-         * @returns {SwitchMatch|
+         * @returns {import('./defaultLocaleResolver.js').SwitchArrays|
+         *   import('./defaultLocaleResolver.js').SwitchArray|
          *   import('./defaultLocaleResolver.js').SwitchCaseArray|
-         *   import('./defaultLocaleResolver.js').SwitchArray}
+         *   SwitchMatch}
          */
-        // @ts-expect-error It works
         function (obj, k, i) {
+          if (Array.isArray(obj)) {
+            return obj;
+          }
           if (i < ks.length - 1) {
             if (!Object.hasOwn(obj, k)) {
               throw new Error("Switch key \"".concat(k, "\" not found (from \"~").concat(ky, "\")"));
@@ -1279,7 +1283,13 @@
             return k === /** @type {typeof SwitchFormatter} */_this4.constructor.getKey(switchKey);
           });
           return ret ? [].concat(_toConsumableArray(ret), [k]) : [];
-        }, this.switches);
+        },
+        /**
+         * @type {import('./defaultLocaleResolver.js').SwitchArrays|
+         *   import('./defaultLocaleResolver.js').SwitchArray|
+         *   import('./defaultLocaleResolver.js').SwitchCaseArray|SwitchMatch}
+         */ /** @type {unknown} */
+        this.switches);
         return /** @type {SwitchMatch} */returnValue;
       }
     }], [{
@@ -1513,11 +1523,11 @@
    */
 
   /**
-   * @typedef {Object<string, SwitchCaseArray>} SwitchArray
+   * @typedef {Record<string, SwitchCaseArray>} SwitchArray
    */
 
   /**
-   * @typedef {Object<string, SwitchArray>} SwitchArrays
+   * @typedef {Record<string, SwitchArray>} SwitchArrays
    */
 
   /**
@@ -1528,11 +1538,15 @@
    */
 
   /**
-   * @typedef {Object<string, SwitchCase>} Switch
+   * @typedef {Record<string, SwitchCase>} SwitchGroup
    */
 
   /**
-   * @typedef {Object<string, Switch>} Switches
+   * @typedef {Record<string, SwitchCase|SwitchGroup>} Switch
+   */
+
+  /**
+   * @typedef {Record<string, Switch>} Switches
    */
 
   /**
@@ -1998,7 +2012,7 @@
   /**
    * @type {KeyCheckerConverterCallback}
    */
-  function defaultKeyCheckerConverter(key, messageStyle) {
+  var defaultKeyCheckerConverter = function defaultKeyCheckerConverter(key, messageStyle) {
     if (typeof messageStyle === 'string' && Array.isArray(key) && key.every(function (k) {
       return typeof k === 'string';
     }) && messageStyle.endsWith('Nested')) {
@@ -2012,7 +2026,7 @@
       throw new TypeError('`key` is expected to be a string (or array of strings for nested style)');
     }
     return key;
-  }
+  };
 
   /**
   * @typedef {LocaleBody} LocalObject

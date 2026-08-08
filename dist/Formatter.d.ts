@@ -59,7 +59,7 @@ export type Integer = number;
  * Formatter for switch variables.
  */
 export declare class SwitchFormatter extends Formatter {
-    switches: Record<string, Record<string, import("./defaultLocaleResolver.js").SwitchCase>>;
+    switches: import("./defaultLocaleResolver.js").Switches;
     substitutions: import("./defaultLocaleResolver.js").SubstitutionObject;
     /**
      * @param {string} key

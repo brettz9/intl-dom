@@ -1,5 +1,9 @@
 # intl-dom CHANGES
 
+## 0.21.1
+
+- fix(types): issue with type exports
+
 ## 0.21.0
 
 BREAKING CHANGES:

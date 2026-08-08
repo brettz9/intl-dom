@@ -77,8 +77,8 @@ export type SwitchCaseInfo = {
     default?: boolean;
 };
 export type SwitchCaseArray = [string, string, SwitchCaseInfo?];
-export type SwitchArray = Object<string, SwitchCaseArray>;
-export type SwitchArrays = Object<string, SwitchArray>;
+export type SwitchArray = Record<string, SwitchCaseArray>;
+export type SwitchArrays = Record<string, SwitchArray>;
 export type SwitchCase = {
     /**
      * The locale message with any formatting
@@ -90,8 +90,9 @@ export type SwitchCase = {
      */
     description?: string;
 };
-export type Switch = Object<string, SwitchCase>;
-export type Switches = Object<string, Switch>;
+export type SwitchGroup = Record<string, SwitchCase>;
+export type Switch = Record<string, SwitchCase | SwitchGroup>;
+export type Switches = Record<string, Switch>;
 export type RichLocaleStringSubObject = {
     /**
      * The locale message with any formatting
@@ -215,10 +216,10 @@ export type SubstitutionObject = {
  * @typedef {[string, string, SwitchCaseInfo?]} SwitchCaseArray
  */
 /**
- * @typedef {Object<string, SwitchCaseArray>} SwitchArray
+ * @typedef {Record<string, SwitchCaseArray>} SwitchArray
  */
 /**
- * @typedef {Object<string, SwitchArray>} SwitchArrays
+ * @typedef {Record<string, SwitchArray>} SwitchArrays
  */
 /**
  * @typedef {object} SwitchCase
@@ -227,10 +228,13 @@ export type SubstitutionObject = {
  * @property {string} [description] A description to add for translators
  */
 /**
- * @typedef {Object<string, SwitchCase>} Switch
+ * @typedef {Record<string, SwitchCase>} SwitchGroup
  */
 /**
- * @typedef {Object<string, Switch>} Switches
+ * @typedef {Record<string, SwitchCase|SwitchGroup>} Switch
+ */
+/**
+ * @typedef {Record<string, Switch>} Switches
  */
 /**
  * @typedef {object} RichLocaleStringSubObject

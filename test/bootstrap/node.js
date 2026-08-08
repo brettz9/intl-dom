@@ -37,7 +37,9 @@ import {setFetch, setDocument} from '../../src/shared.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-globalThis.jsonExtra = jsonExtra;
+/** @type {{jsonExtra: unknown}} */ (
+  /** @type {unknown} */ (globalThis)
+).jsonExtra = jsonExtra;
 
 // Override to ensure we're testing with polyfill
 // @ts-expect-error Needed for testing

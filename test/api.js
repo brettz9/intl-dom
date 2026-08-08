@@ -15,9 +15,31 @@ import {
 } from '../src/index.js';
 
 describe('API', function () {
+  it(
+    'should keep SwitchFormatter#getMatch stable with array intermediates',
+    function () {
+      const switchFormatter = new SwitchFormatter(
+        /** @type {import('../src/defaultLocaleResolver.js').Switches} */ (
+          /** @type {unknown} */ ({
+            a: ['one', 'message']
+          })
+        ),
+        {
+          substitutions: {}
+        }
+      );
+
+      expect(switchFormatter.getMatch('a.b')).to.deep.equal([
+        'one', 'message'
+      ]);
+    }
+  );
+
   it('should export utility classes', function () {
     setJSONExtra(
-      globalThis.jsonExtra
+      /** @type {{jsonExtra: unknown}} */ (
+        /** @type {unknown} */ (globalThis)
+      ).jsonExtra
     );
 
     expect(Formatter).to.be.a('function');

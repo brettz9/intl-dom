@@ -1,4 +1,8 @@
 /* eslint-disable @stylistic/max-len -- Long */
+/**
+ * @this {Record<string, import('../../src/getMessageForKeyByStyle.js').LocaleObject>}
+ * @returns {void}
+ */
 export const setExpectedData = function () {
   this.expectedEnUS = {
     head: {

@@ -357,16 +357,20 @@ export class SwitchFormatter extends Formatter {
     const returnValue = /** @type {unknown} */ (ks.reduce(
       /**
        * @param {import('./defaultLocaleResolver.js').SwitchArrays|
-       *   import('./defaultLocaleResolver.js').SwitchArray} obj
+       *   import('./defaultLocaleResolver.js').SwitchArray|
+       *   import('./defaultLocaleResolver.js').SwitchCaseArray|SwitchMatch} obj
        * @param {string} k
        * @param {Integer} i
        * @throws {Error}
-       * @returns {SwitchMatch|
+       * @returns {import('./defaultLocaleResolver.js').SwitchArrays|
+       *   import('./defaultLocaleResolver.js').SwitchArray|
        *   import('./defaultLocaleResolver.js').SwitchCaseArray|
-       *   import('./defaultLocaleResolver.js').SwitchArray}
+       *   SwitchMatch}
        */
-      // @ts-expect-error It works
       (obj, k, i) => {
+        if (Array.isArray(obj)) {
+          return obj;
+        }
         if (i < ks.length - 1) {
           if (!(Object.hasOwn(obj, k))) {
             throw new Error(`Switch key "${k}" not found (from "~${ky}")`);
@@ -382,7 +386,12 @@ export class SwitchFormatter extends Formatter {
         });
 
         return ret ? [...ret, k] : [];
-      }, this.switches
+      },
+      /**
+       * @type {import('./defaultLocaleResolver.js').SwitchArrays|
+       *   import('./defaultLocaleResolver.js').SwitchArray|
+       *   import('./defaultLocaleResolver.js').SwitchCaseArray|SwitchMatch}
+       */ (/** @type {unknown} */ (this.switches))
     ));
 
     return /** @type {SwitchMatch} */ (returnValue);
