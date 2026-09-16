@@ -1,4 +1,4 @@
-import http from 'http';
+import http from 'node:http';
 import fileFetch from 'file-fetch';
 import {findLocale} from '../src/findLocaleStrings.js';
 import {setFetch} from '../src/shared.js';

@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = {
+export default {
   delay: true,
   exclude: 'test/*/**',
   reporter: 'mocha-multi-reporters',

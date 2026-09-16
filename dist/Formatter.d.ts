@@ -102,12 +102,12 @@ export declare class SwitchFormatter extends Formatter {
      */
     isMatch(key: string): boolean;
     /**
-    * @typedef {[
-    *   objKey?: string,
-    *   body?: import('./getMessageForKeyByStyle.js').LocaleBody,
-    *   keySegment?: string
-    * ]} SwitchMatch
-    */
+     * @typedef {[
+     *   objKey?: string,
+     *   body?: import('./getMessageForKeyByStyle.js').LocaleBody,
+     *   keySegment?: string
+     * ]} SwitchMatch
+     */
     /**
      * @typedef {number} Integer
      */

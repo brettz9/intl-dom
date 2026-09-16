@@ -1,24 +1,20 @@
 [![npm](https://img.shields.io/npm/v/intl-dom.svg)](https://www.npmjs.com/package/intl-dom)
-[![Dependencies](https://img.shields.io/david/brettz9/intl-dom.svg)](https://david-dm.org/brettz9/intl-dom)
-[![devDependencies](https://img.shields.io/david/dev/brettz9/intl-dom.svg)](https://david-dm.org/brettz9/intl-dom?type=dev)
 
 <!--[![Actions Status](https://github.com/brettz9/intl-dom/workflows/Node%20CI/badge.svg)](https://github.com/brettz9/intl-dom/actions)-->
-[![Build Status](https://travis-ci.org/n3ps/json-schema-to-jsdoc.svg?branch=master)](https://travis-ci.org/n3ps/json-schema-to-jsdoc)
-[![testing badge](https://raw.githubusercontent.com/brettz9/intl-dom/master/badges/tests-badge.svg?sanitize=true)](badges/tests-badge.svg)
-[![coverage badge](https://raw.githubusercontent.com/brettz9/intl-dom/master/badges/coverage-badge.svg?sanitize=true)](badges/coverage-badge.svg)
+[![testing badge](https://raw.githubusercontent.com/brettz9/intl-dom/main/badges/tests-badge.svg?sanitize=true)](badges/tests-badge.svg)
+[![coverage badge](https://raw.githubusercontent.com/brettz9/intl-dom/main/badges/coverage-badge.svg?sanitize=true)](badges/coverage-badge.svg)
 <!--
 [![Actions Status](https://github.com/brettz9/intl-dom/workflows/Coverage/badge.svg)](https://github.com/brettz9/intl-dom/actions)
 -->
 
 [![Known Vulnerabilities](https://snyk.io/test/github/brettz9/intl-dom/badge.svg)](https://snyk.io/test/github/brettz9/intl-dom)
-[![Total Alerts](https://img.shields.io/lgtm/alerts/g/brettz9/intl-dom.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/brettz9/intl-dom/alerts)
-[![Code Quality: Javascript](https://img.shields.io/lgtm/grade/javascript/g/brettz9/intl-dom.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/brettz9/intl-dom/context:javascript)
+[![CodeQL](https://github.com/brettz9/intl-dom/actions/workflows/codeql.yml/badge.svg)](https://github.com/brettz9/intl-dom/actions/workflows/codeql.yml)
 
-[![Filesize badge](https://raw.githubusercontent.com/brettz9/intl-dom/master/badges/filesize-badge.svg?sanitize=true)](badges/filesize-badge.svg)
+[![Filesize badge](https://raw.githubusercontent.com/brettz9/intl-dom/main/badges/filesize-badge.svg?sanitize=true)](badges/filesize-badge.svg)
 <!--[![License](https://img.shields.io/npm/l/intl-dom.svg)](LICENSE-MIT.txt)-->
-[![Licenses badge](https://raw.githubusercontent.com/brettz9/intl-dom/master/badges/licenses-badge.svg?sanitize=true)](badges/licenses-badge.svg)
+[![Licenses badge](https://raw.githubusercontent.com/brettz9/intl-dom/main/badges/licenses-badge.svg?sanitize=true)](badges/licenses-badge.svg)
 
-(see also [licenses for dev. deps.](https://raw.githubusercontent.com/brettz9/intl-dom/master/badges/licenses-badge-dev.svg?sanitize=true))
+(see also [licenses for dev. deps.](https://raw.githubusercontent.com/brettz9/intl-dom/main/badges/licenses-badge-dev.svg?sanitize=true))
 
 [![issuehunt-to-marktext](https://issuehunt.io/static/embed/issuehunt-button-v1.svg)](https://issuehunt.io/r/brettz9/intl-dom)
 

@@ -19,7 +19,8 @@
         <script type="importmap">
           {
             "imports": {
-              "chai": "../../node_modules/chai/index.js"
+              "chai": "../../node_modules/chai/index.js",
+              "check-error": "../../node_modules/check-error/index.js"
             }
           }
         </script>
@@ -87,17 +88,21 @@
             {value: languages, configurable: true}
           );
         };
-        </script>
-        <script type="module">
-        import '../api.js';
-        import '../defaultAllSubstitutions.js';
-        import '../defaultLocaleResolver.js';
-        import '../findLocaleStrings.js';
-        import '../getDOMForLocaleString.js';
-        import '../getMessageForKeyByStyle.js';
-        import '../getStringFromMessageAndDefaults.js';
-        import '../i18n.js';
-        import '../promiseChainForValues.js';
+
+        /* eslint-disable escompat/no-dynamic-imports -- Testing  */
+        // eslint-disable-next-line escompat/no-top-level-await -- Testing
+        await Promise.all([
+          import('../api.js'),
+          import('../defaultAllSubstitutions.js'),
+          import('../defaultLocaleResolver.js'),
+          import('../findLocaleStrings.js'),
+          import('../getDOMForLocaleString.js'),
+          import('../getMessageForKeyByStyle.js'),
+          import('../getStringFromMessageAndDefaults.js'),
+          import('../i18n.js'),
+          import('../promiseChainForValues.js')
+        ]);
+        /* eslint-enable escompat/no-dynamic-imports -- Testing  */
 
         mocha.run();
         </script>

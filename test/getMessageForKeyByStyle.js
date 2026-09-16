@@ -194,10 +194,10 @@ describe('getMessageForKeyByStyle', function () {
           ) {
             return {
               value: /**
-              * @type {import('../src/defaultLocaleResolver.js').
-              *   PlainLocaleStringBodyObject
-              * }
-              */ (obj.body)[key]
+                      * @type {import('../src/defaultLocaleResolver.js').
+                      *   PlainLocaleStringBodyObject
+                      * }
+                      */ (obj.body)[key]
             };
           }
           return false;
@@ -235,9 +235,9 @@ describe('getMessageForKeyByStyle', function () {
       expect(
         /**
          * @type {import('../src/getMessageForKeyByStyle.js').
-        *   MessageStyleCallbackResult
-        * }
-        */ (
+         *   MessageStyleCallbackResult
+         * }
+         */ (
           func(localeObj, 'key')
         ).value
       ).to.equal(
@@ -246,9 +246,9 @@ describe('getMessageForKeyByStyle', function () {
       expect(
         /**
          * @type {import('../src/getMessageForKeyByStyle.js').
-        *   MessageStyleCallbackResult
-        * }
-        */ (
+         *   MessageStyleCallbackResult
+         * }
+         */ (
           func(localeObj, 'key')
         ).info
       ).to.deep.equal(
@@ -257,9 +257,9 @@ describe('getMessageForKeyByStyle', function () {
       expect(
         /**
          * @type {import('../src/getMessageForKeyByStyle.js').
-        *   MessageStyleCallbackResult
-        * }
-        */ (
+         *   MessageStyleCallbackResult
+         * }
+         */ (
           func(localeObj, 'key.with.dots')
         ).value
       ).to.equal(
@@ -301,9 +301,9 @@ describe('getMessageForKeyByStyle', function () {
       expect(
         /**
          * @type {import('../src/getMessageForKeyByStyle.js').
-        *   MessageStyleCallbackResult
-        * }
-        */ (
+         *   MessageStyleCallbackResult
+         * }
+         */ (
           func(localeObj, 'key.that.is.nested')
         ).value
       ).to.equal(
@@ -312,9 +312,9 @@ describe('getMessageForKeyByStyle', function () {
       expect(
         /**
          * @type {import('../src/getMessageForKeyByStyle.js').
-        *   MessageStyleCallbackResult
-        * }
-        */ (
+         *   MessageStyleCallbackResult
+         * }
+         */ (
           func(localeObj, 'key.that.lessNested')
         ).value
       ).to.equal(
@@ -323,9 +323,9 @@ describe('getMessageForKeyByStyle', function () {
       expect(
         /**
          * @type {import('../src/getMessageForKeyByStyle.js').
-        *   MessageStyleCallbackResult
-        * }
-        */ (
+         *   MessageStyleCallbackResult
+         * }
+         */ (
           func(localeObj, 'key.that.is.nested')
         ).info
       ).to.deep.equal(
@@ -334,9 +334,9 @@ describe('getMessageForKeyByStyle', function () {
       expect(
         /**
          * @type {import('../src/getMessageForKeyByStyle.js').
-        *   MessageStyleCallbackResult
-        * }
-        */ (
+         *   MessageStyleCallbackResult
+         * }
+         */ (
           func(localeObj, 'key.that.lessNested')
         ).info
       ).to.deep.equal(
@@ -358,9 +358,9 @@ describe('getMessageForKeyByStyle', function () {
       expect(
         /**
          * @type {import('../src/getMessageForKeyByStyle.js').
-        *   MessageStyleCallbackResult
-        * }
-        */ (
+         *   MessageStyleCallbackResult
+         * }
+         */ (
           func(this.expectedPlainStyleObject, 'key')
         ).value
       ).to.equal(
@@ -369,9 +369,9 @@ describe('getMessageForKeyByStyle', function () {
       expect(
         /**
          * @type {import('../src/getMessageForKeyByStyle.js').
-        *   MessageStyleCallbackResult
-        * }
-        */ (
+         *   MessageStyleCallbackResult
+         * }
+         */ (
           func(this.expectedPlainStyleObject, 'message')
         ).value
       ).to.equal(
@@ -399,9 +399,9 @@ describe('getMessageForKeyByStyle', function () {
       expect(
         /**
          * @type {import('../src/getMessageForKeyByStyle.js').
-        *   MessageStyleCallbackResult
-        * }
-        */ (
+         *   MessageStyleCallbackResult
+         * }
+         */ (
           func(localeObj, 'key.that.is.nested')
         ).value
       ).to.equal(
@@ -410,9 +410,9 @@ describe('getMessageForKeyByStyle', function () {
       expect(
         /**
          * @type {import('../src/getMessageForKeyByStyle.js').
-        *   MessageStyleCallbackResult
-        * }
-        */ (
+         *   MessageStyleCallbackResult
+         * }
+         */ (
           func(localeObj, 'key.that.lessNested')
         ).value
       ).to.equal(

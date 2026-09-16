@@ -1,9 +1,9 @@
 allowBuilds:
   es5-ext: false
   full-icu: true
+  is-hidden-file: true
   unrs-resolver: false
 
-onlyBuiltDependencies:
-  - es5-ext
-  - full-icu
-  - unrs-resolver
+minimumReleaseAgeExclude:
+  - coveradge@0.9.0
+  - license-badger@0.23.1

@@ -483,7 +483,7 @@ var processRegex = function processRegex(regex, str, _ref) {
  * @type {null|Fetch}
  */
 var _fetch = typeof fetch !== 'undefined' ? fetch
-/* c8 ignore next */ : null;
+/* c8 ignore next -- Available in Node now too */ : null;
 
 /**
  * @param {Fetch} f
@@ -502,7 +502,7 @@ var getFetch = function getFetch() {
 
 /** @type {Document|null} */
 var _doc = typeof document !== 'undefined'
-/* c8 ignore next */ ? document : null;
+/* c8 ignore next -- Not available by default in Node */ ? document : null;
 
 /**
  * @param {Document} doc
@@ -528,7 +528,7 @@ var _templateObject$2;
 function generateUUID() {
   //  Adapted from original: public domain/MIT: https://stackoverflow.com/a/8809472/271577
   var d = Date.now();
-  /* c8 ignore next 5 */
+  /* c8 ignore next 5 -- Available in Node */
   if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
     d += performance.now(); // use high-precision timer if available
   }
@@ -695,7 +695,7 @@ var getFormatterInfo = function getFormatterInfo(_ref) {
  *   key?: string,
  *   locale?: string
  * }) => string|Node} AllSubstitutionCallback
-*/
+ */
 
 /**
  * @type {AllSubstitutionCallback}
@@ -763,8 +763,8 @@ var defaultAllSubstitutions = function defaultAllSubstitutions(_ref2) {
       /** @type {Record<string, keyof SpecialFormat>} */
       value[(
       /**
-        * @type {SpecialFormat}
-        */
+       * @type {SpecialFormat}
+       */
       singleKey)];
       var _getFormatterInfo = getFormatterInfo({
         object: (
@@ -1226,12 +1226,12 @@ var SwitchFormatter = /*#__PURE__*/function (_Formatter3) {
     }
 
     /**
-    * @typedef {[
-    *   objKey?: string,
-    *   body?: import('./getMessageForKeyByStyle.js').LocaleBody,
-    *   keySegment?: string
-    * ]} SwitchMatch
-    */
+     * @typedef {[
+     *   objKey?: string,
+     *   body?: import('./getMessageForKeyByStyle.js').LocaleBody,
+     *   keySegment?: string
+     * ]} SwitchMatch
+     */
 
     /**
      * @typedef {number} Integer
@@ -1392,17 +1392,17 @@ var promiseChainForValues = function promiseChainForValues(values, errBack) {
 };
 
 /**
-* `arg` - By default, accepts the third portion of the
-*   `formattingRegex` within `insertNodes`, i.e., to allow the locale to
-*   supply arguments back to the calling script.
-* `key` - The substitution key.
-* @callback SubstitutionCallback
-* @param {{
-*   arg: string,
-*   key: string
-* }} cfg
-* @returns {string|Element} The replacement text or element
-*/
+ * `arg` - By default, accepts the third portion of the
+ *   `formattingRegex` within `insertNodes`, i.e., to allow the locale to
+ *   supply arguments back to the calling script.
+ * `key` - The substitution key.
+ * @callback SubstitutionCallback
+ * @param {{
+ *   arg: string,
+ *   key: string
+ * }} cfg
+ * @returns {string|Element} The replacement text or element
+ */
 
 /**
  * May have additional properties if supplying options to an underlying
@@ -2023,8 +2023,8 @@ var defaultKeyCheckerConverter = function defaultKeyCheckerConverter(key, messag
 };
 
 /**
-* @typedef {LocaleBody} LocalObject
-*/
+ * @typedef {LocaleBody} LocalObject
+ */
 
 /**
  * May also contain language code and direction, translator name and
@@ -2032,7 +2032,7 @@ var defaultKeyCheckerConverter = function defaultKeyCheckerConverter(key, messag
  * @typedef {object} LocaleHead
  * @property {LocalObject} [locals]
  * @property {import('./defaultLocaleResolver.js').Switches} [switches]
-*/
+ */
 
 /**
  * @typedef {import('./defaultLocaleResolver.js').
@@ -2045,28 +2045,29 @@ var defaultKeyCheckerConverter = function defaultKeyCheckerConverter(key, messag
  */
 
 /**
-* @typedef {object} LocaleObject
-* @property {LocaleHead} [head]
-* @property {LocaleBody} body
-*/
+ * @typedef {object} LocaleObject
+ * @property {LocaleHead} [head]
+ * @property {LocaleBody} body
+ */
 
 /**
-* @typedef {object} MessageStyleCallbackResult
-* @property {string} value Regardless of message style, will contain
-*    the string result
-* @property {import(
-*  './defaultLocaleResolver.js'
-*  ).RichLocaleStringSubObject} [info] Full info on the localized item
-*   (for rich message styles only)
-*/
+ * @typedef {object} MessageStyleCallbackResult
+ * @property {string} value Regardless of message style, will contain
+ *    the string result
+ * @property {import(
+ *  './defaultLocaleResolver.js'
+ *  ).RichLocaleStringSubObject} [info] Full info on the localized item
+ *   (for rich message styles only)
+ */
 
 /**
-* @callback MessageStyleCallback
-* @param {LocaleObject} obj The exact
-*   format depends on the `cfg.defaults` of `i18n`
-* @param {string} key
-* @returns {false|MessageStyleCallbackResult} If `false`, will resort to default
-*/
+ * @callback MessageStyleCallback
+ * @param {LocaleObject} obj The exact
+ *   format depends on the `cfg.defaults` of `i18n`
+ * @param {string} key
+ * @returns {false|MessageStyleCallbackResult} If `false`, will resort to
+ *   default
+ */
 
 /* eslint-disable @stylistic/max-len -- Long */
 /**
@@ -2432,7 +2433,7 @@ var getDOMForLocaleString = function getDOMForLocaleString(_ref) {
  * @param {string} locale The failed locale
  * @throws {Error} If there are no further hyphens left to check
  * @returns {string|Promise<string>} The new locale to check
-*/
+ */
 
 /**
  * @type {LocaleMatcher}

@@ -40,30 +40,30 @@
  * `substitutions` - Defaults to `false`.
  * `cfg.dom` - Defaults to `false`.
  * @typedef {((
-*   key: string|string[],
-*   substitutions?: false|null|undefined|
-*     import('./defaultLocaleResolver.js').SubstitutionObject,
-*   cfg?: {
-*     allSubstitutions?: ?import('./defaultAllSubstitutions.js').
-*         AllSubstitutionCallback|
-*       import('./defaultAllSubstitutions.js').
-*         AllSubstitutionCallback[],
-*     defaults?: false|null|undefined|
-*       import('./getMessageForKeyByStyle.js').LocaleObject,
-*     dom?: boolean,
-*     forceNodeReturn?: boolean,
-*     throwOnMissingSuppliedFormatters?: boolean,
-*     throwOnExtraSuppliedFormatters?: boolean
-*   }
-* ) => T) & {
-*   resolvedLocale: string,
-*   strings: import('./getMessageForKeyByStyle.js').LocaleObject,
-*   sort: Sort,
-*   sortList: SortList,
-*   list: List
-* }} I18NCallback<T>
-* @template [T=string|DocumentFragment|Text]
-*/
+ *   key: string|string[],
+ *   substitutions?: false|null|undefined|
+ *     import('./defaultLocaleResolver.js').SubstitutionObject,
+ *   cfg?: {
+ *     allSubstitutions?: ?import('./defaultAllSubstitutions.js').
+ *         AllSubstitutionCallback|
+ *       import('./defaultAllSubstitutions.js').
+ *         AllSubstitutionCallback[],
+ *     defaults?: false|null|undefined|
+ *       import('./getMessageForKeyByStyle.js').LocaleObject,
+ *     dom?: boolean,
+ *     forceNodeReturn?: boolean,
+ *     throwOnMissingSuppliedFormatters?: boolean,
+ *     throwOnExtraSuppliedFormatters?: boolean
+ *   }
+ * ) => T) & {
+ *   resolvedLocale: string,
+ *   strings: import('./getMessageForKeyByStyle.js').LocaleObject,
+ *   sort: Sort,
+ *   sortList: SortList,
+ *   list: List
+ * }} I18NCallback<T>
+ * @template [T=string|DocumentFragment|Text]
+ */
 
 // UTILITIES
 export {

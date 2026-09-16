@@ -10,7 +10,7 @@
  */
 let _fetch = typeof fetch !== 'undefined'
   ? fetch
-  /* c8 ignore next */
+  /* c8 ignore next -- Available in Node now too */
   : null;
 
 /**
@@ -30,7 +30,7 @@ export const getFetch = () => {
 
 /** @type {Document|null} */
 let _doc = typeof document !== 'undefined'
-  /* c8 ignore next */
+  /* c8 ignore next -- Not available by default in Node */
   ? document
   : null;
 

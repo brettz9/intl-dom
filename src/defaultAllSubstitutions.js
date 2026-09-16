@@ -52,7 +52,7 @@ export const getFormatterInfo = ({object}) => {
  *   key?: string,
  *   locale?: string
  * }) => string|Node} AllSubstitutionCallback
-*/
+ */
 
 /**
  * @type {AllSubstitutionCallback}
@@ -127,8 +127,8 @@ export const defaultAllSubstitutions = ({value, arg, /* , key */ locale}) => {
         /** @type {Record<string, keyof SpecialFormat>} */
         (value)[
           /**
-            * @type {SpecialFormat}
-            */
+           * @type {SpecialFormat}
+           */
           (singleKey)
         ]
       );

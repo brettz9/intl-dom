@@ -1,5 +1,9 @@
 # intl-dom CHANGES
 
+## 0.22.0
+
+- chore: remove travis.yml; update file-fetch, devDeps; badges
+
 ## 0.21.1
 
 - fix(types): issue with type exports

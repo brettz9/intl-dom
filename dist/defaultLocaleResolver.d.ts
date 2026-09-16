@@ -1,15 +1,15 @@
 /**
-* `arg` - By default, accepts the third portion of the
-*   `formattingRegex` within `insertNodes`, i.e., to allow the locale to
-*   supply arguments back to the calling script.
-* `key` - The substitution key.
-* @callback SubstitutionCallback
-* @param {{
-*   arg: string,
-*   key: string
-* }} cfg
-* @returns {string|Element} The replacement text or element
-*/
+ * `arg` - By default, accepts the third portion of the
+ *   `formattingRegex` within `insertNodes`, i.e., to allow the locale to
+ *   supply arguments back to the calling script.
+ * `key` - The substitution key.
+ * @callback SubstitutionCallback
+ * @param {{
+ *   arg: string,
+ *   key: string
+ * }} cfg
+ * @returns {string|Element} The replacement text or element
+ */
 export type SubstitutionCallback = (cfg: {
     arg: string;
     key: string;

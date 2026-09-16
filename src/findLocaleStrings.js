@@ -12,7 +12,7 @@ export {setFetch, getFetch} from './shared.js';
  * @param {string} locale The failed locale
  * @throws {Error} If there are no further hyphens left to check
  * @returns {string|Promise<string>} The new locale to check
-*/
+ */
 
 /**
  * @type {LocaleMatcher}

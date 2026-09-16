@@ -337,12 +337,12 @@ export class SwitchFormatter extends Formatter {
   }
 
   /**
-  * @typedef {[
-  *   objKey?: string,
-  *   body?: import('./getMessageForKeyByStyle.js').LocaleBody,
-  *   keySegment?: string
-  * ]} SwitchMatch
-  */
+   * @typedef {[
+   *   objKey?: string,
+   *   body?: import('./getMessageForKeyByStyle.js').LocaleBody,
+   *   keySegment?: string
+   * ]} SwitchMatch
+   */
 
   /**
    * @typedef {number} Integer

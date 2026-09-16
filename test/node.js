@@ -1,4 +1,4 @@
-import {dirname} from 'path';
+import {dirname} from 'node:path';
 import {expect} from 'chai';
 import nodeFetch from 'node-fetch';
 import findMatchingLocaleServer from '../node/findMatchingLocaleServer.js';

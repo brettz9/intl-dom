@@ -44,7 +44,7 @@ export type AllSubstitutionCallback = (info: {
  *   key?: string,
  *   locale?: string
  * }) => string|Node} AllSubstitutionCallback
-*/
+ */
 /**
  * @type {AllSubstitutionCallback}
  */

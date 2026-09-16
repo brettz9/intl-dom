@@ -7,8 +7,8 @@
 //  instead of "other" (as it should) for
 //  `new Intl.PluralRules('en-US', {minimumFractionDigits: 1}).select(1)`.
 // import 'intl-pluralrules';
-import {resolve as pathResolve, dirname} from 'path';
-import {fileURLToPath} from 'url';
+import {resolve as pathResolve, dirname} from 'node:path';
+import {fileURLToPath} from 'node:url';
 
 import PluralRules from 'intl-pluralrules/plural-rules';
 

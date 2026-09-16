@@ -22,15 +22,15 @@ export type MessageStyleCallbackResult = {
 };
 export type MessageStyleCallback = (obj: LocaleObject, key: string) => false | MessageStyleCallbackResult;
 /**
-* @typedef {LocaleBody} LocalObject
-*/
+ * @typedef {LocaleBody} LocalObject
+ */
 /**
  * May also contain language code and direction, translator name and
  * contact, etc., but no defaults currently apply besides reserving `locals`
  * @typedef {object} LocaleHead
  * @property {LocalObject} [locals]
  * @property {import('./defaultLocaleResolver.js').Switches} [switches]
-*/
+ */
 /**
  * @typedef {import('./defaultLocaleResolver.js').
  *   RichNestedLocaleStringBodyObject|
@@ -41,26 +41,27 @@ export type MessageStyleCallback = (obj: LocaleObject, key: string) => false | M
  * } LocaleBody
  */
 /**
-* @typedef {object} LocaleObject
-* @property {LocaleHead} [head]
-* @property {LocaleBody} body
-*/
+ * @typedef {object} LocaleObject
+ * @property {LocaleHead} [head]
+ * @property {LocaleBody} body
+ */
 /**
-* @typedef {object} MessageStyleCallbackResult
-* @property {string} value Regardless of message style, will contain
-*    the string result
-* @property {import(
-*  './defaultLocaleResolver.js'
-*  ).RichLocaleStringSubObject} [info] Full info on the localized item
-*   (for rich message styles only)
-*/
+ * @typedef {object} MessageStyleCallbackResult
+ * @property {string} value Regardless of message style, will contain
+ *    the string result
+ * @property {import(
+ *  './defaultLocaleResolver.js'
+ *  ).RichLocaleStringSubObject} [info] Full info on the localized item
+ *   (for rich message styles only)
+ */
 /**
-* @callback MessageStyleCallback
-* @param {LocaleObject} obj The exact
-*   format depends on the `cfg.defaults` of `i18n`
-* @param {string} key
-* @returns {false|MessageStyleCallbackResult} If `false`, will resort to default
-*/
+ * @callback MessageStyleCallback
+ * @param {LocaleObject} obj The exact
+ *   format depends on the `cfg.defaults` of `i18n`
+ * @param {string} key
+ * @returns {false|MessageStyleCallbackResult} If `false`, will resort to
+ *   default
+ */
 /**
  * @param {object} [cfg]
  * @param {"richNested"|"rich"|"plain"|"plainNested"|MessageStyleCallback} [cfg.messageStyle]
